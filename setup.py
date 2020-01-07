@@ -1,7 +1,7 @@
 import setuptools
 
 setuptools.setup(
-     name='neuron++',
+     name='neuronpp',
      version='0.0.1',
      author="Ziemowit Slawinski",
      author_email="ziemowit.slawinski@gmail.com",

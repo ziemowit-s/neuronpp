@@ -20,7 +20,7 @@ nrmivmodl
 ```
 
 * To help with compilation use compile_mods.sh (Linux only)
-  * first param is folder from which to copy files fo current_mods folder
+  * first param is folder from which to copy files to temp_mods/ folder
   * Don't forget to add /* at the end, eg.:
 ```bash
 sh compile_mods.sh mods/4p_ach_da_syns/*
