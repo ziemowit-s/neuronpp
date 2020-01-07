@@ -2,7 +2,7 @@ from neuronpp.cells.core.netcon_cell import NetConnCell
 from neuronpp.cells.hay2011_cell import Hay2011Cell
 
 
-class Ebner2019CellNet(Hay2011Cell, NetConnCell):
+class Ebner2019Cell(Hay2011Cell, NetConnCell):
     def __init__(self, name):
         Hay2011Cell.__init__(self, name)
         NetConnCell.__init__(self, name)
