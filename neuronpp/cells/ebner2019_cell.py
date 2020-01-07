@@ -1,16 +1,11 @@
-from neuron import h
-
-from cells.core.netcon_cell import NetConnCell
-from cells.hay2011_cell import Hay2011Cell
+from neuronpp.cells.core.netcon_cell import NetConnCell
+from neuronpp.cells.hay2011_cell import Hay2011Cell
 
 
-class Ebner2019AChDACellNet(Hay2011Cell, NetConnCell):
+class Ebner2019CellNet(Hay2011Cell, NetConnCell):
     def __init__(self, name):
         Hay2011Cell.__init__(self, name)
         NetConnCell.__init__(self, name)
-
-        self.params_ach = {"tau": 1000}
-        self.params_da = {"tau": 1000}
 
         self.params_4p_syn = {
             "tau_a": 0.2,  # time constant of EPSP rise
@@ -49,18 +44,5 @@ class Ebner2019AChDACellNet(Hay2011Cell, NetConnCell):
             "s_K_beta": 100,  # scaling factor for calculation of K_beta
         }
 
-    def add_4p_ach_da_synapse(self, sec_names, loc):
-        syns_4p = self.add_point_processes(pp_type_name="Syn4PAChDa", sec_names=sec_names, loc=loc, **self.params_4p_syn)
-        syns_ach = self.add_point_processes(pp_type_name="SynACh", sec_names=sec_names, loc=loc, **self.params_ach)
-        syns_da = self.add_point_processes(pp_type_name="SynDa", sec_names=sec_names, loc=loc, **self.params_da)
-
-        # Set pointers
-        for s4p, ach, da in zip(syns_4p, syns_ach, syns_da):
-            h.setpointer(ach._ref_w, 'ACh', s4p)
-            h.setpointer(da._ref_w, 'Da', s4p)
-
-            h.setpointer(ach._ref_flag_D, 'flag_D_ACh', s4p)
-            h.setpointer(da._ref_flag_D, 'flag_D_Da', s4p)
-
-            h.setpointer(ach._ref_last_max_w, 'last_max_w_ACh', s4p)
-            h.setpointer(da._ref_last_max_w, 'last_max_w_Da', s4p)
+    def add_4p_synapse(self, sec_names, loc):
+        return self.add_point_processes(pp_type_name="Syn4P", sec_names=sec_names, loc=loc, **self.params_4p_syn)

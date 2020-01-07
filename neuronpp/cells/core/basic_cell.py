@@ -2,7 +2,7 @@ from os import path
 
 from neuron import h
 
-from cells.core.cell import Cell
+from neuronpp.cells.core.cell import Cell
 
 h.load_file('stdlib.hoc')
 h.load_file('import3d.hoc')
@@ -31,7 +31,7 @@ class BasicCell(Cell):
             With each um of L this number will be increased by seg_per_L_um
         """
         if not path.exists(filepath):
-            raise FileNotFoundError()
+            raise FileNotFoundError(filepath)
 
         # SWC
         fileformat = filepath.split('.')[-1]

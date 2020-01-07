@@ -1,7 +1,7 @@
 from neuron import h
 from nrn import Section
 
-from cells.core.basic_cell import BasicCell
+from neuronpp.cells.core.basic_cell import BasicCell
 
 
 class HOCCell(BasicCell):

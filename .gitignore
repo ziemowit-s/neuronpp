@@ -6,10 +6,10 @@ project/.idea/
 .DS_Store
 project/.DS_Store
 /ca2_diffusion/x86_64/
-x86_64/
+neuronpp/x86_64/
 */*/x86_64/
-mods/*/x86_64/
-mods/x86_64/
+neuronpp/mods/*/x86_64/
+neuronpp/mods/x86_64/
 current_mods/
 
 # Byte-compiled / optimized / DLL files

@@ -1,6 +1,6 @@
 from random import randint
 
-from cells.core.basic_cell import BasicCell
+from neuronpp.cells.core.basic_cell import BasicCell
 
 
 class SpineCell(BasicCell):

@@ -37,7 +37,6 @@ class Record:
                 except AttributeError:
                     raise AttributeError("there is no attribute of %s. Maybe you forgot to append locs param for sections?" % var)
 
-
                 rec = h.Vector().record(s)
                 self.recs[var].append(("%s(%s)" % (sec_name, loc), rec))
 

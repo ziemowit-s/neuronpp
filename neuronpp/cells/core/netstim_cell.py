@@ -1,5 +1,5 @@
-from cells.core.cell import Cell
-from cells.core.utils import get_netstim
+from neuronpp.cells.core.cell import Cell
+from neuronpp.cells.core.utils import get_netstim
 
 
 class NetStimCell(Cell):

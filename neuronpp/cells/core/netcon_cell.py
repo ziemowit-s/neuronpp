@@ -1,7 +1,7 @@
 from collections import defaultdict
 
-from cells.core.point_process_cell import PointProcessCell
-from cells.core.utils import get_conn
+from neuronpp.cells.core.point_process_cell import PointProcessCell
+from neuronpp.cells.core.utils import get_conn
 
 
 class NetConnCell(PointProcessCell):

@@ -2,11 +2,11 @@ from neuron import h
 from neuron.units import mV
 import matplotlib.pyplot as plt
 
-from cells.core.netstim_cell import NetStimCell
-from cells.ebner2019_cell import Ebner2019CellNet
-from cells.core.spine_cell import SpineCell
-from utils.Record import Record
-from utils.utils import run_sim
+from neuronpp.cells.core.netstim_cell import NetStimCell
+from neuronpp.cells.core.spine_cell import SpineCell
+from neuronpp.cells.ebner2019_cell import Ebner2019CellNet
+from neuronpp.utils.Record import Record
+from neuronpp.utils.utils import run_sim
 
 
 class EbnerRxDCaSpineCell(Ebner2019CellNet, SpineCell):

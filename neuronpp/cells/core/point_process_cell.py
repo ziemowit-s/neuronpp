@@ -2,7 +2,7 @@ from collections import defaultdict
 
 from neuron import h
 
-from cells.core.basic_cell import BasicCell
+from neuronpp.cells.core.basic_cell import BasicCell
 
 
 class PointProcessCell(BasicCell):

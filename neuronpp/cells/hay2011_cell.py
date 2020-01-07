@@ -1,4 +1,4 @@
-from cells.core.basic_cell import BasicCell
+from neuronpp.cells.core.basic_cell import BasicCell
 
 
 class Hay2011Cell(BasicCell):

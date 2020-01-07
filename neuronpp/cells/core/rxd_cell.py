@@ -1,7 +1,7 @@
 from neuron.rxd import rxd
 
-from cells.core.basic_cell import BasicCell
-from cells.core.rxd_tools import RxDTool
+from neuronpp.cells.core.basic_cell import BasicCell
+from neuronpp.cells.core.rxd_tools import RxDTool
 
 
 class RxDCell(BasicCell):
