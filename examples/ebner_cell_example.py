@@ -15,17 +15,13 @@ class EbnerRxDCaSpineCell(Ebner2019CellNet, SpineCell):
         Ebner2019CellNet.__init__(self, name)
 
 
-REPS = 3			# Number of postsynaptic spikes
-DT = 0.025 			# ms, integration step
-AMP = 5.5 			# nA, amplitude of current injection to trigger postsynaptic spikes
-DUR = 2.0			# ms, duration of the current injection
-COOL_DOWN = 100		# ms, silence phase after stimulation
-FREQ = 200			# Hz, frequency of postsynaptic spikes
 WEIGHT = 0.0035		# µS, conductance of (single) synaptic potentials
 WARMUP = 200
 
+
 if __name__ == '__main__':
     h.load_file('stdrun.hoc')
+    h.dt = 0.025
 
     # define cell
     cell = EbnerRxDCaSpineCell(name="cell")
