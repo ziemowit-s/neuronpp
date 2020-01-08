@@ -6,11 +6,11 @@ project/.idea/
 .DS_Store
 project/.DS_Store
 
-x86_64/
-neuronpp/x86_64/
+neuronpp/examples/x86_64/
+neuronpp/examples/x86_64/
 neuronpp/neuronpp/x86_64/
 
-*/*/*/x86_64/
+neuronpp/x86_64/
 neuronpp/neuronpp/mods/*/x86_64/
 neuronpp/neuronpp/mods/x86_64/
 
