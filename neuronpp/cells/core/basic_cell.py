@@ -20,6 +20,46 @@ class BasicCell(Cell):
             self.secs = {}
             self._core_cell_builded = True
 
+    def filter_secs(self, sec_names=None, as_list=False):
+        """
+        :param sec_names:
+            List of string names as list or separated by space.
+            Filter will look for obj_dict keys which contains each sec_name.
+            None or 'all' will return all sections.
+        :param as_list:
+            if return as list. Otherwise will return as dict with name as key
+        :return
+            dict[sec_name] = sec
+        """
+        return self._filter_obj_dict("secs", names=sec_names, as_list=as_list)
+
+    def get_sec_types(self):
+        return set([s.split('[')[0] for s in self.filter_secs(None)])
+
+    def add_sec(self, name, diam=None, l=None, nseg=1):
+        """
+
+        :param name:
+        :param diam:
+        :param l:
+        :param nseg:
+        :return:
+        """
+        sec = h.Section(name=name, cell=self)
+        sec.L = l
+        sec.diam = diam
+        sec.nseg = nseg
+        self.secs[name] = sec
+        return sec
+
+    def connect_secs(self, source, target, source_loc=1.0, target_loc=0.0):
+        """default: source(0.0) -> target(1.0)"""
+        target_loc = float(target_loc)
+        source_loc = float(source_loc)
+        source = list(self.filter_secs(source).values())[0]
+        target = list(self.filter_secs(target).values())[0]
+        source.connect(target(source_loc), target_loc)
+
     def load_morpho(self, filepath, seg_per_L_um=1.0, add_const_segs=11):
         """
         :param filepath:
@@ -85,39 +125,3 @@ class BasicCell(Cell):
                 yprime = x * s + y * c
                 sec.pt3dchange(i, xprime, yprime, sec.z3d(i), sec.diam3d(i))
 
-    def add_sec(self, name, diam=None, l=None, nseg=1):
-        """
-
-        :param name:
-        :param diam:
-        :param l:
-        :param nseg:
-        :return:
-        """
-        sec = h.Section(name=name, cell=self)
-        sec.L = l
-        sec.diam = diam
-        sec.nseg = nseg
-        self.secs[name] = sec
-        return sec
-
-    def connect_secs(self, source, target, source_loc=1.0, target_loc=0.0):
-        """default: source(0.0) -> target(1.0)"""
-        target_loc = float(target_loc)
-        source_loc = float(source_loc)
-        source = list(self.filter_secs(source).values())[0]
-        target = list(self.filter_secs(target).values())[0]
-        source.connect(target(source_loc), target_loc)
-
-    def filter_secs(self, sec_names, as_list=False):
-        """
-        :param sec_names:
-            List of string names as list or separated by space.
-            Filter will look for obj_dict keys which contains each sec_name.
-            None or 'all' will return all sections.
-        :param as_list:
-            if return as list. Otherwise will return as dict with name as key
-        :return
-            dict[sec_name] = sec
-        """
-        return self._filter_obj_dict("secs", names=sec_names, as_list=as_list)
