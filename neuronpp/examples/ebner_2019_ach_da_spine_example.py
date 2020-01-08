@@ -9,7 +9,7 @@ from neuronpp.utils.Record import Record
 from neuronpp.utils.utils import run_sim
 
 
-class EbnerRxDCaSpineCell(Ebner2019AChDACell, SpineCell):
+class Ebner2019AChDaSpineCell(Ebner2019AChDACell, SpineCell):
     def __init__(self, name):
         SpineCell.__init__(self, name)
         Ebner2019AChDACell.__init__(self, name)
@@ -23,7 +23,7 @@ if __name__ == '__main__':
     h.load_file('stdrun.hoc')
 
     # define cell
-    cell = EbnerRxDCaSpineCell(name="cell")
+    cell = Ebner2019AChDaSpineCell(name="cell")
     cell.load_morpho(filepath='morphologies/swc/my.swc', seg_per_L_um=1, add_const_segs=11)
     cell.add_spines(spine_number=10, head_nseg=10, neck_nseg=10, sections='dend')
     cell.add_soma_mechanisms()
