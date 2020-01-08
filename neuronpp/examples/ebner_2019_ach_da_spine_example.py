@@ -6,7 +6,7 @@ from neuronpp.cells.core.netstim_cell import NetStimCell
 from neuronpp.cells.core.spine_cell import SpineCell
 from neuronpp.cells.ebner2019_ach_da_cell import Ebner2019AChDACell
 from neuronpp.utils.Record import Record
-from neuronpp.utils.utils import run_sim
+from neuronpp.utils.run_sim import RunSim
 
 
 class Ebner2019AChDaSpineCell(Ebner2019AChDACell, SpineCell):
@@ -44,7 +44,8 @@ if __name__ == '__main__':
 
     # init and run
     h.finitialize(-70 * mV)
-    run_sim(runtime=500, warmup=WARMUP)
+    sim = RunSim(warmup=WARMUP)
+    sim.run(runtime=500)
 
     # plot
     rec_4psyn.plot()
