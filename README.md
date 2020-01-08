@@ -19,13 +19,15 @@ pip install git+https://github.com/ziemowit-s/neuronpp
 nrmivmodl
 ```
 
-* To help with compilation use compile_mods.sh (Linux only)
-  * first param is folder from which to copy files to temp_mods/ folder
-  * Don't forget to add /* at the end, eg.:
+* To help with compilation use compile_mod.py or CompileMOD class:
+  * It will compile all mods recursively (if it contains other folders) inside the source folder and
+  * copy compiled folder to the target folder 
 ```bash
-sh compile_mods.sh mods/4p_ach_da_syns/*
+python compile_mod.py --source [SOURCE_FOLDER_WITH_MOD_FILES] --target [TARGET_FOLDER]
 ``` 
-  * If you auto-run from PyCharm - you can config to run compile_mods.sh before each run
+  * By default it works on Linux but you can change default params so that they express your OS params:
+    * compiled_folder_name="x86_64"
+    * mod_compile_command="nrnivmodl"
 
 
 ## Run examples
