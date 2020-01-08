@@ -32,8 +32,8 @@ if __name__ == '__main__':
 
     # Create stims
     s1 = NetStimCell("stim_cell")
-    stim1 = s1.add_netstim("stim1", start=WARMUP + 1)
-    stim2 = s1.add_netstim("stim2", start=WARMUP + 100)
+    stim1 = s1.add_netstim("stim1", start=WARMUP + 1, number=1)
+    stim2 = s1.add_netstim("stim2", start=WARMUP + 100, number=1)
 
     # stimulation
     cell.add_netcons(source=stim1, weight=WEIGHT, delay=1, pp_type_name="SynACh", sec_names="head[0][0]")
