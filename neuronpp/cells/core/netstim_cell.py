@@ -19,7 +19,7 @@ class NetStimCell(Cell):
         """
         return self._filter_obj_dict("netstims", names=stim_names, as_list=as_list)
 
-    def add_netstim(self, name, start, number=1, interval=1, noise=0):
+    def add_netstim(self, name, start=0, number=0, interval=0, noise=0):
         """
 
         :param name:
