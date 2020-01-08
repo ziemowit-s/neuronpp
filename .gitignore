@@ -5,12 +5,14 @@ project/inception_dir/
 project/.idea/
 .DS_Store
 project/.DS_Store
-/ca2_diffusion/x86_64/
+
+x86_64/
 neuronpp/x86_64/
-*/*/x86_64/
-neuronpp/mods/*/x86_64/
-neuronpp/mods/x86_64/
-current_mods/
+neuronpp/neuronpp/x86_64/
+
+*/*/*/x86_64/
+neuronpp/neuronpp/mods/*/x86_64/
+neuronpp/neuronpp/mods/x86_64/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
