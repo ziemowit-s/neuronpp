@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from neuronpp.cells.core.netstim_cell import NetStimCell
 from neuronpp.cells.core.spine_cell import SpineCell
 from neuronpp.cells.ebner2019_cell import Ebner2019Cell
-from neuronpp.utils.Record import Record
+from neuronpp.utils.record import Record
 from neuronpp.utils.run_sim import RunSim
 
 
