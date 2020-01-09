@@ -35,15 +35,15 @@ if __name__ == '__main__':
     # Create stims
     ns_cell = NetStimCell("netstim_cell")
     stim1 = ns_cell.add_netstim("stim1", start=WARMUP + 1, number=1)
-    stim2 = ns_cell.add_netstim("stim2", start=WARMUP + 100, number=1)
 
     vs_cell = VecStimCell("vecstim_cell")
-    stim3 = vs_cell.add_vecstim("stim3", np.array([WARMUP+50]))
+    stim2 = vs_cell.add_vecstim("stim3", np.array([WARMUP+50]))
 
     # stimulation
-    #cell.add_netcons(source=stim1, weight=WEIGHT, delay=1, pp_type_name="SynACh", sec_names="head[0][0]")
-    #cell.add_netcons(source=stim2, weight=WEIGHT, delay=1, pp_type_name="SynDa", sec_names="head[0][0]")
-    cell.add_netcons(source=stim3, weight=WEIGHT, delay=1, pp_type_name="Syn4PAChDa", sec_names="head[0][0]")
+    cell.add_netcons(source=stim1, weight=WEIGHT, delay=1, pp_type_name="SynACh", sec_names="head[0][0]")
+    cell.add_netcons(source=stim2, weight=WEIGHT, delay=1, pp_type_name="SynDa", sec_names="head[0][0]")
+    # empty source for events
+    ncons = cell.add_netcons(source=None, weight=WEIGHT, delay=1, pp_type_name="Syn4PAChDa", sec_names="head[0][0]")
 
     # create plots
     rec_4psyn = Record(cell.filter_point_processes(pp_type_name="Syn4PAChDa", sec_names="head[0][0]"), variables="w")
@@ -53,7 +53,8 @@ if __name__ == '__main__':
     sim = RunSim(warmup=WARMUP)
     sim.run(runtime=200)
 
-    vs_cell.reset_stims("stim3", np.array([h.t+50, h.t+100]))
+    # Event delivery
+    ncons[0].event(h.t+10)
 
     sim.run(runtime=200)
 

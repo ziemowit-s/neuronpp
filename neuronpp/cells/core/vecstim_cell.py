@@ -46,12 +46,3 @@ class VecStimCell(Cell):
         self.vectors[name] = vec
         self.vecstim_num += 1
         return vs
-
-    def reset_stims(self, stim_names, ping_array):
-        vss = self.filter_vecstims(stim_names, as_list=True)
-        vecs = self.filter_vectors(stim_names, as_list=True)
-        for vs, vec in zip(vss, vecs):
-            for p in ping_array:
-                vec.append(p)
-                vec.play(p)
-            vs.play(vec)
