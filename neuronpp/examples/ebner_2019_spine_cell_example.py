@@ -26,18 +26,18 @@ if __name__ == '__main__':
     # define cell
     cell = Ebner2019SpineCell(name="cell")
     cell.load_morpho(filepath='morphologies/swc/my.swc', seg_per_L_um=1, add_const_segs=11)
-    cell.add_spines(spine_number=10, head_nseg=10, neck_nseg=10, name_filter='dend')
+    cell.add_spines(spine_number=10, head_nseg=10, neck_nseg=10, name='dend')
     cell.add_soma_mechanisms()
     cell.add_apical_mechanisms(sections='dend head neck')
-    cell.add_4p_synapse(name_filter="head", loc=1)  # add synapse at the top of each spine's head
+    cell.add_4p_synapse(point_process_name="head", loc=1)  # add synapse at the top of each spine's head
 
     # stimulation
     stim = NetStimCell("stim_cell").add_netstim("stim1", start=WARMUP + 1, number=300, interval=1)
     cell.add_netcons(source=stim, weight=WEIGHT, delay=1)  # stim all synapses
 
     # create plots
-    rec_w = Record(cell.filter_point_processes(mod_name="Syn4P", name_filter="head[0][0]"), variables="w")
-    rec_v = Record(cell.filter_secs(name_filter="head[0]"), locs=1.0, variables="v")
+    rec_w = Record(cell.filter_point_processes(mod_name="Syn4P", name="head[0][0]"), variables="w")
+    rec_v = Record(cell.filter_secs(name="head[0]"), locs=1.0, variables="v")
 
     # init and run
     h.finitialize(-70 * mV)

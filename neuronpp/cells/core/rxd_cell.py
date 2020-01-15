@@ -14,15 +14,13 @@ class RxDCell(SectionCell):
         SectionCell.__init__(self, name)
         self.rxds = []
 
-    def add_rxd(self, rxd_obj: RxDTool, name_filter, regex=False, is_3d=False, threads=1, dx_3d_size=None):
+    def add_rxd(self, rxd_obj: RxDTool, section_name: str, is_3d=False, threads=1, dx_3d_size=None):
         """
         :param rxd_obj:
             RxD Object from RxDTools. It defines RxD structure.
             Each RxD need to implement first RxDTool object and then be passed to this function to implement.
-        :param name_filter:
-            If None - will takes all sections
-        :param regex:
-            If True: pattern will be treated as regex expression, if False: pattern str must be in field str
+        :param section_name:
+            start with 'regex:any pattern' to use regular expression. If without 'regex:' - will look which Hoc objects contain the str
         :param is_3d:
         :param threads:
         :param dx_3d_size:
@@ -30,7 +28,7 @@ class RxDCell(SectionCell):
         r = RxD(rxd_obj, parent=self, name=rxd_obj.__class__.__name__)
         self.rxds.append(r)
 
-        secs = self.filter_secs(name_filter=name_filter, regex=regex)
+        secs = self.filter_secs(name=section_name)
 
         if is_3d:
             rxd.set_solve_type(secs, dimension=3)

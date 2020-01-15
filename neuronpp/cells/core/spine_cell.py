@@ -10,7 +10,7 @@ class SpineCell(SectionCell):
         self.heads = []
         self.necks = []
 
-    def add_spines(self, spine_number, name_filter, head_nseg=2, neck_nseg=2, regex=False):
+    def add_spines(self, spine_number, name: str, head_nseg=2, neck_nseg=2):
         """
         Single spine is 2 x cylinder:
           * head: L=1um diam=1um
@@ -18,13 +18,12 @@ class SpineCell(SectionCell):
 
         :param spine_number:
             The number of spines to create
-        :param name_filter:
+        :param name:
         :param head_nseg
         :param neck_nseg
-        :param regex:
-            If True: pattern will be treated as regex expression, if False: pattern str must be in field str
+
         """
-        secs = self.filter_secs(name_filter=name_filter, regex=regex)
+        secs = self.filter_secs(name=name)
 
         for i in range(spine_number):
             head = self.add_sec(name="head[%s]" % i, diam=1, l=1, nseg=head_nseg)

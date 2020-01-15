@@ -16,28 +16,25 @@ class PointProcessCell(SectionCell):
         self.pps = []
         self._pp_num = defaultdict(int)
 
-    def filter_point_processes(self, mod_name: str, name_filter, regex=False):
+    def filter_point_processes(self, mod_name: str, name: str):
         """
-        All name_filter must contains index of the point process of the specific type.
-        eg. head[0][0] where head[0] is name_filter and [0] is index of the point process of the specific type.
+        All name must contains index of the point process of the specific type.
+        eg. head[0][0] where head[0] is name and [0] is index of the point process of the specific type.
 
         :param mod_name:
             single string defining name of point process type name, eg. concere synaptic mechanisms like Syn4PAChDa
-        :param name_filter:
-            Filter will look for self.pprocs keys which contains each point_process_names.
-        :param regex:
-            If True: pattern will be treated as regex expression, if False: pattern str must be in field str
+        :param name:
+            start with 'regex:any pattern' to use regular expression. If without 'regex:' - will look which Hoc objects contain the str
         :return:
         """
-        return self.filter(searchable=self.pps, mod_name=mod_name, name=name_filter, regex=regex)
+        return self.filter(searchable=self.pps, mod_name=mod_name, name=name)
 
-    def add_point_processes(self, mod_name, name_filter:str, loc, regex=False, **kwargs):
+    def add_point_processes(self, mod_name: str, name: str, loc, **kwargs):
         """
         :param mod_name:
-        :param name_filter:
+        :param name:
         :param loc:
-        :param regex:
-            If True: pattern will be treated as regex expression, if False: pattern str must be in field str
+
         :param kwargs:
         :return:
             A list of added Point Processes
@@ -48,7 +45,7 @@ class PointProcessCell(SectionCell):
         pp_obj = getattr(h, mod_name)
 
         result = []
-        for sec in self.filter_secs(name_filter=name_filter, regex=regex):
+        for sec in self.filter_secs(name=name):
             hoc_pp = pp_obj(sec.hoc(loc))
 
             current_mod_name = "%s_%s" % (mod_name, sec.name)

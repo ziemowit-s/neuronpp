@@ -44,14 +44,14 @@ class Ebner2019Cell(Hay2011Cell, NetConnCell):
             "s_K_beta": 100,  # scaling factor for calculation of K_beta
         }
 
-    def add_4p_synapse(self, name_filter, loc, regex=False):
+    def add_4p_synapse(self, point_process_name: str, loc):
         """
 
-        :param name_filter:
+        :param point_process_name:
+            start with 'regex:any pattern' to use regular expression. If without 'regex:' - will look which Hoc objects contain the str
         :param loc:
-        :param regex:
-            If True: pattern will be treated as regex expression, if False: pattern str must be in field str
+
         :return:
         """
-        return self.add_point_processes(mod_name="Syn4P", name_filter=name_filter, loc=loc,
-                                        regex=regex, **self.params_4p_syn)
+        return self.add_point_processes(mod_name="Syn4P", name=point_process_name, loc=loc,
+                                        **self.params_4p_syn)

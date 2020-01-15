@@ -8,17 +8,15 @@ class NetStimCell(Cell):
         Cell.__init__(self, name)
         self.nss = []
 
-    def filter_netstim(self, name_filter:str, regex=False):
+    def filter_netstim(self, name:str):
         """
-        :param name_filters:
-            Filter will look for obj_dict keys which contains each name_filter.
-        :param regex:
-            If True: pattern will be treated as regex expression, if False: pattern str must be in field str
+        :param name:
+            start with 'regex:any pattern' to use regular expression. If without 'regex:' - will look which Hoc objects contain the str
         :return:
         """
-        return self.filter(searchable=self.nss, name=name_filter, regex=regex)
+        return self.filter(searchable=self.nss, name=name)
 
-    def add_netstim(self, name, start, number, interval=1, noise=0):
+    def add_netstim(self, name:str, start, number, interval=1, noise=0):
         """
         :param name:
         :param start:

@@ -21,17 +21,15 @@ class SectionCell(Cell):
             self.secs = []
             self._core_cell_builded = True
 
-    def filter_secs(self, name_filter, regex=False):
+    def filter_secs(self, name: str):
         """
-
-        :param name_filter:
-        :param regex:
-            If True: pattern will be treated as regex expression, if False: pattern str must be in field str
+        :param name:
+            start with 'regex:any pattern' to use regular expression. If without 'regex:' - will look which Hoc objects contain the str
         :return:
         """
-        return self.filter(searchable=self.secs, name=name_filter, regex=regex)
+        return self.filter(searchable=self.secs, name=name)
 
-    def add_sec(self, name, diam=None, l=None, nseg=1):
+    def add_sec(self, name: str, diam=None, l=None, nseg=1):
         """
         :param name:
         :param diam:
@@ -55,20 +53,19 @@ class SectionCell(Cell):
         :param target:
         :param source_loc:
         :param target_loc:
-        :param regex:
-            If True: pattern will be treated as regex expression, if False: pattern str must be in field str
+
         :return:
         """
         if isinstance(source, str):
-            source = self.filter_secs(name_filter=source, regex=regex)[0]
+            source = self.filter_secs(name=source)[0]
             if len(source) != 1:
-                raise LookupError("To connect sections source name_filter must return exactly 1 Section, "
-                                  "but returned %s elements for name_filter=%s" % (len(source), source))
+                raise LookupError("To connect sections source name must return exactly 1 Section, "
+                                  "but returned %s elements for name=%s" % (len(source), source))
         if isinstance(target, str):
-            target = self.filter_secs(name_filter=target, regex=regex)[0]
+            target = self.filter_secs(name=target)[0]
             if len(source) != 1:
-                raise LookupError("To connect sections target name_filter must return exactly 1 Section, "
-                                  "but returned %s elements for name_filter=%s" % (len(source), source))
+                raise LookupError("To connect sections target name must return exactly 1 Section, "
+                                  "but returned %s elements for name=%s" % (len(source), source))
 
         target_loc = float(target_loc)
         source_loc = float(source_loc)

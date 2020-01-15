@@ -51,7 +51,7 @@ class Record:
                 fig, axs = plt.subplots(len(current_recs))
                 axs = axs.flat if isinstance(axs, np.ndarray) else [axs]
 
-                for ax, (name_filter, rec) in zip(axs, current_recs):
-                    ax.set_title("%s.%s" % (name_filter, var_name))
+                for ax, (name, rec) in zip(axs, current_recs):
+                    ax.set_title("%s.%s" % (name, var_name))
                     ax.plot(self.t, rec)
                     ax.set(xlabel='t (ms)', ylabel=var_name)

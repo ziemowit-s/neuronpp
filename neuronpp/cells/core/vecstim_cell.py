@@ -10,30 +10,24 @@ class VecStimCell(Cell):
         self.vss = []
         self.vecs = []
 
-    def filter_vecstims(self, name_filter, regex=False):
+    def filter_vecstims(self, name: str):
         """
-        :param name_filter:
-            Filter will look for obj_dict keys which contains each name_filter.
-        :param regex:
-            If True: pattern will be treated as regex expression, if False: pattern str must be in field str
+        :param name:
+            start with 'regex:any pattern' to use regular expression. If without 'regex:' - will look which Hoc objects contain the str
         :return:
         """
-        return self.filter(searchable=self.vss, names=name_filter, regex=regex)
+        return self.filter(searchable=self.vss, names=name)
 
-    def filter_vectors(self, name_filter, regex=False):
+    def filter_vectors(self, name: str):
         """
-        :param name_filter:
-            Filter will look for obj_dict keys which contains each name_filter.
-            None or 'all' will return all stims.
-        :param regex:
-            If True: pattern will be treated as regex expression, if False: pattern str must be in field str
+        :param name:
+            start with 'regex:any pattern' to use regular expression. If without 'regex:' - will look which Hoc objects contain the str
         :return:
         """
-        return self.filter(self.vecs, names=name_filter, regex=regex)
+        return self.filter(self.vecs, names=name)
 
-    def add_vecstim(self, name, ping_array):
+    def add_vecstim(self, name: str, ping_array):
         """
-
         :param name:
         :param ping_array
             numpy array when ping must start

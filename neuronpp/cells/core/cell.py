@@ -10,13 +10,12 @@ class Cell:
         self.name = name
 
     @staticmethod
-    def filter(searchable, regex=False, **kwargs):
+    def filter(searchable, **kwargs):
         """
         Currently all patterns in kwargs are treated as AND statements
         :param searchable:
             is a list or list-like structure where filter will be pefrormed
-        :param regex:
-            If True: pattern will be treated as regex expression, if False: pattern str must be in field str
+
         :param kwargs:
             keys are name of fields in the hoc objects in the particular list
             values are regex patterns to find in those fields
@@ -26,7 +25,8 @@ class Cell:
         """
         patterns = []
         for attr_name, v in kwargs.items():
-            if v is not None and regex:
+            if v is not None and "regex:" in v:
+                v = v.replace("regex:", "")
                 v = re.compile(v)
             patterns.append((attr_name, v))
         pat_len = len(patterns)
@@ -46,7 +46,7 @@ class Cell:
 
                 if pat is None:
                     pat_found += 1
-                elif regex and pat.search(re.escape(attr)) is not None:
+                elif "SRE_Pattern" == pat.__class__.__name__ and pat.search(re.escape(attr)) is not None:
                     pat_found += 1
                 elif pat in attr:
                     pat_found += 1
