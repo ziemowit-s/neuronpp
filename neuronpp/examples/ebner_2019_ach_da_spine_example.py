@@ -27,10 +27,10 @@ if __name__ == '__main__':
     # define cell
     cell = Ebner2019AChDaSpineCell(name="cell")
     cell.load_morpho(filepath='morphologies/swc/my.swc', seg_per_L_um=1, add_const_segs=11)
-    cell.add_spines(spine_number=10, head_nseg=10, neck_nseg=10, sections='dend')
+    cell.add_spines(spine_number=10, head_nseg=10, neck_nseg=10, name_filter='dend')
     cell.add_soma_mechanisms()
     cell.add_apical_mechanisms(sections='dend head neck')
-    cell.add_4p_ach_da_synapse(sec_names="head", loc=1)  # add synapse at the top of each spine's head
+    cell.add_4p_ach_da_synapse(name_filter="head", loc=1)  # add synapse at the top of each spine's head
 
     # Create stims
     ns_cell = NetStimCell("netstim_cell")
@@ -40,13 +40,13 @@ if __name__ == '__main__':
     stim2 = vs_cell.add_vecstim("stim3", np.array([WARMUP+50]))
 
     # stimulation
-    cell.add_netcons(source=stim1, weight=WEIGHT, delay=1, pp_type_name="SynACh", sec_names="head[0][0]")
-    cell.add_netcons(source=stim2, weight=WEIGHT, delay=1, pp_type_name="SynDa", sec_names="head[0][0]")
+    cell.add_netcons(source=stim1, weight=WEIGHT, delay=1, mod_name="SynACh", name_filter="head[0][0]")
+    cell.add_netcons(source=stim2, weight=WEIGHT, delay=1, mod_name="SynDa", name_filter="head[0][0]")
     # empty source for events
-    ncons = cell.add_netcons(source=None, weight=WEIGHT, delay=1, pp_type_name="Syn4PAChDa", sec_names="head[0][0]")
+    ncons = cell.add_netcons(source=None, weight=WEIGHT, delay=1, mod_name="Syn4PAChDa", name_filter="head[0][0]")
 
     # create plots
-    rec_4psyn = Record(cell.filter_point_processes(pp_type_name="Syn4PAChDa", sec_names="head[0][0]"), variables="w")
+    rec_4psyn = Record(cell.filter_point_processes(mod_name="Syn4PAChDa", name_filter="head[0][0]"), variables="w")
 
     # init and run
     h.finitialize(-70 * mV)
@@ -54,7 +54,7 @@ if __name__ == '__main__':
     sim.run(runtime=200)
 
     # Event delivery
-    ncons[0].event(h.t+10)
+    ncons[0].hoc.event(h.t+10)
 
     sim.run(runtime=200)
 

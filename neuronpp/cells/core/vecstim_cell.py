@@ -1,35 +1,35 @@
 from neuronpp.cells.core.cell import Cell
 from neuronpp.cells.core.utils import get_vecstim
+from neuronpp.hocs.vector import Vector
+from neuronpp.hocs.vecstim import VecStim
 
 
 class VecStimCell(Cell):
     def __init__(self, name):
         Cell.__init__(self, name)
-        self.vecstims = {}
-        self.vectors = {}
-        self.vecstim_num = 0
+        self.vss = []
+        self.vecs = []
 
-    def filter_vecstims(self, stim_names, as_list=False):
+    def filter_vecstims(self, name_filter, regex=False):
         """
-        :param stim_names:
-            List of string names as list or separated by space.
-            Filter will look for obj_dict keys which contains each sec_name.
-            None or 'all' will return all stims.
-        :param as_list:
+        :param name_filter:
+            Filter will look for obj_dict keys which contains each name_filter.
+        :param regex:
+            If True: pattern will be treated as regex expression, if False: pattern str must be in field str
         :return:
         """
-        return self._filter_obj_dict("vecstims", names=stim_names, as_list=as_list)
+        return self.filter(searchable=self.vss, names=name_filter, regex=regex)
 
-    def filter_vectors(self, stim_names, as_list=False):
+    def filter_vectors(self, name_filter, regex=False):
         """
-        :param stim_names:
-            List of string names as list or separated by space.
-            Filter will look for obj_dict keys which contains each sec_name.
+        :param name_filter:
+            Filter will look for obj_dict keys which contains each name_filter.
             None or 'all' will return all stims.
-        :param as_list:
+        :param regex:
+            If True: pattern will be treated as regex expression, if False: pattern str must be in field str
         :return:
         """
-        return self._filter_obj_dict("vectors", names=stim_names, as_list=as_list)
+        return self.filter(self.vecs, names=name_filter, regex=regex)
 
     def add_vecstim(self, name, ping_array):
         """
@@ -40,9 +40,11 @@ class VecStimCell(Cell):
         :return:
             Created vecstim
         """
-        vs, vec = get_vecstim(ping_array)
-        name = "%s[%s]" % (name, self.vecstim_num)
-        self.vecstims[name] = vs
-        self.vectors[name] = vec
-        self.vecstim_num += 1
+        vs_hoc, vec_hoc = get_vecstim(ping_array)
+        name = "%s[%s]" % (name, len(self.vss))
+        vs = VecStim(vs_hoc, parent=self, name=name)
+        vec = Vector(vec_hoc, parent=self, name=name)
+
+        self.vss.append(vs)
+        self.vecs.append(vec)
         return vs

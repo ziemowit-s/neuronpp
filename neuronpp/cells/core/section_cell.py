@@ -3,12 +3,13 @@ from os import path
 from neuron import h
 
 from neuronpp.cells.core.cell import Cell
+from neuronpp.hocs.sec import Sec
 
 h.load_file('stdlib.hoc')
 h.load_file('import3d.hoc')
 
 
-class BasicCell(Cell):
+class SectionCell(Cell):
     def __init__(self, name):
         """
         :param name:
@@ -17,48 +18,62 @@ class BasicCell(Cell):
         Cell.__init__(self, name)
         # if Cell (named core_cell) have been built before on the stack of super() objects
         if not hasattr(self, '_core_cell_builded'):
-            self.secs = {}
+            self.secs = []
             self._core_cell_builded = True
 
-    def filter_secs(self, sec_names=None, as_list=False):
+    def filter_secs(self, name_filter, regex=False):
         """
-        :param sec_names:
-            List of string names as list or separated by space.
-            Filter will look for obj_dict keys which contains each sec_name.
-            None or 'all' will return all sections.
-        :param as_list:
-            if return as list. Otherwise will return as dict with name as key
-        :return
-            dict[sec_name] = sec
-        """
-        return self._filter_obj_dict("secs", names=sec_names, as_list=as_list)
 
-    def get_sec_types(self):
-        return set([s.split('[')[0] for s in self.filter_secs(None)])
+        :param name_filter:
+        :param regex:
+            If True: pattern will be treated as regex expression, if False: pattern str must be in field str
+        :return:
+        """
+        return self.filter(searchable=self.secs, name=name_filter, regex=regex)
 
     def add_sec(self, name, diam=None, l=None, nseg=1):
         """
-
         :param name:
         :param diam:
         :param l:
         :param nseg:
         :return:
         """
-        sec = h.Section(name=name, cell=self)
-        sec.L = l
-        sec.diam = diam
-        sec.nseg = nseg
-        self.secs[name] = sec
+        hoc_sec = h.Section(name=name, cell=self)
+        hoc_sec.L = l
+        hoc_sec.diam = diam
+        hoc_sec.nseg = nseg
+
+        sec = Sec(hoc_sec, parent=self, name=name)
+        self.secs.append(sec)
         return sec
 
-    def connect_secs(self, source, target, source_loc=1.0, target_loc=0.0):
-        """default: source(0.0) -> target(1.0)"""
+    def connect_secs(self, source, target, source_loc=1.0, target_loc=0.0, regex=True):
+        """
+        default: source(0.0) -> target(1.0)
+        :param source:
+        :param target:
+        :param source_loc:
+        :param target_loc:
+        :param regex:
+            If True: pattern will be treated as regex expression, if False: pattern str must be in field str
+        :return:
+        """
+        if isinstance(source, str):
+            source = self.filter_secs(name_filter=source, regex=regex)[0]
+            if len(source) != 1:
+                raise LookupError("To connect sections source name_filter must return exactly 1 Section, "
+                                  "but returned %s elements for name_filter=%s" % (len(source), source))
+        if isinstance(target, str):
+            target = self.filter_secs(name_filter=target, regex=regex)[0]
+            if len(source) != 1:
+                raise LookupError("To connect sections target name_filter must return exactly 1 Section, "
+                                  "but returned %s elements for name_filter=%s" % (len(source), source))
+
         target_loc = float(target_loc)
         source_loc = float(source_loc)
-        source = list(self.filter_secs(source).values())[0]
-        target = list(self.filter_secs(target).values())[0]
-        source.connect(target(source_loc), target_loc)
+
+        source.hoc.connect(target.hoc(source_loc), target_loc)
 
     def load_morpho(self, filepath, seg_per_L_um=1.0, add_const_segs=11):
         """
@@ -83,28 +98,28 @@ class BasicCell(Cell):
         else:
             raise Exception('file format `%s` not recognized' % filepath)
 
+        self.all = []
         morpho.input(filepath)
         h.Import3d_GUI(morpho, 0)
         i3d = h.Import3d_GUI(morpho, 0)
         i3d.instantiate(self)
 
         # add all SWC sections to self.secs; self.all is defined by SWC import
-        new_secs = {}
-        for sec in self.all:
-            name = sec.name().split('.')[-1]  # eg. name="dend[19]"
-            new_secs[name] = sec
+        for hoc_sec in self.all:
+            # change segment number based on seg_per_L_um and add_const_segs
+            add = int(hoc_sec.L * seg_per_L_um) if seg_per_L_um is not None else 0
+            hoc_sec.nseg = add_const_segs + add
 
-        # change segment number based on seg_per_L_um and add_const_segs
-        for sec in new_secs.values():
-            add = int(sec.L * seg_per_L_um) if seg_per_L_um is not None else 0
-            sec.nseg = add_const_segs + add
+            name = hoc_sec.name().split('.')[-1]  # eg. name="dend[19]"
 
-        self.secs.update(new_secs)
+            sec = Sec(hoc_sec, parent=self, name=name)
+            self.secs.append(sec)
+
         del self.all
 
     def set_cell_position(self, x, y, z):
         h.define_shape()
-        for sec in self.secs.values():
+        for sec in self.secs:
             for i in range(sec.n3d()):
                 sec.pt3dchange(i,
                                x - sec.x3d(i),
@@ -115,7 +130,7 @@ class BasicCell(Cell):
     def rotate_cell_z(self, theta):
         h.define_shape()
         """Rotate the cell about the Z axis."""
-        for sec in self.secs.values():
+        for sec in self.secs:
             for i in range(sec.n3d()):
                 x = sec.x3d(i)
                 y = sec.y3d(i)

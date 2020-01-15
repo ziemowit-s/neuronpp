@@ -2,66 +2,67 @@ from collections import defaultdict
 
 from neuron import h
 
-from neuronpp.cells.core.basic_cell import BasicCell
+from neuronpp.cells.core.section_cell import SectionCell
+from neuronpp.hocs.point_process import PointProcess
 
 
-class PointProcessCell(BasicCell):
+class PointProcessCell(SectionCell):
     def __init__(self, name):
         """
         :param name:
             Name of the cell
         """
-        BasicCell.__init__(self, name)
-        self.point_processes = {}
-        self._pprocs_num = defaultdict(int)
+        SectionCell.__init__(self, name)
+        self.pps = []
+        self._pp_num = defaultdict(int)
 
-    def filter_point_processes(self, pp_type_name: str, sec_names, as_list=False):
+    def filter_point_processes(self, mod_name: str, name_filter, regex=False):
         """
-        All sec_names must contains index of the point process of the specific type.
-        eg. head[0][0] where head[0] is sec_name and [0] is index of the point process of the specific type.
+        All name_filter must contains index of the point process of the specific type.
+        eg. head[0][0] where head[0] is name_filter and [0] is index of the point process of the specific type.
 
-        :param pp_type_name:
+        :param mod_name:
             single string defining name of point process type name, eg. concere synaptic mechanisms like Syn4PAChDa
-        :param sec_names:
-            List of string names as list or separated by space.
+        :param name_filter:
             Filter will look for self.pprocs keys which contains each point_process_names.
-            None or 'all' will add to all point processes.
-        :param as_list:
+        :param regex:
+            If True: pattern will be treated as regex expression, if False: pattern str must be in field str
         :return:
         """
-        return self._filter_obj_dict("point_processes", mech_type=pp_type_name, names=sec_names, as_list=as_list)
+        return self.filter(searchable=self.pps, mod_name=mod_name, name=name_filter, regex=regex)
 
-    def add_point_processes(self, pp_type_name, sec_names, loc, **kwargs):
+    def add_point_processes(self, mod_name, name_filter:str, loc, regex=False, **kwargs):
         """
-        :param pp_type_name:
-        :param sec_names:
-            List of string names as list or separated by space.
-            Filter will look for obj_dict keys which contains each sec_name.
-            None or 'all' will add point process to all secs.
+        :param mod_name:
+        :param name_filter:
         :param loc:
+        :param regex:
+            If True: pattern will be treated as regex expression, if False: pattern str must be in field str
         :param kwargs:
         :return:
             A list of added Point Processes
         """
-        result = []
-        if not hasattr(h, pp_type_name):
+        if not hasattr(h, mod_name):
             raise LookupError("There is no Point Process of name %s. "
-                              "Maybe you forgot to compile or copy mod files?" % pp_type_name)
-        pp = getattr(h, pp_type_name)
-        sec_names = self._filter_obj_dict("secs", names=sec_names)
+                              "Maybe you forgot to compile or copy mod files?" % mod_name)
+        pp_obj = getattr(h, mod_name)
 
-        for sec_name, sec in sec_names.items():
-            pp_instance = pp(sec(loc))
-            result.append(pp_instance)
+        result = []
+        for sec in self.filter_secs(name_filter=name_filter, regex=regex):
+            hoc_pp = pp_obj(sec.hoc(loc))
+
+            current_mod_name = "%s_%s" % (mod_name, sec.name)
+            name = "%s[%s]" % (sec.name, self._pp_num[current_mod_name])
+            self._pp_num[current_mod_name] += 1
+
+            pp = PointProcess(hoc_pp, parent=self, name=name, mod_name=mod_name)
+            result.append(pp)
+            self.pps.append(pp)
 
             for key, value in kwargs.items():
-                if not hasattr(pp_instance, key):
+                if not hasattr(pp.hoc, key):
                     raise LookupError("Point Process of type %s has no attribute of type %s. "
-                                      "Check if MOD file contains %s as a RANGE variable" % (pp_type_name, key, key))
-                setattr(pp_instance, key, value)
-
-            type_name = "%s_%s" % (pp_type_name, sec_name)
-            self.point_processes["%s[%s]" % (type_name, self._pprocs_num[type_name])] = pp_instance
-            self._pprocs_num[type_name] += 1
+                                      "Check if MOD file contains %s as a RANGE variable" % (mod_name, key, key))
+                setattr(pp.hoc, key, value)
 
         return result

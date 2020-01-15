@@ -44,5 +44,14 @@ class Ebner2019Cell(Hay2011Cell, NetConnCell):
             "s_K_beta": 100,  # scaling factor for calculation of K_beta
         }
 
-    def add_4p_synapse(self, sec_names, loc):
-        return self.add_point_processes(pp_type_name="Syn4P", sec_names=sec_names, loc=loc, **self.params_4p_syn)
+    def add_4p_synapse(self, name_filter, loc, regex=False):
+        """
+
+        :param name_filter:
+        :param loc:
+        :param regex:
+            If True: pattern will be treated as regex expression, if False: pattern str must be in field str
+        :return:
+        """
+        return self.add_point_processes(mod_name="Syn4P", name_filter=name_filter, loc=loc,
+                                        regex=regex, **self.params_4p_syn)

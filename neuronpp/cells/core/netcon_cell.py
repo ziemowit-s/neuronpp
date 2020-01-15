@@ -1,54 +1,58 @@
 from collections import defaultdict
 
 from neuronpp.cells.core.point_process_cell import PointProcessCell
-from neuronpp.cells.core.utils import get_conn
+from neuronpp.cells.core.utils import make_conn
+from neuronpp.hocs.hoc import Hoc
+from neuronpp.hocs.netconn import NetConn
 
 
 class NetConnCell(PointProcessCell):
     def __init__(self, name):
         PointProcessCell.__init__(self, name)
-        self.netcons = {}
-        self._conn_num = defaultdict(int)
+        self.ncs = []
+        self._nc_num = defaultdict(int)
 
-    def filter_netcons(self, pp_type, sec_names, as_list=False):
+    def filter_netcons(self, mod_name, name_filter, regex=False):
         """
-        :param pp_type:
+        :param mod_name:
             single string defining name of target point process type name, eg. concere synaptic mechanisms like Syn4PAChDa
-        :param sec_names:
-            List of string names as list or separated by space.
-            Filter will look for obj_dict keys which contains each sec_name.
-            None or 'all' will return all conns.
-        :param as_list:
+        :param name_filter:
+            Filter will look for obj_dict keys which contains each name_filter.
+        :param regex:
+            If True: pattern will be treated as regex expression, if False: pattern str must be in field str
         :return:
         """
-        return self._filter_obj_dict("netcons", mech_type=pp_type, names=sec_names, as_list=as_list)
+        return self.filter(searchable=self.ncs, mod_name=mod_name, name=name_filter, regex=regex)
 
-    def add_netcons(self, source, weight, pp_type_name=None, sec_names=None, delay=0):
+    def add_netcons(self, source, weight, mod_name=None, name_filter:str=None, regex=False, delay=0):
         """
-        All sec_names must contains index of the point process of the specific type.
-        eg. head[0][0] where head[0] is sec_name and [0] is index of the point process of the specific type.
+        All name_filter must contains index of the point process of the specific type.
+        eg. head[0][0] where head[0] is name_filter and [0] is index of the point process of the specific type.
 
         :param source:
+            hoc object or None
         :param weight:
-        :param pp_type_name:
+        :param mod_name:
             single string defining name of point process type name, eg. concere synaptic mechanisms like Syn4PAChDa
-        :param sec_names:
-            List of string names as list or separated by space.
+        :param name_filter:
             Filter will look for self.pprocs keys which contains each point_process_names.
-            None or 'all' will add to all point processes.
+        :param regex:
+            If True: pattern will be treated as regex expression, if False: pattern str must be in field str
         :param delay:
         return:
             A list of added NetConns.
         """
         results = []
-        conn_names = self.filter_point_processes(pp_type_name=pp_type_name, sec_names=sec_names)
+        pps = self.filter_point_processes(mod_name=mod_name, name_filter=name_filter, regex=regex)
+        source_hoc = None if source is None else source.hoc
 
-        for name, syn in conn_names.items():
-            conn = get_conn(source=source, target=syn, delay=delay, weight=weight)
+        for pp in pps:
+            conn_hoc = make_conn(source=source_hoc, target=pp.hoc, delay=delay, weight=weight)
+            name = "%s->%s" % (source, pp)
+            conn = NetConn(conn_hoc, parent=self, name=name)
             results.append(conn)
 
-            type_name = "%s_%s" % (pp_type_name, name)
-            self.netcons["%s[%s]" % (type_name, self._conn_num[type_name])] = conn
-            self._conn_num[type_name] += 1
+            self.ncs.append(conn)
+            self._nc_num[name] += 1
 
         return results

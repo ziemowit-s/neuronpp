@@ -49,18 +49,29 @@ class Ebner2019AChDACell(Hay2011Cell, NetConnCell):
             "s_K_beta": 100,  # scaling factor for calculation of K_beta
         }
 
-    def add_4p_ach_da_synapse(self, sec_names, loc):
-        syns_4p = self.add_point_processes(pp_type_name="Syn4PAChDa", sec_names=sec_names, loc=loc, **self.params_4p_syn)
-        syns_ach = self.add_point_processes(pp_type_name="SynACh", sec_names=sec_names, loc=loc, **self.params_ach)
-        syns_da = self.add_point_processes(pp_type_name="SynDa", sec_names=sec_names, loc=loc, **self.params_da)
+    def add_4p_ach_da_synapse(self, name_filter, loc, regex=False):
+        """
+
+        :param name_filter:
+        :param loc:
+        :param regex:
+            If True: pattern will be treated as regex expression, if False: pattern str must be in field str
+        :return:
+        """
+        syns_4p = self.add_point_processes(mod_name="Syn4PAChDa", name_filter=name_filter, loc=loc,
+                                           regex=regex, **self.params_4p_syn)
+        syns_ach = self.add_point_processes(mod_name="SynACh", name_filter=name_filter, loc=loc,
+                                            regex=regex, **self.params_ach)
+        syns_da = self.add_point_processes(mod_name="SynDa", name_filter=name_filter, loc=loc,
+                                           regex=regex, **self.params_da)
 
         # Set pointers
         for s4p, ach, da in zip(syns_4p, syns_ach, syns_da):
-            h.setpointer(ach._ref_w, 'ACh', s4p)
-            h.setpointer(da._ref_w, 'Da', s4p)
+            h.setpointer(ach.hoc._ref_w, 'ACh', s4p.hoc)
+            h.setpointer(da.hoc._ref_w, 'Da', s4p.hoc)
 
-            h.setpointer(ach._ref_flag_D, 'flag_D_ACh', s4p)
-            h.setpointer(da._ref_flag_D, 'flag_D_Da', s4p)
+            h.setpointer(ach.hoc._ref_flag_D, 'flag_D_ACh', s4p.hoc)
+            h.setpointer(da.hoc._ref_flag_D, 'flag_D_Da', s4p.hoc)
 
-            h.setpointer(ach._ref_last_max_w, 'last_max_w_ACh', s4p)
-            h.setpointer(da._ref_last_max_w, 'last_max_w_Da', s4p)
+            h.setpointer(ach.hoc._ref_last_max_w, 'last_max_w_ACh', s4p.hoc)
+            h.setpointer(da.hoc._ref_last_max_w, 'last_max_w_Da', s4p.hoc)

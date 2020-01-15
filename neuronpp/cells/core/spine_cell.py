@@ -1,15 +1,16 @@
 from random import randint
 
-from neuronpp.cells.core.basic_cell import BasicCell
+from neuronpp.cells.core.section_cell import SectionCell
+from neuronpp.hocs.sec import Sec
 
 
-class SpineCell(BasicCell):
+class SpineCell(SectionCell):
     def __init__(self, name):
-        BasicCell.__init__(self, name)
+        SectionCell.__init__(self, name)
         self.heads = []
         self.necks = []
 
-    def add_spines(self, spine_number, sections, head_nseg=2, neck_nseg=2):
+    def add_spines(self, spine_number, name_filter, head_nseg=2, neck_nseg=2, regex=False):
         """
         Single spine is 2 x cylinder:
           * head: L=1um diam=1um
@@ -17,44 +18,41 @@ class SpineCell(BasicCell):
 
         :param spine_number:
             The number of spines to create
-        :param sections:
-            list of sections or string defining single section name or sections names separated by space
-            param 'all' - takes all sections
+        :param name_filter:
         :param head_nseg
         :param neck_nseg
+        :param regex:
+            If True: pattern will be treated as regex expression, if False: pattern str must be in field str
         """
-        if sections == 'all':
-            sections = self.secs
-        else:
-            sections = self.filter_secs(sections)
-        sections = sections.values()
+        secs = self.filter_secs(name_filter=name_filter, regex=regex)
 
         for i in range(spine_number):
             head = self.add_sec(name="head[%s]" % i, diam=1, l=1, nseg=head_nseg)
             neck = self.add_sec(name="neck[%s]" % i, diam=0.5, l=0.5, nseg=neck_nseg)
             self.heads.append(head)
             self.necks.append(neck)
-            self.connect_secs(source='head[%s]' % i, target='neck[%s]' % i)
-            self._connect_necks_rand_uniform(neck, sections)
+            self.connect_secs(source=head, target=neck)
+            self._connect_necks_rand_uniform(neck, secs)
 
     @staticmethod
-    def _connect_necks_rand_uniform(necks, sections):
+    def _connect_necks_rand_uniform(neck:Sec, sections):
         """
         Connect necks list to sections list with uniform random distribution
-        :param necks:
+        :param neck:
         :param sections:
         """
-        max_l = int(sum([s.L for s in sections]))
-        added = dict([(s.name(), []) for s in sections])
+        max_l = int(sum([s.hoc.L for s in sections]))
+        added = dict([(s.hoc.name(), []) for s in sections])
 
         i = 0
         r = randint(0, max_l)
         for s in sections:
+            s = s.hoc
             i += s.L
             if i > r:
                 loc = (r - i + s.L) / s.L
                 if loc in added[s.name()]:
                     break
-                necks.connect(s(loc), 0.0)
+                neck.hoc.connect(s(loc), 0.0)
                 added[s.name()].append(loc)
                 break
