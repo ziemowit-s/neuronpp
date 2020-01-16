@@ -1,17 +1,23 @@
 import time
 import numpy as np
 from neuron import h
-from neuron.units import ms
+from neuron.units import ms, mV
+
+h.load_file('stdrun.hoc')
 
 
 class RunSim:
-    def __init__(self, dt=0.025, warmup=0, init_sleep=0, shape_plots=()):
+    def __init__(self, init_v, dt=0.025, warmup=0, init_sleep=0, shape_plots=()):
         """
+        :param init_v:
+            initial value in mV for the neuron function finitialize().
+            In many cases it is -70 mV but you need to specify it explicitely
         :param warmup:
             in ms, for warmup with dt=10*ms
         :param init_sleep
             sleep time in seconds. To sleep before first run
         """
+        h.finitialize(init_v * mV)
         self.dt = dt
         self.shape_plots = shape_plots
 
@@ -21,10 +27,10 @@ class RunSim:
         if warmup > 0:
             h.dt = 10
             h.continuerun(warmup * ms)
-            h.dt = dt
+        h.dt = self.dt
 
     @property
-    def time(self):
+    def t(self):
         return h.t
 
     def run(self, runtime, stepsize=None, delay_between_steps=1):
@@ -42,12 +48,12 @@ class RunSim:
         delay_between_steps = delay_between_steps * 1e-3  # between steps
 
         # prepare run array
-        max_runtime = runtime + self.time
+        max_runtime = runtime + self.t
 
         if runtime == stepsize:
-            run_array = [self.time + stepsize]
+            run_array = [self.t + stepsize]
         else:
-            run_array = np.arange(0 + self.time + stepsize, max_runtime, stepsize)
+            run_array = np.arange(0 + self.t + stepsize, max_runtime, stepsize)
             left_run = max_runtime - max(run_array)
             if left_run > 0:
                 run_array = np.concatenate([run_array, [max_runtime]])

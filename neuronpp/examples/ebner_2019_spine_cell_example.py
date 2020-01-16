@@ -1,5 +1,3 @@
-from neuron import h
-from neuron.units import mV
 import matplotlib.pyplot as plt
 
 from neuronpp.cells.ebner2019_cell import Ebner2019Cell
@@ -20,9 +18,6 @@ WARMUP = 200
 
 
 if __name__ == '__main__':
-    h.load_file('stdrun.hoc')
-    h.dt = 0.025
-
     # define cell
     cell = Ebner2019SpineCell(name="cell")
     cell.load_morpho(filepath='morphologies/swc/my.swc', seg_per_L_um=1, make_const_segs=11)
@@ -40,8 +35,7 @@ if __name__ == '__main__':
     rec_v = Record(cell.filter_secs(name="head[0]"), locs=1.0, variables="v")
 
     # init and run
-    h.finitialize(-70 * mV)
-    sim = RunSim(warmup=WARMUP)
+    sim = RunSim(init_v=-70, warmup=WARMUP)
     sim.run(runtime=500)
 
     # plot

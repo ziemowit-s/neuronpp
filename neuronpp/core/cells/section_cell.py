@@ -29,6 +29,12 @@ class SectionCell(Cell):
         """
         return self.filter(searchable=self.secs, name=name)
 
+    def insert(self, mechanism_name: str, sec=None):
+        if isinstance(sec, str) or sec is None:
+            sec = self.filter_secs(name=sec)
+        for s in sec:
+            s.hoc.insert(mechanism_name)
+
     def make_sec(self, name: str, diam=None, l=None, nseg=1):
         """
         :param name:

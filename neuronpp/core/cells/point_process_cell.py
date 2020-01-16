@@ -29,13 +29,15 @@ class PointProcessCell(SectionCell):
         """
         return self.filter(searchable=self.pps, mod_name=mod_name, name=name)
 
-    def make_point_processes(self, mod_name: str, loc, sec=None, **synaptic_params):
+    def make_point_processes(self, mod_name: str, loc, sec=None, name=None, **synaptic_params):
         """
         :param mod_name:
         :param sec:
         :param loc:
         :param synaptic_params:
             Dictionary containing params for the mod point_process
+        :param name:
+            custom name added to this point_process
         :return:
             A list of added Point Processes
         """
@@ -54,6 +56,9 @@ class PointProcessCell(SectionCell):
             current_mod_name = "%s_%s" % (mod_name, sec.name)
             sec_name = "%s[%s]" % (sec.name, self._pp_num[current_mod_name])
             self._pp_num[current_mod_name] += 1
+
+            if name:
+                sec_name = "%s[%s]" % (sec_name, name)
 
             pp = PointProcess(hoc_pp, parent=self, name=sec_name, mod_name=mod_name)
             result.append(pp)

@@ -1,5 +1,3 @@
-from neuron import h
-from neuron.units import mV
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -22,8 +20,6 @@ WARMUP = 200
 
 
 if __name__ == '__main__':
-    h.load_file('stdrun.hoc')
-
     # define cell
     cell = Ebner2019AChDaSpineCell(name="cell")
     cell.load_morpho(filepath='morphologies/swc/my.swc', seg_per_L_um=1, make_const_segs=11)
@@ -49,12 +45,11 @@ if __name__ == '__main__':
     rec_4psyn = Record(cell.filter_point_processes(mod_name="Syn4PAChDa", name="head[0][0]"), variables="w")
 
     # init and run
-    h.finitialize(-70 * mV)
-    sim = RunSim(warmup=WARMUP)
+    sim = RunSim(init_v=-70, warmup=WARMUP)
     sim.run(runtime=200)
 
     # Event delivery
-    ncons[0].hoc.event(h.t+10)
+    ncons[0].hoc.event(sim.t + 10)
 
     sim.run(runtime=200)
 
