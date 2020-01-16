@@ -1,7 +1,7 @@
 from neuronpp.core.cells.cell import Cell
 from neuronpp.core.cells.utils import get_vecstim
-from neuronpp.core.wrappers.vecstim import VecStim
-from neuronpp.core.wrappers.vector import Vector
+from neuronpp.core.hocwrappers.vecstim import VecStim
+from neuronpp.core.hocwrappers.vector import Vector
 
 
 class VecStimCell(Cell):

@@ -3,7 +3,7 @@ from collections import defaultdict
 from neuron import h
 
 from neuronpp.core.cells.section_cell import SectionCell
-from neuronpp.core.wrappers.point_process import PointProcess
+from neuronpp.core.hocwrappers.point_process import PointProcess
 
 
 class PointProcessCell(SectionCell):

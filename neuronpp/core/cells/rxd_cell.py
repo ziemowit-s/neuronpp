@@ -2,7 +2,7 @@ from neuron.rxd import rxd
 
 from neuronpp.core.cells.rxd_tools import RxDTool
 from neuronpp.core.cells.section_cell import SectionCell
-from neuronpp.core.wrappers.rxd import RxD
+from neuronpp.core.hocwrappers.rxd import RxD
 
 
 class RxDCell(SectionCell):

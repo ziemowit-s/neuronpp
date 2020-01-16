@@ -1,5 +1,5 @@
 from neuronpp.core.cells.netconn_cell import NetConnCell
-from neuronpp.core.wrappers.composite.synapse import Synapse
+from neuronpp.core.hocwrappers.composed.synapse import Synapse
 
 
 class SynapticCell(NetConnCell):

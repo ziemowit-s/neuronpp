@@ -2,7 +2,7 @@ from neuron import h
 from nrn import Section
 
 from neuronpp.core.cells.section_cell import SectionCell
-from neuronpp.core.wrappers.sec import Sec
+from neuronpp.core.hocwrappers.sec import Sec
 
 
 class HOCCell(SectionCell):

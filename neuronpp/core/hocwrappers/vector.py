@@ -1,5 +1,5 @@
 from neuronpp.core.cells.cell import Cell
-from neuronpp.core.wrappers.hoc import Hoc
+from neuronpp.core.hocwrappers.hoc import Hoc
 
 
 class Vector(Hoc):

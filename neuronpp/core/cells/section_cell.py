@@ -3,7 +3,7 @@ from os import path
 from neuron import h
 
 from neuronpp.core.cells.cell import Cell
-from neuronpp.core.wrappers.sec import Sec
+from neuronpp.core.hocwrappers.sec import Sec
 
 h.load_file('stdlib.hoc')
 h.load_file('import3d.hoc')

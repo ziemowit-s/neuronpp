@@ -2,7 +2,7 @@ from collections import defaultdict
 
 from neuronpp.core.cells.point_process_cell import PointProcessCell
 from neuronpp.core.cells.utils import make_conn
-from neuronpp.core.wrappers.netconn import NetConn
+from neuronpp.core.hocwrappers.netconn import NetConn
 
 
 class NetConnCell(PointProcessCell):
