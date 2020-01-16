@@ -1,11 +1,9 @@
-from neuronpp.core.cells.netconn_cell import NetConnCell
 from neuronpp.cells.hay2011_cell import Hay2011Cell
 
 
-class Ebner2019Cell(Hay2011Cell, NetConnCell):
+class Ebner2019Cell(Hay2011Cell):
     def __init__(self, name=None):
         Hay2011Cell.__init__(self, name)
-        NetConnCell.__init__(self, name)
 
         self.params_4p_syn = {
             "tau_a": 0.2,  # time constant of EPSP rise

@@ -1,9 +1,9 @@
-from neuronpp.core.cells.section_cell import SectionCell
+from neuronpp.cells.cell import Cell
 
 
-class Hay2011Cell(SectionCell):
+class Hay2011Cell(Cell):
     def __init__(self, name=None):
-        SectionCell.__init__(self, name)
+        Cell.__init__(self, name)
 
     def make_soma_mechanisms(self, sections='soma'):
         """

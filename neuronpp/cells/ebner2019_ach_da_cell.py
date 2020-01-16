@@ -1,13 +1,11 @@
 from neuron import h
 
-from neuronpp.core.cells.netconn_cell import NetConnCell
 from neuronpp.cells.hay2011_cell import Hay2011Cell
 
 
-class Ebner2019AChDACell(Hay2011Cell, NetConnCell):
+class Ebner2019AChDACell(Hay2011Cell):
     def __init__(self, name=None):
         Hay2011Cell.__init__(self, name)
-        NetConnCell.__init__(self, name)
 
         self.params_ach = {"tau": 1000}
         self.params_da = {"tau": 1000}
