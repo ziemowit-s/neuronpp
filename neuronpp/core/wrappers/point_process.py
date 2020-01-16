@@ -1,8 +1,9 @@
+from neuronpp.core.cells.cell import Cell
 from neuronpp.core.wrappers.hoc import Hoc
 
 
 class PointProcess(Hoc):
-    def __init__(self, hoc_obj, name, parent, mod_name):
+    def __init__(self, hoc_obj, name, parent: Cell, mod_name):
         Hoc.__init__(self, hoc_obj=hoc_obj, parent=parent, name=name)
         self.mod_name = mod_name
 

@@ -78,12 +78,12 @@ if __name__ == '__main__':
            " it will work as well."
     parser = ArgumentParser(description=desc)
 
-    parser.add_argument("-s", "--sources", help="Paths to the source folder.", required=True, nargs='+')
-    parser.add_argument("-t", "--target", help="Path to the target folder.", required=True)
-    parser.add_argument("-c", "--compiled_folder_name", help="Name of the folder containing MOD files in your OS."
+    parser.make_argument("-s", "--sources", help="Paths to the source folder.", required=True, nargs='+')
+    parser.make_argument("-t", "--target", help="Path to the target folder.", required=True)
+    parser.make_argument("-c", "--compiled_folder_name", help="Name of the folder containing MOD files in your OS."
                                                              "By default it is 'x86_64' for 64 architecture on Linux.",
                         default="x86_64")
-    parser.add_argument("-m", "--mod_compile_command", help="MOD compile command of NEURON. By default it is 'nrnivmodl "
+    parser.make_argument("-m", "--mod_compile_command", help="MOD compile command of NEURON. By default it is 'nrnivmodl "
                                                             "which is Linux command'. You can give different command specific for your OS",
                         default='nrnivmodl')
     args = parser.parse_args()

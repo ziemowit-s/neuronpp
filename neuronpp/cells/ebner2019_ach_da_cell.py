@@ -1,6 +1,6 @@
 from neuron import h
 
-from neuronpp.core.cells.netcon_cell import NetConnCell
+from neuronpp.core.cells.netconn_cell import NetConnCell
 from neuronpp.cells.hay2011_cell import Hay2011Cell
 
 
@@ -49,19 +49,16 @@ class Ebner2019AChDACell(Hay2011Cell, NetConnCell):
             "s_K_beta": 100,  # scaling factor for calculation of K_beta
         }
 
-    def add_4p_ach_da_synapse(self, point_process_name: str, loc):
+    def make_4p_ach_da_synapse(self, point_process_name: str, loc):
         """
         :param point_process_name:
             start with 'regex:any pattern' to use regular expression. If without 'regex:' - will look which Hoc objects contain the str
         :param loc:
         :return:
         """
-        syns_4p = self.add_point_processes(mod_name="Syn4PAChDa", name=point_process_name, loc=loc,
-                                           **self.params_4p_syn)
-        syns_ach = self.add_point_processes(mod_name="SynACh", name=point_process_name, loc=loc,
-                                            **self.params_ach)
-        syns_da = self.add_point_processes(mod_name="SynDa", name=point_process_name, loc=loc,
-                                           **self.params_da)
+        syns_4p = self.make_point_processes(mod_name="Syn4PAChDa", sec=point_process_name, loc=loc, **self.params_4p_syn)
+        syns_ach = self.make_point_processes(mod_name="SynACh", sec=point_process_name, loc=loc, **self.params_ach)
+        syns_da = self.make_point_processes(mod_name="SynDa", sec=point_process_name, loc=loc, **self.params_da)
 
         # Set pointers
         for s4p, ach, da in zip(syns_4p, syns_ach, syns_da):

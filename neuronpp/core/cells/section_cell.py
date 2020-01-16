@@ -21,7 +21,7 @@ class SectionCell(Cell):
             self.secs = []
             self._core_cell_builded = True
 
-    def filter_secs(self, name: str):
+    def filter_secs(self, name):
         """
         :param name:
             start with 'regex:any pattern' to use regular expression. If without 'regex:' - will look which Hoc objects contain the str
@@ -29,7 +29,7 @@ class SectionCell(Cell):
         """
         return self.filter(searchable=self.secs, name=name)
 
-    def create_sec(self, name: str, diam=None, l=None, nseg=1):
+    def make_sec(self, name: str, diam=None, l=None, nseg=1):
         """
         :param name:
         :param diam:
@@ -55,16 +55,19 @@ class SectionCell(Cell):
         :param target_loc:
         :return:
         """
+        if source is None or target is None:
+            raise LookupError("source and target must be specified. Can't be None.")
+
         if isinstance(source, str):
             source = self.filter_secs(name=source)
             if len(source) != 1:
                 raise LookupError("To connect sections source name must return exactly 1 Section, "
                                   "but returned %s elements for name=%s" % (len(source), source))
             source = source[0]
-            
-        if isinstance(target, str):
+
+        if isinstance(target, str) or target is None:
             target = self.filter_secs(name=target)
-            if len(source) != 1:
+            if len(target) != 1:
                 raise LookupError("To connect sections target name must return exactly 1 Section, "
                                   "but returned %s elements for name=%s" % (len(source), source))
             target = target[0]
@@ -74,13 +77,13 @@ class SectionCell(Cell):
 
         source.hoc.connect(target.hoc(source_loc), target_loc)
 
-    def load_morpho(self, filepath, seg_per_L_um=1.0, add_const_segs=11):
+    def load_morpho(self, filepath, seg_per_L_um=1.0, make_const_segs=11):
         """
         :param filepath:
             swc file path
         :param seg_per_L_um:
             how many segments per single um of L, Length.  Can be < 1. None is 0.
-        :param add_const_segs:
+        :param make_const_segs:
             how many segments have each section by default.
             With each um of L this number will be increased by seg_per_L_um
         """
@@ -105,9 +108,9 @@ class SectionCell(Cell):
 
         # add all SWC sections to self.secs; self.all is defined by SWC import
         for hoc_sec in self.all:
-            # change segment number based on seg_per_L_um and add_const_segs
+            # change segment number based on seg_per_L_um and make_const_segs
             add = int(hoc_sec.L * seg_per_L_um) if seg_per_L_um is not None else 0
-            hoc_sec.nseg = add_const_segs + add
+            hoc_sec.nseg = make_const_segs + add
 
             name = hoc_sec.name().split('.')[-1]  # eg. name="dend[19]"
 

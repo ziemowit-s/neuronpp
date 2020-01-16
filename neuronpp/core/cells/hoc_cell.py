@@ -6,13 +6,13 @@ from neuronpp.core.wrappers.sec import Sec
 
 
 class HOCCell(SectionCell):
-    def add_hoc(self, hoc_file, seg_per_L_um=1.0, add_const_segs=11):
+    def make_hoc(self, hoc_file, seg_per_L_um=1.0, make_const_segs=11):
         """
         :param hoc_file:
             paths to hoc file
         :param seg_per_L_um:
             how many segments per single um of L, Length.  Can be < 1. None is 0.
-        :param add_const_segs:
+        :param make_const_segs:
             how many segments have each section by default.
             With each um of L this number will be increased by seg_per_L_um
         """
@@ -29,7 +29,7 @@ class HOCCell(SectionCell):
                         result.append(sec)
 
                         add = int(sec.hoc.L * seg_per_L_um) if seg_per_L_um is not None else 0
-                        sec.hoc.nseg = add_const_segs + add
+                        sec.hoc.nseg = make_const_segs + add
 
                 elif len(f) > 0 and isinstance(f[0], Section):
                     for ff in f:
@@ -38,7 +38,7 @@ class HOCCell(SectionCell):
                         result.append(sec)
 
                         add = int(sec.hoc.L * seg_per_L_um) if seg_per_L_um is not None else 0
-                        sec.hoc.nseg = add_const_segs + add
+                        sec.hoc.nseg = make_const_segs + add
             except TypeError:
                 continue
 

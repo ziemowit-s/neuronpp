@@ -8,7 +8,7 @@ class NetStimCell(Cell):
         Cell.__init__(self, name)
         self.nss = []
 
-    def filter_netstim(self, name:str):
+    def filter_netstim(self, name: str):
         """
         :param name:
             start with 'regex:any pattern' to use regular expression. If without 'regex:' - will look which Hoc objects contain the str
@@ -16,18 +16,17 @@ class NetStimCell(Cell):
         """
         return self.filter(searchable=self.nss, name=name)
 
-    def add_netstim(self, name:str, start, number, interval=1, noise=0):
+    def make_netstim(self, start, number, interval=1, noise=0):
         """
-        :param name:
         :param start:
         :param number:
         :param interval:
         :param noise:
         :return:
-            Created NetStim
+            maked NetStim
         """
         ns_hoc = get_netstim(start=start, number=number, interval=interval, noise=noise)
-        name = "%s[%s]" % (name, len(self.nss))
+        name = str(len(self.nss))
 
         ns = NetStim(ns_hoc, parent=self, name=name)
         self.nss.append(ns)

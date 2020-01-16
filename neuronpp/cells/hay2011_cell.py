@@ -5,7 +5,7 @@ class Hay2011Cell(SectionCell):
     def __init__(self, name):
         SectionCell.__init__(self, name)
 
-    def add_soma_mechanisms(self, sections='soma'):
+    def make_soma_mechanisms(self, sections='soma'):
         """
         :param sections:
             List of sections or string defining single section name or sections names separated by space
@@ -37,7 +37,7 @@ class Hay2011Cell(SectionCell):
             s.hoc.gSKv3_1bar_SKv3_1 = 0.338029
             s.hoc.gNaTs2_tbar_NaTs2_t = 0.998912
 
-    def add_axonal_mechanisms(self, section_name: str = 'axon'):
+    def make_axonal_mechanisms(self, section_name: str = 'axon'):
         """
         :param section_name:
             start with 'regex:any pattern' to use regular expression. If without 'regex:' - will look which Hoc objects contain the str
@@ -73,7 +73,7 @@ class Hay2011Cell(SectionCell):
             s.hoc.gNap_Et2bar_Nap_Et2 = 0.005834
             s.hoc.gNaTa_tbar_NaTa_t = 3.89618
 
-    def add_apical_mechanisms(self, sections='apic'):
+    def make_apical_mechanisms(self, sections='apic'):
         """
         :param sections:
             List of sections or string defining single section name or sections names separated by space
@@ -103,7 +103,7 @@ class Hay2011Cell(SectionCell):
             s.hoc.gNaTs2_tbar_NaTs2_t = 0.021489
             s.hoc.gImbar_Im = 0.00099
 
-    def add_basal_mechanisms(self, sections='basal'):
+    def make_basal_mechanisms(self, sections='basal'):
         """
         :param sections:
             List of sections or string defining single section name or sections names separated by space

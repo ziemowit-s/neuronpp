@@ -21,27 +21,35 @@ class NetConnCell(PointProcessCell):
         """
         return self.filter(searchable=self.ncs, mod_name=mod_name, name=name)
 
-    def add_netcons(self, source, weight, mod_name: str = None, name: str = None, delay=0):
+    def make_netcons(self, source, weight, point_process=None, mod_name: str = None, delay=0):
         """
         All name must contains index of the point process of the specific type.
         eg. head[0][0] where head[0] is name and [0] is index of the point process of the specific type.
 
         :param source:
-            hoc object or None
+            hoc object or None. If None it will create NetConn with no source, which can be use as external event source
         :param weight:
         :param mod_name:
-            single string defining name of point process type name, eg. concere synaptic mechanisms like Syn4PAChDa
-        :param name:
+            single string defining name of point process type name, eg. concrete synaptic mechanisms like Syn4PAChDa
+            If None - it assumes that point_process has list of point processes objects
+        :param point_process:
             start with 'regex:any pattern' to use regular expression. If without 'regex:' - will look which Hoc objects contain the str
         :param delay:
         return:
             A list of added NetConns.
         """
-        results = []
-        pps = self.filter_point_processes(mod_name=mod_name, name=name)
+        if point_process is None and mod_name is None:
+            raise LookupError("If point_process is None you need to provide mod_name string param.")
+
+        if isinstance(point_process, str) or point_process is None:
+            if mod_name is None:
+                raise LookupError("If point_process is str you need to provide mod_name string param.")
+            point_process = self.filter_point_processes(mod_name=mod_name, name=point_process)
+
         source_hoc = None if source is None else source.hoc
 
-        for pp in pps:
+        results = []
+        for pp in point_process:
             conn_hoc = make_conn(source=source_hoc, target=pp.hoc, delay=delay, weight=weight)
             name = "%s->%s" % (source, pp)
             conn = NetConn(conn_hoc, parent=self, name=name)

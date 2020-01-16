@@ -2,11 +2,9 @@ from neuronpp.core.cells.cell import Cell
 
 
 class Hoc:
-    def __init__(self, hoc_obj, parent, name):
+    def __init__(self, hoc_obj, parent: Cell, name):
         self.hoc = hoc_obj
-        if isinstance(parent, Cell):
-            parent = str(parent)
-        self.parent = parent
+        self.parent = str(parent)
         self.name = name
 
     def __repr__(self):

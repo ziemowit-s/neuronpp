@@ -16,7 +16,7 @@ class PointProcessCell(SectionCell):
         self.pps = []
         self._pp_num = defaultdict(int)
 
-    def filter_point_processes(self, mod_name: str, name: str):
+    def filter_point_processes(self, mod_name: str, name):
         """
         All name must contains index of the point process of the specific type.
         eg. head[0][0] where head[0] is name and [0] is index of the point process of the specific type.
@@ -29,13 +29,13 @@ class PointProcessCell(SectionCell):
         """
         return self.filter(searchable=self.pps, mod_name=mod_name, name=name)
 
-    def add_point_processes(self, mod_name: str, name: str, loc, **kwargs):
+    def make_point_processes(self, mod_name: str, loc, sec=None, **synaptic_params):
         """
         :param mod_name:
-        :param name:
+        :param sec:
         :param loc:
-
-        :param kwargs:
+        :param synaptic_params:
+            Dictionary containing params for the mod point_process
         :return:
             A list of added Point Processes
         """
@@ -44,19 +44,22 @@ class PointProcessCell(SectionCell):
                               "Maybe you forgot to compile or copy mod files?" % mod_name)
         pp_obj = getattr(h, mod_name)
 
+        if isinstance(sec, str) or sec is None:
+            sec = self.filter_secs(name=sec)
+
         result = []
-        for sec in self.filter_secs(name=name):
+        for sec in sec:
             hoc_pp = pp_obj(sec.hoc(loc))
 
             current_mod_name = "%s_%s" % (mod_name, sec.name)
-            name = "%s[%s]" % (sec.name, self._pp_num[current_mod_name])
+            sec_name = "%s[%s]" % (sec.name, self._pp_num[current_mod_name])
             self._pp_num[current_mod_name] += 1
 
-            pp = PointProcess(hoc_pp, parent=self, name=name, mod_name=mod_name)
+            pp = PointProcess(hoc_pp, parent=self, name=sec_name, mod_name=mod_name)
             result.append(pp)
             self.pps.append(pp)
 
-            for key, value in kwargs.items():
+            for key, value in synaptic_params.items():
                 if not hasattr(pp.hoc, key):
                     raise LookupError("Point Process of type %s has no attribute of type %s. "
                                       "Check if MOD file contains %s as a RANGE variable" % (mod_name, key, key))

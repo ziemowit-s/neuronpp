@@ -26,26 +26,26 @@ if __name__ == '__main__':
 
     # define cell
     cell = Ebner2019AChDaSpineCell(name="cell")
-    cell.load_morpho(filepath='morphologies/swc/my.swc', seg_per_L_um=1, add_const_segs=11)
-    cell.add_spines(spine_number=10, head_nseg=10, neck_nseg=10, name='dend')
-    cell.add_soma_mechanisms()
-    cell.add_apical_mechanisms(sections='dend head neck')
-    cell.add_4p_ach_da_synapse(point_process_name="head", loc=1)  # add synapse at the top of each spine's head
+    cell.load_morpho(filepath='morphologies/swc/my.swc', seg_per_L_um=1, make_const_segs=11)
+    cell.make_spines(spine_number=10, head_nseg=10, neck_nseg=10, sec='dend')
+    cell.make_soma_mechanisms()
+    cell.make_apical_mechanisms(sections='dend head neck')
+    cell.make_4p_ach_da_synapse(point_process_name="head", loc=1)  # add synapse at the top of each spine's head
 
-    # Create stims
+    # make stims
     ns_cell = NetStimCell("netstim_cell")
-    stim1 = ns_cell.add_netstim("stim1", start=WARMUP + 1, number=1)
+    stim1 = ns_cell.make_netstim(start=WARMUP + 1, number=1)
 
     vs_cell = VecStimCell("vecstim_cell")
-    stim2 = vs_cell.add_vecstim("stim3", np.array([WARMUP+50]))
+    stim2 = vs_cell.make_vecstim(np.array([WARMUP+50]))
 
     # stimulation
-    cell.add_netcons(source=stim1, weight=WEIGHT, delay=1, mod_name="SynACh", name="head[0][0]")
-    cell.add_netcons(source=stim2, weight=WEIGHT, delay=1, mod_name="SynDa", name="head[0][0]")
+    cell.make_netcons(source=stim1, weight=WEIGHT, delay=1, mod_name="SynACh", point_process="head[0][0]")
+    cell.make_netcons(source=stim2, weight=WEIGHT, delay=1, mod_name="SynDa", point_process="head[0][0]")
     # empty source for events
-    ncons = cell.add_netcons(source=None, weight=WEIGHT, delay=1, mod_name="Syn4PAChDa", name="head[0][0]")
+    ncons = cell.make_netcons(source=None, weight=WEIGHT, delay=1, mod_name="Syn4PAChDa", point_process="head[0][0]")
 
-    # create plots
+    # make plots
     rec_4psyn = Record(cell.filter_point_processes(mod_name="Syn4PAChDa", name="head[0][0]"), variables="w")
 
     # init and run

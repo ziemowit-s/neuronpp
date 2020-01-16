@@ -1,4 +1,4 @@
-from neuronpp.core.cells.netcon_cell import NetConnCell
+from neuronpp.core.cells.netconn_cell import NetConnCell
 from neuronpp.cells.hay2011_cell import Hay2011Cell
 
 
@@ -44,7 +44,7 @@ class Ebner2019Cell(Hay2011Cell, NetConnCell):
             "s_K_beta": 100,  # scaling factor for calculation of K_beta
         }
 
-    def add_4p_synapse(self, point_process_name: str, loc):
+    def make_4p_synapse(self, point_process_name: str, loc):
         """
 
         :param point_process_name:
@@ -53,5 +53,4 @@ class Ebner2019Cell(Hay2011Cell, NetConnCell):
 
         :return:
         """
-        return self.add_point_processes(mod_name="Syn4P", name=point_process_name, loc=loc,
-                                        **self.params_4p_syn)
+        return self.make_point_processes(mod_name="Syn4P", sec=point_process_name, loc=loc, **self.params_4p_syn)

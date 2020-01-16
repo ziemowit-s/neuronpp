@@ -10,28 +10,29 @@ class SpineCell(SectionCell):
         self.heads = []
         self.necks = []
 
-    def add_spines(self, spine_number, name: str, head_nseg=2, neck_nseg=2):
+    def make_spines(self, spine_number, sec: str = None, head_nseg=2, neck_nseg=2):
         """
         Single spine is 2 x cylinder:
           * head: L=1um diam=1um
           * neck: L=0.5um diam=0.5um
 
         :param spine_number:
-            The number of spines to create
-        :param name:
+            The number of spines to make
+        :param sec:
         :param head_nseg
         :param neck_nseg
 
         """
-        secs = self.filter_secs(name=name)
+        if isinstance(sec, str) or sec is None:
+            sec = self.filter_secs(name=sec)
 
         for i in range(spine_number):
-            head = self.create_sec(name="head[%s]" % i, diam=1, l=1, nseg=head_nseg)
-            neck = self.create_sec(name="neck[%s]" % i, diam=0.5, l=0.5, nseg=neck_nseg)
+            head = self.make_sec(name="head[%s]" % i, diam=1, l=1, nseg=head_nseg)
+            neck = self.make_sec(name="neck[%s]" % i, diam=0.5, l=0.5, nseg=neck_nseg)
             self.heads.append(head)
             self.necks.append(neck)
             self.connect_secs(source=head, target=neck)
-            self._connect_necks_rand_uniform(neck, secs)
+            self._connect_necks_rand_uniform(neck, sec)
 
     @staticmethod
     def _connect_necks_rand_uniform(neck: Sec, sections):
