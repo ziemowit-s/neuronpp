@@ -17,7 +17,7 @@ SYNAPSE_MECH = "ExpSyn"
 stim_cell = NetStimCell("stim_cell")
 
 # 1) Hoc-like
-cell.make_point_processes(name="example_pp", mod_name=SYNAPSE_MECH, sec="soma", loc=0.5)
+cell.make_point_processes(tag="example_pp", mod_name=SYNAPSE_MECH, sec="soma", loc=0.5)
 cell.make_netcons(source=stim_cell.make_netstim(start=200, number=3, interval=1),
                   mod_name=SYNAPSE_MECH, point_process="example_pp", weight=0.01, delay=1)
 

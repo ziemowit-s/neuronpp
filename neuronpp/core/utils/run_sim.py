@@ -7,7 +7,7 @@ h.load_file('stdrun.hoc')
 
 
 class RunSim:
-    def __init__(self, init_v, dt=0.025, warmup=0, init_sleep=0, shape_plots=()):
+    def __init__(self, init_v, dt=0.025, warmup=0, init_sleep=0, shape_plots=(), with_neuron_gui=False):
         """
         :param init_v:
             initial value in mV for the neuron function finitialize().
@@ -16,7 +16,11 @@ class RunSim:
             in ms, for warmup with dt=10*ms
         :param init_sleep
             sleep time in seconds. To sleep before first run
+        :param with_neuron_gui
         """
+        if with_neuron_gui:
+            from neuron import gui
+
         h.finitialize(init_v * mV)
         self.dt = dt
         self.shape_plots = shape_plots

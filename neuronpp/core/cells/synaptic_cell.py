@@ -7,12 +7,12 @@ class SynapticCell(NetConnCell):
         NetConnCell.__init__(self, name)
         self.syns = []
 
-    def make_sypanse(self, source, weight, name=None, mod_name: str = None, sec=None, loc=0.0, delay=0):
+    def make_sypanse(self, source, weight, tag: str = None, mod_name: str = None, sec=None, loc=0.0, delay=0):
         """
 
         :param source:
         :param weight:
-        :param name:
+        :param tag:
             custom name
         :param mod_name:
         :param sec:
@@ -20,7 +20,7 @@ class SynapticCell(NetConnCell):
         :param delay:
         :return:
         """
-        pps = self.make_point_processes(name=name, mod_name=mod_name, sec=sec, loc=loc)
+        pps = self.make_point_processes(tag=tag, mod_name=mod_name, sec=sec, loc=loc)
         nns = self.make_netcons(source=source, weight=weight, mod_name=mod_name, point_process=pps, delay=delay)
 
         result = []
