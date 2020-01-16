@@ -3,11 +3,28 @@ from neuronpp.core.hocwrappers.composed.synapse import Synapse
 
 
 class SynapticCell(NetConnCell):
-    def __init__(self, name):
+    def __init__(self, name=None):
         NetConnCell.__init__(self, name)
         self.syns = []
 
-    def make_sypanse(self, source, weight, tag: str = None, mod_name: str = None, sec=None, loc=0.0, delay=0):
+    def filter_synapse(self, mod_name: str, name, source=None, point_process=None):
+        """
+        All name must contains index of the point process of the specific type.
+        eg. head[0][0] where head[0] is name and [0] is index of the point process of the specific type.
+
+        :param mod_name:
+            single string defining name of point process type name, eg. concere synaptic mechanisms like Syn4PAChDa
+        :param name:
+            start with 'regex:any pattern' to use regular expression. If without 'regex:' - will look which Hoc objects contain the str
+        :param source:
+            string of source compound name (if source is provided)
+        :param point_process:
+            string of point process compound name
+        :return:
+        """
+        return self.filter(self.syns, mod_name=mod_name, name=name, source=source, point_process=point_process)
+
+    def make_sypanses(self, source, weight, tag: str = None, mod_name: str = None, sec=None, loc=0.0, delay=0):
         """
 
         :param source:

@@ -3,7 +3,7 @@ from neuronpp.core.cells.synaptic_cell import SynapticCell
 
 
 class SynapticSpineCell(SpineCell, SynapticCell):
-    def __init__(self, name):
+    def __init__(self, name=None):
         SynapticCell.__init__(self, name)
         SpineCell.__init__(self, name)
 

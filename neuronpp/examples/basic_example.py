@@ -1,12 +1,12 @@
 import matplotlib.pyplot as plt
 
+from neuronpp.cells.cell import Cell
 from neuronpp.core.cells.netstim_cell import NetStimCell
-from neuronpp.core.cells.synaptic_spine_cell import SynapticSpineCell
 from neuronpp.core.utils.record import Record
 from neuronpp.core.utils.run_sim import RunSim
 from neuronpp.core.utils.utils import make_shape_plot
 
-cell = SynapticSpineCell(name="cell")
+cell = Cell(name="cell")
 cell.load_morpho(filepath='morphologies/swc/my.swc', seg_per_L_um=1, make_const_segs=11)
 cell.insert("pas")
 cell.insert("hh")

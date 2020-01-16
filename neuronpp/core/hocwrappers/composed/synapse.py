@@ -1,15 +1,16 @@
 from neuron import h
 from neuron.units import ms
 
-from neuronpp.core.cells.cell import Cell
+from neuronpp.core.cells.core_cell import CoreCell
 from neuronpp.core.hocwrappers.netconn import NetConn
 from neuronpp.core.hocwrappers.point_process import PointProcess
 
 
 class Synapse:
-    def __init__(self, source, point_process: PointProcess, netconn: NetConn, parent_cell: Cell, name):
+    def __init__(self, source, point_process: PointProcess, netconn: NetConn, parent_cell: CoreCell, name):
         self.parent = str(parent_cell)
         self.name = name
+        self.mod_name = point_process.mod_name
 
         self.source = source
         self.point_process = point_process
@@ -28,4 +29,4 @@ class Synapse:
         self.netconn.hoc.event(sim_time)
 
     def __repr__(self):
-        return "{}[{}]{}_{}".format(self.parent, self.__class__.__name__, self.netconn, self.name)
+        return "{}[{}]{}+{}".format(self.parent, self.__class__.__name__, self.netconn, self.name)

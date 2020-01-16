@@ -1,12 +1,12 @@
-from neuronpp.core.cells.cell import Cell
+from neuronpp.core.cells.core_cell import CoreCell
 from neuronpp.core.cells.utils import get_vecstim
 from neuronpp.core.hocwrappers.vecstim import VecStim
 from neuronpp.core.hocwrappers.vector import Vector
 
 
-class VecStimCell(Cell):
-    def __init__(self, name):
-        Cell.__init__(self, name)
+class VecStimCell(CoreCell):
+    def __init__(self, name=None):
+        CoreCell.__init__(self, name)
         self.vss = []
         self.vecs = []
 

@@ -2,7 +2,7 @@ from neuronpp.core.cells.section_cell import SectionCell
 
 
 class Hay2011Cell(SectionCell):
-    def __init__(self, name):
+    def __init__(self, name=None):
         SectionCell.__init__(self, name)
 
     def make_soma_mechanisms(self, sections='soma'):

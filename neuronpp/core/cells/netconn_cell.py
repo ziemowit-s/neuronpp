@@ -6,7 +6,7 @@ from neuronpp.core.hocwrappers.netconn import NetConn
 
 
 class NetConnCell(PointProcessCell):
-    def __init__(self, name):
+    def __init__(self, name=None):
         PointProcessCell.__init__(self, name)
         self.ncs = []
         self._nc_num = defaultdict(int)

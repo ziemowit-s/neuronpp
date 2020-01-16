@@ -1,11 +1,11 @@
-from neuronpp.core.cells.cell import Cell
+from neuronpp.core.cells.core_cell import CoreCell
 from neuronpp.core.cells.utils import get_netstim
 from neuronpp.core.hocwrappers.netstim import NetStim
 
 
-class NetStimCell(Cell):
-    def __init__(self, name):
-        Cell.__init__(self, name)
+class NetStimCell(CoreCell):
+    def __init__(self, name=None):
+        CoreCell.__init__(self, name)
         self.nss = []
 
     def filter_netstim(self, name: str):

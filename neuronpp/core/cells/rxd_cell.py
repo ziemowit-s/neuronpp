@@ -6,7 +6,7 @@ from neuronpp.core.hocwrappers.rxd import RxD
 
 
 class RxDCell(SectionCell):
-    def __init__(self, name):
+    def __init__(self, name=None):
         """
         :param name:
             Name of the cell

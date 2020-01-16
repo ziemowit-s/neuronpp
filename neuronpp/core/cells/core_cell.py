@@ -1,12 +1,14 @@
 import re
 
 
-class Cell:
-    def __init__(self, name):
+class CoreCell:
+    def __init__(self, name=None):
         """
         :param name:
             Name of the cell
         """
+        if name is None:
+            name = ""
         self.name = name
 
     @staticmethod
@@ -42,12 +44,13 @@ class Cell:
                     break
 
                 if not isinstance(attr, str):
-                    continue
+                    attr = str(attr)
 
                 if pat is None:
                     pat_found += 1
-                elif "SRE_Pattern" == pat.__class__.__name__ and pat.search(re.escape(attr)) is not None:
-                    pat_found += 1
+                elif "SRE_Pattern" == pat.__class__.__name__:
+                    if pat.search(attr) is not None:
+                        pat_found += 1
                 elif pat in attr:
                     pat_found += 1
 

@@ -10,7 +10,7 @@ from neuronpp.core.utils.run_sim import RunSim
 
 
 class Ebner2019AChDaSpineCell(Ebner2019AChDACell, SpineCell):
-    def __init__(self, name):
+    def __init__(self, name=None):
         SpineCell.__init__(self, name)
         Ebner2019AChDACell.__init__(self, name)
 

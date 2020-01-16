@@ -2,20 +2,20 @@ from os import path
 
 from neuron import h
 
-from neuronpp.core.cells.cell import Cell
+from neuronpp.core.cells.core_cell import CoreCell
 from neuronpp.core.hocwrappers.sec import Sec
 
 h.load_file('stdlib.hoc')
 h.load_file('import3d.hoc')
 
 
-class SectionCell(Cell):
-    def __init__(self, name):
+class SectionCell(CoreCell):
+    def __init__(self, name=None):
         """
         :param name:
             Name of the cell
         """
-        Cell.__init__(self, name)
+        CoreCell.__init__(self, name)
         # if Cell (named core_cell) have been built before on the stack of super() objects
         if not hasattr(self, '_core_cell_builded'):
             self.secs = []

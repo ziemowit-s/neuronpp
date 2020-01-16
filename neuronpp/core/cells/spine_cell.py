@@ -5,7 +5,7 @@ from neuronpp.core.hocwrappers.sec import Sec
 
 
 class SpineCell(SectionCell):
-    def __init__(self, name):
+    def __init__(self, name=None):
         SectionCell.__init__(self, name)
         self.heads = []
         self.necks = []

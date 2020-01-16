@@ -8,7 +8,7 @@ from neuronpp.core.utils.run_sim import RunSim
 
 
 class Ebner2019SpineCell(Ebner2019Cell, SpineCell):
-    def __init__(self, name):
+    def __init__(self, name=None):
         SpineCell.__init__(self, name)
         Ebner2019Cell.__init__(self, name)
 

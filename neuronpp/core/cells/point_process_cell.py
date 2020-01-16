@@ -7,7 +7,7 @@ from neuronpp.core.hocwrappers.point_process import PointProcess
 
 
 class PointProcessCell(SectionCell):
-    def __init__(self, name):
+    def __init__(self, name=None):
         """
         :param name:
             Name of the cell
