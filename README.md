@@ -1,18 +1,26 @@
-Morphological model of neuron with RxD ionic diffusion. Based on NEURON.
+Neuron++ is a library which wraps NEURON tool with easy to use Python classes
 
 ## Prerequisites
 
+* Install NEURON from the instruction: https://github.com/ziemowit-s/neuron_netpyne_get_started
 * Install requirements.txt
-* Install NEURON
 
 ## Repository
 
 https://github.com/ziemowit-s/neuronpp
 
-## Pip installation
+## Installation
+
+* Locally:
 ```bash
-pip install -U git+https://github.com/ziemowit-s/neuronpp
+python setup.py bdist_wheel
 ```
+
+* Through pip and GitHub:
+```bash
+pip install git+https://github.com/ziemowit-s//neuronpp
+```
+
 ## MOD compilation
 * Before run you must compile mod files and copy compiled folder to the main folder (where run Python files are located)
 ```bash
