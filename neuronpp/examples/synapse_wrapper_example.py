@@ -13,31 +13,32 @@ cell.insert("pas")
 cell.insert("hh")
 
 # Two examples of synapses with NetStim:
+SYNAPSE_MECH = "ExpSyn"
 stim_cell = NetStimCell("stim_cell")
 
 # 1) Hoc-like
-cell.make_point_processes(name="example_pp", mod_name="Syn4P", sec="soma", loc=0.5)
+cell.make_point_processes(name="example_pp", mod_name=SYNAPSE_MECH, sec="soma", loc=0.5)
 cell.make_netcons(source=stim_cell.make_netstim(start=200, number=3, interval=1),
-                  mod_name="Syn4P", point_process="example_pp", weight=0.01, delay=1)
+                  mod_name=SYNAPSE_MECH, point_process="example_pp", weight=0.01, delay=1)
 
 # 2) Synapse-like
-syn_netstim = cell.make_sypanse(source=stim_cell.make_netstim(start=300, number=3, interval=1),
-                                weight=0.01, mod_name="Syn4P", sec="soma", loc=0.5, delay=1)[0]
+syn1 = cell.make_sypanse(source=stim_cell.make_netstim(start=300, number=3, interval=1),
+                         weight=0.01, mod_name=SYNAPSE_MECH, sec="soma", loc=0.5, delay=1)[0]
 
 # simple Event synapse example
-syn_event = cell.make_sypanse(source=None, weight=0.01, mod_name="Syn4P", sec="soma", loc=0.5, delay=1)[0]
+syn2 = cell.make_sypanse(source=None, weight=0.01, mod_name=SYNAPSE_MECH, sec="soma", loc=0.5, delay=1)[0]
 
 # prepare plots
 rec_v = Record(cell.filter_secs(name="soma"), locs=0.5, variables="v")
 
 # run
-sim = RunSim(init_v=-70, warmup=20)
+sim = RunSim(init_v=-55, warmup=20)
 
 # Making external events to the synapse
-syn_event.netconn.hoc.event(sim.t + 10)
-syn_event.netconn.hoc.event(sim.t + 20)
-syn_event.netconn.hoc.event(sim.t + 30)
-syn_event.netconn.hoc.event(sim.t + 40)
+syn2.make_event(10)
+syn2.make_event(20)
+syn2.make_event(30)
+syn2.make_event(40)
 
 sim.run(runtime=500)
 
