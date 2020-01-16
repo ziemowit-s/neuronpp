@@ -1,4 +1,4 @@
-from neuronpp.cells.core.section_cell import SectionCell
+from neuronpp.core.cells.section_cell import SectionCell
 
 
 class Hay2011Cell(SectionCell):

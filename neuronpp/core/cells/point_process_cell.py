@@ -2,8 +2,8 @@ from collections import defaultdict
 
 from neuron import h
 
-from neuronpp.cells.core.section_cell import SectionCell
-from neuronpp.hocs.point_process import PointProcess
+from neuronpp.core.cells.section_cell import SectionCell
+from neuronpp.core.wrappers.point_process import PointProcess
 
 
 class PointProcessCell(SectionCell):

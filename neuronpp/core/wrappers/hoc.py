@@ -1,4 +1,4 @@
-from neuronpp.cells.core.cell import Cell
+from neuronpp.core.cells.cell import Cell
 
 
 class Hoc:

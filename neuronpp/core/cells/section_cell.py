@@ -2,8 +2,8 @@ from os import path
 
 from neuron import h
 
-from neuronpp.cells.core.cell import Cell
-from neuronpp.hocs.sec import Sec
+from neuronpp.core.cells.cell import Cell
+from neuronpp.core.wrappers.sec import Sec
 
 h.load_file('stdlib.hoc')
 h.load_file('import3d.hoc')
@@ -29,7 +29,7 @@ class SectionCell(Cell):
         """
         return self.filter(searchable=self.secs, name=name)
 
-    def add_sec(self, name: str, diam=None, l=None, nseg=1):
+    def create_sec(self, name: str, diam=None, l=None, nseg=1):
         """
         :param name:
         :param diam:
@@ -46,26 +46,28 @@ class SectionCell(Cell):
         self.secs.append(sec)
         return sec
 
-    def connect_secs(self, source, target, source_loc=1.0, target_loc=0.0, regex=True):
+    def connect_secs(self, source, target, source_loc=1.0, target_loc=0.0):
         """
         default: source(0.0) -> target(1.0)
         :param source:
         :param target:
         :param source_loc:
         :param target_loc:
-
         :return:
         """
         if isinstance(source, str):
-            source = self.filter_secs(name=source)[0]
+            source = self.filter_secs(name=source)
             if len(source) != 1:
                 raise LookupError("To connect sections source name must return exactly 1 Section, "
                                   "but returned %s elements for name=%s" % (len(source), source))
+            source = source[0]
+            
         if isinstance(target, str):
-            target = self.filter_secs(name=target)[0]
+            target = self.filter_secs(name=target)
             if len(source) != 1:
                 raise LookupError("To connect sections target name must return exactly 1 Section, "
                                   "but returned %s elements for name=%s" % (len(source), source))
+            target = target[0]
 
         target_loc = float(target_loc)
         source_loc = float(source_loc)

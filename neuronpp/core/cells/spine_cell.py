@@ -1,7 +1,7 @@
 from random import randint
 
-from neuronpp.cells.core.section_cell import SectionCell
-from neuronpp.hocs.sec import Sec
+from neuronpp.core.cells.section_cell import SectionCell
+from neuronpp.core.wrappers.sec import Sec
 
 
 class SpineCell(SectionCell):
@@ -26,15 +26,15 @@ class SpineCell(SectionCell):
         secs = self.filter_secs(name=name)
 
         for i in range(spine_number):
-            head = self.add_sec(name="head[%s]" % i, diam=1, l=1, nseg=head_nseg)
-            neck = self.add_sec(name="neck[%s]" % i, diam=0.5, l=0.5, nseg=neck_nseg)
+            head = self.create_sec(name="head[%s]" % i, diam=1, l=1, nseg=head_nseg)
+            neck = self.create_sec(name="neck[%s]" % i, diam=0.5, l=0.5, nseg=neck_nseg)
             self.heads.append(head)
             self.necks.append(neck)
             self.connect_secs(source=head, target=neck)
             self._connect_necks_rand_uniform(neck, secs)
 
     @staticmethod
-    def _connect_necks_rand_uniform(neck:Sec, sections):
+    def _connect_necks_rand_uniform(neck: Sec, sections):
         """
         Connect necks list to sections list with uniform random distribution
         :param neck:

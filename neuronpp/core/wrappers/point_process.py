@@ -1,4 +1,4 @@
-from neuronpp.hocs.hoc import Hoc
+from neuronpp.core.wrappers.hoc import Hoc
 
 
 class PointProcess(Hoc):

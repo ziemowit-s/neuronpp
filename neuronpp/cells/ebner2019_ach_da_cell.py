@@ -1,6 +1,6 @@
 from neuron import h
 
-from neuronpp.cells.core.netcon_cell import NetConnCell
+from neuronpp.core.cells.netcon_cell import NetConnCell
 from neuronpp.cells.hay2011_cell import Hay2011Cell
 
 

@@ -3,12 +3,12 @@ from neuron.units import mV
 import numpy as np
 import matplotlib.pyplot as plt
 
-from neuronpp.cells.core.netstim_cell import NetStimCell
-from neuronpp.cells.core.spine_cell import SpineCell
-from neuronpp.cells.core.vecstim_cell import VecStimCell
 from neuronpp.cells.ebner2019_ach_da_cell import Ebner2019AChDACell
-from neuronpp.utils.record import Record
-from neuronpp.utils.run_sim import RunSim
+from neuronpp.core.cells.netstim_cell import NetStimCell
+from neuronpp.core.cells.spine_cell import SpineCell
+from neuronpp.core.cells.vecstim_cell import VecStimCell
+from neuronpp.core.utils.record import Record
+from neuronpp.core.utils.run_sim import RunSim
 
 
 class Ebner2019AChDaSpineCell(Ebner2019AChDACell, SpineCell):

@@ -1,8 +1,8 @@
 from neuron import h
 from nrn import Section
 
-from neuronpp.cells.core.section_cell import SectionCell
-from neuronpp.hocs.sec import Sec
+from neuronpp.core.cells.section_cell import SectionCell
+from neuronpp.core.wrappers.sec import Sec
 
 
 class HOCCell(SectionCell):

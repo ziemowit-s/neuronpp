@@ -1,9 +1,8 @@
 from collections import defaultdict
 
-from neuronpp.cells.core.point_process_cell import PointProcessCell
-from neuronpp.cells.core.utils import make_conn
-from neuronpp.hocs.hoc import Hoc
-from neuronpp.hocs.netconn import NetConn
+from neuronpp.core.cells.point_process_cell import PointProcessCell
+from neuronpp.core.cells.utils import make_conn
+from neuronpp.core.wrappers.netconn import NetConn
 
 
 class NetConnCell(PointProcessCell):

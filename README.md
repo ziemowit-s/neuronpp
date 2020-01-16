@@ -23,7 +23,7 @@ nrmivmodl
   * It will compile all mods inside the source folder (you can specify many source folders)
   * copy compiled folder to the target folder 
 ```bash
-python compile_mod.py --sources [SOURCE_FOLDER_WITH_MOD_FILES] --target [TARGET_FOLDER]
+python core/utils/compile_mod.py --sources [SOURCE_FOLDER_WITH_MOD_FILES] --target [TARGET_FOLDER]
 ``` 
   * By default it works on Linux but you can change default params so that they express your OS params:
     * compiled_folder_name="x86_64"
@@ -35,5 +35,5 @@ python compile_mod.py --sources [SOURCE_FOLDER_WITH_MOD_FILES] --target [TARGET_
 ### ebner_ach_da
 * Shows how Ebner2019 cell works with additional ACh and DA 
 ```bash
-python ebner_ach_da_run.py
+python examples/ebner_ach_da_run.py
 ```

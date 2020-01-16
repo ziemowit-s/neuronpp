@@ -1,6 +1,6 @@
-from neuronpp.cells.core.cell import Cell
-from neuronpp.cells.core.utils import get_netstim
-from neuronpp.hocs.netstim import NetStim
+from neuronpp.core.cells.cell import Cell
+from neuronpp.core.cells.utils import get_netstim
+from neuronpp.core.wrappers.netstim import NetStim
 
 
 class NetStimCell(Cell):

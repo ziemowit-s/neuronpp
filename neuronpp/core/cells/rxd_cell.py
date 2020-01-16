@@ -1,8 +1,8 @@
 from neuron.rxd import rxd
 
-from neuronpp.cells.core.section_cell import SectionCell
-from neuronpp.cells.core.rxd_tools import RxDTool
-from neuronpp.hocs.rxd import RxD
+from neuronpp.core.cells.rxd_tools import RxDTool
+from neuronpp.core.cells.section_cell import SectionCell
+from neuronpp.core.wrappers.rxd import RxD
 
 
 class RxDCell(SectionCell):
