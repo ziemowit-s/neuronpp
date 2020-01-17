@@ -1,14 +1,14 @@
 import matplotlib.pyplot as plt
+from neuronpp.utils.run_sim import RunSim
 
 from neuronpp.cells.cell import Cell
+from neuronpp.utils.record import Record
+from neuronpp.electrodes.iclamp import IClamp
+from neuronpp.utils.utils import make_shape_plot
 from neuronpp.core.cells.netstim_cell import NetStimCell
-from neuronpp.core.electrodes.iclamp import IClamp
-from neuronpp.core.utils.record import Record
-from neuronpp.core.utils.run_sim import RunSim
-from neuronpp.core.utils.utils import make_shape_plot
 
 cell = Cell(name="cell")
-cell.load_morpho(filepath='morphologies/swc/my.swc', seg_per_L_um=1, make_const_segs=11)
+cell.load_morpho(filepath='commons/morphologies/swc/my.swc', seg_per_L_um=1, make_const_segs=11)
 cell.insert("pas")
 cell.insert("hh")
 

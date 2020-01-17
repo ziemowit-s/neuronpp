@@ -1,9 +1,9 @@
 import matplotlib.pyplot as plt
+from neuronpp.utils.run_sim import RunSim
 
+from neuronpp.utils.record import Record
 from neuronpp.cells.ebner2019_cell import Ebner2019Cell
 from neuronpp.core.cells.netstim_cell import NetStimCell
-from neuronpp.core.utils.record import Record
-from neuronpp.core.utils.run_sim import RunSim
 
 
 WEIGHT = 0.0035  # µS, conductance of (single) synaptic potentials
@@ -13,7 +13,7 @@ WARMUP = 200
 if __name__ == '__main__':
     # define cell
     cell = Ebner2019Cell(name="cell")
-    cell.load_morpho(filepath='morphologies/swc/my.swc', seg_per_L_um=1, make_const_segs=11)
+    cell.load_morpho(filepath='commons/morphologies/swc/my.swc', seg_per_L_um=1, make_const_segs=11)
     cell.make_spines(spine_number=10, head_nseg=10, neck_nseg=10, sec='dend')
     cell.make_soma_mechanisms()
     cell.make_apical_mechanisms(sections='dend head neck')

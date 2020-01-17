@@ -11,11 +11,3 @@ def make_shape_plot(variable=None, min_val=-70, max_val=40):
     ps.exec_menu('Shape Plot')
     return ps
 
-
-def connect_net_stim(syn, weight, delay):
-    stim = h.NetStim()
-    con = h.NetCon(stim, syn)
-    con.delay = delay
-    con.weight[0] = weight
-    return stim, con
-
