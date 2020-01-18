@@ -55,11 +55,11 @@ class Ebner2019AChDACell(Hay2011Cell):
         }
 
     def set_synaptic_pointers(self, syn_4p: Synapse, syn_ach: Synapse, syn_da: Synapse):
-        h.setpointer(syn_ach.hoc._ref_w, 'ACh', syn_4p.hoc)
-        h.setpointer(syn_da.hoc._ref_w, 'Da', syn_4p.hoc)
+        h.setpointer(syn_ach.point_process.hoc._ref_w, 'ACh', syn_4p.point_process.hoc)
+        h.setpointer(syn_da.point_process.hoc._ref_w, 'Da', syn_4p.point_process.hoc)
 
-        h.setpointer(syn_ach.hoc._ref_flag_D, 'flag_D_ACh', syn_4p.hoc)
-        h.setpointer(syn_da.hoc._ref_flag_D, 'flag_D_Da', syn_4p.hoc)
+        h.setpointer(syn_ach.point_process.hoc._ref_flag_D, 'flag_D_ACh', syn_4p.point_process.hoc)
+        h.setpointer(syn_da.point_process.hoc._ref_flag_D, 'flag_D_Da', syn_4p.point_process.hoc)
 
-        h.setpointer(syn_ach.hoc._ref_last_max_w, 'last_max_w_ACh', syn_4p.hoc)
-        h.setpointer(syn_da.hoc._ref_last_max_w, 'last_max_w_Da', syn_4p.hoc)
+        h.setpointer(syn_ach.point_process.hoc._ref_last_max_w, 'last_max_w_ACh', syn_4p.point_process.hoc)
+        h.setpointer(syn_da.point_process.hoc._ref_last_max_w, 'last_max_w_Da', syn_4p.point_process.hoc)
