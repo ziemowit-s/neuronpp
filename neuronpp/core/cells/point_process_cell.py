@@ -51,8 +51,6 @@ class PointProcessCell(SectionCell):
 
         result = []
         for s in sec:
-            hoc_pp = pp_obj(s.hoc(loc))
-
             current_mod_name = "%s_%s" % (mod_name, s.name)
             sec_name = "%s[%s]" % (s.name, self._pp_num[current_mod_name])
             self._pp_num[current_mod_name] += 1
@@ -60,6 +58,7 @@ class PointProcessCell(SectionCell):
             if tag:
                 sec_name = "%s[%s]" % (sec_name, tag)
 
+            hoc_pp = pp_obj(s.hoc(loc))
             pp = PointProcess(hoc_pp, parent=self, name=sec_name, mod_name=mod_name)
             result.append(pp)
             self.pps.append(pp)

@@ -16,7 +16,7 @@ SYNAPSE_MECH = "ExpSyn"
 stim = NetStimCell("stim_cell").make_netstim(start=300, number=5, interval=10)
 
 syn1 = cell.make_spine_with_synapse(source=stim, weight=0.01, mod_name=SYNAPSE_MECH,
-                                    sec="dend", delay=1, head_nseg=10, neck_nseg=10, spine_number=10)[0]
+                                    sec="dend", delay=1, head_nseg=10, neck_nseg=10, number=10)[0]
 
 ic = IClamp(segment=cell.filter_secs("soma")[0].hoc(0.5))
 ic.stim(delay=100, dur=10, amp=0.1)

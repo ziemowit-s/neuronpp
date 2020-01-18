@@ -87,7 +87,7 @@ There are other examples in the folder.
   * add synapses with spines in a single function:
    ```python
     syns = cell.make_spine_with_synapse(source=stim, weight=0.01, mod_name="ExpSyn",
-                                    sec="dend", delay=1, head_nseg=10, neck_nseg=10, spine_number=10)
+                                    sec="dend", delay=1, head_nseg=10, neck_nseg=10, number=10)
    ```
    
    * Stimulate synapse externally - ff you define source=None it will return empty synapse which can be stimulated externally:

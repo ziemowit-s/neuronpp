@@ -25,18 +25,6 @@ class SynapticCell(NetConnCell):
         return self.filter(self.syns, mod_name=mod_name, name=name, source=source, point_process=point_process)
 
     def make_sypanses(self, source, weight, tag: str = None, mod_name: str = None, sec=None, loc=0.0, delay=0):
-        """
-
-        :param source:
-        :param weight:
-        :param tag:
-            custom name
-        :param mod_name:
-        :param sec:
-        :param loc:
-        :param delay:
-        :return:
-        """
         pps = self.make_point_processes(tag=tag, mod_name=mod_name, sec=sec, loc=loc)
         nns = self.make_netcons(source=source, weight=weight, mod_name=mod_name, point_process=pps, delay=delay)
 
