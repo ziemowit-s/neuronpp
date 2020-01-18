@@ -41,14 +41,3 @@ class Ebner2019Cell(Hay2011Cell):
             "m_K_beta": 1.7,  # slope of the saturation function for K_beta
             "s_K_beta": 100,  # scaling factor for calculation of K_beta
         }
-
-    def make_4p_synapse(self, point_process_name: str, loc):
-        """
-
-        :param point_process_name:
-            start with 'regex:any pattern' to use regular expression. If without 'regex:' - will look which Hoc objects contain the str
-        :param loc:
-
-        :return:
-        """
-        return self.make_point_processes(mod_name="Syn4P", sec=point_process_name, loc=loc, **self.params_4p_syn)

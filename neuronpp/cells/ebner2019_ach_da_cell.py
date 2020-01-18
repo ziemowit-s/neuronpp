@@ -1,10 +1,17 @@
 from neuron import h
+from neuronpp.core.hocwrappers.composed.synapse import Synapse
 
 from neuronpp.cells.hay2011_cell import Hay2011Cell
 
 
 class Ebner2019AChDACell(Hay2011Cell):
     def __init__(self, name=None):
+        """
+        In order to run you need to call set_synaptic_pointers() which takes 3 synapses as arguments.
+        Otherwise it will generate HOC error and cause SIGKILL exit to console.
+
+        :param name:
+        """
         Hay2011Cell.__init__(self, name)
 
         self.params_ach = {"tau": 1000}
@@ -47,24 +54,12 @@ class Ebner2019AChDACell(Hay2011Cell):
             "s_K_beta": 100,  # scaling factor for calculation of K_beta
         }
 
-    def make_4p_ach_da_synapse(self, point_process_name: str, loc):
-        """
-        :param point_process_name:
-            start with 'regex:any pattern' to use regular expression. If without 'regex:' - will look which Hoc objects contain the str
-        :param loc:
-        :return:
-        """
-        syns_4p = self.make_point_processes(mod_name="Syn4PAChDa", sec=point_process_name, loc=loc, **self.params_4p_syn)
-        syns_ach = self.make_point_processes(mod_name="SynACh", sec=point_process_name, loc=loc, **self.params_ach)
-        syns_da = self.make_point_processes(mod_name="SynDa", sec=point_process_name, loc=loc, **self.params_da)
+    def set_synaptic_pointers(self, syn_4p: Synapse, syn_ach: Synapse, syn_da: Synapse):
+        h.setpointer(syn_ach.hoc._ref_w, 'ACh', syn_4p.hoc)
+        h.setpointer(syn_da.hoc._ref_w, 'Da', syn_4p.hoc)
 
-        # Set pointers
-        for s4p, ach, da in zip(syns_4p, syns_ach, syns_da):
-            h.setpointer(ach.hoc._ref_w, 'ACh', s4p.hoc)
-            h.setpointer(da.hoc._ref_w, 'Da', s4p.hoc)
+        h.setpointer(syn_ach.hoc._ref_flag_D, 'flag_D_ACh', syn_4p.hoc)
+        h.setpointer(syn_da.hoc._ref_flag_D, 'flag_D_Da', syn_4p.hoc)
 
-            h.setpointer(ach.hoc._ref_flag_D, 'flag_D_ACh', s4p.hoc)
-            h.setpointer(da.hoc._ref_flag_D, 'flag_D_Da', s4p.hoc)
-
-            h.setpointer(ach.hoc._ref_last_max_w, 'last_max_w_ACh', s4p.hoc)
-            h.setpointer(da.hoc._ref_last_max_w, 'last_max_w_Da', s4p.hoc)
+        h.setpointer(syn_ach.hoc._ref_last_max_w, 'last_max_w_ACh', syn_4p.hoc)
+        h.setpointer(syn_da.hoc._ref_last_max_w, 'last_max_w_Da', syn_4p.hoc)
