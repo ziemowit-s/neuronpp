@@ -29,18 +29,20 @@ class PointProcessCell(SectionCell):
         """
         return self.filter(searchable=self.pps, mod_name=mod_name, name=name)
 
-    def make_point_processes(self, mod_name: str, loc, sec=None, tag: str = None, **synaptic_params):
+    def make_point_processes(self, mod_name: str, loc, sec=None, tag: str = None, **point_process_params):
         """
         :param mod_name:
         :param sec:
         :param loc:
-        :param synaptic_params:
+        :param point_process_params:
             Dictionary containing params for the mod point_process
         :param tag:
             custom string tag added to this point_process
         :return:
             A list of added Point Processes
         """
+        if mod_name is None:
+            raise AttributeError("To create a point_process you need to define mod_name param.")
         if not hasattr(h, mod_name):
             raise LookupError("There is no Point Process of name %s. "
                               "Maybe you forgot to compile or copy mod files?" % mod_name)
@@ -63,7 +65,7 @@ class PointProcessCell(SectionCell):
             result.append(pp)
             self.pps.append(pp)
 
-            for key, value in synaptic_params.items():
+            for key, value in point_process_params.items():
                 if not hasattr(pp.hoc, key):
                     raise LookupError("Point Process of type %s has no attribute of type %s. "
                                       "Check if MOD file contains %s as a RANGE variable" % (mod_name, key, key))

@@ -23,10 +23,10 @@ cell.make_netcons(source=stim_cell.make_netstim(start=200, number=3, interval=1)
 
 # 2) Synapse-like
 syn1 = cell.make_sypanses(source=stim_cell.make_netstim(start=300, number=3, interval=1),
-                          weight=0.01, mod_name="regex:(Syn4PAChDa)|(SynACh)|(SynDa)", sec="soma", loc=0.5, delay=1)[0]
+                          weight=0.01, mod_name="Syn4P", sec="soma", loc=0.5, delay=1)[0]
 
 # simple Event synapse example
-syn2 = cell.make_sypanses(source=None, weight=0.01, mod_name="", sec="soma", loc=0.5, delay=1)[0]
+syn2 = cell.make_sypanses(source=None, weight=0.01, mod_name="Syn4P", sec="soma", loc=0.5, delay=1)[0]
 
 # prepare plots
 rec_v = Record(cell.filter_secs(name="soma"), locs=0.5, variables="v")

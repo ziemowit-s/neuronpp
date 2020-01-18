@@ -54,12 +54,14 @@ class Ebner2019AChDACell(Hay2011Cell):
             "s_K_beta": 100,  # scaling factor for calculation of K_beta
         }
 
-    def set_synaptic_pointers(self, syn_4p: Synapse, syn_ach: Synapse, syn_da: Synapse):
-        h.setpointer(syn_ach.point_process.hoc._ref_w, 'ACh', syn_4p.point_process.hoc)
-        h.setpointer(syn_da.point_process.hoc._ref_w, 'Da', syn_4p.point_process.hoc)
+    @staticmethod
+    def set_synaptic_pointers(syn_4p: Synapse, syn_ach: Synapse, syn_da: Synapse):
+        for p, a, d in zip(syn_4p, syn_ach, syn_da):
+            h.setpointer(a.point_process.hoc._ref_w, 'ACh', p.point_process.hoc)
+            h.setpointer(d.point_process.hoc._ref_w, 'Da', p.point_process.hoc)
 
-        h.setpointer(syn_ach.point_process.hoc._ref_flag_D, 'flag_D_ACh', syn_4p.point_process.hoc)
-        h.setpointer(syn_da.point_process.hoc._ref_flag_D, 'flag_D_Da', syn_4p.point_process.hoc)
+            h.setpointer(a.point_process.hoc._ref_flag_D, 'flag_D_ACh', p.point_process.hoc)
+            h.setpointer(d.point_process.hoc._ref_flag_D, 'flag_D_Da', p.point_process.hoc)
 
-        h.setpointer(syn_ach.point_process.hoc._ref_last_max_w, 'last_max_w_ACh', syn_4p.point_process.hoc)
-        h.setpointer(syn_da.point_process.hoc._ref_last_max_w, 'last_max_w_Da', syn_4p.point_process.hoc)
+            h.setpointer(a.point_process.hoc._ref_last_max_w, 'last_max_w_ACh', p.point_process.hoc)
+            h.setpointer(d.point_process.hoc._ref_last_max_w, 'last_max_w_Da', p.point_process.hoc)
