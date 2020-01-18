@@ -79,7 +79,9 @@ class RunSim:
             before = time.time()  # compute time before
 
             self._plot_shapes()
-            print(round(r, 2), "ms", '// comp_time:', round(computation_time * 1000, 2), "ms")
+            print("Current time:", round(r, 2), "ms",
+                  'sim for:', stepsize,
+                  'comp_time:', round(computation_time * 1000, 2), "ms")
 
     def _plot_shapes(self):
         # flush shape and console log
