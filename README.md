@@ -107,7 +107,14 @@ There are other examples in the folder.
    ic = IClamp(segment=soma.hoc(0.5))
    ic.stim(delay=100, dur=10, amp=0.1)
    ```
-  
+  * make spike detector for the cell:
+  ```python
+    cell.make_spike_detector()
+    sim = RunSim(init_v=-65)
+    sim.run(runtime=500)
+    cell.plot_spikes()
+   ```
+
   * record variables and point_process from particular section (like voltage) and make plots:
    ```python
     # record voltage

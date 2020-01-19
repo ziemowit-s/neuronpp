@@ -71,6 +71,13 @@ class NetConnCell(PointProcessCell):
         return results
 
     def make_spike_detector(self, sec="soma", loc=0.5):
+        """
+        :param sec:
+            The name of the section where spike detector will be set. Default is 'soma'.
+        :param loc:
+            Location on the sec where spike detector will be set. Default is 0.5
+        :return:
+        """
         if isinstance(sec, str):
             sec = self.filter_secs(sec)
             if len(sec) != 1:
@@ -84,24 +91,26 @@ class NetConnCell(PointProcessCell):
         segment = sec.hoc(loc)
         nc_detector, name = self._make_netconn(source=segment._ref_v, point_process=None)
         nc_detector.name = self.name
-        
+
         result_vector = h.Vector()
         nc_detector.hoc.record(result_vector)
         self._spike_detector = (nc_detector, result_vector)
 
     def get_spikes(self):
+        """
+        :return:
+            spikes array of time in ms when spikes occures.
+        """
         if self._spike_detector is None:
             raise LookupError("Spike detector have not been setup before run. call cell.make_spike_detector() function before.")
-
-        name = self._spike_detector[0].name
         spikes = self._spike_detector[1].as_numpy()
-        return name, spikes
+        return spikes
 
     def plot_spikes(self):
-        name, spikes = self.get_spikes()
+        spikes = self.get_spikes()
         fig, ax = plt.subplots(1)
 
-        ax.set_title("Spike detector of %s" % name)
+        ax.set_title("Spike detector of %s" % self.name)
         ax.vlines(spikes, 0, 1)
         ax.set(xlabel='t (ms)', ylabel="spikes")
 

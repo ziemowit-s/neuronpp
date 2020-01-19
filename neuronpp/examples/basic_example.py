@@ -25,7 +25,7 @@ ic.stim(delay=100, dur=10, amp=0.1)
 rec_v = Record(cell.filter_secs(name="soma"), locs=0.5, variables="v")
 
 # Spike detector
-cell.make_spike_detector()
+cell.make_spike_detector(sec="soma", loc=0.5)
 make_shape_plot()
 
 # run
