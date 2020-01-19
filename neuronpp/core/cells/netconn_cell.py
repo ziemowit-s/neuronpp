@@ -36,7 +36,7 @@ class NetConnCell(PointProcessCell):
         eg. head[0][0] where head[0] is name and [0] is index of the point process of the specific type.
 
         :param source:
-            Can be only hocwrappers.NetStim, Sec, or None. If it is Sec also loc param need to be defined.
+            Can be only: hocwrappers.NetStim, hocwrappers.VecStim, hocwrappers.Sec or None. If it is Sec also loc param need to be defined.
             If None it will create NetConn with no source, which can be use as external event source
         :param weight:
         :param source_loc:
@@ -60,8 +60,9 @@ class NetConnCell(PointProcessCell):
             elif not isinstance(source, (NetStim, VecStim)):
                 err = True
             if err:
-                raise TypeError("Param 'source' can be only hocwrappers.NetStim, Sec or None. "
-                                "Is it is Sec also 'source_loc' need to be defined, but provided type was '%s' instead." % type(source))
+                raise TypeError("Param 'source' can be only hocwrappers.NetStim, hocwrappers.VecStim, hocwrappers.Sec or None. "
+                                "Is it is Sec also 'source_loc' need to be defined, but provided type was '%s' "
+                                "and 'source_loc' has value of '%s' instead." % (type(source), source_loc))
 
         if point_process is None and mod_name is None:
             raise LookupError("If point_process is None you need to provide mod_name string param.")
@@ -75,10 +76,10 @@ class NetConnCell(PointProcessCell):
 
         source_hoc = None
         if source:
-            if source_loc is None:
+            if source_loc is None:  # Sec
                 source_hoc = source.hoc
                 source = None
-            else:
+            else:  # NetStim or VecStim
                 source_hoc = source.hoc(source_loc)._ref_v
 
         for pp in point_process:
