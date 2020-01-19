@@ -75,16 +75,18 @@ class NetConnCell(PointProcessCell):
 
         results = []
 
-        source_hoc = None
+        netconn_source = None
+        source_sec = None
         if source:
-            if source_loc is None:  # Sec
-                source_hoc = source.hoc
-                source = None
-            else:  # NetStim or VecStim
-                source_hoc = source.hoc(source_loc)._ref_v
+            if source_loc is None:  # NetStim or VecStim
+                netconn_source = source.hoc
+                source_sec = None
+            else:  # Sec
+                netconn_source = source.hoc(source_loc)._ref_v  # NetConn source
+                source_sec = source.hoc  # Sec to create NetCon
 
         for pp in point_process:
-            conn, name = self._make_netconn(source=source_hoc, source_sec=source, point_process=pp, weight=weight,
+            conn, name = self._make_netconn(source=netconn_source, source_sec=source_sec, point_process=pp, weight=weight,
                                             delay=delay, threshold=threshold)
             results.append(conn)
 
