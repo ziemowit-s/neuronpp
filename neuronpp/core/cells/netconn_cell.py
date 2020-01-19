@@ -55,8 +55,9 @@ class NetConnCell(PointProcessCell):
         """
         if source is not None:
             err = False
-            if isinstance(source, Sec) and (source_loc is None or not isinstance(source_loc, (float, int))):
-                err = True
+            if isinstance(source, Sec):
+                if source_loc is None or not isinstance(source_loc, (float, int)):
+                    err = True
             elif not isinstance(source, (NetStim, VecStim)):
                 err = True
             if err:
