@@ -30,7 +30,7 @@ class NetConnCell(PointProcessCell):
         """
         return self.filter(searchable=self.ncs, mod_name=mod_name, name=name)
 
-    def make_netcons(self, source: HocWrapper, weight, source_loc=None, point_process=None, mod_name: str = None, delay=0):
+    def make_netcons(self, source: HocWrapper, weight, source_loc=None, point_process=None, mod_name: str = None, delay=0, threshold=10):
         """
         All name must contains index of the point process of the specific type.
         eg. head[0][0] where head[0] is name and [0] is index of the point process of the specific type.
@@ -47,6 +47,9 @@ class NetConnCell(PointProcessCell):
         :param point_process:
             start with 'regex:any pattern' to use regular expression. If without 'regex:' - will look which Hoc objects contain the str
         :param delay:
+            in ms
+        :param threshold:
+            threshold for NetConn, default=10
         return:
             A list of added NetConns.
         """
@@ -79,7 +82,8 @@ class NetConnCell(PointProcessCell):
                 source_hoc = source.hoc(source_loc)._ref_v
 
         for pp in point_process:
-            conn, name = self._make_netconn(source=source_hoc, source_sec=source, point_process=pp, weight=weight, delay=delay)
+            conn, name = self._make_netconn(source=source_hoc, source_sec=source, point_process=pp, weight=weight,
+                                            delay=delay, threshold=threshold)
             results.append(conn)
 
             self.ncs.append(conn)

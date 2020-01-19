@@ -25,10 +25,11 @@ class SynapticCell(NetConnCell):
         return self.filter(self.syns, mod_name=mod_name, name=name, source=source, point_process=point_process)
 
     def make_sypanses(self, source, weight, tag: str = None, mod_name: str = None, sec=None, source_loc=None, target_loc=0.0,
-                      delay=0, **synaptic_params):
+                      delay=0, threshold=10, **synaptic_params):
 
         pps = self.make_point_processes(tag=tag, mod_name=mod_name, sec=sec, loc=target_loc, **synaptic_params)
-        nns = self.make_netcons(source=source, source_loc=source_loc, weight=weight, mod_name=mod_name, point_process=pps, delay=delay)
+        nns = self.make_netcons(source=source, source_loc=source_loc, weight=weight, mod_name=mod_name, point_process=pps,
+                                delay=delay, threshold=threshold)
 
         result = []
         for i, (p, n) in enumerate(zip(pps, nns)):
