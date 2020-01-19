@@ -24,6 +24,7 @@ class RunSim:
         h.finitialize(init_v * mV)
         self.dt = dt
         self.shape_plots = shape_plots
+        self.last_runtime = 0
 
         print("sleep before run for: %s seconds" % init_sleep)
         time.sleep(init_sleep)
@@ -82,6 +83,8 @@ class RunSim:
             print("Current time:", round(r, 2), "ms",
                   'sim for:', stepsize,
                   'comp_time:', round(computation_time * 1000, 2), "ms")
+
+        self.last_runtime = runtime
 
     def _plot_shapes(self):
         # flush shape and console log

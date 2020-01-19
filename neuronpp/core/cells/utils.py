@@ -18,10 +18,15 @@ def get_vecstim(ping_array):
     return stim, vec
 
 
-def make_conn(source, target, delay=None, weight=None):
-    con = h.NetCon(source, target)
+def make_conn(source, target, source_sec=None, delay=None, weight=None, threshold=None):
+    if source_sec is None:
+        con = h.NetCon(source, target)
+    else:
+        con = h.NetCon(source, target, sec=source_sec)
     if delay:
         con.delay = delay
     if weight:
         con.weight[0] = weight
+    if threshold:
+        con.threshold = threshold
     return con

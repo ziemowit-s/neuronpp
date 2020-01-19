@@ -1,5 +1,6 @@
 from neuron import h
 from neuron.hoc import HocObject
+from neuronpp.core.hocwrappers.vecstim import VecStim
 from nrn import Segment
 import matplotlib.pyplot as plt
 from collections import defaultdict
@@ -29,15 +30,17 @@ class NetConnCell(PointProcessCell):
         """
         return self.filter(searchable=self.ncs, mod_name=mod_name, name=name)
 
-    def make_netcons(self, source: HocWrapper, weight, point_process=None, mod_name: str = None, delay=0):
+    def make_netcons(self, source: HocWrapper, weight, source_loc=None, point_process=None, mod_name: str = None, delay=0):
         """
         All name must contains index of the point process of the specific type.
         eg. head[0][0] where head[0] is name and [0] is index of the point process of the specific type.
 
         :param source:
-            Can be only hocwrappers.NetStim, h.Segment, or None.
+            Can be only hocwrappers.NetStim, Sec, or None. If it is Sec also loc param need to be defined.
             If None it will create NetConn with no source, which can be use as external event source
         :param weight:
+        :param source_loc:
+            if source is type of hocwrapper.Sec - source_loc need to be between 0-1
         :param mod_name:
             single string defining name of point process type name, eg. concrete synaptic mechanisms like Syn4PAChDa
             If None - it assumes that point_process has list of point processes objects
@@ -48,9 +51,14 @@ class NetConnCell(PointProcessCell):
             A list of added NetConns.
         """
         if source is not None:
-            if not isinstance(source, (NetStim, HocObject)) and 'pointer to hoc scalar' not in str(source._ref_v):
-                raise TypeError("Param 'source' can be only hocwrappers.NetStim, pointer to variable (eg. source._ref_v) or None. "
-                                "But provided type was %s instead." % type(source))
+            err = False
+            if isinstance(source, Sec) and (source_loc is None or not isinstance(source_loc, (float, int))):
+                err = True
+            elif not isinstance(source, (NetStim, VecStim)):
+                err = True
+            if err:
+                raise TypeError("Param 'source' can be only hocwrappers.NetStim, Sec or None. "
+                                "Is it is Sec also 'source_loc' need to be defined, but provided type was '%s' instead." % type(source))
 
         if point_process is None and mod_name is None:
             raise LookupError("If point_process is None you need to provide mod_name string param.")
@@ -61,8 +69,17 @@ class NetConnCell(PointProcessCell):
             point_process = self.filter_point_processes(mod_name=mod_name, name=point_process)
 
         results = []
+
+        source_hoc = None
+        if source:
+            if source_loc is None:
+                source_hoc = source.hoc
+                source = None
+            else:
+                source_hoc = source.hoc(source_loc)._ref_v
+
         for pp in point_process:
-            conn, name = self._make_netconn(source=source, point_process=pp, weight=weight, delay=delay)
+            conn, name = self._make_netconn(source=source_hoc, source_sec=source, point_process=pp, weight=weight, delay=delay)
             results.append(conn)
 
             self.ncs.append(conn)
@@ -88,8 +105,9 @@ class NetConnCell(PointProcessCell):
         if not isinstance(sec, Sec):
             raise TypeError("Param 'sec' must be a type of hocwrappers.sec.Sec after string filter find or as explicite param.")
 
-        segment = sec.hoc(loc)
-        nc_detector, name = self._make_netconn(source=segment._ref_v, point_process=None)
+        sec = sec.hoc
+        segment = sec(loc)
+        nc_detector, name = self._make_netconn(source=segment._ref_v, source_sec=sec, point_process=None)
         nc_detector.name = self.name
 
         result_vector = h.Vector()
@@ -114,13 +132,11 @@ class NetConnCell(PointProcessCell):
         ax.vlines(spikes, 0, 1)
         ax.set(xlabel='t (ms)', ylabel="spikes")
 
-    def _make_netconn(self, source, point_process, weight=None, delay=None):
-        if isinstance(source, HocWrapper):
-            source = source.hoc
+    def _make_netconn(self, source, source_sec, point_process, weight=None, delay=None, threshold=None):
         if point_process is not None:
             point_process = point_process.hoc
 
-        conn_hoc = make_conn(source=source, target=point_process, delay=delay, weight=weight)
+        conn_hoc = make_conn(source=source, source_sec=source_sec, target=point_process, delay=delay, weight=weight, threshold=threshold)
         name = "%s->%s" % (source, point_process)
         conn = NetConn(conn_hoc, parent=self, name=name)
         return conn, name

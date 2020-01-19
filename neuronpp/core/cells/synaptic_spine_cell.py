@@ -12,5 +12,5 @@ class SynapticSpineCell(SpineCell, SynapticCell):
         heads = self.make_spines(spine_number=number, sec=sec, head_nseg=head_nseg, neck_nseg=neck_nseg)
         # loc=1.0 put synase on the top of the spine's head
         syns = self.make_sypanses(source=source, weight=weight, tag=tag, mod_name=mod_name, sec=heads,
-                                  loc=1.0, delay=delay, **synaptic_params)
+                                  target_loc=1.0, delay=delay, **synaptic_params)
         return syns, heads
