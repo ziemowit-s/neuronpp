@@ -99,7 +99,7 @@ class NetConnCell(PointProcessCell):
     def get_spikes(self):
         """
         :return:
-            spikes array of time in ms when spikes occures.
+            numpy array of time of spikes in ms
         """
         if self._spike_detector is None:
             raise LookupError("Spike detector have not been setup before run. call cell.make_spike_detector() function before.")
