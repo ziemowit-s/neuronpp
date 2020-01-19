@@ -23,6 +23,9 @@ ic.stim(delay=100, dur=10, amp=0.1)
 
 # prepare plots
 rec_v = Record(cell.filter_secs(name="soma"), locs=0.5, variables="v")
+
+# Spike detector
+cell.make_spike_detector()
 make_shape_plot()
 
 # run
@@ -30,6 +33,7 @@ sim = RunSim(init_v=-65, warmup=20, with_neuron_gui=True)
 sim.run(runtime=500)
 
 # plot
+cell.plot_spikes()
 rec_v.plot()
 plt.show()
 

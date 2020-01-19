@@ -1,7 +1,7 @@
 from neuronpp.core.cells.core_cell import CoreCell
-from neuronpp.core.hocwrappers.hoc import Hoc
+from neuronpp.core.hocwrappers.hoc_wrapper import HocWrapper
 
 
-class Sec(Hoc):
+class Sec(HocWrapper):
     def __init__(self, obj, parent: CoreCell, name):
-        Hoc.__init__(self, hoc_obj=obj, parent=parent, name=name)
+        HocWrapper.__init__(self, hoc_obj=obj, parent=parent, name=name)

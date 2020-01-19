@@ -1,7 +1,7 @@
 from neuronpp.core.cells.core_cell import CoreCell
 
 
-class Hoc:
+class HocWrapper:
     def __init__(self, hoc_obj, parent: CoreCell, name):
         self.hoc = hoc_obj
         self.parent = str(parent)

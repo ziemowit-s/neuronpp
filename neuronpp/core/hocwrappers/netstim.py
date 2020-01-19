@@ -1,7 +1,7 @@
 from neuronpp.core.cells.core_cell import CoreCell
-from neuronpp.core.hocwrappers.hoc import Hoc
+from neuronpp.core.hocwrappers.hoc_wrapper import HocWrapper
 
 
-class NetStim(Hoc):
+class NetStim(HocWrapper):
     def __init__(self, hoc_obj, parent: CoreCell, name):
-        Hoc.__init__(self, hoc_obj=hoc_obj, parent=parent, name=name)
+        HocWrapper.__init__(self, hoc_obj=hoc_obj, parent=parent, name=name)
