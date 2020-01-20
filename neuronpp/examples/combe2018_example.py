@@ -4,8 +4,7 @@ from neuronpp.cells.combe2018_cell import Combe2018Cell
 from neuronpp.utils.run_sim import RunSim
 
 
-cell = Combe2018Cell(name="cell", compile=False)
-syns, heads = cell.make_spine_with_synapse(source=None, weight=0.01, number=1000, mod_name="ExpSyn", delay=1, sec="apic")
+cell = Combe2018Cell(name="cell", spine_number=100, compile=False)
 
 make_shape_plot()
 sim = RunSim(with_neuron_gui=True)
