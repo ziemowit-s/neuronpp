@@ -69,7 +69,7 @@ class HocCell(PointProcessCell):
         pps = hoc_sec_obj.psection()['point_processes']
         if len(pps) > 0:
             for mod_name, hoc_obj in pps.items():
-                self._append_pp(hoc_point_process=hoc_obj, mod_name=mod_name, sec_name=hoc_sec_obj.name)
+                self._append_pp(hoc_point_process=hoc_obj, mod_name=mod_name, single_sec=hoc_sec_obj)
 
         sec = Sec(hoc_sec_obj, parent=self, name=hoc_sec_obj.name())
         self.secs.append(sec)

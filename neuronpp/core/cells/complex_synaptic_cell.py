@@ -11,7 +11,7 @@ class ComplexSynapticCell(SynapticCell):
         self.complex_syns = []
         self._syn_num = defaultdict(int)
 
-    def filter_complex_synapses(self, mod_name: str = None, name=None, tag=None):
+    def filter_complex_synapses(self, mod_name: str = None, name=None, parent=None, tag=None):
         """
         All name must contains index of the point process of the specific type.
         eg. head[0][0] where head[0] is name and [0] is index of the point process of the specific type.
@@ -26,7 +26,7 @@ class ComplexSynapticCell(SynapticCell):
             string of point process compound name
         :return:
         """
-        return self.filter(self.complex_syns, mod_name=mod_name, name=name, tag=tag)
+        return self.filter(self.complex_syns, mod_name=mod_name, name=name, parent=parent, tag=tag)
 
     def group_complex_sypanses(self, synapses, tag=None):
         """

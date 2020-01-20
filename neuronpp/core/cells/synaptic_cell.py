@@ -10,7 +10,7 @@ class SynapticCell(NetConnCell):
         self.syns = []
         self._syn_num = defaultdict(int)
 
-    def filter_synapse(self, mod_name: str = None, name=None, source=None, point_process=None, tag=None):
+    def filter_synapse(self, mod_name: str = None, name=None, source=None, point_process=None, parent=None, tag=None):
         """
         All name must contains index of the point process of the specific type.
         eg. head[0][0] where head[0] is name and [0] is index of the point process of the specific type.
@@ -25,7 +25,7 @@ class SynapticCell(NetConnCell):
             string of point process compound name
         :return:
         """
-        return self.filter(self.syns, mod_name=mod_name, name=name, source=source, point_process=point_process, tag=tag)
+        return self.filter(self.syns, mod_name=mod_name, name=name, source=source, point_process=point_process, parent=parent, tag=tag)
 
     def make_sypanses(self, source, weight, tag: str = None, mod_name: str = None, sec=None, source_loc=None, target_loc=0.0,
                       delay=0, threshold=10, **synaptic_params):
