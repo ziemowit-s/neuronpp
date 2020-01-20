@@ -1,0 +1,75 @@
+// Random location template
+// Used for placing point processes (typically synapses) at random locations
+// within a given SectionList
+// List of point processes to be placed at a given location is passed to loc()
+// BPG 29-3-10
+
+/*
+?2 RandomLocation
+
+rl = new RandomLocation(SectionList, UniformRandomGenerator)
+rl.loc(PointProcess)
+
+relocates the PointProcess to a random location with respect to
+uniform distribution based on position.
+SectionList defines the set of sections to sample.
+*/
+
+begintemplate RandomLocation
+
+public loc, locsp
+objectvar seclist, ran
+
+proc init() {
+    seclist = $o1
+//    ran = new Random($2)
+//    ran = new Random()
+    ran = $o2
+    total_length = 0
+    forsec seclist { total_length = total_length + L }
+}
+
+// randomize location of synapse(s)
+proc loc() {local i, l, rpos, secx
+  //randomize_location.loc(synapse list)
+  rpos = ran.uniform(0, total_length)
+  l = 0
+  distance()  // assumes soma is currently accessed               
+  forsec seclist {
+    l = l + L
+    if (l > rpos) {
+      secx = (rpos - l + L)/L
+//      print secname(), secx
+      for i=0,$o1.count()-1 {
+        $o1.o(i).loc(secx)
+      }
+      rpos = 1e20   // a break would screw up the stack?
+    }
+  }
+}
+
+// randomize location of synapse(s) attached to spines
+// if required put synapse on spine, scale conductance and onset
+proc locsp() {local i, l, rpos, secx
+  //randomize_location.loc(synapse, snr, shr)
+  rpos = ran.uniform(0, total_length)
+  l = 0
+  distance()  // assumes soma is currently accessed  
+  forsec seclist {
+    l = l + L
+    if (l > rpos) {
+      secx = (rpos - l + L)/L
+      print secname(), secx
+      connect $o2.sec(0), secx
+      $o2.sec connect $o3.sec(0), 1
+      for i=0,$o1.count()-1 {
+        $o3.sec $o1.o(i).loc(0.5)
+      }
+      rpos = 1e20   // a break would screw up the stack?
+    }
+  }
+}
+
+
+endtemplate RandomLocation
+

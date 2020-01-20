@@ -1,0 +1,446 @@
+// Setting synaptic stimuli to cell model
+// Stimuli are single synchronous spikes to a set of input synapses
+// (more complicated stimuli, such as bursts, with repetitions, are possible)
+// Last update: BPG 2-5-14
+
+// number of synaptic contacts (initial values setting in calling file)
+nCA3max = nCA3 	// apical
+nCA3bmax = nCA3b 	// basal
+nECmax = nEC
+nBCmax = nBC
+nBSCmax = nBSC
+
+// PC synapse types
+AMPA = 1
+AMNM = 2	// AMPA/NMDA
+GABAA = 3
+GABAB = 4
+flag_spines = 1	// set to 1 if SR spines required
+flag_ECspines = 1 // set to 1 if spines required in SLM
+tot_spines = 0
+if (flag_spines == 1) tot_spines = nCA3+nCA3b
+if (flag_ECspines == 1) tot_spines = tot_spines+nEC
+flag_ECbranch = 0	// set to 1 if EC synapses on single branch
+flag_SRbranch = 0	// set>0 if SR synapses on single branch: 1=proximal, 2=distal
+
+soma_caR = 0.03 
+soma_sAHP = 0.001
+soma_mAHP = 0.001
+caR_init = 0.03 
+sAHP_init = 0.001
+mAHP_init = 0.001
+caR_spine = 0.03 
+sAHP_spine = 0.001
+mAHP_spine = 0.001
+
+STARTDEL = 50	// msecs
+THETA = 200	// msecs (5 Hz)
+GAMMA = 10	// msecs (100 Hz)
+ECCA3DEL = 0	// msecs
+SIMDUR = STARTDEL + (THETA*5)	// simulation duration (msecs)
+
+// EC (PP) excitation
+ECNUM = 100	// number of EC spikes
+ECSTART = STARTDEL	// time of first EC spike
+ECNOISE = 0	// EC ISI noise
+ECINT = 1000	// EC spike ISI (one spike for simulation period)
+ECBINT = 1000	// EC burst interval
+ECBLEN = 10	// EC burst length
+//ECINT = GAMMA	// EC spike ISI
+//ECBINT = THETA	// EC burst interval
+//ECBLEN = GAMMA*5	// EC burst length
+ECWGT = 0.0001	// EC weight to PCs (AMPA)
+ECNWGT = 0.0008	// EC weight to PCs (NMDA)
+ECDEL = 1	// EC delay
+
+// SC (SR) excitation
+CNUM = 100	// number of cue spikes
+CSTART = STARTDEL+ECCA3DEL	// time of first cue spike
+CNOISE = 0	// cue ISI noise
+CINT = 1000	// EC spike ISI (one spike for simulation period)
+CBINT = 1000	// EC burst interval
+CBLEN = 10	// EC burst length
+//CINT = GAMMA	// cue spike ISI
+//CBINT = THETA	// EC burst interval
+//CBLEN = GAMMA*5	// EC burst length
+CAWGT = 0.0005	// cue weight (AMPA)
+CNWGT = 0.001	// excitatory weights (NMDA)
+CAWGTb = 0.0005	// cue weight (basal AMPA)
+CNWGTb = 0.001	// excitatory weights (basal NMDA)
+CDEL = 1	// cue delay
+
+// BC inhibition
+BCNUM = 100	// number of BC spikes
+BCSTART = STARTDEL+1000	// time of first cue spike
+BCINT = GAMMA	// BC spike ISI
+BCNOISE = 0.05	// BC ISI noise
+BCBINT = THETA-(GAMMA*5)	// BC burst interval
+BCBLEN = THETA*10	// BC burst length (continuous inhib)
+//BCBLEN = GAMMA*10	// BC burst length
+BCWGT = 0.0    // BC weight (GABAA)
+BCDEL = 3	// BC delay
+
+// BSC inhibition
+BSCNUM = 100	// number of BC spikes
+BSCSTART = STARTDEL+1000	// time of first cue spike
+BSCINT = GAMMA	// BC spike ISI
+BSCNOISE = 0.05	// BC ISI noise
+BSCBINT = THETA-(GAMMA*5)	// BC burst interval
+BSCBLEN = THETA*10	// BC burst length (continuous inhib)
+//BSCBLEN = GAMMA*10	// BC burst length
+BSCWGT = 0.0    // BC weight (GABAA)
+BSCDEL = 3	// BC delay
+
+
+{load_file("ranstream.hoc")}  // to give each cell its own sequence generator
+{load_file("randomlocation.hoc")}
+{load_file("CA1PC.hoc")}
+//{load_file("stim_cell.hoc")}
+{load_file("burst_cell.hoc")}
+
+objref cell
+objref CA3list, EClist, BClist, BSClist
+objref ncCA3list, ncCA3Nlist, ncEClist, ncECNlist, ncBClist, ncBSClist
+
+mcell_ran4_init(connect_random_low_start_)
+
+cell = new PyramidalCell()
+
+access cell.soma
+print "Segments: ", cell.totnseg, "; Area: ", cell.totarea
+
+objref rs, nil
+rs = new RandomStream(my_seed)
+rs.start()
+
+proc makeCA3() {local i
+  if (flag_SRbranch == 0) {
+    cell.newsyn(AMNM, nCA3, cell.SR_list, rs.r, flag_spines, tot_spines)	// CA3 AMPA/NMDA synapses in SR
+  } else {
+    if (flag_SRbranch == 1) {	// proximal branch
+      cell.newsyn(AMNM, nCA3, cell.SRbrp_list, rs.r, flag_spines, tot_spines)	// CA3 AMPA/NMDA synapses in SR
+    } else if (flag_SRbranch == 2) {  // distal branch
+      cell.newsyn(AMNM, nCA3, cell.SRbrd_list, rs.r, flag_spines, tot_spines)	// CA3 AMPA/NMDA synapses in SR    
+    } else if (flag_SRbranch == 3) {  // all proximal
+      cell.newsyn(AMNM, nCA3, cell.SRprox_list, rs.r, flag_spines, tot_spines)	// CA3 AMPA/NMDA synapses in SR    
+    } else if (flag_SRbranch == 4) {  // all distal
+      cell.newsyn(AMNM, nCA3, cell.SRdist_list, rs.r, flag_spines, tot_spines)	// CA3 AMPA/NMDA synapses in SR    
+    } else if (flag_SRbranch == 5) {  // trunk 1
+      cell.newsyn(AMNM, nCA3, cell.SRbrt_list, rs.r, flag_spines, tot_spines)	// CA3 AMPA/NMDA synapses in SR    
+    } else if (flag_SRbranch == 6) {  // trunk 2
+      cell.newsyn(AMNM, nCA3, cell.SRbrt2_list, rs.r, flag_spines, tot_spines)	// CA3 AMPA/NMDA synapses in SR    
+    } else {  // trunk combined
+      cell.newsyn(AMNM, nCA3, cell.SRbrtc_list, rs.r, flag_spines, tot_spines)	// CA3 AMPA/NMDA synapses in SR    
+    }
+  }
+  CA3list = new List()
+  ncCA3list = new List()	// AMPA synapses
+  ncCA3Nlist = new List()	// NMDA synapses
+  for (i=0; i < nCA3; i=i+1) {
+    CA3list.append(new BurstCell())
+    CA3list.o(i).connect2target(nil)  // attach spike detector to cell
+    ncCA3list.append(new NetCon(CA3list.o(i).stim, cell.pre_list.o(2*i)))
+    ncCA3Nlist.append(new NetCon(CA3list.o(i).stim, cell.pre_list.o(2*i+1)))
+    CA3list.o(i).stim.number = CNUM
+    CA3list.o(i).stim.start = CSTART
+    CA3list.o(i).stim.interval = CINT
+    CA3list.o(i).stim.noise = CNOISE
+    CA3list.o(i).stim.burstint = CBINT
+    CA3list.o(i).stim.burstlen = CBLEN
+    ncCA3list.o(i).weight = CAWGT	
+    ncCA3list.o(i).delay = CDEL
+    ncCA3Nlist.o(i).weight = CNWGT	
+    ncCA3Nlist.o(i).delay = CDEL
+  }
+}
+
+// NOTE: must be created after CA3 SR inputs
+proc makeCA3b() {local i
+  cell.newsyn(AMNM, nCA3b, cell.basal_list, rs.r, flag_spines, tot_spines) // CA3 AMPA/NMDA synapses in SO
+  for (i=nCA3; i < nCA3+nCA3b; i=i+1) {
+    CA3list.append(new BurstCell())
+    CA3list.o(i).connect2target(nil)  // attach spike detector to cell
+    ncCA3list.append(new NetCon(CA3list.o(i).stim, cell.pre_list.o(2*i)))
+    ncCA3Nlist.append(new NetCon(CA3list.o(i).stim, cell.pre_list.o(2*i+1)))
+    CA3list.o(i).stim.number = CNUM
+    CA3list.o(i).stim.start = CSTART
+    CA3list.o(i).stim.interval = CINT
+    CA3list.o(i).stim.noise = CNOISE
+    CA3list.o(i).stim.burstint = CBINT
+    CA3list.o(i).stim.burstlen = CBLEN
+    ncCA3list.o(i).weight = CAWGTb	
+    ncCA3list.o(i).delay = CDEL
+    ncCA3Nlist.o(i).weight = CNWGTb	
+    ncCA3Nlist.o(i).delay = CDEL
+  }
+}
+
+// NOTE: synapse indexing on basis that CA3 AMPA/NMDA synapses created first
+proc makeEC() {local i
+  if (flag_ECbranch == 0) {
+    cell.newsyn(AMNM, nEC, cell.SLM_list, rs.r, flag_ECspines, tot_spines)	// EC AMPA/NMDA synapses in SLM
+  } else if (flag_ECbranch == 1) {	// one branch
+    cell.newsyn(AMNM, nEC, cell.SLMbr_list, rs.r, flag_ECspines, tot_spines)	// EC AMPA/NMDA synapses in SLM
+  } else {	// trunk group
+    cell.newsyn(AMNM, nEC, cell.SLMbrt_list, rs.r, flag_ECspines, tot_spines)	// EC AMPA/NMDA synapses in SLM
+  }
+  EClist = new List()
+  ncEClist = new List()
+  ncECNlist = new List()
+  for (i=0; i < nEC; i=i+1) {
+    EClist.append(new BurstCell())
+    EClist.o(i).connect2target(nil)  // attach spike detector to cell
+    ncEClist.append(new NetCon(EClist.o(i).stim, cell.pre_list.o(2*i+2*(nCA3+nCA3b))))
+    ncECNlist.append(new NetCon(EClist.o(i).stim, cell.pre_list.o(2*i+2*(nCA3+nCA3b)+1)))
+    EClist.o(i).stim.number = ECNUM
+    EClist.o(i).stim.start = ECSTART
+    EClist.o(i).stim.interval = ECINT
+    EClist.o(i).stim.noise = ECNOISE
+    EClist.o(i).stim.burstint = ECBINT
+    EClist.o(i).stim.burstlen = ECBLEN
+    ncEClist.o(i).weight = ECWGT	
+    ncEClist.o(i).delay = ECDEL
+    ncECNlist.o(i).weight = ECNWGT	
+    ncECNlist.o(i).delay = ECDEL
+  }
+}
+
+// NOTE: synapse indexing on basis that CA3/EC AMPA/NMDA synapses created first
+proc makeBC() {local i
+  cell.newsyn(GABAA, nBC, cell.soma_list, rs.r, 0, 0)	// BC GABAA synapses in soma
+  BClist = new List()
+  ncBClist = new List()
+  for (i=0; i < nBC; i=i+1) {
+    BClist.append(new BurstCell())
+    BClist.o(i).connect2target(nil)  // attach spike detector to cell
+    ncBClist.append(new NetCon(BClist.o(i).stim, cell.pre_list.o(i+2*(nCA3+nCA3b+nEC))))
+    BClist.o(i).stim.number = BCNUM
+    BClist.o(i).stim.start = BCSTART
+    BClist.o(i).stim.interval = BCINT
+    BClist.o(i).stim.noise = BCNOISE
+    BClist.o(i).stim.burstint = BCBINT
+    BClist.o(i).stim.burstlen = BCBLEN
+    ncBClist.o(i).weight = BCWGT	
+    ncBClist.o(i).delay = BCDEL
+  }
+}
+
+// NOTE: synapse indexing on basis that CA3/EC AMPA/NMDA synapses created first
+proc makeBSC() {local i
+  cell.newsyn(GABAA, nBSC, cell.SR_list, rs.r, 0, 0)	// BSC GABAA synapses in SR
+  BSClist = new List()
+  ncBSClist = new List()
+  for (i=0; i < nBC; i=i+1) {
+    BSClist.append(new BurstCell())
+    BSClist.o(i).connect2target(nil)  // attach spike detector to cell
+    ncBSClist.append(new NetCon(BSClist.o(i).stim, cell.pre_list.o(i+2*(nCA3+nCA3b+nEC)+nBC)))
+    BSClist.o(i).stim.number = BSCNUM
+    BSClist.o(i).stim.start = BSCSTART
+    BSClist.o(i).stim.interval = BSCINT
+    BSClist.o(i).stim.noise = BSCNOISE
+    BSClist.o(i).stim.burstint = BSCBINT
+    BSClist.o(i).stim.burstlen = BSCBLEN
+    ncBSClist.o(i).weight = BSCWGT	
+    ncBSClist.o(i).delay = BSCDEL
+  }
+}
+
+proc setCA3() {local i
+  for (i=0; i < nCA3; i=i+1) {
+    CA3list.o(i).stim.number = CNUM
+    CA3list.o(i).stim.start = CSTART
+    CA3list.o(i).stim.interval = CINT
+    CA3list.o(i).stim.noise = CNOISE
+    CA3list.o(i).stim.burstint = CBINT
+    CA3list.o(i).stim.burstlen = CBLEN
+    ncCA3list.o(i).weight = CAWGT	
+    ncCA3list.o(i).delay = CDEL
+    ncCA3Nlist.o(i).weight = CNWGT	
+    ncCA3Nlist.o(i).delay = CDEL
+  }
+  // silence any extra synapses
+  for (i=nCA3; i < nCA3max; i=i+1) {
+    CA3list.o(i).stim.number = 0
+    ncCA3list.o(i).weight = 0	
+    ncCA3Nlist.o(i).weight = 0	
+  }
+}
+
+proc setCA3b() {local i
+  for (i=nCA3max; i < nCA3max+nCA3b; i=i+1) {
+    CA3list.o(i).stim.number = CNUM
+    CA3list.o(i).stim.start = CSTART
+    CA3list.o(i).stim.interval = CINT
+    CA3list.o(i).stim.noise = CNOISE
+    CA3list.o(i).stim.burstint = CBINT
+    CA3list.o(i).stim.burstlen = CBLEN
+    ncCA3list.o(i).weight = CAWGTb	
+    ncCA3list.o(i).delay = CDEL
+    ncCA3Nlist.o(i).weight = CNWGTb	
+    ncCA3Nlist.o(i).delay = CDEL
+  }
+  // silence any extra synapses
+  for (i=nCA3max+nCA3b; i < nCA3max+nCA3bmax; i=i+1) {
+    CA3list.o(i).stim.number = 0
+    ncCA3list.o(i).weight = 0	
+    ncCA3Nlist.o(i).weight = 0	
+  }
+}
+
+proc setEC() {local i
+  for (i=0; i < nEC; i=i+1) {
+    EClist.o(i).stim.number = ECNUM
+    EClist.o(i).stim.start = ECSTART
+    EClist.o(i).stim.interval = ECINT
+    EClist.o(i).stim.noise = ECNOISE
+    EClist.o(i).stim.burstint = ECBINT
+    EClist.o(i).stim.burstlen = ECBLEN
+    ncEClist.o(i).weight = ECWGT	
+    ncEClist.o(i).delay = ECDEL
+    ncECNlist.o(i).weight = ECNWGT	
+    ncECNlist.o(i).delay = ECDEL
+  }
+  // silence any extra synapses
+  for (i=nEC; i < nECmax; i=i+1) {
+    EClist.o(i).stim.number = 0
+    ncEClist.o(i).weight = 0	
+    ncECNlist.o(i).weight = 0	
+  }
+}
+
+proc setBC() {local i
+  for (i=0; i < nBC; i=i+1) {
+    BClist.o(i).stim.number = BCNUM
+    BClist.o(i).stim.start = BCSTART
+    BClist.o(i).stim.interval = BCINT
+    BClist.o(i).stim.noise = BCNOISE
+    BClist.o(i).stim.burstint = BCBINT
+    BClist.o(i).stim.burstlen = BCBLEN
+    ncBClist.o(i).weight = BCWGT	
+    ncBClist.o(i).delay = BCDEL
+  }
+}
+
+proc setBSC() {local i
+  for (i=0; i < nBC; i=i+1) {
+    BSClist.o(i).stim.number = BSCNUM
+    BSClist.o(i).stim.start = BSCSTART
+    BSClist.o(i).stim.interval = BSCINT
+    BSClist.o(i).stim.noise = BSCNOISE
+    BSClist.o(i).stim.burstint = BSCBINT
+    BSClist.o(i).stim.burstlen = BSCBLEN
+    ncBSClist.o(i).weight = BSCWGT	
+    ncBSClist.o(i).delay = BSCDEL
+  }
+}
+
+proc showsyn() {
+//cell.showsyn()	// show all synapses
+cell.showlayersyn(0, $1*2-1, 2, 1)	// CA3 apical synapses
+cell.showlayersyn(nCA3max*2, (nCA3max+$1)*2-1, 5, 0)	// CA3 basal synapses
+cell.showlayersyn((nCA3max+nCA3bmax)*2, (nCA3+nCA3b+$1)*2-1, 3, 0)	// EC synapses
+//cell.showlayersyn((nCA3+nCA3b+nEC)*2, (nCA3+nCA3b+nEC)*2+nBC-1, 4, 0)	// BC synapses
+//cell.showlayersyn((nCA3+nCA3b+nEC)*2+nBC, (nCA3+nCA3b+nEC)*2+nBC+nBSC-1, 3, 0)	// BSC synapses
+}
+
+proc analcamx() {localobj cam	// analyse max ca across spine heads
+// parameters provide spine list and start and end indices of required spines
+  cam=new Vector()
+  forsec $o1 {
+      cam.append(camax_dca(0.5))
+  }
+  if ($2 <= $3) {
+    print cam.mean($2,$3), cam.max($2,$3), cam.min($2,$3), cam.stdev($2,$3)
+  }
+}
+
+proc analcasp() {	// analyse max ca across spine heads
+// parameters provide start and end indices of required spines
+// assumes that spines are present in all layers
+  print "EC spines"
+  analcamx(cell.spine_list, nCA3max+nCA3bmax, nCA3max+nCA3bmax+nEC-1)
+  print "SR spines"
+  analcamx(cell.spine_list, 0, nCA3-1)
+  print "SO spines"
+  analcamx(cell.spine_list, nCA3max, nCA3max+nCA3b-1)
+}
+
+proc makexsyns() {
+xpanel("Synapses")
+xlabel("CA3 apical")
+xvalue("Number", "nCA3", 1, "setCA3()")
+xvalue("AMPA", "CAWGT", 1, "setCA3()")
+xvalue("NMDA", "CNWGT", 1, "setCA3()")
+xlabel("CA3 basal")
+xvalue("Number", "nCA3b", 1, "setCA3b()")
+xvalue("AMPA", "CAWGTb", 1, "setCA3b()")
+xvalue("NMDA", "CNWGTb", 1, "setCA3b()")
+xlabel("EC")
+xvalue("Number", "nEC", 1, "setEC()")
+xvalue("AMPA", "ECWGT", 1, "setEC()")
+xvalue("NMDA", "ECNWGT", 1, "setEC()")
+xlabel("GABAA")
+xvalue("BC", "BCWGT", 1, "setBC()")
+xvalue("BSC", "BSCWGT", 1, "setBSC()")
+xpanel()
+}
+
+proc makexchans() {
+xpanel("Ion Channels")
+xlabel("KA")
+xvalue("gka", "cell.gka", 1, "cell.set_dendrite()")
+xlabel("Ih")
+xvalue("gh", "cell.ghd", 1, "cell.set_dendrite()")
+xpanel()
+}
+
+proc makexstim() {
+xpanel("Stimuli")
+xlabel("CA3 apical")
+xvalue("Start time", "CSTART", 1, "setCA3()")
+xvalue("Total spikes", "CNUM", 1, "setCA3()")
+xvalue("Spike interval", "CINT", 1, "setCA3()")
+xvalue("Interval noise", "CNOISE", 1, "setCA3()")
+xvalue("Burst interval", "CBINT", 1, "setCA3()")
+xvalue("Burst length", "CBLEN", 1, "setCA3()")
+xlabel("CA3 basal")
+xvalue("Start time", "CSTART", 1, "setCA3b()")
+xvalue("Total spikes", "CNUM", 1, "setCA3b()")
+xvalue("Spike interval", "CINT", 1, "setCA3b()")
+xvalue("Interval noise", "CNOISE", 1, "setCA3b()")
+xvalue("Burst interval", "CBINT", 1, "setCA3b()")
+xvalue("Burst length", "CBLEN", 1, "setCA3b()")
+xlabel("EC")
+xvalue("Start time", "ECSTART", 1, "setEC()")
+xvalue("Total spikes", "ECNUM", 1, "setEC()")
+xvalue("Spike interval", "ECINT", 1, "setEC()")
+xvalue("Interval noise", "ECNOISE", 1, "setEC()")
+xvalue("Burst interval", "ECBINT", 1, "setEC()")
+xvalue("Burst length", "ECBLEN", 1, "setEC()")
+xpanel()
+}
+
+proc makexplots() {
+xpanel("Plots")
+xlabel("Max voltage plots")
+xbutton("Spine heads", "cell.plotvmx(cell.spine_list)")
+xbutton("Dendrites", "cell.plotvmx(cell.dendrite_list)")
+xbutton("Apical", "cell.plotvmx(cell.apical_list)")
+xbutton("Apical trunk", "cell.plotvmx(cell.trunk_list)")
+xbutton("Apical obliques", "cell.plotvmx(cell.oblique_list)")
+xbutton("SR", "cell.plotvmx(cell.SR_list)")
+xbutton("SLM", "cell.plotvmx(cell.SLM_list)")
+xbutton("Basal", "cell.plotvmx(cell.basal_list)")
+xlabel("Max calcium plots")
+xbutton("Spine heads", "cell.plotcamx(cell.spine_list, tot_spines, 1.0)")
+//xbutton("Anal spines", "analcasp()")
+xbutton("Dendrites", "cell.plotcamxd(cell.dendrite_list)")
+xbutton("Apical", "cell.plotcamxd(cell.apical_list)")
+xbutton("Apical trunk", "cell.plotcamxd(cell.trunk_list)")
+xbutton("Apical obliques", "cell.plotcamxd(cell.oblique_list)")
+xbutton("SR", "cell.plotcamxd(cell.SR_list)")
+xbutton("SLM", "cell.plotcamxd(cell.SLM_list)")
+xbutton("Basal", "cell.plotcamxd(cell.basal_list)")
+xpanel()
+}
+

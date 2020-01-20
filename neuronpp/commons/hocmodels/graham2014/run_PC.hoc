@@ -1,0 +1,42 @@
+// Simulation Run File
+// Distributed synaptic stimuli to a hippocampal CA1 pyramidal cell model
+// Last update: BPG 2-5-14
+
+{load_file("nrngui.hoc")}
+cvode_active(1)
+
+connect_random_low_start_ = 1  // low seed for mcell_ran4_init()
+my_seed = 1
+
+// number of synaptic inputs
+nCA3 = 500	// apical
+nCA3b = 500	// basal
+nEC = 500
+//nBC = 10
+//nBSC = 100
+nBC = 0
+nBSC = 0
+
+{load_file("setup_PC.hoc")}
+
+//*******************************************************
+// Construct simulation
+celsius = 34
+v_init = -65
+
+// Set up cell inputs
+flag_SRbranch = 0	// set>0 if SR synapses on single branch: 1=proximal, 2=distal
+makeCA3()
+makeCA3b()
+flag_ECbranch = 0	// set to 1 if EC synapses on single branch
+makeEC()
+makeBC()
+makeBSC()
+
+// GUI
+showsyn(100)
+//makexsyns()
+//makexchans()
+//makexstim()
+//makexplots()
+xopen("synstim.ses")

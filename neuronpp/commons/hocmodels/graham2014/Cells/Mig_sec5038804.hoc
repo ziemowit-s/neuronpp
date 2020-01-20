@@ -1,0 +1,7 @@
+public soma, axon, dendrite, apical_dend, user5
+
+{create axon[1]}
+{create soma[1]}
+{create dendrite[52]}
+{create apical_dend[70]}
+{create user5[49]}

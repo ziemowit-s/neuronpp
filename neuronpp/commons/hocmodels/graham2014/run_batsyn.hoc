@@ -1,0 +1,212 @@
+// Runs a batch of simulations with different numbers of active synapses
+// in a particular layer.
+// Single, synchronous stimuli to all synapses
+// Last update: BPG 2-5-14
+
+{load_file("nrngui.hoc")}
+cvode_active(1)
+
+connect_random_low_start_ = 1  // low seed for mcell_ran4_init()
+my_seed = 1
+
+// number of synaptic inputs
+nCA3 = 500	// apical
+nCA3b = 500	// basal
+nEC = 500
+nBC = 0
+nBSC = 0
+
+{load_file("setup_PC.hoc")}
+
+//*******************************************************
+// Construct simulation
+celsius = 34
+v_init = -65
+tstop = 250
+
+// Set up cell inputs
+flag_SRbranch = 0	// SR sublists: 1=prox branch, 2=dist br, 3=all prox, 4=all dist, 5=trunk 1, 6=trunk 2, 7=trunk1&2
+if (flag_SRbranch == 1) { forsec cell.SRbrp_list nseg=11 }
+makeCA3()
+makeCA3b()
+flag_ECbranch = 0	// set to 1 if EC synapses on single branch, 2=trunk group
+makeEC()
+makeBC()
+makeBSC()
+
+// Data recordings
+objref ca_vec, syn_vec, mean_vec, std_vec, g
+
+// Batch of simulations
+LAYER_SYN = 1	// 1=SR, 2=SO, 3=SLM
+START_SYN = 0	// index of first synapse within layer
+FIN_SYN = 499	// stimulate from START_SYN to FIN_SYN synapses
+INC_SYN = 20	// increment to number of synapses
+
+STTIME = 50	// stimulus time (msecs)
+STRAN = 0	// start time distribution interval (msecs) (BPG 20-2-14)
+STNUM = 1	// number of stimuli
+STINT = 1000	// single input
+STBLEN = 1000
+
+// Extract synaptic weights for reuse
+if (LAYER_SYN == 1) {		// SR
+  FIRST_SYN = 0
+  AM = CAWGT
+  NM = CNWGT
+}
+if (LAYER_SYN == 2) {	// SO
+  FIRST_SYN = nCA3
+  AM = CAWGTb
+  NM = CNWGTb
+}
+if (LAYER_SYN == 3) {	// SLM
+  FIRST_SYN = nCA3+nCA3b
+  AM = ECWGT
+  NM = ECNWGT
+}
+
+// Set used weights here manually
+AM = 0.0005	// CA3	
+NM = 0.001
+//AM = 0.0001	// EC
+//NM = 0.0008
+
+// Initialise synaptic weights and stimuli
+CNUM = 0
+CAWGT = 0
+CNWGT = 0
+CAWGTb = 0
+CNWGTb = 0
+ECNUM = 0
+ECWGT = 0
+ECNWGT = 0
+// fixed CA3 input
+//nCA3=200
+//CSTART = 50
+//CRAN = 0	// start time distribution interval (BPG 20-2-14)
+//CNUM = 1
+//CINT = 1000
+//CBLEN = 5000
+//CAWGT = 0.0005
+//CNWGT = 0.001
+// fixed EC input
+//nEC=200
+//ECSTART = 50
+//ECNUM = 1
+//ECINT = 1000
+//ECBLEN = 1000
+//ECWGT = 0.0001
+//ECNWGT = 0.0008
+setCA3()
+setCA3b()
+setEC()
+for (i=0; i<START_SYN; i=i+1) {
+  // activate initial synapses
+  if (LAYER_SYN == 1) {		// SR
+    CA3list.o(i).stim.number = STNUM
+    CA3list.o(i).stim.start = STTIME
+    if (STRAN > 0) {	// uniform distribution of start times (BPG 20-2-14)
+      CA3list.o(i).stim.start = STTIME+rs.r.uniform(0, STRAN)
+    }
+    CA3list.o(i).stim.interval = STINT
+    CA3list.o(i).stim.burstlen = STBLEN
+    ncCA3list.o(i).weight = AM	
+    ncCA3Nlist.o(i).weight = NM	
+  }
+  if (LAYER_SYN == 2) {	// SO
+    CA3list.o(i+nCA3).stim.number = STNUM
+    CA3list.o(i+nCA3).stim.start = STTIME
+    CA3list.o(i+nCA3).stim.interval = STINT
+    CA3list.o(i+nCA3).stim.burstlen = STBLEN
+    ncCA3list.o(i+nCA3).weight = AM	
+    ncCA3Nlist.o(i+nCA3).weight = NM	
+  }
+  if (LAYER_SYN == 3) {	// SLM
+    EClist.o(i).stim.number = STNUM
+    EClist.o(i).stim.start = STTIME
+    EClist.o(i).stim.interval = STINT
+    EClist.o(i).stim.burstlen = STBLEN
+    ncEClist.o(i).weight = AM	
+    ncECNlist.o(i).weight = NM	
+  }  
+}
+
+tstop = 200
+
+// Run batch of simulations
+syn_vec = new Vector()
+mean_vec = new Vector()
+std_vec = new Vector()
+for (i=START_SYN+INC_SYN; i<=FIN_SYN+1; i=i+INC_SYN) {
+
+  //print "Synapses = ", i
+
+  for (j=i-INC_SYN; j<i; j=j+1) {
+    // activate next group of synapses (to add to total)
+    if (LAYER_SYN == 1) {		// SR
+      CA3list.o(j).stim.number = STNUM
+      CA3list.o(j).stim.start = STTIME
+      if (STRAN > 0) {	// uniform distribution of start times (BPG 20-2-14)
+        CA3list.o(j).stim.start = STTIME+rs.r.uniform(0, STRAN)
+      }
+      CA3list.o(j).stim.interval = STINT
+      CA3list.o(j).stim.burstlen = STBLEN
+      ncCA3list.o(j).weight = AM	
+      ncCA3Nlist.o(j).weight = NM	
+    }
+    if (LAYER_SYN == 2) {	// SO
+      CA3list.o(j+nCA3).stim.number = STNUM
+      CA3list.o(j+nCA3).stim.start = STTIME
+      CA3list.o(j+nCA3).stim.interval = STINT
+      CA3list.o(j+nCA3).stim.burstlen = STBLEN
+      ncCA3list.o(j+nCA3).weight = AM	
+      ncCA3Nlist.o(j+nCA3).weight = NM	
+    }
+    if (LAYER_SYN == 3) {	// SLM
+      EClist.o(j).stim.number = STNUM
+      EClist.o(j).stim.start = STTIME
+      EClist.o(j).stim.interval = STINT
+      EClist.o(j).stim.burstlen = STBLEN
+      ncEClist.o(j).weight = AM	
+      ncECNlist.o(j).weight = NM	
+    }
+  }
+  
+  // run simulation
+  finitialize(v_init)
+  run()
+  
+  // collect results
+  ca_vec = new Vector()
+  forsec cell.spine_list { ca_vec.append(camax_dca(0.5)) }
+  if (i==1) {
+    print "syns = ", i, " mean = ", ca_vec.x[FIRST_SYN], " std dev = 0"
+    syn_vec.append(i)
+    mean_vec.append(ca_vec.x[FIRST_SYN])
+    std_vec.append(0)
+  } else {
+    print "syns = ", i, " mean = ", ca_vec.mean(FIRST_SYN,FIRST_SYN+i-1), " std dev = ", ca_vec.stdev(FIRST_SYN,FIRST_SYN+i-1)
+    syn_vec.append(i)
+    mean_vec.append(ca_vec.mean(FIRST_SYN,FIRST_SYN+i-1))
+    std_vec.append(ca_vec.stdev(FIRST_SYN,FIRST_SYN+i-1))
+  }
+    
+}
+        
+// plot results
+g = new Graph()
+mean_vec.plot(g, syn_vec)
+
+// store peak calcium across all spine heads
+objref fo
+strdef fs, fno
+fs = "SR"
+sprint(fno,"./Results/%s_camaxav_spnum.dat", fs)
+fo = new File(fno)
+fo.wopen()
+for i=0, syn_vec.size-1 {
+  fo.printf("%g %g %g\n", syn_vec.x[i], mean_vec.x[i], std_vec.x[i])
+}
+fo.close()
+      

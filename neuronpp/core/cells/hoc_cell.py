@@ -1,45 +1,69 @@
 from neuron import h
 from nrn import Section
 
-from neuronpp.core.cells.section_cell import SectionCell
 from neuronpp.core.hocwrappers.sec import Sec
+from neuronpp.core.cells.section_cell import SectionCell
 
 
-class HOCCell(SectionCell):
-    def make_hoc(self, hoc_file, seg_per_L_um=1.0, make_const_segs=11):
+class HocCell(SectionCell):
+    def __init__(self, name):
+        SectionCell.__init__(self, name)
+        self._hoc_loaded = False
+
+    def make_hoc(self, hoc_file, cell_template_name: str = None):
         """
+        This method allows to load a single cell to your model. It is experimental function so may not work stable.
+        It is useful when loading a hoc file with a single cell declaration.
+        It is currently intented to use it only once per object, otherwise may produce errors
         :param hoc_file:
             paths to hoc file
-        :param seg_per_L_um:
-            how many segments per single um of L, Length.  Can be < 1. None is 0.
-        :param make_const_segs:
-            how many segments have each section by default.
-            With each um of L this number will be increased by seg_per_L_um
+        :param cell_template_name:
+            the name of the cell template. Default is None meaning that all sections are defined in the plain h.* object
         """
+        if self._hoc_loaded:
+            raise RuntimeError("make_hoc() function can be called only once per Cell object and it have been called earlier.")
+
         h.load_file(hoc_file)
 
-        result = []
-        # add potential new Sections from hoc file to self.secs dictionary
-        for d in dir(h):
-            try:
-                f = getattr(h, d)
-                if isinstance(f, Section):
-                        sec = Sec(f, parent=self, name=f.name())
-                        self.secs.append(sec)
-                        result.append(sec)
+        obj = h
+        if cell_template_name:
+            if not hasattr(h, cell_template_name):
+                raise AttributeError("Hoc main object 'h' has no template of '%s'." % cell_template_name)
 
-                        add = int(sec.hoc.L * seg_per_L_um) if seg_per_L_um is not None else 0
-                        sec.hoc.nseg = make_const_segs + add
+            obj = getattr(h, cell_template_name)
+
+            if len(obj) == 0:
+                raise LookupError("Hoc main object 'h' has no template '%s' created, hovewer it was defined." % cell_template_name)
+            if len(obj) > 1:
+                raise LookupError("Hoc main object 'h' has %s objects of template '%s', hovewer currently this mechanisms support "
+                                  "a only single template object creation in Hoc." % (len(obj), cell_template_name))
+
+        result = self._add_new_sections(obj[0])
+        self._hoc_loaded = True
+        return result
+
+    def _add_new_sections(self, obj):
+        result = []
+        for d in dir(obj):
+            try:
+                if d.startswith("_"):
+                    continue
+                f = getattr(obj, d)
+
+                if isinstance(f, Section):
+                    sec = self._add_sec(f)
+                    result.append(sec)
 
                 elif len(f) > 0 and isinstance(f[0], Section):
                     for ff in f:
-                        sec = Sec(f, parent=self, name=ff.name())
-                        self.secs.append(sec)
+                        sec = self._add_sec(ff)
                         result.append(sec)
 
-                        add = int(sec.hoc.L * seg_per_L_um) if seg_per_L_um is not None else 0
-                        sec.hoc.nseg = make_const_segs + add
-            except TypeError:
+            except (TypeError, IndexError):
                 continue
-
         return result
+
+    def _add_sec(self, sec_obj):
+        sec = Sec(sec_obj, parent=self, name=sec_obj.name())
+        self.secs.append(sec)
+        return sec

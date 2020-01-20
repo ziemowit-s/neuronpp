@@ -1,0 +1,36 @@
+// Dummy cell containing a BurstStim object
+// BPG 10-12-08
+
+begintemplate BurstCell
+public is_art
+public init
+public connect2target
+public soma, stim
+
+objref stim
+
+proc init() {
+	biophys()
+}
+
+create soma
+
+proc biophys() {
+	soma stim = new BurstStim2()
+    	stim.number = 10000
+    	stim.start = 0
+    	stim.interval = 10
+    	stim.noise = 0
+    	stim.burstint = 100	// interburst interval (ms)
+    	stim.burstlen = 100	// burst length (ms)
+}
+
+obfunc connect2target() { localobj nc //$o1 target point process, optional $o2 returned NetCon
+  	soma nc = new NetCon(stim, $o1)
+  	if (numarg() == 2) { $o2 = nc } // for backward compatibility
+  	return nc
+}
+
+func is_art() { return 0 }
+
+endtemplate BurstCell

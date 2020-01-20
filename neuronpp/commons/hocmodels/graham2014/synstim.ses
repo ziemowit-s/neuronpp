@@ -1,0 +1,168 @@
+{load_file("nrngui.hoc")}
+objectvar save_window_, rvp_
+objectvar scene_vector_[8]
+objectvar ocbox_, ocbox_list_, scene_, scene_list_
+{ocbox_list_ = new List()  scene_list_ = new List()}
+{pwman_place(0,0,0)}
+
+//Begin PointProcessManager
+{
+load_file("pointman.hoc")
+}
+{
+PyramidalCell[0].soma[0] ocbox_ = new PointProcessManager(0)
+}
+{object_push(ocbox_)}
+{
+mt.select("IClamp") i = mt.selected()
+ms[i] = new MechanismStandard("IClamp")
+ms[i].set("del", 50, 0)
+ms[i].set("dur", 5, 0)
+ms[i].set("amp", 0, 0)
+mt.select("IClamp") i = mt.selected() maction(i)
+hoc_ac_ = 0.5
+sec.sec move() d1.flip_to(0)
+}
+{object_pop() doNotify()}
+{
+ocbox_ = ocbox_.v1
+ocbox_.map("PointProcessManager", 174, 744, 243.9, 486.9)
+}
+objref ocbox_
+//End PointProcessManager
+
+{
+save_window_ = new Shape(0)
+save_window_.size(-322.879,422.879,-217.102,528.657)
+scene_vector_[2] = save_window_
+{save_window_.view(-322.879, -217.102, 745.759, 745.759, 1, 559, 200.7, 200.8)}
+}
+{
+xpanel("Plots", 0)
+xlabel("Max voltage plots")
+xbutton("Spine heads","cell.plotvmx(cell.spine_list)")
+xbutton("Dendrites","cell.plotvmx(cell.dendrite_list)")
+xbutton("Apical","cell.plotvmx(cell.apical_list)")
+xbutton("Apical trunk","cell.plotvmx(cell.trunk_list)")
+xbutton("Apical obliques","cell.plotvmx(cell.oblique_list)")
+xbutton("SR","cell.plotvmx(cell.SR_list)")
+xbutton("SLM","cell.plotvmx(cell.SLM_list)")
+xbutton("Basal","cell.plotvmx(cell.basal_list)")
+xlabel("Max calcium plots")
+xbutton("Spine heads","cell.plotcamx(cell.spine_list, tot_spines, 1.0)")
+xbutton("Dendrites","cell.plotcamxd(cell.dendrite_list)")
+xbutton("Apical","cell.plotcamxd(cell.apical_list)")
+xbutton("Apical trunk","cell.plotcamxd(cell.trunk_list)")
+xbutton("Apical obliques","cell.plotcamxd(cell.oblique_list)")
+xbutton("SR","cell.plotcamxd(cell.SR_list)")
+xbutton("SLM","cell.plotcamxd(cell.SLM_list)")
+xbutton("Basal","cell.plotcamxd(cell.basal_list)")
+xpanel(278,122)
+}
+{
+xpanel("Synapses", 0)
+xlabel("CA3 apical")
+nCA3 = 500
+xvalue("Number","nCA3", 1,"setCA3()", 0, 0 )
+CAWGT = 0.0005
+xvalue("AMPA","CAWGT", 1,"setCA3()", 0, 0 )
+CNWGT = 0.001
+xvalue("NMDA","CNWGT", 1,"setCA3()", 0, 0 )
+xlabel("CA3 basal")
+nCA3b = 500
+xvalue("Number","nCA3b", 1,"setCA3b()", 0, 0 )
+CAWGTb = 0.0005
+xvalue("AMPA","CAWGTb", 1,"setCA3b()", 0, 0 )
+CNWGTb = 0.001
+xvalue("NMDA","CNWGTb", 1,"setCA3b()", 0, 0 )
+xlabel("EC")
+nEC = 500
+xvalue("Number","nEC", 1,"setEC()", 0, 0 )
+ECWGT = 0.0001
+xvalue("AMPA","ECWGT", 1,"setEC()", 0, 0 )
+ECNWGT = 0.0008
+xvalue("NMDA","ECNWGT", 1,"setEC()", 0, 0 )
+xlabel("GABAA")
+BCWGT = 0
+xvalue("BC","BCWGT", 1,"setBC()", 0, 0 )
+BSCWGT = 0
+xvalue("BSC","BSCWGT", 1,"setBSC()", 0, 0 )
+xpanel(450,120)
+}
+{
+xpanel("Ion Channels", 0)
+xlabel("KA")
+cell.gka = 0.03
+xvalue("gka","cell.gka", 1,"cell.set_dendrite()", 0, 0 )
+xlabel("Ih")
+cell.ghd = 5e-05
+xvalue("gh","cell.ghd", 1,"cell.set_dendrite()", 0, 0 )
+xpanel(450,618)
+}
+{
+xpanel("RunControl", 0)
+v_init = -65
+xvalue("Init","v_init", 1,"stdinit()", 1, 1 )
+xbutton("Init & Run","run()")
+xbutton("Stop","stoprun=1")
+runStopAt = 5
+xvalue("Continue til","runStopAt", 1,"{continuerun(runStopAt) stoprun=1}", 1, 1 )
+runStopIn = 1
+xvalue("Continue for","runStopIn", 1,"{continuerun(t + runStopIn) stoprun=1}", 1, 1 )
+xbutton("Single Step","steprun()")
+t = 200
+xvalue("t","t", 2 )
+tstop = 200
+xvalue("Tstop","tstop", 1,"tstop_changed()", 0, 1 )
+dt = 4.0467
+xvalue("dt","dt", 1,"setdt()", 0, 1 )
+steps_per_ms = 40
+xvalue("Points plotted/ms","steps_per_ms", 1,"setdt()", 0, 1 )
+screen_update_invl = 0.05
+xvalue("Scrn update invl","screen_update_invl", 1,"", 0, 1 )
+realtime = 20.3
+xvalue("Real Time","realtime", 0,"", 0, 1 )
+xpanel(0,120)
+}
+{
+save_window_ = new Graph(0)
+save_window_.size(0,200,-80,40)
+scene_vector_[4] = save_window_
+{save_window_.view(0, -80, 200, 120, 732, 18, 300.6, 200.8)}
+graphList[0].append(save_window_)
+save_window_.save_name("graphList[0].")
+save_window_.addvar("cell.soma[0].v( 0.5 )", 1, 1, 0.650299, 0.926892, 2)
+}
+{
+save_window_ = new Graph(0)
+save_window_.size(0,200,-80,40)
+scene_vector_[5] = save_window_
+{save_window_.view(0, -80, 200, 120, 732, 360, 300.6, 200.8)}
+graphList[0].append(save_window_)
+save_window_.save_name("graphList[0].")
+save_window_.addvar("cell.shead[0].v( 0.5 )", 2, 1, 0.614371, 0.989638, 2)
+save_window_.addexpr("cell.shead[500].v( 0.5 )", 5, 1, 0.614371, 0.994123, 2)
+save_window_.addexpr("cell.shead[1000].v( 0.5 )", 3, 1, 0.614371, 0.994123, 2)
+}
+{
+save_window_ = new Graph(0)
+save_window_.size(0,200,1.16415e-10,0.018)
+scene_vector_[6] = save_window_
+{save_window_.view(0, 1.16415e-10, 200, 0.018, 732, 696, 300.6, 200.8)}
+graphList[2].append(save_window_)
+save_window_.save_name("graphList[2].")
+save_window_.addvar("cell.shead[0].cai( 0.5 )", 2, 1, 0.623353, 0.958267, 2)
+save_window_.addexpr("cell.shead[500].cai( 0.5 )", 5, 1, 0.623353, 0.949303, 2)
+save_window_.addexpr("cell.shead[1000].cai( 0.5 )", 3, 1, 0.623353, 0.940339, 2)
+}
+{
+save_window_ = new PlotShape(0)
+save_window_.size(-322.879,422.88,-217.288,528.843)
+save_window_.variable("v")
+scene_vector_[7] = save_window_
+{save_window_.view(-322.879, -217.288, 745.759, 746.131, 456, 792, 200.7, 200.8)}
+fast_flush_list.append(save_window_)
+save_window_.save_name("fast_flush_list.")
+}
+objectvar scene_vector_[1]
+{doNotify()}

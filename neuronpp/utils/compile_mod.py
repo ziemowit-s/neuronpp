@@ -1,4 +1,5 @@
 import os
+import time
 from argparse import ArgumentParser
 from distutils.dir_util import copy_tree, remove_tree
 from distutils.file_util import copy_file
@@ -59,6 +60,7 @@ class CompileMOD:
         os.chdir(working_dir)
 
         remove_tree(tmp_path)
+        time.sleep(1)
 
     def copy_mods(self, source_path, tmp_path):
         for filename in os.listdir(source_path):
@@ -71,19 +73,18 @@ class CompileMOD:
 
 
 if __name__ == '__main__':
-
     desc = "Compile all MOD files from the source folder to a single" \
            "folder in the target folder. By default works only with Linux NEURON compilation, " \
            "but if you change compiled_folder_name and mod_compile_command - to what is appropriate for your OS," \
            " it will work as well."
     parser = ArgumentParser(description=desc)
 
-    parser.make_argument("-s", "--sources", help="Paths to the source folder.", required=True, nargs='+')
-    parser.make_argument("-t", "--target", help="Path to the target folder.", required=True)
-    parser.make_argument("-c", "--compiled_folder_name", help="Name of the folder containing MOD files in your OS."
+    parser.add_argument("-s", "--sources", help="Paths to the source folder.", required=True, nargs='+')
+    parser.add_argument("-t", "--target", help="Path to the target folder.", required=True)
+    parser.add_argument("-c", "--compiled_folder_name", help="Name of the folder containing MOD files in your OS."
                                                              "By default it is 'x86_64' for 64 architecture on Linux.",
                         default="x86_64")
-    parser.make_argument("-m", "--mod_compile_command", help="MOD compile command of NEURON. By default it is 'nrnivmodl "
+    parser.add_argument("-m", "--mod_compile_command", help="MOD compile command of NEURON. By default it is 'nrnivmodl "
                                                             "which is Linux command'. You can give different command specific for your OS",
                         default='nrnivmodl')
     args = parser.parse_args()
