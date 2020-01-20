@@ -1,4 +1,8 @@
+import os
+
 import matplotlib.pyplot as plt
+from neuronpp.utils.compile_mod import CompileMOD
+
 from neuronpp.utils.run_sim import RunSim
 
 from neuronpp.utils.record import Record
@@ -9,6 +13,9 @@ from neuronpp.core.cells.netstim_cell import NetStimCell
 WEIGHT = 0.0035  # µS, conductance of (single) synaptic potentials
 WARMUP = 200
 
+# Compile mods
+comp = CompileMOD()
+comp.compile(source_paths="commons/mods/ebner2019", target_path=os.getcwd())
 
 if __name__ == '__main__':
     # define cell

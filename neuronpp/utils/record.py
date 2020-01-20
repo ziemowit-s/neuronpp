@@ -17,6 +17,9 @@ class Record:
         :param variables:
             str or list_of_str of variable names to track
         """
+        if not isinstance(sections, (list, set, tuple)):
+            sections = [sections]
+
         if isinstance(variables, str):
             variables = variables.split(' ')
 

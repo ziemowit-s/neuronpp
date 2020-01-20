@@ -60,7 +60,6 @@ class CompileMOD:
         os.chdir(working_dir)
 
         remove_tree(tmp_path)
-        time.sleep(1)
 
     def copy_mods(self, source_path, tmp_path):
         for filename in os.listdir(source_path):

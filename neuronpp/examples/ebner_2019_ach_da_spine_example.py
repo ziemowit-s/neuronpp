@@ -1,5 +1,9 @@
+import os
+
 import numpy as np
 import matplotlib.pyplot as plt
+from neuronpp.utils.compile_mod import CompileMOD
+
 from neuronpp.utils.run_sim import RunSim
 
 from neuronpp.utils.record import Record
@@ -10,6 +14,10 @@ from neuronpp.cells.ebner2019_ach_da_cell import Ebner2019AChDACell
 
 WEIGHT = 0.0035		# µS, conductance of (single) synaptic potentials
 WARMUP = 200
+
+# Compile mods
+comp = CompileMOD()
+comp.compile(source_paths="commons/mods/ebner2019 commons/mods/4p_ach_da_syns commons/mods/neuron_commons", target_path=os.getcwd())
 
 
 if __name__ == '__main__':
