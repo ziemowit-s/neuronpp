@@ -1,3 +1,5 @@
+import random
+
 from neuron import h
 from neuron.hoc import HocObject
 from neuronpp.core.hocwrappers.vecstim import VecStim
@@ -30,7 +32,7 @@ class NetConnCell(PointProcessCell):
         """
         return self.filter(searchable=self.ncs, mod_name=mod_name, name=name)
 
-    def make_netcons(self, source: HocWrapper, weight, source_loc=None, point_process=None, mod_name: str = None, delay=0, threshold=10):
+    def make_netcons(self, source: HocWrapper, weight, rand_weight=False, source_loc=None, point_process=None, mod_name: str = None, delay=0, threshold=10):
         """
         All name must contains index of the point process of the specific type.
         eg. head[0][0] where head[0] is name and [0] is index of the point process of the specific type.
@@ -39,6 +41,8 @@ class NetConnCell(PointProcessCell):
             Can be only: hocwrappers.NetStim, hocwrappers.VecStim, hocwrappers.Sec or None. If it is Sec also loc param need to be defined.
             If None it will create NetConn with no source, which can be use as external event source
         :param weight:
+        :param rand_weight:
+            if True, will find rand weight [0,1) and multiply this by weight.
         :param source_loc:
             if source is type of hocwrapper.Sec - source_loc need to be between 0-1
         :param mod_name:
@@ -86,7 +90,11 @@ class NetConnCell(PointProcessCell):
                 source_sec = source.hoc  # Sec to create NetCon
 
         for pp in point_process:
-            conn, name = self._make_netconn(source=netconn_source, source_sec=source_sec, point_process=pp, weight=weight,
+            if rand_weight:
+                current_weight = random.random() * weight
+            else:
+                current_weight = weight
+            conn, name = self._make_netconn(source=netconn_source, source_sec=source_sec, point_process=pp, weight=current_weight,
                                             delay=delay, threshold=threshold)
             results.append(conn)
 
