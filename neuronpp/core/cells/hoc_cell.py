@@ -1,11 +1,12 @@
 from neuron import h
+from neuronpp.core.cells.point_process_cell import PointProcessCell
 from nrn import Section
 
 from neuronpp.core.hocwrappers.sec import Sec
 from neuronpp.core.cells.section_cell import SectionCell
 
 
-class HocCell(SectionCell):
+class HocCell(PointProcessCell):
     def __init__(self, name):
         SectionCell.__init__(self, name)
         self._hoc_loaded = False
@@ -52,19 +53,24 @@ class HocCell(SectionCell):
                 f = getattr(obj, d)
 
                 if isinstance(f, Section):
-                    sec = self._add_sec(f)
+                    sec = self._append_sec_and_point_processes(f)
                     result.append(sec)
 
                 elif len(f) > 0 and isinstance(f[0], Section):
                     for ff in f:
-                        sec = self._add_sec(ff)
+                        sec = self._append_sec_and_point_processes(ff)
                         result.append(sec)
 
             except (TypeError, IndexError):
                 continue
         return result
 
-    def _add_sec(self, sec_obj):
-        sec = Sec(sec_obj, parent=self, name=sec_obj.name())
+    def _append_sec_and_point_processes(self, hoc_sec_obj):
+        pps = hoc_sec_obj.psection()['point_processes']
+        if len(pps) > 0:
+            for mod_name, hoc_obj in pps.items():
+                self._append_pp(hoc_point_process=hoc_obj, mod_name=mod_name, sec_name=hoc_sec_obj.name)
+
+        sec = Sec(hoc_sec_obj, parent=self, name=hoc_sec_obj.name())
         self.secs.append(sec)
         return sec

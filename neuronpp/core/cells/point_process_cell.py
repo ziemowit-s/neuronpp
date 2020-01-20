@@ -53,17 +53,9 @@ class PointProcessCell(SectionCell):
 
         result = []
         for s in sec:
-            current_mod_name = "%s_%s" % (mod_name, s.name)
-            sec_name = "%s[%s]" % (s.name, self._pp_num[current_mod_name])
-            self._pp_num[current_mod_name] += 1
-
-            if tag:
-                sec_name = "%s[%s]" % (sec_name, tag)
-
             hoc_pp = pp_obj(s.hoc(loc))
-            pp = PointProcess(hoc_pp, parent=self, name=sec_name, mod_name=mod_name)
+            pp = self._append_pp(hoc_point_process=hoc_pp, mod_name=mod_name, sec_name=s.name, tag=tag)
             result.append(pp)
-            self.pps.append(pp)
 
             for key, value in point_process_params.items():
                 if not hasattr(pp.hoc, key):
@@ -72,3 +64,16 @@ class PointProcessCell(SectionCell):
                 setattr(pp.hoc, key, value)
 
         return result
+
+    def _append_pp(self, hoc_point_process, mod_name, sec_name, tag=None):
+        current_mod_name = "%s_%s" % (mod_name, sec_name)
+
+        result_name = "%s[%s]" % (sec_name, self._pp_num[current_mod_name])
+        self._pp_num[current_mod_name] += 1
+
+        if tag:
+            result_name = "%s[%s]" % (result_name, tag)
+
+        pp = PointProcess(hoc_point_process, parent=self, name=result_name, mod_name=mod_name)
+        self.pps.append(pp)
+        return pp
