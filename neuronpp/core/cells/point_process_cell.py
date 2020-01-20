@@ -54,7 +54,7 @@ class PointProcessCell(SectionCell):
         result = []
         for s in sec:
             hoc_pp = pp_obj(s.hoc(loc))
-            pp = self._append_pp(hoc_point_process=hoc_pp, mod_name=mod_name, sec_name=s.name, tag=tag)
+            pp = self._append_pp(hoc_point_process=hoc_pp, mod_name=mod_name, single_sec=s, tag=tag)
             result.append(pp)
 
             for key, value in point_process_params.items():
@@ -65,7 +65,8 @@ class PointProcessCell(SectionCell):
 
         return result
 
-    def _append_pp(self, hoc_point_process, mod_name, sec_name, tag=None):
+    def _append_pp(self, hoc_point_process, mod_name, single_sec, tag=None):
+        sec_name = single_sec.name
         current_mod_name = "%s_%s" % (mod_name, sec_name)
 
         result_name = "%s[%s]" % (sec_name, self._pp_num[current_mod_name])
@@ -74,6 +75,6 @@ class PointProcessCell(SectionCell):
         if tag:
             result_name = "%s[%s]" % (result_name, tag)
 
-        pp = PointProcess(hoc_point_process, parent=self, name=result_name, mod_name=mod_name)
+        pp = PointProcess(hoc_point_process, parent_sec=single_sec, name=result_name, mod_name=mod_name)
         self.pps.append(pp)
         return pp

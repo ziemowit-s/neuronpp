@@ -1,20 +1,22 @@
 from neuron import h
 from neuron.units import ms
+from neuronpp.core.hocwrappers.sec import Sec
 
 from neuronpp.core.cells.core_cell import CoreCell
+from neuronpp.core.hocwrappers.composed.composed_hoc_wrapper import ComposedHocWrapper
 from neuronpp.core.hocwrappers.netconn import NetConn
 from neuronpp.core.hocwrappers.point_process import PointProcess
 
 
-class Synapse:
-    def __init__(self, source, point_process: PointProcess, netconn: NetConn, parent_cell: CoreCell, name):
-        self.parent = str(parent_cell)
-        self.name = name
-        self.mod_name = point_process.mod_name
+class Synapse(ComposedHocWrapper):
+    def __init__(self, source, point_process: PointProcess, netconn: NetConn, parent_sec: Sec, name, tag=None):
+        ComposedHocWrapper.__init__(self, parent=parent_sec, name=name)
 
+        self.tag = tag
         self.source = source
-        self.point_process = point_process
         self.netconn = netconn
+        self.point_process = point_process
+        self.mod_name = point_process.mod_name
 
     def make_event(self, time, use_global_sim_time=True):
         """

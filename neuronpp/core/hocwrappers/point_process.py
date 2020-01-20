@@ -1,10 +1,12 @@
+from neuronpp.core.hocwrappers.sec import Sec
+
 from neuronpp.core.cells.core_cell import CoreCell
 from neuronpp.core.hocwrappers.hoc_wrapper import HocWrapper
 
 
 class PointProcess(HocWrapper):
-    def __init__(self, hoc_obj, name, parent: CoreCell, mod_name):
-        HocWrapper.__init__(self, hoc_obj=hoc_obj, parent=parent, name=name)
+    def __init__(self, hoc_obj, name, parent_sec: Sec, mod_name):
+        HocWrapper.__init__(self, hoc_obj=hoc_obj, parent=parent_sec, name=name)
         self.mod_name = mod_name
 
     def __repr__(self):

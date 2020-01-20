@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from neuronpp.core.cells.netconn_cell import NetConnCell
 from neuronpp.core.hocwrappers.composed.synapse import Synapse
 
@@ -6,8 +8,9 @@ class SynapticCell(NetConnCell):
     def __init__(self, name=None):
         NetConnCell.__init__(self, name)
         self.syns = []
+        self._syn_num = defaultdict(int)
 
-    def filter_synapse(self, mod_name: str, name, source=None, point_process=None):
+    def filter_synapse(self, mod_name: str = None, name=None, source=None, point_process=None, tag=None):
         """
         All name must contains index of the point process of the specific type.
         eg. head[0][0] where head[0] is name and [0] is index of the point process of the specific type.
@@ -22,7 +25,7 @@ class SynapticCell(NetConnCell):
             string of point process compound name
         :return:
         """
-        return self.filter(self.syns, mod_name=mod_name, name=name, source=source, point_process=point_process)
+        return self.filter(self.syns, mod_name=mod_name, name=name, source=source, point_process=point_process, tag=tag)
 
     def make_sypanses(self, source, weight, tag: str = None, mod_name: str = None, sec=None, source_loc=None, target_loc=0.0,
                       delay=0, threshold=10, **synaptic_params):
@@ -32,8 +35,11 @@ class SynapticCell(NetConnCell):
                                 delay=delay, threshold=threshold)
 
         result = []
-        for i, (p, n) in enumerate(zip(pps, nns)):
-            syn = Synapse(source, point_process=p, netconn=n, parent_cell=self, name=str(i))
+        for p, n in zip(pps, nns):
+            i = self._syn_num[p.mod_name]
+            self._syn_num[p.mod_name] += 1
+
+            syn = Synapse(source, point_process=p, netconn=n, parent_sec=p.parent, name=str(i), tag=tag)
             self.syns.append(syn)
             result.append(syn)
 

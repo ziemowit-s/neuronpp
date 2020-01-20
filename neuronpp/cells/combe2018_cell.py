@@ -42,23 +42,26 @@ class Combe2018Cell(Cell, HocCell):
         main_file = "%s/load_cell.hoc" % model_folder
         self.make_hoc(main_file)
 
-        self.ampa_syns = []
-        self.nmda_syns = []
+        self.combe_syns = []
         if spine_number > 0:
 
             heads = self.make_spines(sec=spine_sec, spine_number=spine_number, head_nseg=10, neck_nseg=10, seed=spine_seed)
 
             # Create AMPA synapses
             ampa_weight = 1.2 * 0.00156
-            self.ampa_syns = self.make_sypanses(source=None, sec=heads, weight=ampa_weight, mod_name="Exp2Syn")
-            for syn in self.ampa_syns:
+            ampa_syns = self.make_sypanses(source=None, sec=heads, weight=ampa_weight, mod_name="Exp2Syn")
+            for syn in ampa_syns:
                 syn.point_process.hoc.e = 0
                 syn.point_process.hoc.tau1 = .5
                 syn.point_process.hoc.tau2 = 1.0
 
             # Create NMDA synapses
             nmda_weight = 1.2 * 0.000882
-            self.nmda_syns = self.make_sypanses(source=None, sec=heads, weight=nmda_weight, mod_name="nmdanet")
-            for syn in self.nmda_syns:
+            nmda_syns = self.make_sypanses(source=None, sec=heads, weight=nmda_weight, mod_name="nmdanet")
+            for syn in nmda_syns:
                 syn.point_process.hoc.Alpha = 0.35
                 syn.point_process.hoc.Beta = 0.035
+
+            for syns in zip(ampa_syns, nmda_syns):
+                comp_syn = self.group_complex_sypanses(syns, tag="combe_type")
+                self.combe_syns.append(comp_syn)
