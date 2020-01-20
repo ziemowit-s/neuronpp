@@ -8,8 +8,8 @@ from neuronpp.core.cells.hoc_cell import HocCell
 from neuronpp.cells.cell import Cell
 
 
-class Graham2014Cell(Cell, HocCell):
-    def __init__(self, name=None, model_folder="commons/hocmodels/graham2014", compile=True):
+class Combe2018Cell(Cell, HocCell):
+    def __init__(self, name=None, model_folder="commons/hocmodels/combe2018", compile=True):
         Cell.__init__(self, name)
         HocCell.__init__(self, name)
 
@@ -17,6 +17,6 @@ class Graham2014Cell(Cell, HocCell):
             comp = CompileMOD()
             comp.compile(source_paths=model_folder, target_path=os.getcwd())
 
-        main_file = "%s/run_PC.hoc" % model_folder
-        self.make_hoc(main_file, cell_template_name="PyramidalCell")
+        main_file = "%s/load_cell.hoc" % model_folder
+        self.make_hoc(main_file)
 

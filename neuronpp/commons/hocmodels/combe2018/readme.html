@@ -1,0 +1,60 @@
+<html>
+  This is the NEURON code associated with the paper:<p/>
+  Combe CL, Canavier CC, Gasparini S (2018) Intrinsic mechanisms of frequency selectivity in the proximal dendrites of CA1 pyramidal neurons. J Neurosci<br/>
+  <a href="http://dx.doi.org/10.1523/JNEUROSCI.0449-18.2018">http://dx.doi.org/10.1523/JNEUROSCI.0449-18.2018</a><p/>
+  This model entry was contributed by C Canavier. The freely available NEURON
+  simulation enivronment (from <a href="http://www.neuron.yale.edu">http://www.neuron.yale.edu</a>) is required for this model.<p/>
+  To use:<br/>
+  -------<br/>
+
+  Autolaunch from modeldb if the browser is capable or compile the mod
+  files and start with mosinit.hoc (easiest) or either multisyn.hoc or
+  simplestim.hoc with nrngui. (If you need more help to run the model,
+  please refer to:<br/>
+
+  <a href="https://senselab.med.yale.edu/ModelDB/NEURON_DwnldGuide.cshtml">https://senselab.med.yale.edu/ModelDB/NEURON_DwnldGuide.cshtml</a>)<p/>
+  On linux for example typing<br/>
+  nrngui multisyn.hoc
+  <br/>
+  Will generate a graph like figure 1B1 (left 40Hz):<p/>
+  <img src="./screenshot1.png" width="550">
+  <p/>
+  and running:<br/>
+  nrngui simplestim.hoc
+  <br/>
+  Will generate a graph like figure 1C (right 100Hz):<p/>
+  <img src="./screenshot2.png" width="550">
+  <p/>
+  Additional running notes:<br/>
+  -------------------------<br/>
+
+  The frequency of somatic stimulation can be changed using the
+  prameter period in simplestim.hoc which is currently set to 10 ms
+  for 100 Hz stimulation. Re-running simplestim.hoc at 25 ms will then
+generate a graph similar to figure 2C (left):
+
+  <p/>
+  <img src="./screenshot3.png" width="550">
+  <p/>
+
+The frequency of synaptic stimulation can be changed using the
+parameter named “interval in multisyn.hoc, which is currently set to
+25 ms for 40 Hz stimulation. Re-running mutlisyn.hoc with 10 ms will then
+generate a graph similar to figure 1B1 (right):
+
+  <p/>
+  <img src="./screenshot4.png" width="550">
+  <p/>
+The calcium concentration in Figure 1B2 and the SK activation in
+Figure 1B3 are from compartment trunk[10]. The SK activation variable
+was cubed offline.
+<p/>
+  In order to turn the SK conductance off , set the parameter
+  mykca_init to zero in cell-setup.hoc
+    
+</html>
+
+
+  
+  
+  

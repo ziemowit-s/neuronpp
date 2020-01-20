@@ -1,0 +1,157 @@
+
+back=0
+
+//////// load needed templates////////////
+if(!back){ load_file("nrngui.hoc")               }
+if(!back){ load_file("template/ObliquePath.hoc") }
+if(!back){ load_file("template/BasalPath.hoc"  ) }
+
+objref econ,f1,f2,f3,ss,cvode
+f1= new File()
+f2= new File()
+f3= new File()
+ss=new SaveState()                                                                  
+cvode = new CVode(1)
+x=cvode.active(1)
+
+restart=0
+v_init=-70
+
+strdef morphology_location, morpho_path, ObliqueTrunkSection, BasalTrunkSection
+objref vRP, vAPEX
+
+proc xopen_morphology(){
+	sprint(morpho_path,"%s/%s",morphology_location,$s1)
+	xopen(morpho_path)
+}
+
+// Carmen
+morphology_location = "pc2b"
+ObliqueTrunkSection = "trunk[17]"
+BasalTrunkSection   = "trunk[7]"
+
+xopen_morphology("cell.hoc")				//reads morpholofy from the file
+xopen_morphology("cell-analysis-simple.hoc") //reads simplified version of CA 
+
+
+			// --------------- Creating lists-----------------
+
+xopen("lib/TP-lib.hoc")
+Tip_sections(apical_non_trunk_list,apical_trunk_list,"Apical")		
+objref apical_tip_list
+apical_tip_list=TP_list							// Apical Tip list
+
+print "apical_tip_list"
+apical_tip_list.printnames()
+print  "END apical_tip_list"
+
+objref tmp_pl[num_tips],pl[num_tips],opl[num_tips],degree_apical_tip,peri_trunk_list
+objref bl[num_tips],obl[num_tips],degree_basal_tip
+xopen("lib/Oblique-lib.hoc")
+oblique_sections(apical_tip_list,apical_trunk_list,num_tips)		// apical dendrite path lists and degree of tips
+
+xopen("lib/vector-distance.hoc")
+
+//-----------------------------------------------------------------------------------------------------
+printf("Setting up cell\n")                                         // load cell-setup to
+xopen("cell-setup.hoc")                                             // specify all mechanisms, membrane properties etc
+
+
+///////////////////Load File//////////////////////
+
+//if(!back) load_file("kca.ses")
+if(!back) { load_file("print.ses") }
+/*cvode_active(1)*/
+
+//////   Spike counter//////////
+
+objref apc, v1
+
+proc insert_APC() {
+	apc = new APCount(0.5)
+	apc.thresh = $1
+	v1 = new Vector()
+	apc.record(v1)
+}
+
+proc init() {
+	if(restart){
+		f1.ropen("state.old")
+		ss.fread(f1)
+		f1.close
+		finitialize(v_init)
+		ss.restore()
+		t=0
+		fcurrent()
+		cvode.re_init()
+	} else {
+		finitialize(v_init)
+		fcurrent()
+	}
+}
+
+
+
+
+            
+////////////////////Main///////////////////
+
+nsyn=10
+objref  s[nsyn], rsyn[nsyn], nc[nsyn]
+objref rsynmda[nsyn], ncnmda[nsyn]
+
+objref tvec,ampvec,iclamp
+proc main(){
+
+	tstop=4000
+
+	in=0
+
+	th=-14
+	access soma
+	insert_APC(th)
+
+	f3.wopen("spike.dat")
+	current=0.0 // 0.18
+	npulse = 10
+	period = 10 // 10
+	pulsdur = 2
+	pulsamp = 1.0
+	starttime = 1000
+
+
+	soma {
+		iclamp = new IClamp( 0.5 )
+		tvec	= new Vector( npulse * 2 )
+		ampvec = new Vector( npulse * 2 )
+	}
+
+	iclamp.del = starttime
+	iclamp.amp = 0
+	for i=0,(npulse-1){
+		tvec.x[i*2  ] = starttime + i*period
+		tvec.x[i*2+1] = starttime + i*period + pulsdur
+		iclamp.dur = i*period + pulsdur
+		ampvec.x[i*2  ] = pulsamp
+		ampvec.x[i*2+1] = 0
+	}
+	ampvec.play(&iclamp.amp,tvec)
+	access soma[0]
+	//////////////run//////////////////////// 
+	run()
+	/////////////////////////////////////
+	// print the spike number 
+	if(!back) printf("\n Current: %.4f nA | # Spikes: %d\n", current,  apc.n)
+	if(!back) printf("___________________\n")
+	v1.printf(f3)
+
+	f3.close
+	f2.wopen("state.new")
+	ss.save
+	ss.fwrite(f2)
+	f2.close
+}
+
+main()
+/********    end file    ******/
+

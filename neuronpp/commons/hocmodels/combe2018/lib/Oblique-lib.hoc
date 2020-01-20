@@ -1,0 +1,171 @@
+
+objref sr
+objref vPOI
+//	objref fileref						//to save in file
+
+
+//----------------------------------   oblique_sections()     ----------------------------
+//Inputs:	$o1 is the SectionList called Tip_list
+//		$o2 is the SectionLIst called apical_trunk_list
+//		$3 is the number of Tips
+
+proc oblique_sections(){local loop
+	plcount=0
+//	strdef temp							//to save in file
+	degree_apical_tip=new Vector($3)
+//	distance_apical_tip=new Vector($3)
+
+//	fileref=new File()						//to save in file
+//	sprint(temp, "%s/tip_degree_distance.dat", econ.data_dir)	//to save in file
+//	fileref.wopen(temp)						//to save in file
+
+	forsec $o1{	
+		sr=new SectionRef()
+		tmp_pl[plcount]=new SectionList()
+
+		sr.sec tmp_pl[plcount].append()
+		loop=1
+		while(loop){
+			if (sr.has_parent){
+				sr.parent tmp_pl[plcount].append()
+				access sr.parent
+				sr=new SectionRef()
+				ifsec $o2{loop=0}
+				} 
+				print secname()
+		}
+		degree_apical_tip.x[plcount]=degree_TP(tmp_pl[plcount])
+		reverse_list(tmp_pl[plcount],plcount)	
+		opl[plcount]=new ObliquePath(pl[plcount])
+//		nseg=5
+//		vPOI=new Vector()
+//		vPOI.append(x3d(0.5))
+//		vPOI.append(y3d(0.5))
+//		vPOI.append(z3d(0.5))
+
+//		distance_apical_tip.x[plcount]=vector_distance(vRP,vAPEX,vPOI,adjustment)
+	
+//		fileref.printf( "%s %d %g\n", secname(), degree_apical_tip.x[plcount],distance_apical_tip.x[plcount])	//to save in file
+
+		plcount+=1
+	}
+	plcount-=1	//This variable is used in Cell-setup.hoc
+//	fileref.close()							//to save in file
+}
+
+
+
+			// Save the SOMA record
+
+
+
+
+//-----------------------  Reverse() ---------------------------------------------
+
+proc reverse_list(){local n_list, n
+	
+	pl[$2]=new SectionList()	
+	
+	n_list=0
+	forsec $o1 {n_list+=1}
+
+	n=n_list
+	j=0
+	for (j=0;j<=n_list; j+=1){
+		i=0
+		forsec $o1 {
+			if(i==n) {pl[$2].append()}
+			i+=1
+		}
+		n-=1
+	}
+
+}
+
+
+
+
+//----------------------------------   basal_sections()     ----------------------------
+//Inputs:	$o1 is the SectionList called Tip_list
+//		$o2 is the SectionLIst called soma_list
+//		$3 is the number of Tips
+
+proc basal_sections(){local blcount, loop
+	blcount=0
+	degree_basal_tip=new Vector($3)
+	
+	forsec $o1{	
+		sr=new SectionRef()
+		bl[blcount]=new SectionList()
+
+		sr.sec bl[blcount].append()
+		loop=1
+		while(loop){
+			if (sr.has_parent){
+				sr.parent bl[blcount].append()
+				access sr.parent
+				sr=new SectionRef()
+				ifsec $o2{loop=0}
+				} 
+
+		}
+		degree_basal_tip.x[blcount]=degree_TP(bl[blcount])
+		obl[blcount]=new BasalPath(bl[blcount])
+		blcount+=1
+	}
+	
+}
+
+
+
+//------------------------- peri_trunk()
+//Inputs:	$1 is the number of tips
+proc peri_trunk(){local i,num
+	
+	peri_trunk_list=new SectionList()
+
+/*	for i=0;i<54; i+=1{
+		num=0
+		forsec $o2[i]{num+=1}
+		num=num-2
+		forsec $o2[i]{
+			sr=new SectionRef()
+			if(i==num){sr.sec peri_trunk_list.append()}
+		}
+
+	}
+	peri_trunk_list.unique()
+*/
+
+	forsec "trunk"{
+		sr=new SectionRef()
+		if(sr.nchild){
+			for i=0,sr.nchild-1 sr.child[i]{ if(issection("apical_dendrite.*")){ peri_trunk_list.append()}
+		}
+		}
+
+	}
+
+
+
+
+}
+
+
+
+
+
+
+//--------------------------------------- 
+
+
+
+func degree_TP(){local i
+	i=-2
+	forsec $o1{i+=1}
+	return i
+}
+
+
+
+

@@ -1,0 +1,35 @@
+forall insert d3   // mod file to enable 3-D mapping of each point along the cell
+adjustment = 0.0   //ORIG>> This adjustment factor is supplied to the vector distance function so that distance calculations are measured at the cell body.")
+vRP=new Vector()
+soma{
+		//ORIG>> set point of reference (if adjustment=0). With adjustment factor = 41.1
+		//ORIG>> the point of reference is the soma
+	vRP.append(x3d(0))
+	vRP.append(y3d(0))
+	vRP.append(z3d(0))
+}
+vAPEX=new Vector()
+trunk[17]{
+		// set the apex point
+  vAPEX.append(x3d(0.5))
+  vAPEX.append(y3d(0.5))
+  vAPEX.append(z3d(0.5))
+}
+
+xopen_morphology("soma-list.hoc")
+xopen_morphology("axon-sec-list.hoc")
+xopen_morphology("basal-tree-list.hoc")
+xopen_morphology("apical-trunk-list.hoc")
+xopen_morphology("apical-non-trunk-list.hoc")
+
+objref sr, vPOI, k, matrix_coord,vector_L, TP_list
+
+xopen("lib/TP-lib.hoc")
+Tip_sections(apical_non_trunk_list,apical_trunk_list,"Apical")		
+objref apical_tip_list
+apical_tip_list=TP_list							// Apical Tip list
+
+objref tmp_pl[num_tips],pl[num_tips],opl[num_tips],degree_apical_tip,peri_trunk_list
+objref bl[num_tips],obl[num_tips],degree_basal_tip
+xopen("lib/Oblique-lib.hoc")
+oblique_sections(apical_tip_list,apical_trunk_list,num_tips)		// 

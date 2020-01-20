@@ -1,0 +1,256 @@
+
+back=0
+
+//////// load needed templates////////////
+if(!back)load_file("nrngui.hoc")
+if(!back){ load_file("nrngui.hoc")               }
+if(!back){ load_file("template/ObliquePath.hoc") }
+if(!back){ load_file("template/BasalPath.hoc"  ) }
+load_file("fixnseg.hoc")
+
+objref econ,f1,f2,f3,ss,cvode
+f1= new File()
+f2= new File()
+f3= new File()
+ss=new SaveState()                                                                  
+cvode = new CVode(1)
+x=cvode.active(1)
+
+restart=0
+v_init=-70
+
+strdef morphology_location, morpho_path, ObliqueTrunkSection, BasalTrunkSection
+objref vRP, vAPEX
+
+proc xopen_morphology(){
+	sprint(morpho_path,"%s/%s",morphology_location,$s1)
+	xopen(morpho_path)
+}
+
+// Carmen
+// Carmen
+morphology_location = "pc2b"
+ObliqueTrunkSection = "trunk[17]"
+BasalTrunkSection   = "trunk[7]"
+
+xopen_morphology("cell.hoc")				//reads morpholofy from the file
+xopen_morphology("cell-analysis-simple.hoc") //reads simplified version of CA 
+
+
+			// --------------- Creating lists-----------------
+
+xopen("lib/TP-lib.hoc")
+Tip_sections(apical_non_trunk_list,apical_trunk_list,"Apical")		
+objref apical_tip_list
+apical_tip_list=TP_list							// Apical Tip list
+
+print "apical_tip_list"
+apical_tip_list.printnames()
+print  "END apical_tip_list"
+
+objref tmp_pl[num_tips],pl[num_tips],opl[num_tips],degree_apical_tip,peri_trunk_list
+objref bl[num_tips],obl[num_tips],degree_basal_tip
+xopen("lib/Oblique-lib.hoc")
+oblique_sections(apical_tip_list,apical_trunk_list,num_tips)		// apical dendrite path lists and degree of tips
+
+xopen("lib/vector-distance.hoc")
+
+
+//-----------------------------------------------------------------------------------------------------
+printf("Setting up cell\n")                                         // load cell-setup to
+xopen("cell-setup.hoc")                                             // specify all mechanisms, membrane properties etc
+
+
+///////////////////Load File//////////////////////
+
+//if(!back) load_file("syndebug.ses")
+if(!back) load_file("trunk.ses")
+/*cvode_active(1)*/
+
+//////   Spike counter//////////
+
+objref apc, v1
+
+proc insert_APC() {
+	apc = new APCount(0.5)
+	apc.thresh = $1
+	v1 = new Vector()
+	apc.record(v1)
+}
+
+proc init() {
+	if(restart){
+		f1.ropen("state.old")
+		ss.fread(f1)
+		f1.close
+		finitialize(v_init)
+		ss.restore()
+		t=0
+		fcurrent()
+		cvode.re_init()
+	} else {
+		finitialize(v_init)
+		fcurrent()
+	}
+}
+
+//////    IClamp    ///////
+objectvar clamp
+proc insert_IClamp() {
+	clamp = new MyIClamp(0.5)
+	clamp.del = $3
+	clamp.dur = $1
+	clamp.amp = $2
+	clamp.amp2 = $4
+}
+
+
+
+            
+////////////////////Main///////////////////
+
+nsyn=22
+objref  s[nsyn], rsyn[nsyn], nc[nsyn]
+objref rsynmda[nsyn], ncnmda[nsyn]
+
+proc main(){
+	//tol=cvode.atolscale(&soma.v(0.5),1e-8)
+	period=95.75
+	phase0=67.8234
+	dur=3
+	amp2=0.0
+	tstop=4000
+
+	in=0
+
+	th=-14
+	access soma
+	insert_APC(th)
+
+	f3.wopen("spike.dat")
+	current=0.0 // 0.18
+	del= phase0+0.05*period
+	dur=3
+	del=50
+	access soma
+	insert_IClamp(dur,current,del,amp2)
+
+	dist=14
+	rel=0.5
+        interval=25 // 10 25
+        ampa= 1.2*0.00156
+        nmda=1.2*0.000882
+        Alpha=0.35
+        Beta=0.035
+
+
+		for j=0, 5 {
+	trunk[10+j] { 
+	//apic[46]  
+			s[j] = new NetStims(rel)
+			s[j].interval=interval
+			s[j].number = 10
+			s[j].noise=0
+			s[j].start=1000
+
+			rsynmda[j] = new nmdanet(rel)
+			rsyn[j] = new Exp2Syn(rel)
+			rsyn[j].e=0
+			rsyn[j].tau1 = .5
+			rsyn[j].tau2 = 1.0
+
+			nc[j] = new NetCon(s[j],rsyn[j],0,0,ampa)  //8*4.2e-3 new
+
+			ncnmda[j] = new NetCon(s[j],rsynmda[j],0,0,nmda) //pc2b 1 new
+                        rsynmda[j].Alpha=Alpha
+                        rsynmda[j].Beta=Beta
+	}
+}
+		for i=0, 5 {
+	apic[27+i] { 
+	//apic[46]  
+			s[i+6] = new NetStims(rel)
+			s[i+6].interval=interval
+			s[i+6].number = 10
+			s[i+6].noise=0
+			s[i+6].start=1000
+
+			rsynmda[i+6] = new nmdanet(rel)
+			rsyn[i+6] = new Exp2Syn(rel)
+			rsyn[i+6].e=0
+			rsyn[i+6].tau1 = .5
+			rsyn[i+6].tau2 = 1.0
+
+			nc[i+6] = new NetCon(s[i+6],rsyn[i+6],0,0,ampa)  //8*4.2e-3 new
+
+			ncnmda[i+6] = new NetCon(s[i+6],rsynmda[i+6],0,0,nmda) //pc2b 1 new
+                        rsynmda[i+6].Alpha=Alpha
+                        rsynmda[i+6].Beta=Beta
+	}
+}
+
+	rel=0.2
+		for i=0, 3 {
+	apic[28+i] { 
+	//apic[46]  
+			s[i+12] = new NetStims(rel)
+			s[i+12].interval=interval
+			s[i+12].number = 10
+			s[i+12].noise=0
+			s[i+12].start=1000
+
+			rsynmda[i+12] = new nmdanet(rel)
+			rsyn[i+12] = new Exp2Syn(rel)
+			rsyn[i+12].e=0
+			rsyn[i+12].tau1 = .5
+			rsyn[i+12].tau2 = 1.0
+
+			nc[i+12] = new NetCon(s[i+12],rsyn[i+12],0,0,ampa)  //8*4.2e-3 new
+
+			ncnmda[i+12] = new NetCon(s[i+12],rsynmda[i+12],0,0,nmda) //pc2b 1 new
+                        rsynmda[i+12].Alpha=Alpha
+                        rsynmda[i+12].Beta=Beta
+	}
+}
+	rel=0.8
+		for i=0, 3 {
+	apic[28+i] { 
+	//apic[46]  
+			s[i+16] = new NetStims(rel)
+			s[i+16].interval=interval
+			s[i+16].number = 10
+			s[i+16].noise=0
+			s[i+16].start=1000
+
+			rsynmda[i+16] = new nmdanet(rel)
+			rsyn[i+16] = new Exp2Syn(rel)
+			rsyn[i+16].e=0
+			rsyn[i+16].tau1 = .5
+			rsyn[i+16].tau2 = 1.0
+
+			nc[i+16] = new NetCon(s[i+16],rsyn[i+16],0,0,ampa)  //8*4.2e-3 new
+
+			ncnmda[i+16] = new NetCon(s[i+16],rsynmda[i+16],0,0,nmda) //pc2b 1 new
+                        rsynmda[i+16].Alpha=Alpha
+                        rsynmda[i+16].Beta=Beta
+	}
+}
+	//////////////run//////////////////////// 
+	geom_nseg()
+	run()
+	/////////////////////////////////////
+	// print the spike number 
+	if(!back) printf("\n Current: %.4f nA | # Spikes: %d\n", current,  apc.n)
+	if(!back) printf("___________________\n")
+	v1.printf(f3)
+
+	f3.close
+	f2.wopen("state.new")
+	ss.save
+	ss.fwrite(f2)
+	f2.close
+}
+
+main()
+/********    end file    ******/
+

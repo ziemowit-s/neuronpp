@@ -1,0 +1,8 @@
+// This function makes a list with all sections on the basal dendrite
+// written by Jose Gomez, April 2006, jfcgomez@ull.es
+
+
+	objref basal_tree_list
+	basal_tree_list = new SectionList()
+	
+	forall if (issection("dend.*")) {basal_tree_list.append()}	

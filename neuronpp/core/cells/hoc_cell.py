@@ -37,8 +37,9 @@ class HocCell(SectionCell):
             if len(obj) > 1:
                 raise LookupError("Hoc main object 'h' has %s objects of template '%s', hovewer currently this mechanisms support "
                                   "a only single template object creation in Hoc." % (len(obj), cell_template_name))
+            obj = obj[0]
 
-        result = self._add_new_sections(obj[0])
+        result = self._add_new_sections(obj)
         self._hoc_loaded = True
         return result
 

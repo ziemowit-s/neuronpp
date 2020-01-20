@@ -1,0 +1,18 @@
+load_file("nrngui.hoc")
+
+xpanel("Combe et al 2018")
+  xlabel("Choose a simulation to run by clicking on a button below")
+  xlabel("Quit and restart if desired to run the other simulation")
+  xbutton("Synaptic excitation; figure 1B1 left (40Hz)","{multisyn()}")
+  xbutton("Somatic current injection; figure 1C right (100Hz)","{simplestim()}")
+  xbutton("Quit","quit()")
+  xlabel("See the readme for instructions on how to create the other pairs of graphs and more.")
+xpanel()
+
+proc simplestim() {
+load_file("simplestim.hoc")
+}
+
+proc multisyn() {
+load_file("multisyn.hoc")
+}

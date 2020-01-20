@@ -1,0 +1,438 @@
+
+/* ____________      CELL SET-UP PROCEEDURE      _____________ */
+
+
+strdef sectype
+objref CAN_temp, CAL_temp, CAT_temp, KAD_temp, KAP_temp, NA_temp
+
+
+//RTH>> set distance ref
+soma distance()
+
+// Set passive membrane properties
+Rm_trunk     = 36900 // Non-oblique dendritic specific membrane resistance.")
+Rm_non_trunk = 36900 // Apical oblique specific membrane resistance.") 
+Rm_basal     = 46000 // Basal specific membrane resistance.")
+Rm_tip       = 36900 // Tip specific membrane resistance.")  
+Rm_soma      = 20000 // Somatic specific membrane resistance.") 
+Rm_axon      = 28000 // Axonal specific membrane resistance. ")   
+
+Ra_basal     = 150 // Basal specific axial resistance.")
+Ra_trunk     = 150 // Somatic specific axial resistance.")
+Ra_non_trunk = 150 // Somatic specific axial resistance.")
+Ra_soma      = 150 // Somatic specific axial resistance.")
+Ra_tip       = 150 // Apical tip specific axial resistance.")
+Ra_axon      = 50  // Axonal specific axial resistance. ")
+
+Cm_default   = 1          // Default specific capacitance.")
+Cm_axon      = Cm_default // Axonal specific capacitance. ")  
+Cm_soma      = 1          // Somatic specific capacitance. ")     
+Cm_soma      = 1.5        // Somatic specific capacitance. ")     
+Cm_trunk     = 1.192      // Trunk specific capacitance.")         
+Cm_trunk     = 1.5        // Trunk specific capacitance.")         
+Cm_non_trunk = 1.192      // Oblique specific capacitance.")    
+Cm_non_trunk = 1.5        // Oblique specific capacitance.")   
+Cm_basal     = 1.144      // Basal specific capacitance.")       
+Cm_tip       = 1.192      // Apical tip specific capacitance.")   
+
+// SEVERELY affects experiment results
+celsius      = 34 // Temperature of slice.")
+        
+//NDB >>>>  $o1.xopen_library("Terrence","cut-sections")
+//          cut_sections(maximum_segment_length)
+maximum_segment_length=75
+forall {
+    nseg=1+int(L/maximum_segment_length)
+}
+//<<<< NDB
+
+//ORIG>>// make 3-d mapping of cell sections
+//NDB >>>>    $o1.xopen_library("Terrence","map-segments-to-3d")
+//           map_segments_to_3d()
+forall {
+	insert d3
+	i=0
+	x_d3(0)=x3d(0)
+	y_d3(0)=y3d(0)
+	z_d3(0)=z3d(0)
+
+	for (x) if (x > 0 && x < 1) {
+		while (arc3d(i)/L < x) { i += 1 }
+		D=arc3d(i) - arc3d(i-1)
+		if (D <= 0) {
+			printf("\t\t * %s had a D < 0\n", secname())
+		}
+		alpha = (x*L - arc3d(i-1))/D
+		x_d3(x)=x3d(i-1) + (x3d(i) - x3d(i-1))*alpha
+		y_d3(x)=y3d(i-1) + (y3d(i) - y3d(i-1))*alpha
+		z_d3(x)=z3d(i-1) + (z3d(i) - z3d(i-1))*alpha
+	}
+
+	x_d3(1)=x3d(n3d()-1)
+	y_d3(1)=y3d(n3d()-1)
+	z_d3(1)=z3d(n3d()-1)
+}
+//NDB <<<<
+
+//ORIG>>// prepare to make a graph with cell configuration
+//NDB >>>>    $o1.tmpo2=new Shape()
+objref tmpo2
+tmpo2=new Shape()
+//NDB <<<<  
+
+
+//ORIG>>// Set initial conductance values 
+soma_caL =0.00006
+soma_car =0.00003
+gsomacar =0.00008
+soma_caLH =0.0001 // 0.00017
+soma_caT =0.0003
+soma_km=0*0.001
+potNa=50
+mykca_init =0.9*1.5*0.03 //0.03 flag
+soma_kca =0.7*4.5*0.0001//0.003 flag
+soma_kap =7*0.0005
+soma_hbar =1.8e-6
+soma_kad =7*0.0005
+gna=1.2*0.035 // 0.035
+gkdr=2.2*0.015 //flag
+gkd=0.005
+gnadend=0.015
+gkdrdend=2.2*0.015 //flag
+gnanotrunk=0*0.01 // 0.035
+gkdrnotrunk=2.2*0.015
+AXKdr=1
+AXNa=1
+ 
+//v_init=-70
+
+//ORIG>>// Start inserting mechanisms in cell
+sectype ="soma"
+forsec "soma" {
+	insert na3
+	insert kdr
+		gbar_na3=gna
+		gkdrbar_kdr=gkdr
+	ena         = potNa
+	insert nap  //flag
+		gnabar_nap = 0*.5*0.000014 
+		K_nap = 4.5
+		vhalf_nap = -60.4
+	insert pas    // leak conductance
+		g_pas = 1/Rm_soma       
+		e_pas = -70
+	Ra    = Ra_soma
+	cm= Cm_soma
+	insert h     // h current 
+		gbar_h  = soma_hbar
+		K_h     = 8.8
+		vhalf_h = -82
+	insert kap  // proximal A current
+		gkabar_kap = soma_kap
+	ek         = -80
+	insert km  // m-type potassium current
+		gbar_km    = soma_km
+	ek         = -80 
+	insert cal // HVA Ca++-L type current
+		gcalbar_cal = 0.1*soma_caL
+	insert cat // LVA Ca++-T type current
+		gcatbar_cat = soma_caT
+        //insert somacar // HVAm Ca++-R type current
+    	//gcabar_somacar = gsomacar
+	insert car // HVAm Ca++-R type current
+	gcabar_car = gsomacar
+	insert kca   // K(Ca) mAHP potassium type current
+		cac_kca=0.00075 //0.0005
+		gbar_kca = 0.5*soma_kca
+	insert mykca // K(Ca) fAHP potassium type current
+		gkbar_mykca = 5.5*mykca_init        
+	insert cad  // calcium pump/buffering mechanism 
+		taur_cad=20
+	//insert cabalan  // calcium pump/buffering mechanism 
+	tmpo2.color(2)            
+}
+
+//ORIG>>  Configure Axon
+
+sectype="axon"
+forsec axon_sec_list {	  
+	insert nax
+		gbar_nax=gna*AXNa
+	insert kdr
+		gkdrbar_kdr=gkdr*AXKdr
+	ena         = potNa
+	insert pas  // leak conductance
+		g_pas      = 1/Rm_axon  
+		e_pas       = -70
+		Ra          = Ra_axon
+		cm          = Cm_axon
+	insert km  // m-type potassium current
+		gbar_km     = 3*soma_km
+		ek          = -80
+	insert kap  // proximal A current
+	   gkabar_kap = soma_kap
+	   ek         = -80
+}
+    
+//ORIG>>  Configure apical trunk
+ 
+forsec apical_trunk_list {
+
+	//ORIG>>// apical_h_insert_sig($o1)    // Inserting h-current
+	//NDF>>>	apical_caR_caLH_insert($o1) // Inserting Ca++ R-type and Ca++ L-type currents
+	for (x) {  
+		xdist = find_vector_distance_precise(secname(),x)
+		xdist=distance(x)
+		insert car
+		gcabar_car(x) = 0.1*soma_car
+		insert calH
+		if (xdist > 50) {            
+			gcalbar_calH(x) = 2*soma_caLH    //4.6*soma_caLH
+		} else {
+			gcalbar_calH(x) = 0.1*soma_caLH               //0.1*soma_caLH
+		}
+	}
+	//<<<NDF
+	//NDF>>> apical_caT_insert($o1)      // Inserting Ca++ T-type current
+	caT_distal_maxfactor = 4   //ORIG>> maximum cond. factor in dendrites
+	caT_distal_distance  = 350 //ORIG>> distance in dendrites for maximum cond.
+	for (x) {  
+		xdist = find_vector_distance_precise(secname(),x)
+		xdist = distance(x)
+		fr = xdist/caT_distal_distance
+		insert cat  
+		if (xdist < 100) {
+			gcatbar_cat(x) = 0
+		} else {
+			gcatbar_cat(x) = caT_distal_maxfactor*soma_caT*fr
+		} 
+	}
+	//<<<NDF
+	//NDF>>> apical_kca_insert($o1)      // Inserting K(Ca) sAHP and mAHP potassium currents
+	kca_distal_maxfactor = 1   //ORIG>> maximum cond. factor in dendrites
+	//ORIG>>// kca_distal_maxfactor = 0 //maximum cond. factor in dendrites
+    kca_distal_distance  = 200 //ORIG>> distance in dendrites for maximum cond.
+	for (x) {  
+		xdist = find_vector_distance_precise(secname(),x)
+		xdist = distance(x)
+		fr = xdist/kca_distal_distance 
+		insert cad    // calsium pump/buffering mechanism
+			taur_cad=20
+		insert kca    // slow AHP K++ current
+			cac_kca=0.00075 //0.0005
+		insert mykca  // medium AHP K++ current
+
+		if (xdist < kca_distal_distance && xdist > 50) {       
+			gbar_kca(x) = 5*soma_kca
+			gkbar_mykca = 2*mykca_init
+		} else {
+			gbar_kca(x) = 0.5*soma_kca
+			gkbar_mykca = 0.5*mykca_init
+		}
+	}
+	//<<<NDF
+	//ORIG>>// A_insert($o1)               // Inserting A-current
+	insert h
+	insert kap
+	insert kad 
+	for (x){ 
+		xdist = distance(x)
+		if (xdist>500) {xdist=500}
+		gbar_h(x) = soma_hbar*(1+3*xdist/100)
+		if (xdist > 100){
+			if (xdist>300) {ndist=300} else {ndist=xdist}
+			vhalf_h(x)=-81-8*(ndist-100)/200
+			gkabar_kad(x) = soma_kad*(1+xdist/100)
+			gkabar_kap(x)=0
+		} else {
+			vhalf_h(x)=-81
+			gkabar_kap(x) = soma_kap*(1+xdist/100)
+			gkabar_kad(x)=0
+		}
+	}
+	insert na3
+		gbar_na3=gnadend
+	insert nap //flag
+		gnabar_nap = 0*.5*0.000014 
+		K_nap = 4.5
+		vhalf_nap = -60.4
+	insert kdr
+		gkdrbar_kdr=gkdr
+	ena         = potNa
+	insert km  // m-type potassium current
+		gbar_km    = soma_km
+	ek         = -80 
+	insert pas // leak conductance
+		g_pas     =  1/Rm_trunk  
+		g_pas     =  1/Rm_soma //flag  
+		e_pas          = -70
+	Ra             = Ra_trunk
+	cm             = Cm_trunk
+	//ORIG>>>// Rm_sigmoid($o1)   // configure Rm along apical trunk
+	//ORIG>>>//  Ra_sigmoid($o1)   // configure Ra along apical trunk
+	tmpo2.color(4)
+}
+ 
+
+// Configure the apical-non-trunk section: insert basic mechanisms  
+ 
+sectype = "apical non-trunk"
+forsec apical_non_trunk_list {
+	//ORIG>>//         apical_h_insert_sig($o1)    // Inserting h-current
+	//NDF>>>	apical_caR_caLH_insert($o1) // Inserting Ca++ R-type and Ca++ L-type currents
+	for (x) {  
+		xdist = find_vector_distance_precise(secname(),x)
+		xdist=distance(x)
+		insert car
+		gcabar_car(x) = 0.1*soma_car
+
+		insert calH
+		if (xdist > 50) {            
+			gcalbar_calH(x) = 2*soma_caLH    //4.6*soma_caLH
+		} else {
+			gcalbar_calH(x) = 0.1*soma_caLH               //0.1*soma_caLH
+		}
+	}
+	//<<<NDF
+	//NDF>>> apical_caT_insert($o1)      // Inserting Ca++ T-type current
+	caT_distal_maxfactor = 4  // ORIG>> maximum cond. factor in dendrites")
+	caT_distal_distance  = 350 // ORIG>> distance in dendrites for maximum cond.")
+	for (x) {  
+		xdist = find_vector_distance_precise(secname(),x)
+		xdist=distance(x)
+		fr = xdist/caT_distal_distance
+		insert cat  
+		if (xdist < 100) {
+			gcatbar_cat(x) = 0
+		} else {
+			gcatbar_cat(x) = caT_distal_maxfactor*soma_caT*fr
+		} 
+    }
+	//<<<NDF
+	//NDF>>> apical_kca_insert($o1)      // Inserting K(Ca) sAHP and mAHP potassium currents
+	kca_distal_maxfactor = 1 // ORIG>> maximum cond. factor in dendrites")
+	// ORIG>>//kca_distal_maxfactor = 0 // maximum cond. factor in dendrites
+	kca_distal_distance = 200 // ORIG>> distance in dendrites for maximum cond.")
+  
+	for (x) {  
+		xdist = find_vector_distance_precise(secname(),x)
+		xdist=distance(x)
+		fr = xdist/kca_distal_distance 
+		insert cad    // calsium pump/buffering mechanism
+		taur_cad=20
+		insert kca    // slow AHP K++ current
+		cac_kca=0.00075 //0.0005
+		insert mykca  // medium AHP K++ current
+
+		if (xdist < kca_distal_distance && xdist > 50) {       
+			gbar_kca(x) = 5*soma_kca
+			gkbar_mykca = 2*mykca_init
+		} else {
+			gbar_kca(x) = 0.5*soma_kca
+			gkbar_mykca = 0.5*mykca_init
+		}
+	}
+	//<<<NDF
+	//ORIG>>//        A_insert($o1)               // Inserting A-current
+			 
+	insert h
+	insert kap
+	insert kad 
+
+	for (x){
+		xdist = distance(x)
+		if (xdist>500) {xdist=500}
+		gbar_h(x) = soma_hbar*(1+3*xdist/100)
+		if (xdist > 100){
+			if (xdist>300) {ndist=300} else {ndist=xdist}
+			vhalf_h(x)=-81-8*(ndist-100)/200
+			gkabar_kad(x) = soma_kad*(1+xdist/100)
+			gkabar_kap(x) = 0
+		} else {
+			vhalf_h(x)=-81
+			gkabar_kap(x) = soma_kap*(1+xdist/100)
+			gkabar_kad(x) = 0
+		}
+	}
+	insert na3
+		gbar_na3    = gnadend
+	insert nap //flag
+		gnabar_nap = 0*.5*0.000014 
+		K_nap = 4.5
+		vhalf_nap = -60.4
+	insert kdr
+		gkdrbar_kdr = gkdr
+	ena         = potNa
+	insert km  // m-type potassium current
+		gbar_km    = soma_km
+	ek         = -80 
+
+	insert pas // passive properties
+		g_pas     =  1/Rm_non_trunk 
+		e_pas     = -70                     
+	Ra        = Ra_non_trunk
+	cm        = Cm_non_trunk
+	//ORIG>>//Rm_sigmoid($o1)   // configure Rm along apical trunk
+	//ORIG>>//Ra_sigmoid($o1)   // configure Ra along apical trunk
+	tmpo2.color(3)
+}
+
+//ORIG>>//khoblique_peri_decay($o1)  // Configure the apical oblique dendrites
+
+// Configure the basal dendrites
+
+sectype = "basal tree"
+forsec basal_tree_list {
+	insert na3dend
+	insert nap
+		gnabar_nap = 0*.5*0.000014 //flag 
+		K_nap = 4.5
+		vhalf_nap = -60.4
+	insert kap 
+		gkabar_kap = 0.0025036
+	insert h                
+		gbar_h = soma_hbar
+	//ORIG>>//ek = -80 
+	insert kdr
+		gbar_na3dend=gnadend
+		gkdrbar_kdr=gkdrdend
+	ena         = potNa
+
+	insert pas // passive properties
+		g_pas          = 6.458e-05 // 1/Rm_basal  
+		e_pas          = -70
+	Ra             = Ra_basal
+	cm             = Cm_basal
+	//ORIG>>//  Ra_sigmoid($o1) // configure Ra
+	tmpo2.color(5)
+}
+
+//ORIG>>//khbasal_fixed($o1) // Configure basal dendrites         
+   
+forsec "soma" { g_pas= 1/Rm_soma} // force Rm at all soma sections
+
+//ORIG>>// forall if (ismembrane("kdr") ) {  
+//ORIG>>//           ek         = -77      //-77 
+//ORIG>>//      }
+forall if(ismembrane("ca_ion")) {
+	eca =140
+	ion_style("ca_ion",0,1,0,0,0)
+	vshift_ca = 0
+}
+  
+
+
+
+//ORIG>>// Print a postcript file in the generic directory with the cell configuration
+//NTB>>> sprint(tmp_str2, "%s/configure_sections.eps", $o1.generic_dir)
+//      $o1.tmpo2.printfile($o1.tmp_str2)
+tmpo2.printfile("experiment/configure_sections.eps")
+//<<<NTB
+
+//NTB>>> econ.xopen_library("Terrence","current-balance") 
+//ORIG>>//current_balance(v_init)
+//<<<NTB
+
+//ORIG>>//Carmen's change previous origin was at 0 end of apical dendrite[65]
+soma distance()
+
