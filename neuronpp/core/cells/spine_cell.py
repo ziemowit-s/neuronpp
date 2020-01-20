@@ -58,7 +58,6 @@ class SpineCell(SectionCell):
 
         i = 0
         r = randint(0, max_l)
-        print('rand:', r)
         for s in sections:
             s = s.hoc
             i += s.L
