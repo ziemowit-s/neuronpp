@@ -1,20 +1,14 @@
 import os
-import time
-
-from neuronpp.core.hocwrappers.sec import Sec
-
-from neuronpp.utils.compile_mod import CompileMOD
-
-from neuronpp.core.cells.hoc_cell import HocCell
 
 from neuronpp.cells.cell import Cell
+from neuronpp.core.cells.hoc_cell import HocCell
+from neuronpp.utils.compile_mod import CompileMOD
 
 
 class Combe2018Cell(Cell, HocCell):
     def __init__(self, name=None, model_folder="commons/hocmodels/combe2018", spine_number=0, spine_sec="apic",
-                 spine_seed: int = None, compile=True):
+                 spine_seed: int = None):
         """
-        
         :param name:
             The name of the cell
         :param model_folder:
@@ -31,15 +25,9 @@ class Combe2018Cell(Cell, HocCell):
               * a list of existing sections in the cell
         :param spine_seed:
             Seed value for the random_uniform spike distribution. Default is None, meaning - there is no seed
-        :param compile:
-            If you want to compile model's MOD files. Default is True.
         """
-        Cell.__init__(self, name)
+        Cell.__init__(self, name, compile_paths=model_folder)
         HocCell.__init__(self, name)
-
-        if compile:
-            comp = CompileMOD()
-            comp.compile(source_paths=model_folder, target_path=os.getcwd())
 
         main_file = "%s/load_cell.hoc" % model_folder
         self.make_hoc(main_file)
@@ -50,7 +38,7 @@ class Combe2018Cell(Cell, HocCell):
 
             heads, necks = self.make_spines(sec=spine_sec, spine_number=spine_number, head_nseg=10, neck_nseg=10, seed=spine_seed)
 
-            self.copy_mechanisms_from_segment(secs_to_copy=heads, sec_from=self.secs[0])
+            self.copy_mechanisms(sec_from=self.secs[0], secs_to=heads)
 
             # Create AMPA synapses
             ampa_weight = 1.2 * 0.00156

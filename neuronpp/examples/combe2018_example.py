@@ -4,7 +4,7 @@ from neuronpp.electrodes.iclamp import IClamp
 from neuronpp.cells.combe2018_cell import Combe2018Cell
 
 
-cell = Combe2018Cell(name="cell", spine_number=100, spine_sec="apic", spine_seed=13, compile=True)
+cell = Combe2018Cell(name="cell", spine_number=100, spine_sec="apic", spine_seed=13)
 
 # Prepare synapse
 first_syn = cell.filter_complex_synapses(tag="combe")[0]

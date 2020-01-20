@@ -1,12 +1,24 @@
+import os
 import re
+
+import neuron
+from neuronpp.utils.compile_mod import CompileMOD
 
 
 class CoreCell:
-    def __init__(self, name=None):
+    def __init__(self, name=None, compile_paths=None):
         """
         :param name:
             Name of the cell
+        :param compile_paths:
+            paths to folders containing mods. Can be list or string separated by spaces.
         """
+        if compile_paths:
+            comp = CompileMOD()
+            comp.compile(source_paths=compile_paths, target_path=os.getcwd())
+
+        neuron.load_mechanisms("%s%scompiled" % (os.getcwd(), os.sep))
+
         if name is None:
             name = ""
         self.name = name

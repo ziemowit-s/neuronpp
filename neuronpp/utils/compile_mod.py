@@ -1,8 +1,12 @@
 import os
 import time
+from importlib import reload
+
+import neuron
 from argparse import ArgumentParser
 from distutils.dir_util import copy_tree, remove_tree
 from distutils.file_util import copy_file
+
 
 
 class CompileMOD:
@@ -34,8 +38,8 @@ class CompileMOD:
         """
         working_dir = os.getcwd()
 
-        if not target_path.endswith(self.compiled_folder_name):
-            target_path += "%s%s" % (os.sep, self.compiled_folder_name)
+        target_path = target_path.replace(self.compiled_folder_name, "")
+        target_path += "%scompiled%s%s" % (os.sep, os.sep, self.compiled_folder_name)
 
         if isinstance(source_paths, str):
             source_paths = source_paths.split(" ")
@@ -60,6 +64,9 @@ class CompileMOD:
         os.chdir(working_dir)
 
         remove_tree(tmp_path)
+
+        target_main_path = target_path.replace("%s%s" % (os.sep, self.compiled_folder_name), "")
+        neuron.load_mechanisms(target_main_path)
 
     def copy_mods(self, source_path, tmp_path):
         for filename in os.listdir(source_path):

@@ -22,21 +22,29 @@ pip install git+https://github.com/ziemowit-s//neuronpp
 ```
 
 ## MOD compilation
-* Before run you must compile mod files and copy compiled folder to the main folder (where run Python files are located)
+Before run you must compile mod files, however `Cell()` object has `compile_path` param which allows to specify paths with mods to compile before each run.
+In most cases you don't need to compile files externally, but just add paths to your Cell.
+
+Every cell in the cell/ folder has defined required paths which will work if you run python script from the main folder (as a working directory) which is neuronpp/neuronpp/
+
+However if you want to compile mods manually this is how to do it:
+
 ```bash
 nrmivmodl
 ```
 
-* To help with compilation use compile_mod.py or CompileMOD class:
+* To help with manual compilation use compile_mod.py or CompileMOD class:
   * It will compile all mods inside the source folder (you can specify many source folders)
-  * copy compiled folder to the target folder 
+  * copy compiled folder to the `compiled/` folder inside the target folder 
+  
 ```bash
 python utils/compile_mod.py --sources [SOURCE_FOLDER_WITH_MOD_FILES] --target [TARGET_FOLDER]
 ``` 
+
   * By default it works on Linux but you can change default params so that they express your OS params:
     * compiled_folder_name="x86_64"
     * mod_compile_command="nrnivmodl"
-
+    
 ## Introduction to NEURON++
 The full example used in this introduction is located in: examples/basic_example.py
 There are other examples in the folder.

@@ -1,5 +1,4 @@
 from os import path
-
 from neuron import h
 
 from neuronpp.core.cells.core_cell import CoreCell
@@ -148,13 +147,13 @@ class SectionCell(CoreCell):
                 yprime = x * s + y * c
                 sec.pt3dchange(i, xprime, yprime, sec.z3d(i), sec.diam3d(i))
 
-    def copy_mechanisms_from_segment(self, secs_to_copy, sec_from):
+    def copy_mechanisms(self, secs_to, sec_from):
         all_mechs = sec_from.hoc.psection()['density_mechs']
         seg_from = self._get_first_segment(sec_from)
 
         for mech_name, params in all_mechs.items():
 
-            for sec in secs_to_copy:
+            for sec in secs_to:
                 sec.hoc.insert(mech_name)
                 from_mech = getattr(seg_from, mech_name)
 

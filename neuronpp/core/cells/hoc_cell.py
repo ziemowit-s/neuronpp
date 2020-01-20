@@ -48,7 +48,7 @@ class HocCell(PointProcessCell):
         result = []
         for d in dir(obj):
             try:
-                if d.startswith("_"):
+                if d.startswith("_") or d == 'h':
                     continue
                 f = getattr(obj, d)
 
