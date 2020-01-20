@@ -9,7 +9,8 @@ from neuronpp.cells.cell import Cell
 
 
 class Combe2018Cell(Cell, HocCell):
-    def __init__(self, name=None, model_folder="commons/hocmodels/combe2018", spine_number=0, spine_sec="apic", compile=True):
+    def __init__(self, name=None, model_folder="commons/hocmodels/combe2018", spine_number=0, spine_sec="apic",
+                 spine_seed: int = None, compile=True):
         """
         
         :param name:
@@ -26,6 +27,8 @@ class Combe2018Cell(Cell, HocCell):
               will return all sections wich have a name containing 'apic' or 'basal' string
 
               * a list of existing sections in the cell
+        :param spine_seed:
+            Seed value for the random_uniform spike distribution. Default is None, meaning - there is no seed
         :param compile:
             If you want to compile model's MOD files. Default is True.
         """
@@ -43,7 +46,7 @@ class Combe2018Cell(Cell, HocCell):
         self.nmda_syns = []
         if spine_number > 0:
 
-            heads = self.make_spines(sec=spine_sec, spine_number=spine_number, head_nseg=10, neck_nseg=10)
+            heads = self.make_spines(sec=spine_sec, spine_number=spine_number, head_nseg=10, neck_nseg=10, seed=spine_seed)
 
             # Create AMPA synapses
             ampa_weight = 1.2 * 0.00156

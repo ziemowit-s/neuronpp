@@ -1,3 +1,4 @@
+import random
 from random import randint
 
 from neuronpp.core.cells.section_cell import SectionCell
@@ -10,7 +11,7 @@ class SpineCell(SectionCell):
         self.heads = []
         self.necks = []
 
-    def make_spines(self, spine_number, sec: str = None, head_nseg=2, neck_nseg=2):
+    def make_spines(self, spine_number, sec: str = None, head_nseg=2, neck_nseg=2, seed: int = None):
         """
         Currently the only supported spine distribution is random_uniform
 
@@ -23,6 +24,8 @@ class SpineCell(SectionCell):
         :param sec:
         :param head_nseg
         :param neck_nseg
+        :param seed:
+            seed int for random uniform distribution of the spines.
         :return:
             list of added spine heads
         """
@@ -30,6 +33,8 @@ class SpineCell(SectionCell):
             sec = self.filter_secs(name=sec)
 
         heads = []
+        if seed:
+            random.seed(seed)
         for i in range(spine_number):
             head = self.make_sec(name="head[%s]" % i, diam=1, l=1, nseg=head_nseg)
             neck = self.make_sec(name="neck[%s]" % i, diam=0.5, l=0.5, nseg=neck_nseg)
@@ -53,6 +58,7 @@ class SpineCell(SectionCell):
 
         i = 0
         r = randint(0, max_l)
+        print('rand:', r)
         for s in sections:
             s = s.hoc
             i += s.L
