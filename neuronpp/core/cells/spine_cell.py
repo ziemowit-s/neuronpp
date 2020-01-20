@@ -32,7 +32,6 @@ class SpineCell(SectionCell):
         if isinstance(sec, str) or sec is None:
             sec = self.filter_secs(name=sec)
 
-        heads = []
         if seed:
             random.seed(seed)
         for i in range(spine_number):
@@ -42,9 +41,8 @@ class SpineCell(SectionCell):
             self.necks.append(neck)
             self.connect_secs(source=head, target=neck)
             self._connect_necks_rand_uniform(neck, sec)
-            heads.append(head)
 
-        return heads
+        return self.heads, self.necks
 
     @staticmethod
     def _connect_necks_rand_uniform(neck: Sec, sections):

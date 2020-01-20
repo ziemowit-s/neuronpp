@@ -1,6 +1,8 @@
 import os
 import time
 
+from neuronpp.core.hocwrappers.sec import Sec
+
 from neuronpp.utils.compile_mod import CompileMOD
 
 from neuronpp.core.cells.hoc_cell import HocCell
@@ -42,10 +44,13 @@ class Combe2018Cell(Cell, HocCell):
         main_file = "%s/load_cell.hoc" % model_folder
         self.make_hoc(main_file)
 
+        # Add spines with AMPA and NMDA synapses
         self.combe_syns = []
         if spine_number > 0:
 
-            heads = self.make_spines(sec=spine_sec, spine_number=spine_number, head_nseg=10, neck_nseg=10, seed=spine_seed)
+            heads, necks = self.make_spines(sec=spine_sec, spine_number=spine_number, head_nseg=10, neck_nseg=10, seed=spine_seed)
+
+            self.copy_mechanisms_from_segment(secs_to_copy=heads, sec_from=self.secs[0])
 
             # Create AMPA synapses
             ampa_weight = 1.2 * 0.00156
