@@ -12,6 +12,8 @@ class SynapticSpineCell(SpineCell, ComplexSynapticCell):
         """
 
         :param source:
+            Can be only: hocwrappers.NetStim, hocwrappers.VecStim, hocwrappers.Sec or None. If it is Sec also loc param need to be defined.
+            If None it will create NetConn with no source, which can be use as external event source
         :param weight:
         :param rand_weight:
             if True, will find rand weight [0,1) and multiply this by weight.
