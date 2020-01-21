@@ -6,6 +6,8 @@ from neuronpp.utils.compile_mod import CompileMOD
 
 
 class CoreCell:
+    path_compiled = False
+
     def __init__(self, name=None, compile_paths=None):
         """
         :param name:
@@ -13,7 +15,8 @@ class CoreCell:
         :param compile_paths:
             paths to folders containing mods. Can be list or string separated by spaces.
         """
-        if compile_paths:
+        if compile_paths and not CoreCell.path_compiled:
+            CoreCell.path_compiled = True
             comp = CompileMOD()
             comp.compile(source_paths=compile_paths, target_path=os.getcwd())
 
