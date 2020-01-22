@@ -5,7 +5,7 @@ from neuronpp.cells.hay2011_cell import Hay2011Cell
 
 
 class Ebner2019AChDACell(Hay2011Cell):
-    def __init__(self, name=None, compile_paths="commons/mods/ebner2019 commons/mods/4p_ach_da_syns commons/mods/neuron_commons"):
+    def __init__(self, name=None, compile_paths="commons/mods/ebner2019 commons/mods/4p_ach_da_syns"):
         """
         In order to run you need to call set_synaptic_pointers() which takes 3 synapses as arguments.
         Otherwise it will generate HOC error and cause SIGKILL exit to console.

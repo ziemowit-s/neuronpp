@@ -1,5 +1,4 @@
 import os
-import time
 
 from neuronpp.utils.compile_mod import CompileMOD
 
@@ -9,8 +8,8 @@ from neuronpp.cells.cell import Cell
 
 
 class Graham2014Cell(Cell, HocCell):
-    def __init__(self, name=None, model_folder="commons/hocmodels/graham2014", compile=True):
-        Cell.__init__(self, name, compile_paths=model_folder)
+    def __init__(self, name=None, model_folder="commons/hocmodels/graham2014"):
+        Cell.__init__(self, name, model_folder)
         HocCell.__init__(self, name)
 
         if compile:

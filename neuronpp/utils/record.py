@@ -7,31 +7,32 @@ import matplotlib.pyplot as plt
 
 
 class Record:
-    def __init__(self, sections, variables, locs=None):
+    def __init__(self, elements, variables, locs=None):
         """
 
-        :param sections:
+        :param elements:
+            elements can any object from HocWrappers which implements hoc param
         :param locs:
             float (if loc for all sections is the same), or list of floats (in that case len must be the same as len(sections).
             Default None. If None - loc will be skipped (eg. for point process)
         :param variables:
             str or list_of_str of variable names to track
         """
-        if not isinstance(sections, (list, set, tuple)):
-            sections = [sections]
+        if not isinstance(elements, (list, set, tuple)):
+            elements = [elements]
 
         if isinstance(variables, str):
             variables = variables.split(' ')
 
         if isinstance(locs, float) or isinstance(locs, int) or locs is None:
-            locs = [locs for _ in range(len(sections))]
+            locs = [locs for _ in range(len(elements))]
 
-        if len(locs) != len(sections):
+        if len(locs) != len(elements):
             raise IndexError("locs can be single float (eg. 0.5) or a list where len(locs) must be the same as len(sections).")
 
         self.recs = dict([(v, []) for v in variables])
 
-        for sec, loc in zip(sections, locs):
+        for sec, loc in zip(elements, locs):
             for var in variables:
                 s = sec.hoc if loc is None else sec.hoc(loc)
                 try:

@@ -1,12 +1,9 @@
 import os
-import time
-from importlib import reload
 
 import neuron
 from argparse import ArgumentParser
 from distutils.dir_util import copy_tree, remove_tree
 from distutils.file_util import copy_file
-
 
 
 class CompileMOD:
@@ -97,3 +94,23 @@ if __name__ == '__main__':
 
     comp = CompileMOD(compiled_folder_name=args.compiled_folder_name, mod_compile_command=args.mod_compile_command)
     comp.compile(source_paths=args.sources, target_path=args.target)
+
+
+mods_loaded = []
+
+
+def compile_and_load_mods(mod_folders):
+    if isinstance(mod_folders, str):
+        mod_folders = mod_folders.split(" ")
+
+    mod_folders = [m for m in mod_folders if m not in mods_loaded]
+
+    if len(mod_folders) > 0:
+        comp = CompileMOD()
+        comp.compile(source_paths=mod_folders, target_path=os.getcwd())
+
+        compiled_folder = "%s%scompiled" % (os.getcwd(), os.sep)
+        for m in mod_folders:
+            neuron.load_mechanisms(compiled_folder)
+            mods_loaded.extend(m)
+

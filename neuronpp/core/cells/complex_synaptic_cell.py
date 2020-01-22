@@ -28,13 +28,15 @@ class ComplexSynapticCell(SynapticCell):
         """
         return self.filter(self.complex_syns, mod_name=mod_name, name=name, parent=parent, tag=tag)
 
-    def group_complex_sypanses(self, synapses, tag=None):
+    def group_complex_sypanses(self, tag=None, *synapses):
         """
 
         :param synapses:
         :param tag:
         :return:
         """
+        if isinstance(synapses[0], list):
+            synapses = [s for syns in synapses for s in syns]
         mod_names = '+'.join([s.mod_name for s in synapses])
         i = self._syn_num[mod_names]
         self._syn_num[mod_names] += 1

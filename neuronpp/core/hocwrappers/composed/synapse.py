@@ -2,7 +2,6 @@ from neuron import h
 from neuron.units import ms
 from neuronpp.core.hocwrappers.sec import Sec
 
-from neuronpp.core.cells.core_cell import CoreCell
 from neuronpp.core.hocwrappers.composed.composed_hoc_wrapper import ComposedHocWrapper
 from neuronpp.core.hocwrappers.netconn import NetConn
 from neuronpp.core.hocwrappers.point_process import PointProcess
@@ -12,6 +11,7 @@ class Synapse(ComposedHocWrapper):
     def __init__(self, source, point_process: PointProcess, netconn: NetConn, parent_sec: Sec, name, tag=None):
         ComposedHocWrapper.__init__(self, parent=parent_sec, name=name)
 
+        self.hoc = point_process.hoc
         self.tag = tag
         self.source = source
         self.netconn = netconn

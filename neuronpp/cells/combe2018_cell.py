@@ -1,8 +1,5 @@
-import os
-
 from neuronpp.cells.cell import Cell
 from neuronpp.core.cells.hoc_cell import HocCell
-from neuronpp.utils.compile_mod import CompileMOD
 
 
 class Combe2018Cell(Cell, HocCell):
@@ -26,7 +23,7 @@ class Combe2018Cell(Cell, HocCell):
         :param spine_seed:
             Seed value for the random_uniform spike distribution. Default is None, meaning - there is no seed
         """
-        Cell.__init__(self, name, compile_paths=model_folder)
+        Cell.__init__(self, name, model_folder)
         HocCell.__init__(self, name)
 
         main_file = "%s/load_cell.hoc" % model_folder
@@ -56,5 +53,5 @@ class Combe2018Cell(Cell, HocCell):
                 syn.point_process.hoc.Beta = 0.035
 
             for syns in zip(ampa_syns, nmda_syns):
-                comp_syn = self.group_complex_sypanses(syns, tag="combe_type")
+                comp_syn = self.group_complex_sypanses("combe_type", syns)
                 self.combe_syns.append(comp_syn)

@@ -10,7 +10,7 @@
   }
 
   PARAMETER {
-      tau = 1000 (ms) <1e-9, 1e9>
+      tau = 400 (ms) <1e-9, 1e9>
   }
 
   ASSIGNED {

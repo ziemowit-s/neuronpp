@@ -13,13 +13,10 @@ from neuronpp.core.cells.netstim_cell import NetStimCell
 WEIGHT = 0.0035  # µS, conductance of (single) synaptic potentials
 WARMUP = 200
 
-# Compile mods
-comp = CompileMOD()
-comp.compile(source_paths="commons/mods/ebner2019", target_path=os.getcwd())
 
 if __name__ == '__main__':
     # define cell
-    cell = Ebner2019Cell(name="cell")
+    cell = Ebner2019Cell(name="cell", compile_paths="commons/mods/ebner2019")
     cell.load_morpho(filepath='commons/morphologies/swc/my.swc', seg_per_L_um=1, make_const_segs=11)
 
     # stimulation

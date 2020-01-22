@@ -1,11 +1,10 @@
-import os
 import re
 
-import neuron
-from neuronpp.utils.compile_mod import CompileMOD
+from neuronpp.utils.compile_mod import compile_and_load_mods
 
 
 class CoreCell:
+
     path_compiled = False
 
     def __init__(self, name=None, compile_paths=None):
@@ -15,12 +14,8 @@ class CoreCell:
         :param compile_paths:
             paths to folders containing mods. Can be list or string separated by spaces.
         """
-        if compile_paths and not CoreCell.path_compiled:
-            CoreCell.path_compiled = True
-            comp = CompileMOD()
-            comp.compile(source_paths=compile_paths, target_path=os.getcwd())
-
-        neuron.load_mechanisms("%s%scompiled" % (os.getcwd(), os.sep))
+        if compile_paths:
+            compile_and_load_mods(compile_paths)
 
         if name is None:
             name = ""

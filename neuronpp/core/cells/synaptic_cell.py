@@ -5,8 +5,8 @@ from neuronpp.core.hocwrappers.composed.synapse import Synapse
 
 
 class SynapticCell(NetConnCell):
-    def __init__(self, name=None):
-        NetConnCell.__init__(self, name)
+    def __init__(self, name=None, *compile_paths):
+        NetConnCell.__init__(self, name, *compile_paths)
         self.syns = []
         self._syn_num = defaultdict(int)
 
