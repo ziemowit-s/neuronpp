@@ -35,7 +35,7 @@ class ComplexSynapticCell(SynapticCell):
         :param tag:
         :return:
         """
-        if isinstance(synapses[0], list):
+        if isinstance(synapses[0], (list, tuple, set)):
             synapses = [s for syns in synapses for s in syns]
         mod_names = '+'.join([s.mod_name for s in synapses])
         i = self._syn_num[mod_names]
