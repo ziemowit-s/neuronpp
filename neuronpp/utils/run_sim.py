@@ -44,7 +44,7 @@ class RunSim:
     def t(self):
         return h.t
 
-    def run(self, runtime, stepsize=None, delay_between_steps=1):
+    def run(self, runtime, stepsize=None, delay_between_steps=1, debug=False):
         """
         :param runtime:
             in ms
@@ -86,9 +86,10 @@ class RunSim:
             before = time.time()  # compute time before
 
             self._plot_shapes()
-            print("Current time:", round(r, 2), "ms",
-                  'sim for:', stepsize,
-                  'comp_time:', round(computation_time * 1000, 2), "ms")
+            if debug:
+                print("Current time:", round(r, 2), "ms",
+                      'sim for:', stepsize,
+                      'comp_time:', round(computation_time * 1000, 2), "ms")
 
         self.last_runtime = runtime
 
