@@ -47,9 +47,7 @@ if __name__ == '__main__':
     rec_ach = Record(syn4p, variables="ACh")
 
     sim = RunSim(init_v=-83, warmup=WARMUP)
-    #syn.make_event(10)
     syn['Syn4PAChDa'].make_event(10)
-    #syn['SynACh'].make_event(20)
     sim.run(runtime=5000)
 
     # plot
