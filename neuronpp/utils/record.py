@@ -1,8 +1,7 @@
-from math import ceil
-
 import numpy as np
-
 from neuron import h
+import pandas as pd
+from math import ceil
 import matplotlib.pyplot as plt
 
 
@@ -41,16 +40,17 @@ class Record:
                     raise AttributeError("there is no attribute of %s. Maybe you forgot to append locs param for sections?" % var)
 
                 rec = h.Vector().record(s)
-                self.recs[var].append(("%s(%s)" % (sec.name, loc), rec))
+                name = "%s(%s)" % (sec.name, loc)
+                self.recs[var].append((name, rec))
 
         self.t = h.Vector().record(h._ref_t)
 
     def plot(self, max_plot_on_fig=4):
-        for var_name, recs in self.recs.items():
-            ceil_len = ceil(len(recs)/max_plot_on_fig)
+        for var_name, section_recs in self.recs.items():
+            ceil_len = ceil(len(section_recs)/max_plot_on_fig)
 
             for i in range(ceil_len):
-                current_recs = recs[i:i+max_plot_on_fig]
+                current_recs = section_recs[i:i+max_plot_on_fig]
 
                 fig, axs = plt.subplots(len(current_recs))
                 axs = axs.flat if isinstance(axs, np.ndarray) else [axs]
@@ -59,3 +59,11 @@ class Record:
                     ax.set_title("%s.%s" % (name, var_name))
                     ax.plot(self.t, rec)
                     ax.set(xlabel='t (ms)', ylabel=var_name)
+
+    def to_csv(self, filename):
+        data = [('time', self.t)]
+        for var_name, (sec_name, recs) in self.recs.items():
+            data.append((sec_name, recs))
+
+        df = pd.DataFrame(data)
+        df.to_csv(filename, index=False)
