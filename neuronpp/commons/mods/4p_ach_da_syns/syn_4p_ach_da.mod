@@ -7,14 +7,17 @@ ENDCOMMENT
   NEURON {
   	POINT_PROCESS Syn4PAChDa
   	: Pointers for ACh and DA synapses
-  	POINTER ACh
-  	POINTER Da
-
+  	POINTER ACh_w
+  	POINTER Da_w
   	POINTER flag_D_ACh
   	POINTER flag_D_Da
 
   	POINTER last_max_w_ACh
   	POINTER last_max_w_Da
+
+  	:ACh/DA params
+  	RANGE ACh, ACh_tau, stdp_ach, ach_stdp
+  	RANGE Da, Da_tau, stdp_da, da_stdp
 
   	: Parameters & variables of the original Exp2Syn
   	RANGE tau_a, tau_b, e, i
@@ -41,6 +44,9 @@ ENDCOMMENT
   }
 
   PARAMETER {
+    ACh_tau = 200 (ms) <1e-9, 1e9>
+    Da_tau = 200 (ms) <1e-9, 1e9>
+
   	: Parameters of the original Exp2Syn
   	tau_a = 0.2 (ms) <1e-9,1e9>			: time constant of EPSP rise // used for AMPAR currents
   	tau_b = 2 (ms) <1e-9,1e9>			: time constant of EPSP decay
@@ -119,8 +125,9 @@ ENDCOMMENT
   	A_n
   	B_n
   	last_weight
-  	ACh
-  	Da
+
+    ACh_w
+    Da_w
   	flag_D_ACh
   	flag_D_Da
   	last_max_w_ACh
@@ -130,6 +137,15 @@ ENDCOMMENT
   STATE {
   	A (uS)
   	B (uS)
+
+  	Da (uS)
+  	stdp_da (uS)
+  	da_stdp (uS)
+
+  	ACh (uS)
+  	stdp_ach (uS)
+  	ach_stdp (uS)
+
   	G_a
   	G_b
   	u_bar
@@ -156,6 +172,14 @@ ENDCOMMENT
   	w_post = w_post_init
   	w = w_pre * w_post
   	last_weight = 0
+
+  	Da = 0
+  	stdp_da = 0
+  	da_stdp = 0
+
+  	ACh = 0
+  	stdp_ach = 0
+  	ach_stdp = 0
 
   	: Calculations taken from the original Exp2Syn
   	: AMPAR-EPSP
@@ -204,15 +228,50 @@ ENDCOMMENT
   DERIVATIVE state {
   	LOCAL D, u, Eta, g_update, N_alpha, N_beta, N
 
-  	if(flag_D == 1 || flag_D_ACh == 1 || flag_D_Da == 1) {	: Check if there is a presynaptic event
+    : Check if there was a presynaptic event
+  	if(flag_D == 1) {
   		D = 1
   	    flag_D = -1
-  	    flag_D_ACh = -1
-  	    flag_D_Da = -1
+  	    if(ach_stdp > 0) {
+  	        ACh = ach_stdp
+  	        ach_stdp = 0
+  	    } else {
+  	        stdp_ach = 1
+  	    }
+  	    if(da_stdp > 0){
+  	        Da = da_stdp
+  	        da_stdp = 0
+  	    } else {
+  	        stdp_da = 1
+  	    }
   	}
   	else {
   	    D = 0
   	}
+
+	if(flag_D_ACh == 1) {
+  	    flag_D_ACh = -1
+
+  	    if(stdp_ach > 0){
+  	        ACh = stdp_ach :* ACh_w
+  	        stdp_ach = 0
+  	        ach_stdp = 0
+        } else {
+            ach_stdp = ACh_w
+        }
+  	}
+  	if(flag_D_Da == 1) {
+  	    flag_D_Da = -1
+
+  	    if(stdp_da > 0){
+  	        Da = stdp_da :* da_stdp
+  	        stdp_da = 0
+  	        da_stdp = 0
+        } else {
+            da_stdp = Da_w
+        }
+  	}
+
 
     : Ensures that ACh/Da are between 0 and 1
     if(ACh > 1.0) {
@@ -227,12 +286,20 @@ ENDCOMMENT
   	if(Da < 0.0) {
   		Da = 0.0
   	}
-  
+
   	UNITSOFF
   	u = v		: read local voltage
   	Eta = dt	: learning rate
   	UNITSON
-  
+
+    stdp_ach' = -stdp_ach/ACh_tau
+    ach_stdp' = -ach_stdp/ACh_tau
+    ACh' = -ACh/ACh_tau
+
+    stdp_da' = -stdp_da/Da_tau
+    da_stdp' = -da_stdp/Da_tau
+    Da' = -Da/Da_tau
+
   	: Calculations for pre-LTD
   	u_bar' = (- u_bar + positive(u - theta_u_T)) / tau_u_T
   	T = sigmoid_sat(m_T, u_bar)  : between -1 and 1: 2/(1+m_T**-u_bar)-1 [-1 move down to -1; 2: move up to 1]

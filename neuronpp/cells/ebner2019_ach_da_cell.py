@@ -55,9 +55,18 @@ class Ebner2019AChDACell(Hay2011Cell):
 
     @staticmethod
     def set_synaptic_pointers(syn_4p: Synapse, syn_ach: Synapse, syn_da: Synapse):
+        """
+        POINTER ach_stdp
+        POINTER da_stdp
+        POINTER flag_D_ACh
+        POINTER flag_D_Da
+
+        POINTER last_max_w_ACh
+        POINTER last_max_w_Da
+        """
         for p, a, d in zip(syn_4p, syn_ach, syn_da):
-            h.setpointer(a.point_process.hoc._ref_w, 'ACh', p.point_process.hoc)
-            h.setpointer(d.point_process.hoc._ref_w, 'Da', p.point_process.hoc)
+            h.setpointer(a.point_process.hoc._ref_w, 'ACh_w', p.point_process.hoc)
+            h.setpointer(d.point_process.hoc._ref_w, 'Da_w', p.point_process.hoc)
 
             h.setpointer(a.point_process.hoc._ref_flag_D, 'flag_D_ACh', p.point_process.hoc)
             h.setpointer(d.point_process.hoc._ref_flag_D, 'flag_D_Da', p.point_process.hoc)

@@ -41,17 +41,23 @@ if __name__ == '__main__':
 
     syn4p = syn['Syn4PAChDa']
     synach = syn['SynACh']
-    print('ACh tau', synach.hoc.tau)
-    rec_v = Record(syn.parent, locs=0.5, variables="v")
+
     rec_w = Record(syn4p, variables="w")
-    rec_ach = Record(syn4p, variables="ACh")
+    rec1 = Record(syn4p, variables="stdp_ach")
+    rec2 = Record(syn4p, variables="ach_stdp")
+    rec3 = Record(syn4p, variables="ACh")
+    rec4 = Record(syn4p, variables="ACh_w")
 
     sim = RunSim(init_v=-83, warmup=WARMUP)
-    syn['Syn4PAChDa'].make_event(10)
-    sim.run(runtime=5000)
+    syn['SynACh'].make_event(10)
+    syn['Syn4PAChDa'].make_event(510)
+    sim.run(runtime=2000)
 
     # plot
     rec_w.plot()
-    rec_ach.plot()
-    rec_v.plot()
+    rec1.plot()
+    rec2.plot()
+    rec3.plot()
+    rec4.plot()
+
     plt.show()
