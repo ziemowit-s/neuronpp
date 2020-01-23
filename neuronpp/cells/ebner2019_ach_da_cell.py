@@ -13,9 +13,6 @@ class Ebner2019AChDACell(Hay2011Cell):
         """
         Hay2011Cell.__init__(self, name=name, compile_paths=compile_paths)
 
-        self.params_ach = {"tau": 1000}
-        self.params_da = {"tau": 1000}
-
         self.params_4p_syn = {
             "tau_a": 0.2,  # time constant of EPSP rise
             "tau_b": 2,  # time constant of EPSP decay
