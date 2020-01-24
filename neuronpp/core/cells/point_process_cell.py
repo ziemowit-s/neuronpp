@@ -7,20 +7,17 @@ from neuronpp.core.hocwrappers.point_process import PointProcess
 
 
 class PointProcessCell(SectionCell):
-    def __init__(self, name=None):
+    def __init__(self, name=None, compile_paths=None):
         """
         :param name:
             Name of the cell
         """
-        SectionCell.__init__(self, name)
+        SectionCell.__init__(self, name, compile_paths=compile_paths)
         self.pps = []
         self._pp_num = defaultdict(int)
 
     def filter_point_processes(self, mod_name: str = None, name: str = None, parent: str = None):
         """
-        All name must contains index of the point process of the specific type.
-        eg. head[0][0] where head[0] is name and [0] is index of the point process of the specific type.
-
         :param mod_name:
             single string defining name of point process type name, eg. concere synaptic mechanisms like Syn4PAChDa
         :param name:

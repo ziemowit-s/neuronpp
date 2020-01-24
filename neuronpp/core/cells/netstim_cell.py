@@ -1,3 +1,5 @@
+from neuron import h
+
 from neuronpp.core.cells.core_cell import CoreCell
 from neuronpp.core.cells.utils import get_netstim
 from neuronpp.core.hocwrappers.netstim import NetStim
@@ -23,7 +25,7 @@ class NetStimCell(CoreCell):
         :param interval:
         :param noise:
         :return:
-            maked NetStim
+            created NetStim
         """
         ns_hoc = get_netstim(start=start, number=number, interval=interval, noise=noise)
         name = str(len(self.nss))

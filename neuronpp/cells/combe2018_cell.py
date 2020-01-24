@@ -1,3 +1,7 @@
+from neuronpp.core.cells.netstim_cell import NetStimCell
+
+from neuronpp.core.hocwrappers.netstim import NetStim
+
 from neuronpp.cells.cell import Cell
 from neuronpp.core.cells.hoc_cell import HocCell
 
@@ -35,7 +39,8 @@ class Combe2018Cell(Cell, HocCell):
 
             heads, necks = self.make_spines(sec=spine_sec, spine_number=spine_number, head_nseg=10, neck_nseg=10, seed=spine_seed)
 
-            self.copy_mechanisms(sec_from=self.secs[0], secs_to=heads)
+            self.copy_mechanisms(secs_to=necks, sec_from='parent')
+            self.copy_mechanisms(secs_to=heads, sec_from='parent')
 
             # Create AMPA synapses
             ampa_weight = 1.2 * 0.00156

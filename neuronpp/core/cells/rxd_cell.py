@@ -6,12 +6,12 @@ from neuronpp.core.hocwrappers.rxd import RxD
 
 
 class RxDCell(SectionCell):
-    def __init__(self, name=None):
+    def __init__(self, name=None, compile_paths=None):
         """
         :param name:
             Name of the cell
         """
-        SectionCell.__init__(self, name)
+        SectionCell.__init__(self, name, compile_paths=compile_paths)
         self.rxds = []
 
     def make_rxd(self, rxd_obj: RxDTool, sec=None, is_3d=False, threads=1, dx_3d_size=None):

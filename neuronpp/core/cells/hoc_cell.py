@@ -7,8 +7,8 @@ from neuronpp.core.cells.section_cell import SectionCell
 
 
 class HocCell(PointProcessCell):
-    def __init__(self, name):
-        SectionCell.__init__(self, name)
+    def __init__(self, name, compile_paths=None):
+        SectionCell.__init__(self, name, compile_paths=compile_paths)
         self._hoc_loaded = False
 
     def make_hoc(self, hoc_file, cell_template_name: str = None):

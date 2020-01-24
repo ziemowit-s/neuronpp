@@ -1,3 +1,5 @@
+from neuron import h
+
 from neuronpp.core.cells.core_cell import CoreCell
 from neuronpp.core.cells.utils import get_vecstim
 from neuronpp.core.hocwrappers.vecstim import VecStim
@@ -31,6 +33,9 @@ class VecStimCell(CoreCell):
         :param ping_array
             numpy array when ping must start
         """
+        if h.t > 0:
+            raise ConnectionRefusedError("NetStim cannot be created after simulation have been initiated. "
+                                         "You need to specify NetStim before creation of SimRun object.")
         vs_hoc, vec_hoc = get_vecstim(ping_array)
         name = str(len(self.vss))
         vs = VecStim(vs_hoc, parent=self, name=name)

@@ -1,20 +1,19 @@
 from collections import defaultdict
 
+from neuronpp.core.cells.netstim_cell import NetStimCell
+
 from neuronpp.core.cells.netconn_cell import NetConnCell
 from neuronpp.core.hocwrappers.composed.synapse import Synapse
 
 
 class SynapticCell(NetConnCell):
-    def __init__(self, name=None, *compile_paths):
-        NetConnCell.__init__(self, name, *compile_paths)
+    def __init__(self, name=None, compile_paths=None):
+        NetConnCell.__init__(self, name, compile_paths=compile_paths)
         self.syns = []
         self._syn_num = defaultdict(int)
 
     def filter_synapse(self, mod_name: str = None, name=None, source=None, point_process=None, parent=None, tag=None):
         """
-        All name must contains index of the point process of the specific type.
-        eg. head[0][0] where head[0] is name and [0] is index of the point process of the specific type.
-
         :param mod_name:
             single string defining name of point process type name, eg. concere synaptic mechanisms like Syn4PAChDa
         :param name:

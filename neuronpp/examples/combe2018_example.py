@@ -1,28 +1,28 @@
+from neuronpp.utils.STDPProtocols import STDPProtocol
 from neuronpp.utils.record import Record
 from neuronpp.utils.run_sim import RunSim
-from neuronpp.electrodes.iclamp import IClamp
 from neuronpp.cells.combe2018_cell import Combe2018Cell
-from neuronpp.utils.utils import stdp_protocol
 
+# Create cell
 cell = Combe2018Cell(name="cell", spine_number=10, spine_sec="apic", spine_seed=13)
+
 soma = cell.filter_secs("soma")[0]
-first_syn = cell.filter_complex_synapses(tag="combe")[0]
+syn = cell.filter_complex_synapses(tag="combe")[0]
 
-stdp_protocol(protocol="3xEPSP[int=10] 3xAP[int=10,dur=3,amp=1.6]", start=1, isi=10, iti=3000,
-              synapse=first_syn,
-              section=cell.filter_secs("soma")[0])
+# Prepare STDP protocol
+stdp = STDPProtocol()
+stdp.make_protocol("3xEPSP[int=10] 3xAP[int=10,dur=3,amp=1.6]", start=1, isi=10, iti=3000,
+                   epsp_synapse=syn, i_clamp_section=soma)
 
-# Prepare run
-v_rec = Record([soma, first_syn.parent], variables='v', locs=0.5)
-cai_head0_rec = Record(first_syn.parent, variables='cai', locs=0.5)
+# Prepare plots
+v_soma_rec = Record([soma, syn.parent], variables='v', locs=0.5)
+cai_head0_rec = Record(syn.parent, variables='cai', locs=0.5)
 
+# Run
 sim = RunSim(init_v=-70, warmup=20, with_neuron_gui=True, constant_timestep=False)
-
-# Run and plot
 sim.run(runtime=100, debug=True)
 
-v_rec.plot()
+# Plot
 cai_head0_rec.plot()
-
-v_rec.to_csv("vrec.csv")
-
+v_soma_rec.plot()
+v_soma_rec.to_csv("vrec.csv")

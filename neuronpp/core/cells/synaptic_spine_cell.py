@@ -3,8 +3,8 @@ from neuronpp.core.cells.complex_synaptic_cell import ComplexSynapticCell
 
 
 class SynapticSpineCell(SpineCell, ComplexSynapticCell):
-    def __init__(self, name=None):
-        ComplexSynapticCell.__init__(self, name)
+    def __init__(self, name=None, compile_paths=None):
+        ComplexSynapticCell.__init__(self, name, compile_paths=compile_paths)
         SpineCell.__init__(self, name)
 
     def make_spine_with_synapse(self, source, weight, rand_weight=False, number=1, tag: str = None, mod_name: str = None, delay=0,

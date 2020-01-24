@@ -1,14 +1,11 @@
-import random
 
 from neuron import h
-from neuron.hoc import HocObject
 from neuronpp.core.hocwrappers.vecstim import VecStim
-from nrn import Segment
 import matplotlib.pyplot as plt
 from collections import defaultdict
 
 from neuronpp.core.hocwrappers.sec import Sec
-from neuronpp.core.cells.utils import make_conn
+from neuronpp.core.cells.utils import make_netconn
 from neuronpp.core.hocwrappers.netconn import NetConn
 from neuronpp.core.hocwrappers.netstim import NetStim
 from neuronpp.core.hocwrappers.hoc_wrapper import HocWrapper
@@ -16,8 +13,8 @@ from neuronpp.core.cells.point_process_cell import PointProcessCell
 
 
 class NetConnCell(PointProcessCell):
-    def __init__(self, name=None):
-        PointProcessCell.__init__(self, name)
+    def __init__(self, name=None, compile_paths=None):
+        PointProcessCell.__init__(self, name, compile_paths=compile_paths)
         self.ncs = []
         self._spike_detector = None
         self._nc_num = defaultdict(int)
@@ -32,19 +29,17 @@ class NetConnCell(PointProcessCell):
         """
         return self.filter(searchable=self.ncs, mod_name=mod_name, name=name)
 
-    def make_netcons(self, source: HocWrapper, weight, rand_weight=False, source_loc=None, point_process=None, mod_name: str = None, delay=0, threshold=10):
+    def make_netcons(self, source: HocWrapper, weight, rand_weight=False, source_loc=None, point_process=None,
+                     mod_name: str = None, delay=0, threshold=10):
         """
-        All name must contains index of the point process of the specific type.
-        eg. head[0][0] where head[0] is name and [0] is index of the point process of the specific type.
-
         :param source:
             Can be only: hocwrappers.NetStim, hocwrappers.VecStim, hocwrappers.Sec or None. If it is Sec also loc param need to be defined.
-            If None it will create NetConn with no source, which can be use as external event source
+            If remain None it will create NetConn with no source, which can be use as external event source
         :param weight:
         :param rand_weight:
             if True, will find rand weight [0,1) and multiply this by weight.
         :param source_loc:
-            if source is type of hocwrapper.Sec - source_loc need to be between 0-1
+            if source is type of hocwrapper.Sec - source_loc need to be between 0-1, otherwise must remain None.
         :param mod_name:
             single string defining name of point process type name, eg. concrete synaptic mechanisms like Syn4PAChDa
             If None - it assumes that point_process has list of point processes objects
@@ -79,23 +74,9 @@ class NetConnCell(PointProcessCell):
 
         results = []
 
-        netconn_source = None
-        source_sec = None
-        if source:
-            if source_loc is None:  # NetStim or VecStim
-                netconn_source = source.hoc
-                source_sec = None
-            else:  # Sec
-                netconn_source = source.hoc(source_loc)._ref_v  # NetConn source
-                source_sec = source.hoc  # Sec to create NetCon
-
         for pp in point_process:
-            if rand_weight:
-                current_weight = random.random() * weight
-            else:
-                current_weight = weight
-            conn, name = self._make_netconn(source=netconn_source, source_sec=source_sec, point_process=pp, weight=current_weight,
-                                            delay=delay, threshold=threshold)
+            conn, name = make_netconn(parent=self, source=source, source_loc=source_loc, target=pp,
+                                      weight=weight, rand_weight=rand_weight, delay=delay, threshold=threshold)
             results.append(conn)
 
             self.ncs.append(conn)
@@ -121,9 +102,7 @@ class NetConnCell(PointProcessCell):
         if not isinstance(sec, Sec):
             raise TypeError("Param 'sec' must be a type of hocwrappers.sec.Sec after string filter find or as explicite param.")
 
-        sec = sec.hoc
-        segment = sec(loc)
-        nc_detector, name = self._make_netconn(source=segment._ref_v, source_sec=sec, point_process=None)
+        nc_detector, name = make_netconn(parent=self, source=sec, source_loc=loc, target=None)
         nc_detector.name = self.name
 
         result_vector = h.Vector()
@@ -147,12 +126,3 @@ class NetConnCell(PointProcessCell):
         ax.set_title("Spike detector of %s" % self.name)
         ax.vlines(spikes, 0, 1)
         ax.set(xlabel='t (ms)', ylabel="spikes")
-
-    def _make_netconn(self, source, source_sec, point_process, weight=None, delay=None, threshold=None):
-        if point_process is not None:
-            point_process = point_process.hoc
-
-        conn_hoc = make_conn(source=source, source_sec=source_sec, target=point_process, delay=delay, weight=weight, threshold=threshold)
-        name = "%s->%s" % (source, point_process)
-        conn = NetConn(conn_hoc, parent=self, name=name)
-        return conn, name

@@ -6,16 +6,13 @@ from neuronpp.core.hocwrappers.composed.complex_synapse import ComplexSynapse
 
 
 class ComplexSynapticCell(SynapticCell):
-    def __init__(self, name=None):
-        SynapticCell.__init__(self, name)
+    def __init__(self, name=None, compile_paths=None):
+        SynapticCell.__init__(self, name, compile_paths=compile_paths)
         self.complex_syns = []
         self._syn_num = defaultdict(int)
 
     def filter_complex_synapses(self, mod_name: str = None, name=None, parent=None, tag=None):
         """
-        All name must contains index of the point process of the specific type.
-        eg. head[0][0] where head[0] is name and [0] is index of the point process of the specific type.
-
         :param mod_name:
             single string defining name of point process type name, eg. concere synaptic mechanisms like Syn4PAChDa
         :param name:

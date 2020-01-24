@@ -9,18 +9,18 @@ h.load_file('import3d.hoc')
 
 
 class SectionCell(CoreCell):
-    def __init__(self, name=None):
+    def __init__(self, name=None, compile_paths=None):
         """
         :param name:
             Name of the cell
         """
-        CoreCell.__init__(self, name)
+        CoreCell.__init__(self, name, compile_paths=compile_paths)
         # if Cell (named core_cell) have been built before on the stack of super() objects
         if not hasattr(self, '_core_cell_builded'):
             self.secs = []
             self._core_cell_builded = True
 
-    def filter_secs(self, name):
+    def filter_secs(self, name=None):
         """
         :param name:
             start with 'regex:any pattern' to use regular expression. If without 'regex:' - will look which Hoc objects contain the str
@@ -29,10 +29,13 @@ class SectionCell(CoreCell):
         return self.filter(searchable=self.secs, name=name)
 
     def insert(self, mechanism_name: str, sec=None):
-        if isinstance(sec, str) or sec is None:
+        if isinstance(sec, Sec):
+            sec = [sec]
+        elif sec is None or isinstance(sec, str):
             sec = self.filter_secs(name=sec)
-        for s in sec:
-            s.hoc.insert(mechanism_name)
+
+        for se in sec:
+            se.hoc.insert(mechanism_name)
 
     def make_sec(self, name: str, diam=None, l=None, nseg=1):
         """
@@ -54,12 +57,27 @@ class SectionCell(CoreCell):
     def connect_secs(self, source, target, source_loc=1.0, target_loc=0.0):
         """
         default: source(0.0) -> target(1.0)
+
+        If you specify 1.0 for source_loc or target_loc it will assume 0.999 loc instead. This is because NEURON do not
+        insert any mechanisms to the 1.0 end (it is dimension-less). NEURON allows to connect section to the 1.0,
+        however this raise problems while copying parameters between sections. So any 1.0 loc will be changed to 0.999
+        instead.
         :param source:
         :param target:
         :param source_loc:
         :param target_loc:
         :return:
         """
+        if source_loc > 1.0 or source_loc < 0.0:
+            raise ValueError("source_loc param must be in range [0,1]")
+        if target_loc > 1.0 or target_loc < 0.0:
+            raise ValueError("target_loc param must be in range [0,1]")
+
+        if source_loc == 1:
+            source_loc = 0.999
+        if target_loc == 1:
+            target_loc = 0.999
+
         if source is None or target is None:
             raise LookupError("source and target must be specified. Can't be None.")
 
@@ -147,15 +165,28 @@ class SectionCell(CoreCell):
                 yprime = x * s + y * c
                 sec.pt3dchange(i, xprime, yprime, sec.z3d(i), sec.diam3d(i))
 
-    def copy_mechanisms(self, secs_to, sec_from):
-        all_mechs = sec_from.hoc.psection()['density_mechs']
-        seg_from = self._get_first_segment(sec_from)
+    def copy_mechanisms(self, secs_to, sec_from='parent'):
+        """
+        Copy mechanisms from the sec_from to all sections specified in the secs_to param.
+        If sec_from is 'parent' it will copy mechanisms from the parent of each sections in the secs_to param.
+        """
+        for sec in secs_to:
 
-        for mech_name, params in all_mechs.items():
+            if sec_from == 'parent':
+                segment_from = sec.hoc.psection()['morphology']['parent']
+                current_sec_from = segment_from.sec
+            elif isinstance(sec_from, Sec):
+                current_sec_from = sec_from.hoc
+                segment_from = self._get_first_segment(current_sec_from)
+            else:
+                raise TypeError("The param sec_from can be only type of Sec or string 'parent', "
+                                "but provided %s" % sec_from)
 
-            for sec in secs_to:
-                sec.hoc.insert(mech_name)
-                from_mech = getattr(seg_from, mech_name)
+            all_mechs = current_sec_from.psection()['density_mechs']
+
+            for mech_name, params in all_mechs.items():
+                self.insert(mech_name, sec)
+                from_mech = getattr(segment_from, mech_name)
 
                 for param_name in params.keys():
                     value = getattr(from_mech, param_name)
