@@ -2,15 +2,6 @@ import os
 import neuron
 from neuron import h
 
-from neuronpp.core.hocwrappers.composed.complex_synapse import ComplexSynapse
-from neuronpp.core.hocwrappers.netconn import NetConn
-
-from neuronpp.core.cells.netstim_cell import NetStimCell
-
-from neuronpp.core.hocwrappers.netstim import NetStim
-
-from neuronpp.electrodes.iclamp import IClamp
-
 from neuronpp.utils.compile_mod import CompileMOD
 
 mods_loaded = []

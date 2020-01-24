@@ -3,7 +3,7 @@ from neuronpp.utils.run_sim import RunSim
 
 from neuronpp.cells.cell import Cell
 from neuronpp.utils.record import Record
-from neuronpp.electrodes.iclamp import IClamp
+from neuronpp.utils.iclamp import IClamp
 from neuronpp.utils.utils import make_shape_plot
 from neuronpp.core.cells.netstim_cell import NetStimCell
 

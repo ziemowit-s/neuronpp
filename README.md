@@ -151,12 +151,12 @@ There are other examples in the folder.
    make_shape_plot(variable="v", min_val=-70, max_val=40)
    ```
 
-  * define STDP protocols:
+  * define experimetal protocols, eg. STDP protocols:
   ```python
     soma = cell.filter_secs("soma")[0]
     syn = cell.filter_synapses(tag="my_synapse")
 
-    stdp = STDPProtocol()
+    stdp = Experiment()
     stdp.make_protocol("3xEPSP[int=10] 3xAP[int=10,dur=3,amp=1.6]", start=1, isi=10, iti=3000,
                        epsp_synapse=syn, i_clamp_section=soma)
    ```

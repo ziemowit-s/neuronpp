@@ -18,13 +18,21 @@ class Synapse(ComposedHocWrapper):
 
         self.hoc = point_process.hoc
         self.tag = tag
-        self.source = source
-        self.netconn = netconn
+
+        self.sources = []
+        if source is not None:
+            self.sources.append(source)
+
+        self.netconns = []
+        if netconn is not None:
+            self.netconns.append(netconn)
+
         self.point_process = point_process
         self.mod_name = point_process.mod_name
 
     def make_event(self, time, use_global_sim_time=True):
         """
+        Currently it makes events to all NetConns connected to the synapse.
         :param time:
             time in ms of next synaptic event
         :param use_global_sim_time:
@@ -33,10 +41,12 @@ class Synapse(ComposedHocWrapper):
         sim_time = time * ms
         if use_global_sim_time:
             sim_time = h.t + sim_time
-        self.netconn.hoc.event(sim_time)
+        for nc in self.netconns:
+            nc.hoc.event(sim_time)
 
-    def set_source(self, source: HocWrapper, source_loc=None, weight=1.0, rand_weight=False, delay=1.0, threshold=10):
+    def add_source(self, source: HocWrapper, source_loc=None, weight=1.0, rand_weight=False, delay=1.0, threshold=10):
         """
+        Currently it allows to add single new source
         :param source:
             Can be only: hocwrappers.NetStim, hocwrappers.VecStim, hocwrappers.Sec or None. If it is Sec also loc param need to be defined.
             If remain None it will create NetConn with no source, which can be use as external event source
@@ -50,10 +60,13 @@ class Synapse(ComposedHocWrapper):
         :param threshold:
             threshold for NetConn, default=10
         """
-        self.source = source
-        self.netconn = make_netconn(parent=self.parent, source=source, target=self.point_process, ref_variable='v',
-                                    source_loc=source_loc, delay=delay, weight=weight, rand_weight=rand_weight,
-                                    threshold=threshold)
+        netconn = make_netconn(parent=self.parent, source=source, target=self.point_process, ref_variable='v',
+                               source_loc=source_loc, delay=delay, weight=weight, rand_weight=rand_weight,
+                               threshold=threshold)
+        self.netconns.append(netconn)
+        if source is not None:
+            self.sources.append(source)
 
     def __repr__(self):
-        return "{}[{}]{}+{}".format(self.parent, self.__class__.__name__, self.netconn, self.name)
+        ncs = '+'.join([str(nc) for nc in self.netconns])
+        return "{}[{}]{}+{}".format(self.parent, self.__class__.__name__, ncs, self.name)

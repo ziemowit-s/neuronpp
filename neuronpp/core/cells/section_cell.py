@@ -73,11 +73,6 @@ class SectionCell(CoreCell):
         if target_loc > 1.0 or target_loc < 0.0:
             raise ValueError("target_loc param must be in range [0,1]")
 
-        if source_loc == 1:
-            source_loc = 0.999
-        if target_loc == 1:
-            target_loc = 0.999
-
         if source is None or target is None:
             raise LookupError("source and target must be specified. Can't be None.")
 
@@ -183,6 +178,11 @@ class SectionCell(CoreCell):
                                 "but provided %s" % sec_from)
 
             all_mechs = current_sec_from.psection()['density_mechs']
+
+            if segment_from.x == 1.0:
+                segment_from = current_sec_from(0.999)
+            if segment_from.x == 0:
+                segment_from = current_sec_from(0.001)
 
             for mech_name, params in all_mechs.items():
                 self.insert(mech_name, sec)

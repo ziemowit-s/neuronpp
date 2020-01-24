@@ -40,7 +40,7 @@ class ComplexSynapse(ComposedHocWrapper, dict):
         for syn in self.values():
             syn.netconn.hoc.event(sim_time)
 
-    def set_source(self, source: HocWrapper, source_loc=None, weight=1.0, rand_weight=False, delay=1.0, threshold=10):
+    def add_source(self, source: HocWrapper, source_loc=None, weight=1.0, rand_weight=False, delay=1.0, threshold=10):
         """
         This is use on all synapses in this object. If you want to set source only for particular subset of synapses,
         get them by complex_synapse['synaptic_mod_name'], where complex_synapse is your object and synaptic_mod_name is
@@ -60,7 +60,7 @@ class ComplexSynapse(ComposedHocWrapper, dict):
             threshold for NetConn, default=10
         """
         for s in self.values():
-            s.set_source(source, source_loc, weight, rand_weight, delay, threshold)
+            s.add_source(source, source_loc, weight, rand_weight, delay, threshold)
 
     def __repr__(self):
         synapses_in = '+'.join(self.keys())

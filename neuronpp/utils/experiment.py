@@ -2,14 +2,14 @@ from neuronpp.core.hocwrappers.composed.synapse import Synapse
 
 from neuronpp.core.hocwrappers.sec import Sec
 
-from neuronpp.electrodes.iclamp import IClamp
+from neuronpp.utils.iclamp import IClamp
 
 from neuronpp.core.cells.netstim_cell import NetStimCell
 
 from neuronpp.core.hocwrappers.composed.complex_synapse import ComplexSynapse
 
 
-class STDPProtocol:
+class Experiment:
     def __init__(self):
         """
         Experimental object which allows to create STDP-like protocols of stimulations.
@@ -17,9 +17,11 @@ class STDPProtocol:
         self.netstims = []
         self.iclamps = []
 
-    def make_protocol(self, protocol: str, start, isi, iti, epsp_synapse: [Synapse, ComplexSynapse] = None,
+    def make_protocol(self, protocol: str, start, isi=1, iti=1, epsp_synapse: [Synapse, ComplexSynapse] = None,
                       i_clamp_section: Sec = None, train_number=1, copy_netconn_params=True):
         """
+        Create an experimental protocol of EPSPs and APs.
+
         :param protocol:
             string eg. 3xEPSP[int=10,w=2.5,thr=5,del=2] 3xAP[int=10,dur=3,amp=1.6]
 
@@ -48,6 +50,8 @@ class STDPProtocol:
             Inter Train Interval eg. 3xEPSP,2xAP -isi- 3xEPSP,2xAP -iti- 3xEPSP,2xAP-isi-3xEPSP,2xAP
         :param train_number:
             number of trains. Default is 1
+        :param copy_netconn_params:
+            If copy_netconn_params=True it will copy NetConn params from the last NetConn added to the synapse.
         :return:
             tuple(NetStim, IClamp).
             If epsp_synapse is None NetStim will be None
@@ -129,7 +133,8 @@ class STDPProtocol:
     @staticmethod
     def _set_source(stim, syn, weight, threshold, delay, copy_netconn_params):
         if copy_netconn_params:
-            delay = syn.netconn.hoc.delay
-            weight = syn.netconn.hoc.weight[0]
-            threshold = syn.netconn.hoc.threshold
-        syn.set_source(source=stim, weight=weight, threshold=threshold, delay=delay)
+            nc = syn.netconns[-1]
+            delay = nc.hoc.delay
+            weight = nc.hoc.weight[0]
+            threshold = nc.hoc.threshold
+        syn.add_source(source=stim, weight=weight, threshold=threshold, delay=delay)

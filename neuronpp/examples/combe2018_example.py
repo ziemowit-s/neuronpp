@@ -1,4 +1,4 @@
-from neuronpp.utils.STDPProtocols import STDPProtocol
+from neuronpp.utils.experiment import Experiment
 from neuronpp.utils.record import Record
 from neuronpp.utils.run_sim import RunSim
 from neuronpp.cells.combe2018_cell import Combe2018Cell
@@ -10,9 +10,8 @@ soma = cell.filter_secs("soma")[0]
 syn = cell.filter_complex_synapses(tag="combe")[0]
 
 # Prepare STDP protocol
-stdp = STDPProtocol()
-stdp.make_protocol("3xEPSP[int=10] 3xAP[int=10,dur=3,amp=1.6]", start=1, isi=10, iti=3000,
-                   epsp_synapse=syn, i_clamp_section=soma)
+stdp = Experiment()
+stdp.make_protocol("3xEPSP[int=10] 3xAP[int=10,dur=3,amp=1.6]", start=1, isi=10, epsp_synapse=syn, i_clamp_section=soma)
 
 # Prepare plots
 v_soma_rec = Record([soma, syn.parent], variables='v', locs=0.5)
