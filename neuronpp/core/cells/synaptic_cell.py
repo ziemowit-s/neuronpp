@@ -12,7 +12,7 @@ class SynapticCell(NetConnCell):
         self.syns = []
         self._syn_num = defaultdict(int)
 
-    def filter_synapse(self, mod_name: str = None, name=None, source=None, point_process=None, parent=None, tag=None):
+    def filter_synapses(self, mod_name: str = None, name=None, source=None, point_process=None, parent=None, tag=None):
         """
         :param mod_name:
             single string defining name of point process type name, eg. concere synaptic mechanisms like Syn4PAChDa

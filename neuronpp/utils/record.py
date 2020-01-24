@@ -61,9 +61,13 @@ class Record:
                     ax.set(xlabel='t (ms)', ylabel=var_name)
 
     def to_csv(self, filename):
-        data = [('time', self.t)]
-        for var_name, (sec_name, recs) in self.recs.items():
-            data.append((sec_name, recs))
+        cols = ['time']
+        data = [self.t.as_numpy().tolist()]
 
-        df = pd.DataFrame(data)
+        for var_name, rec_data in self.recs.items():
+            for sec_name, vec in rec_data:
+                cols.append(sec_name)
+                data.append(vec.as_numpy().tolist())
+
+        df = pd.DataFrame(list(zip(*data)), columns=cols)
         df.to_csv(filename, index=False)
