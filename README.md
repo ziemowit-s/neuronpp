@@ -112,7 +112,7 @@ There are other examples in the folder.
    cell.make_spines(spine_number=10, head_nseg=10, neck_nseg=10, sec='dend')
    ```
 
-  * define NetStim (or VecStim) and pass it to synapses:
+  * define NetStim (or VecStim) and pass it to synapses while creating:
   ```python
     netstim = NetStimCell(name="netst")
     stim = netstim.make_netstim(start=300, number=5, interval=10)
