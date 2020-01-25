@@ -1,5 +1,12 @@
 Neuron++ is a library which wraps NEURON (http://www.neuron.yale.edu) with easy to use Python classes
 
+The key motivation for this library was to create a fast prototyping environment to use NEURON with Python with OOP paradigm in the first place.
+  * The library is designed to precisely define models of single cell and then connect them to create small networks
+  * since OOP paradigm wraps some NEURON concept with easy to use objects, the library provides methods to perform tidius tasks 
+  in a single line: like managing synaptic signaling or dendritic spines creation
+    
+This is a pre-Alpha version
+
 ## Prerequisites
 
 * Install NEURON from the instruction: https://github.com/ziemowit-s/neuron_netpyne_get_started
