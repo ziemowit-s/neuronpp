@@ -27,6 +27,10 @@ class NetStimCell(CoreCell):
         :return:
             created NetStim
         """
+        if h.t > 0:
+            raise ConnectionRefusedError("NetStim cannot be created after simulation have been initiated. "
+                                         "You need to specify NetStim before creation of SimRun object.")
+
         ns_hoc = get_netstim(start=start, number=number, interval=interval, noise=noise)
         name = str(len(self.nss))
 

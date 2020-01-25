@@ -1,6 +1,4 @@
-import os
 import matplotlib.pyplot as plt
-from neuronpp.utils.compile_mod import CompileMOD
 
 from neuronpp.utils.run_sim import RunSim
 
@@ -10,21 +8,20 @@ from neuronpp.core.cells.netstim_cell import NetStimCell
 
 
 # Prepare cell
-cell = Cell(name="cell", compile_paths="commons/mods/ebner2019")
-cell.load_morpho(filepath='commons/morphologies/swc/my.swc', seg_per_L_um=1, make_const_segs=11)
+cell = Cell(name="cell", compile_paths="../commons/mods/ebner2019")
+cell.load_morpho(filepath='../commons/morphologies/swc/my.swc', seg_per_L_um=1, make_const_segs=11)
 cell.make_sec("dend[1]", diam=10, l=10, nseg=10)
 cell.connect_secs(source="dend[1]", target="soma")
 cell.insert("pas")
 cell.insert("hh")
 
 # Two examples of synapses with NetStim:
-SYNAPSE_MECH = "ExpSyn"
 stim_cell = NetStimCell("stim_cell")
 
 # 1) Hoc-like
-cell.make_point_processes(tag="example_pp", mod_name=SYNAPSE_MECH, sec="soma", loc=0.5)
-cell.make_netcons(source=stim_cell.make_netstim(start=200, number=3, interval=1),
-                  mod_name=SYNAPSE_MECH, point_process="example_pp", weight=0.01, delay=1)
+cell.make_point_processes(tag="example_pp", mod_name="ExpSyn", sec="soma", loc=0.5)
+cell.make_netcons(source=stim_cell.make_netstim(start=250, number=3, interval=1),
+                  mod_name="ExpSyn", point_process="example_pp", weight=0.01, delay=1)
 
 # 2) Synapse-like
 syn1 = cell.make_sypanses(source=stim_cell.make_netstim(start=300, number=3, interval=1),

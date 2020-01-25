@@ -7,7 +7,7 @@ from neuronpp.core.cells.hoc_cell import HocCell
 
 
 class Combe2018Cell(Cell, HocCell):
-    def __init__(self, name=None, model_folder="commons/hocmodels/combe2018", spine_number=0, spine_sec="apic",
+    def __init__(self, name=None, model_folder="../commons/hocmodels/combe2018", spine_number=0, spine_sec="apic",
                  spine_seed: int = None):
         """
         :param name:

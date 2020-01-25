@@ -42,7 +42,7 @@ class Synapse(ComposedHocWrapper):
         if use_global_sim_time:
             sim_time = h.t + sim_time
         for nc in self.netconns:
-            nc.hoc.event(sim_time)
+            nc.make_event(sim_time)
 
     def add_source(self, source: HocWrapper, source_loc=None, weight=1.0, rand_weight=False, delay=1.0, threshold=10):
         """

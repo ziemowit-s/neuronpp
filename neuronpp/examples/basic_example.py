@@ -9,7 +9,7 @@ from neuronpp.core.cells.netstim_cell import NetStimCell
 
 # Create cell
 cell = Cell(name="cell")
-cell.load_morpho(filepath='commons/morphologies/asc/cell2.asc')
+cell.load_morpho(filepath='../commons/morphologies/asc/cell2.asc')
 cell.insert("pas")
 cell.insert("hh")
 
