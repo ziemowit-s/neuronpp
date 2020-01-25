@@ -32,7 +32,7 @@ pip install git+https://github.com/ziemowit-s//neuronpp
 ## MOD compilation
 Before run you must compile mod files of your model (if it provides specialised mod features)
 
-### Automatic compilation (recommended)
+### Automatic (recommended)
 `Cell()` object has a `compile_path` param which allows to specify paths which contain mod files to compile.
 
 In most cases you don't need to compile files externally, if you provided appropriate pathways - it will be done automatically before each run.
