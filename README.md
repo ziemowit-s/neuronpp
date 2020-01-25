@@ -56,6 +56,28 @@ nrmivmodl
     * compiled_folder_name="x86_64"
     * mod_compile_command="nrnivmodl"
     
+## Predefined Cells
+This repository contains the basic cell model `Cell` object as well predefined cell models from ModelDB (https://senselab.med.yale.edu/modeldb)
+  * All of those models are located in the cells/ folder. 
+  * If you want to create your own model it is recommended to use `Cell` object.
+  
+The list of predefined cell models:
+  * Ebner et al. 2019
+  * Custom implementation of Ebner et. al 2019 with ACh/DA modulation
+  * Combe et al. 2018
+  * Graham et al. 2014
+  * Hay et al. 2011
+  
+MOD files to all of those models are located in the commons/mods/ folder. Combe 2018 model and Graham 2014 model additionaly have hoc files located in the commons/hocmodels/ folder 
+  
+
+
+## Models imported from HOC
+There is an experimental Cell model `HocCell` which is not a part of `Cell`, however it allows to import HOC files and load its model to the Cell object.
+Currently it allows only to import a single HOC cell from the single HOC entry file. If your HOC file/files define more than a single cell - import all of them manually and separately through `HocCell`.
+In the future the factory method will create as many Cells as required based on HOC code.
+* `HocCell` is located in the core/cell folder.
+
 ## Introduction to NEURON++
 The full example used in this introduction is located in: examples/basic_example.py
 There are other examples in the folder.
