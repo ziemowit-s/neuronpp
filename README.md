@@ -72,7 +72,7 @@ MOD files to all of those models are located in the commons/mods/ folder. Combe 
   
 
 
-## Models imported from HOC
+## Importing HOC model
 There is an experimental Cell model `HocCell` which is not a part of `Cell`, however it allows to import HOC files and load its model to the Cell object.
 Currently it allows only to import a single HOC cell from the single HOC entry file. If your HOC file/files define more than a single cell - import all of them manually and separately through `HocCell`.
 In the future the factory method will create as many Cells as required based on HOC code.
