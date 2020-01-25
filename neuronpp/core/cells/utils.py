@@ -1,5 +1,4 @@
-import random
-
+import numpy as np
 from neuron import h
 from neuronpp.core.hocwrappers.netconn import NetConn
 
@@ -45,11 +44,12 @@ def make_netconn(parent, source: HocWrapper = None, target: PointProcess = None,
     :param delay:
     :param weight:
     :param rand_weight:
+        Truncated normal distribution (only positive) with mu=weight, sigma=weight
     :param threshold:
     :return:
     """
     if rand_weight:
-        current_weight = random.random() * weight
+        current_weight = np.abs(np.random.normal(weight, weight, 1)[0])
     else:
         current_weight = weight
 
