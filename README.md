@@ -4,7 +4,7 @@ Neuron++ wraps NEURON (http://www.neuron.yale.edu) with easy to use Python objec
 
   * Fast prototyping environment to use NEURON with Python with OOP paradigm in the first place.
 
-  * Precisely define models of a single cell and connect them togetherto create a small network.
+  * Precisely define models of a single cell and connect them together to create a small network.
   
   * Perform tidius tasks in a single line of code, eg.: 
     * Manage synaptic signaling
