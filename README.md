@@ -122,7 +122,7 @@ You can filter any part of the cell by string or regular expression filters
 There are many more filter functions. Check each one of them to discover each filter params.
 The main cell object `Cell` contains all filter methods inside.
 
-# More features
+### More features
 
   * add synapses:
    ```python
