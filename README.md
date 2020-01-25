@@ -28,24 +28,29 @@ pip install git+https://github.com/ziemowit-s//neuronpp
 ```
 
 ## MOD compilation
-Before run you must compile mod files, however `Cell()` object has `compile_path` param which allows to specify paths with mods to compile before each run.
-In most cases you don't need to compile files externally, but just add paths to your Cell.
+Before run you must compile mod files of your model (if it provides specialised mod features)
 
-Every cell in the cell/ folder has defined required paths which will work if you run python script from the main folder (as a working directory) which is neuronpp/neuronpp/
+### Automatic compilation (recommended)
+`Cell()` object has a `compile_path` param which allows to specify paths which contain mod files to compile.
 
-However if you want to compile mods manually this is how to do it:
+In most cases you don't need to compile files externally, if you provided appropriate pathways - it will be done automatically before each run.
+
+### Manual
+
+If you want to compile mods manually this is how to do it:
 
 ```bash
 nrmivmodl
 ```
 
 * To help with manual compilation use compile_mod.py or CompileMOD class:
+
   * It will compile all mods inside the source folder (you can specify many source folders)
   * copy compiled folder to the `compiled/` folder inside the target folder 
   
-```bash
-python utils/compile_mod.py --sources [SOURCE_FOLDER_WITH_MOD_FILES] --target [TARGET_FOLDER]
-``` 
+ ```bash
+ python utils/compile_mod.py --sources [SOURCE_FOLDER_WITH_MOD_FILES] --target [TARGET_FOLDER]
+ ``` 
 
   * By default it works on Linux but you can change default params so that they express your OS params:
     * compiled_folder_name="x86_64"
