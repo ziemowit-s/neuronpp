@@ -130,10 +130,14 @@ There are other examples in the folder.
      * but good practice is to define source=None 
      * it will return the synapse which an empty source, which can be stimulated externally
    ```python
-    syns = cell.make_sypanses(source=None, weight=0.01, mod_name=SYNAPSE_MECH, sec="soma", target_loc=0.5, delay=1)
+    syns = cell.make_sypanses(source=None, weight=0.01, mod_name=SYNAPSE_MECH, sec="soma", 
+                              target_loc=0.5, delay=1)
+                              
     sim = RunSim(init_v=-55, warmup=20)
+    
     syns[0].make_event(10)
     syns[0].make_event(20)
+    
     sim.run(runtime=100)
    ```
 
