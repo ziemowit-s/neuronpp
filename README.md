@@ -1,4 +1,4 @@
-Neuron++ is a library which wraps NEURON tool with easy to use Python classes
+Neuron++ is a library which wraps NEURON (http://www.neuron.yale.edu) with easy to use Python classes
 
 ## Prerequisites
 
