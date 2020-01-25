@@ -1,8 +1,9 @@
 Neuron++ wraps NEURON (http://www.neuron.yale.edu) with easy to use Python objects.
 
 The key motivation for the library was to create a fast prototyping environment to use NEURON with Python with OOP paradigm in the first place:
-  * The library is designed to precisely define models of a single cell and then connect them together to create a small network
-  * since OOP paradigm wraps some NEURON concepts with easy to use objects, the library provides methods to perform tidius tasks in a single line, like managing synaptic signaling or dendritic spines creation
+  * The library is designed to precisely define models of a single cell and then connect them together to create a small network.
+  * since OOP paradigm wraps some NEURON concepts with easy to use objects, the library provides methods to perform tidius tasks in a single line, like managing synaptic signaling or dendritic spines creation.
+  * The library also provide helpful exception messages and guidelines how to use specific NEURON functions without error
     
 This is a pre-Alpha version
 
