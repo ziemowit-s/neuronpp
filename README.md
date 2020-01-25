@@ -4,7 +4,7 @@ The key motivation for the library was to create a fast prototyping environment 
 
   * The library is designed to precisely define models of a single cell and then connect them together to create a small network.
   
-  * since OOP paradigm wraps some NEURON concepts with easy to use objects, the library provides methods to perform tidius tasks in a single line, like managing synaptic signaling, dendritic spines creation or defining experimental protocols (eg. STDP paradigms).
+  * It wraps some NEURON concepts with easy to use objects, the library provides methods to perform tidius tasks in a single line, like managing synaptic signaling, dendritic spines creation or defining experimental protocols (eg. STDP paradigms).
   
   * The library also provide helpful exception messages and guidelines how to use specific NEURON functions without error
     
