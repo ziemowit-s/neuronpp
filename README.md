@@ -28,6 +28,7 @@ python setup.py bdist_wheel
 pip install git+https://github.com/ziemowit-s//neuronpp
 ```
 * Bear in mind that if you install the library through the pip and you want to use provided model cells (from other publications) you need to copy commons/ folder from this repository to your working directory.
+
 ## MOD compilation
 Before run you must compile mod files of your model (if it provides specialised mod features)
 
