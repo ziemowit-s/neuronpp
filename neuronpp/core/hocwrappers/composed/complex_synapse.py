@@ -1,7 +1,3 @@
-from neuron import h
-from neuron.units import ms
-
-from neuronpp.core.cells.utils import make_netconn
 from neuronpp.core.hocwrappers.composed.composed_hoc_wrapper import ComposedHocWrapper
 from neuronpp.core.hocwrappers.composed.synapse import Synapse
 from neuronpp.core.hocwrappers.hoc_wrapper import HocWrapper
@@ -33,12 +29,8 @@ class ComplexSynapse(ComposedHocWrapper, dict):
         :param use_global_sim_time:
             If true it will use global time of hoc simulation (don't need to add h.t or sim.time the the event time)
         """
-        sim_time = time * ms
-        if use_global_sim_time:
-            sim_time = h.t + sim_time
-
         for syn in self.values():
-            syn.netconn.hoc.event(sim_time)
+            syn.make_event(time, use_global_sim_time)
 
     def add_source(self, source: HocWrapper, source_loc=None, weight=1.0, rand_weight=False, delay=1.0, threshold=10):
         """
