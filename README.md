@@ -99,7 +99,30 @@ There are other examples in the folder.
    ic.stim(delay=100, dur=10, amp=0.1)
    ```
 
-### More Features
+### Filters
+You can filter any part of the cell by string or regular expression filters
+  
+  * filter section of the cell by string:
+  ```python
+    # Assuming you have sections dend[0]...dend[100] it will return all of them
+    sections = cell.filter_secs(name="dend")
+  ```
+
+  * filter section of the cell by regular expression:
+  ```python
+    # Assuming you have sections dend[0]...dend[100] and apic[0]...apic[100] it will return all of them
+    sections = cell.filter_secs(name="regex:(apic)|(basal)")
+  ```
+
+  * return synapses of type 'ExpSyn' located in all heads sections
+   ```python
+    cell.filter_synapses(mod_name="ExpSyn", name="head")
+   ```
+
+There are many more filter functions. Check each one of them to discover each filter params.
+The main cell object `Cell` contains all filter methods inside.
+
+# More features
 
   * add synapses:
    ```python
@@ -140,6 +163,11 @@ There are other examples in the folder.
     
     sim.run(runtime=100)
    ```
+
+  * Add source to previously created synapse:
+  ```python
+    syn.add_source(source=stim, weight=weight, threshold=threshold, delay=delay)
+  ```
 
   * make spike detector for the cell:
   ```python
