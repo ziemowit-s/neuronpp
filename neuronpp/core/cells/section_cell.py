@@ -36,6 +36,7 @@ class SectionCell(CoreCell):
 
         for se in sec:
             se.hoc.insert(mechanism_name)
+        return self
 
     def make_sec(self, name: str, diam=None, l=None, nseg=1):
         """
