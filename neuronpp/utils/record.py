@@ -82,6 +82,11 @@ class Record:
                     elif position == 'merge':
                         ax = fig.add_subplot(1, 1, 1)
                     else:
+                        size = position[0] * position[1]
+                        if position[0] * position[1] < len(section_recs):
+                            raise IndexError("Provided position %s declared %s graphs on the figure, "
+                                             "however you have %s records on the variable '%s'." %
+                                             (position, size, len(section_recs), var_name))
                         ax = fig.add_subplot(position[0], position[1], i + 1)
 
                     if y_lim:
