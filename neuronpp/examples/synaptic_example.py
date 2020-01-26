@@ -42,8 +42,7 @@ syn2.make_event(20)
 syn2.make_event(30)
 syn2.make_event(40)
 
-sim.run(runtime=500)
-
-# plot
-rec_v.plot()
-plt.show()
+for i in range(1000):
+    sim.run(runtime=1)
+    # plot
+    rec_v.plot()

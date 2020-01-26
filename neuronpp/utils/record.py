@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 import numpy as np
 from neuron import h
 import pandas as pd
@@ -30,6 +32,8 @@ class Record:
             raise IndexError("locs can be single float (eg. 0.5) or a list where len(locs) must be the same as len(sections).")
 
         self.recs = dict([(v, []) for v in variables])
+        self.figs = {}
+        self.axs = defaultdict(list)
 
         for sec, loc in zip(elements, locs):
             for var in variables:
@@ -45,20 +49,35 @@ class Record:
 
         self.t = h.Vector().record(h._ref_t)
 
-    def plot(self, max_plot_on_fig=4):
+    def plot(self):
         for var_name, section_recs in self.recs.items():
-            ceil_len = ceil(len(section_recs)/max_plot_on_fig)
+            if var_name not in self.figs:
+                self.figs[var_name] = None
 
-            for i in range(ceil_len):
-                current_recs = section_recs[i:i+max_plot_on_fig]
+            fig = self.figs[var_name]
+            create_fig = False
+            if fig is None:
+                create_fig = True
+                fig = plt.figure()
+                fig.canvas.draw()
+                self.figs[var_name] = fig
 
-                fig, axs = plt.subplots(len(current_recs))
-                axs = axs.flat if isinstance(axs, np.ndarray) else [axs]
+            for i, (name, rec) in enumerate(section_recs):
+                if create_fig:
+                    ax = fig.add_subplot(len(section_recs), 1, 1)
+                    line, = ax.plot([], lw=3)
+                    self.axs[var_name].append((ax, line))
 
-                for ax, (name, rec) in zip(axs, current_recs):
-                    ax.set_title("%s.%s" % (name, var_name))
-                    ax.plot(self.t, rec)
-                    ax.set(xlabel='t (ms)', ylabel=var_name)
+                ax, line = self.axs[var_name][i]
+                fig = self.figs[var_name]
+
+                # update data
+                line.set_data(self.t, rec)
+
+                fig.canvas.draw()
+                fig.canvas.flush_events()
+
+        plt.show(block=False)
 
     def to_csv(self, filename):
         cols = ['time']
