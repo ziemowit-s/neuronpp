@@ -49,13 +49,13 @@ class Record:
 
         self.t = h.Vector().record(h._ref_t)
 
-    def plot(self):
+    def plot(self, steps=10000, y_lim=None):
+        create_fig = False
         for var_name, section_recs in self.recs.items():
             if var_name not in self.figs:
                 self.figs[var_name] = None
 
             fig = self.figs[var_name]
-            create_fig = False
             if fig is None:
                 create_fig = True
                 fig = plt.figure()
@@ -69,15 +69,24 @@ class Record:
                     self.axs[var_name].append((ax, line))
 
                 ax, line = self.axs[var_name][i]
-                fig = self.figs[var_name]
+                t = self.t.as_numpy()[-steps:]
+                r = rec.as_numpy()[-steps:]
+
+                ax.set_xlim(t.min(), t.max())
+
+                if y_lim:
+                    ax.set_ylim(y_lim[0], y_lim[1])
+                else:
+                    ax.set_ylim(r.min(), r.max())
 
                 # update data
-                line.set_data(self.t, rec)
+                line.set_data(t, r)
 
-                fig.canvas.draw()
-                fig.canvas.flush_events()
+            fig.canvas.draw()
+            fig.canvas.flush_events()
 
-        plt.show(block=False)
+        if create_fig:
+            plt.show(block=False)
 
     def to_csv(self, filename):
         cols = ['time']

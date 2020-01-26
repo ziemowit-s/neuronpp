@@ -1,5 +1,3 @@
-import matplotlib.pyplot as plt
-
 from neuronpp.utils.run_sim import RunSim
 
 from neuronpp.cells.cell import Cell
@@ -44,5 +42,4 @@ syn2.make_event(40)
 
 for i in range(1000):
     sim.run(runtime=1)
-    # plot
-    rec_v.plot()
+    rec_v.plot(y_lim=(-100, 100))
