@@ -10,7 +10,6 @@ import matplotlib.pyplot as plt
 class Record:
     def __init__(self, elements, variables, locs=None):
         """
-
         :param elements:
             elements can any object from HocWrappers which implements hoc param
         :param locs:
@@ -49,7 +48,21 @@ class Record:
 
         self.t = h.Vector().record(h._ref_t)
 
-    def plot(self, steps=10000, y_lim=None):
+    def plot(self, steps=10000, y_lim=(-80, 50), position=None):
+        """
+        Call each time you want to redraw plot.
+
+        :param steps:
+            how many timesteps to see on the graph
+        :param y_lim:
+            tuple of limits for y axis. Default is (-80, 50)
+        :param position:
+            position of all subplots ON EACH figure (each figure is created for each variable separately).
+            eg. if you have 9 neurons and want to display 'v' on 3x3 matrix position=(3,3)
+            By default each neuron has separated  axis (row) on the figure.
+            if position is a string 'merge' - it will display all figures on the same graph.
+        :return:
+        """
         create_fig = False
         for var_name, section_recs in self.recs.items():
             if var_name not in self.figs:
@@ -64,8 +77,16 @@ class Record:
 
             for i, (name, rec) in enumerate(section_recs):
                 if create_fig:
-                    ax = fig.add_subplot(len(section_recs), 1, 1)
-                    line, = ax.plot([], lw=3)
+                    if position is None:
+                        ax = fig.add_subplot(len(section_recs), 1, i + 1)
+                    elif position == 'merge':
+                        ax = fig.add_subplot(1, 1, 1)
+                    else:
+                        ax = fig.add_subplot(position[0], position[1], i + 1)
+
+                    if y_lim:
+                        ax.set_ylim(y_lim[0], y_lim[1])
+                    line, = ax.plot([], lw=1)
                     self.axs[var_name].append((ax, line))
 
                 ax, line = self.axs[var_name][i]
@@ -74,9 +95,7 @@ class Record:
 
                 ax.set_xlim(t.min(), t.max())
 
-                if y_lim:
-                    ax.set_ylim(y_lim[0], y_lim[1])
-                else:
+                if y_lim is None:
                     ax.set_ylim(r.min(), r.max())
 
                 # update data
