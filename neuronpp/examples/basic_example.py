@@ -15,7 +15,7 @@ cell.insert("hh")
 
 # Create stim and synapses
 stim = NetStimCell("stim_cell").make_netstim(start=30, number=5, interval=10)
-syn1 = cell.make_spine_with_synapse(source=stim, weight=0.01, mod="ExpSyn",
+syn1 = cell.make_spine_with_synapse(source=stim, weight=0.01, mod_name="ExpSyn",
                                     target_sec="apic", delay=1, head_nseg=1, neck_nseg=1, number=100)[0]
 
 # Create IClamp

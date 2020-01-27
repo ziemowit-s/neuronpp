@@ -10,6 +10,7 @@ neuronpp/examples/x86_64/
 
 neuronpp/x86_64/
 neuronpp/compiled/x86_64/
+neuronpp/examples/compiled/x86_64/
 neuronpp/neuronpp/mods/*/x86_64/
 neuronpp/neuronpp/mods/x86_64/
 

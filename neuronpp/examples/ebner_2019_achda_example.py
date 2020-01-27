@@ -30,7 +30,7 @@ if __name__ == '__main__':
 
     # make synapses with spines
     syn_4p, heads = cell.make_spine_with_synapse(source=None, number=100, weight=WEIGHT,
-                                                 mod="Syn4PAChDa", delay=1, **cell.params_4p_syn)
+                                                 mod_name="Syn4PAChDa", delay=1, **cell.params_4p_syn)
     syn_ach = cell.make_sypanses(source=stim1, weight=WEIGHT, mod_name="SynACh", target_sec=heads, delay=1)
     syn_da = cell.make_sypanses(source=stim2, weight=WEIGHT, mod_name="SynDa", target_sec=heads, delay=1)
     cell.set_synaptic_pointers(syn_4p, syn_ach, syn_da)

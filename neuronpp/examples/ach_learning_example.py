@@ -18,7 +18,7 @@ def create_cell(syn_4p_source=None, syn_ach_source=None, syn_da_source=None):
 
     # make synapses with spines
     syn_4p, heads = cell.make_spine_with_synapse(source=syn_4p_source, number=3, weight=WEIGHT,
-                                                 mod="Syn4PAChDa", delay=1, **cell.params_4p_syn)
+                                                 mod_name="Syn4PAChDa", delay=1, **cell.params_4p_syn)
     syn_ach = cell.make_sypanses(source=syn_ach_source, weight=WEIGHT, mod_name="SynACh", target_sec=heads, delay=1)
     syn_da = cell.make_sypanses(source=syn_da_source, weight=WEIGHT, mod_name="SynDa", target_sec=heads, delay=1)
 
@@ -40,16 +40,10 @@ if __name__ == '__main__':
     syn4p = syns[0]['Syn4PAChDa']
     synach = syns[0]['SynACh']
 
-    rec_w = Record(syn4p, variables="w")
-    rec1 = Record(syn4p, variables="stdp_ach")
-    rec2 = Record(syn4p, variables="ach_stdp")
-    rec3 = Record(syn4p, variables="ACh")
-    rec4 = Record(syn4p, variables="ACh_w")
-    rec5 = Record(soma, locs=0.5, variables="v")
+    rec_syn = Record(syn4p, variables="w stdp_ach ach_stdp ACh ACh_w")
+    rec_soma = Record(soma, locs=0.5, variables="v")
 
     sim = RunSim(init_v=-83, warmup=WARMUP)
-
-    #syn['SynACh'].make_event(10)
 
     event = 0
     inter = 5
@@ -61,11 +55,5 @@ if __name__ == '__main__':
     sim.run(runtime=500)
 
     # plot
-    rec_w.plot()
-    rec1.plot()
-    rec2.plot()
-    rec3.plot()
-    rec4.plot()
-    rec5.plot()
-
-    plt.show()
+    rec_soma.plot()
+    rec_syn.plot()
