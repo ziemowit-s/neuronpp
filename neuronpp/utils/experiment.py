@@ -1,11 +1,8 @@
-from neuronpp.core.hocwrappers.composed.synapse import Synapse
-
-from neuronpp.core.hocwrappers.sec import Sec
-
+from neuron import h
 from neuronpp.utils.iclamp import IClamp
-
+from neuronpp.core.hocwrappers.sec import Sec
 from neuronpp.core.cells.netstim_cell import NetStimCell
-
+from neuronpp.core.hocwrappers.composed.synapse import Synapse
 from neuronpp.core.hocwrappers.composed.complex_synapse import ComplexSynapse
 
 
@@ -43,7 +40,7 @@ class Experiment:
             section to input IClamp. Default is None if you don't want to stimulate any section by electrode (eg. making AP)
             It is assumed that IClamp stimulate i_clamp_section(0.5) segment.
         :param start:
-            start time of the first stimuli in ms
+            start time of the first stimuli in ms, it is absolute time, so bear in mind warmup time.
         :param isi:
             Inter Stimulus Interval, eg. 3xEPSP,2xAP -isi- 3xEPSP,2xAP
         :param iti:
@@ -57,6 +54,10 @@ class Experiment:
             If epsp_synapse is None NetStim will be None
             If i_clamp_section is None IClamp will be None
         """
+        #if start < h.t:
+        #    raise ValueError("Experimental protocol 'start' param must > h.t (time of the simulation), but your "
+        #                     "start=%s and h.t=%s. Bear in mind that 'start' param is the absolute time" % (start, h.t))
+
         protocol = protocol.lower()
         protocols = protocol.split(" ")
 

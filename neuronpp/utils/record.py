@@ -48,7 +48,23 @@ class Record:
 
         self.t = h.Vector().record(h._ref_t)
 
-    def plot(self, steps=10000, y_lim=(-80, 50), position=None):
+    def plot(self, animate=False, **kwargs):
+        if animate:
+            self.plot_animate(**kwargs)
+        else:
+            self.plot_static()
+
+    def plot_static(self):
+        for var_name, section_recs in self.recs.items():
+            fig, axs = plt.subplots(len(section_recs))
+            axs = axs.flat if isinstance(axs, np.ndarray) else [axs]
+
+            for ax, (name, rec) in zip(axs, section_recs):
+                ax.set_title("%s.%s" % (name, var_name))
+                ax.plot(self.t, rec)
+                ax.set(xlabel='t (ms)', ylabel=var_name)
+
+    def plot_animate(self, steps=10000, y_lim=None, position=None):
         """
         Call each time you want to redraw plot.
 
@@ -99,9 +115,8 @@ class Record:
                 r = rec.as_numpy()[-steps:]
 
                 ax.set_xlim(t.min(), t.max())
-
                 if y_lim is None:
-                    ax.set_ylim(r.min(), r.max())
+                    ax.set_ylim(r.min()-(np.abs(r.min()*0.01)), r.max()+(np.abs(r.max()*0.01)))
 
                 # update data
                 line.set_data(t, r)

@@ -1,5 +1,3 @@
-import matplotlib.pyplot as plt
-
 from neuronpp.utils.run_sim import RunSim
 
 from neuronpp.utils.record import Record

@@ -11,7 +11,7 @@ class HocCell(PointProcessCell):
         SectionCell.__init__(self, name, compile_paths=compile_paths)
         self._hoc_loaded = False
 
-    def make_hoc(self, hoc_file, cell_template_name: str = None):
+    def make_hoc(self, hoc_file, cell_template_name: str = None, reinitialize=True):
         """
         This method allows to load a single cell to your model. It is experimental function so may not work stable.
         It is useful when loading a hoc file with a single cell declaration.
@@ -20,11 +20,16 @@ class HocCell(PointProcessCell):
             paths to hoc file
         :param cell_template_name:
             the name of the cell template. Default is None meaning that all sections are defined in the plain h.* object
+        :param reinitialize:
+            reinitialize NEURON after HOC import. Some HOC files perform computation, to avoid problems with
+            eg. NetStim definition it is recommended to reinitialize NEURON after HOC import
         """
         if self._hoc_loaded:
             raise RuntimeError("make_hoc() function can be called only once per Cell object and it have been called earlier.")
 
         h.load_file(hoc_file)
+        if reinitialize:
+            h.finitialize()
 
         obj = h
         if cell_template_name:
