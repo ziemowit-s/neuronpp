@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 
 class Record:
-    def __init__(self, elements, variables, locs=None):
+    def __init__(self, elements, variables='v', locs=None):
         """
         :param elements:
             elements can any object from HocWrappers which implements hoc param
@@ -58,9 +58,9 @@ class Record:
             tuple of limits for y axis. Default is (-80, 50)
         :param position:
             position of all subplots ON EACH figure (each figure is created for each variable separately).
-            eg. if you have 9 neurons and want to display 'v' on 3x3 matrix position=(3,3)
-            By default each neuron has separated  axis (row) on the figure.
-            if position is a string 'merge' - it will display all figures on the same graph.
+            * position=(3,3) -> if you have 9 neurons and want to display 'v' on 3x3 matrix
+            * position='merge' -> it will display all figures on the same graph.
+            * position=None -> Default, each neuron has separated  axis (row) on the figure.
         :return:
         """
         create_fig = False

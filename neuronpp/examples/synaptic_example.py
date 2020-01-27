@@ -40,6 +40,7 @@ syn2.make_event(20)
 syn2.make_event(30)
 syn2.make_event(40)
 
+# Example of online update of the graph, however sim.run(runtime=1000) can be call in a single run
 for i in range(1000):
     sim.run(runtime=1)
-    rec_v.plot(y_lim=(-100, 100))
+    rec_v.plot()
