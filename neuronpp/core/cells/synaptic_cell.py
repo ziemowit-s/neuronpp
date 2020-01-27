@@ -26,7 +26,7 @@ class SynapticCell(NetConnCell):
         """
         return self.filter(self.syns, mod_name=mod_name, name=name, source=source, point_process=point_process, parent=parent, tag=tag)
 
-    def make_sypanses(self, source, weight, rand_weight=False, tag: str = None, mod_name: str = None, sec=None, source_loc=None, target_loc=0.0,
+    def make_sypanses(self, source, mod_name: str, weight=1, rand_weight=False, tag: str = None, target_sec=None, source_loc=None, target_loc=0.0,
                       delay=0, threshold=10, **synaptic_params):
         """
 
@@ -38,7 +38,7 @@ class SynapticCell(NetConnCell):
             if True, will find rand weight [0,1) and multiply this by weight.
         :param tag:
         :param mod_name:
-        :param sec:
+        :param target_sec:
         :param source_loc:
         :param target_loc:
         :param delay:
@@ -47,7 +47,7 @@ class SynapticCell(NetConnCell):
         :return:
         """
 
-        pps = self.make_point_processes(tag=tag, mod_name=mod_name, sec=sec, loc=target_loc, **synaptic_params)
+        pps = self.make_point_processes(tag=tag, mod_name=mod_name, sec=target_sec, loc=target_loc, **synaptic_params)
         nns = self.make_netcons(source=source, source_loc=source_loc, weight=weight, mod_name=mod_name, point_process=pps,
                                 rand_weight=rand_weight, delay=delay, threshold=threshold)
 

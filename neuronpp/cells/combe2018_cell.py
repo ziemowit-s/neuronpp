@@ -44,7 +44,7 @@ class Combe2018Cell(Cell, HocCell):
 
             # Create AMPA synapses
             ampa_weight = 1.2 * 0.00156
-            ampa_syns = self.make_sypanses(source=None, sec=heads, weight=ampa_weight, mod_name="Exp2Syn")
+            ampa_syns = self.make_sypanses(source=None, target_sec=heads, weight=ampa_weight, mod_name="Exp2Syn")
             for syn in ampa_syns:
                 syn.point_process.hoc.e = 0
                 syn.point_process.hoc.tau1 = .5
@@ -52,7 +52,7 @@ class Combe2018Cell(Cell, HocCell):
 
             # Create NMDA synapses
             nmda_weight = 1.2 * 0.000882
-            nmda_syns = self.make_sypanses(source=None, sec=heads, weight=nmda_weight, mod_name="nmdanet")
+            nmda_syns = self.make_sypanses(source=None, target_sec=heads, weight=nmda_weight, mod_name="nmdanet")
             for syn in nmda_syns:
                 syn.point_process.hoc.Alpha = 0.35
                 syn.point_process.hoc.Beta = 0.035

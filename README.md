@@ -159,7 +159,7 @@ The main cell object `Cell` contains all filter methods inside.
   * add synapses:
    ```python
     cell = Cell(name="cell")
-    cell.make_sypanses(source=None, weight=0.01, mod_name="Syn4P", sec="soma", target_loc=0.5, delay=1)
+    cell.make_sypanses(source=None, weight=0.01, mod_name="Syn4P", target_sec="soma", target_loc=0.5, delay=1)
    ```
 
   * add spines:
@@ -171,13 +171,13 @@ The main cell object `Cell` contains all filter methods inside.
   ```python
     netstim = NetStimCell(name="netst")
     stim = netstim.make_netstim(start=300, number=5, interval=10)
-    cell.make_sypanses(source=stim, weight=0.01, mod_name="Syn4P", sec="soma", target_loc=0.5, delay=1)
+    cell.make_sypanses(source=stim, weight=0.01, mod_name="Syn4P", target_sec="soma", target_loc=0.5, delay=1)
   ```
 
   * add synapses with spines in a single function:
    ```python
-    syns = cell.make_spine_with_synapse(source=stim, weight=0.01, mod_name="ExpSyn",
-                                        sec="dend", delay=1, head_nseg=10, neck_nseg=10, number=10)
+    syns = cell.make_spine_with_synapse(source=stim, weight=0.01, mod="ExpSyn",
+                                        target_sec="dend", delay=1, head_nseg=10, neck_nseg=10, number=10)
    ```
    
    * Make synaptic event: 
@@ -185,7 +185,7 @@ The main cell object `Cell` contains all filter methods inside.
      * but good practice is to define source=None 
      * it will return the synapse which an empty source, which can be stimulated externally
    ```python
-    syns = cell.make_sypanses(source=None, weight=0.01, mod_name=SYNAPSE_MECH, sec="soma", 
+    syns = cell.make_sypanses(source=None, weight=0.01, mod_name=SYNAPSE_MECH, target_sec="soma", 
                               target_loc=0.5, delay=1)
                               
     sim = RunSim(init_v=-55, warmup=20)
@@ -251,6 +251,46 @@ The main cell object `Cell` contains all filter methods inside.
     stdp = Experiment()
     stdp.make_protocol("3xEPSP[int=10] 3xAP[int=10,dur=3,amp=1.6]", start=1, isi=10, iti=3000,
                        epsp_synapse=syn, i_clamp_section=soma)
+   ```
+
+  * create a population:
+  ```python
+    # Define a new Population class. 
+    # You need to implement abstract method make_cell() and make_conn() for each new Population 
+    class ExcitatoryPopulation(Population):
+        def make_cell(self, **kwargs) -> Cell:
+            cell = Cell(name="cell")
+            cell.load_morpho(filepath='../commons/morphologies/swc/my.swc')
+            cell.insert("pas")
+            cell.insert("hh")
+            return cell
+
+        def make_conn(self, cell: Cell, source, source_loc=None, weight=1, **kwargs) -> list:
+            syns, heads = cell.make_spine_with_synapse(source=source, mod_name="Exp2Syn",
+                                                       source_loc=source_loc, weight=weight, target_sec="dend")
+            return syns
+
+    # Create NetStim
+    stim = NetStimCell("stim").make_netstim(start=21, number=10, interval=10)
+
+    # Create population 1
+    pop1 = ExcitatoryPopulation("pop")
+    pop1.create(2)
+    pop1.connect(sources=stim, rule='all', weight=0.01)
+    pop1.record()
+
+    # Create population 2
+    pop2 = ExcitatoryPopulation("pop2")
+    pop2.create(2)
+    pop2.connect(sources=pop1.cells, rule='all', source_sec_name="soma", source_loc=0.5, weight=0.01)
+    pop2.record()
+
+    # Run
+    sim = RunSim(init_v=-70, warmup=20)
+    for i in range(1000):
+        sim.run(runtime=1)
+        pop1.plot()
+        pop2.plot()
    ```
 
   * and more...

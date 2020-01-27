@@ -18,8 +18,8 @@ if __name__ == '__main__':
 
     # stimulation
     stim = NetStimCell("stim_cell").make_netstim(start=WARMUP + 1, number=300, interval=1)
-    cell.make_spine_with_synapse(source=stim, weight=WEIGHT, mod_name="Syn4P", delay=1,
-                                 number=10, head_nseg=10, neck_nseg=10, sec='dend', **cell.params_4p_syn)
+    cell.make_spine_with_synapse(source=stim, weight=WEIGHT, mod="Syn4P", delay=1,
+                                 number=10, head_nseg=10, neck_nseg=10, target_sec='dend', **cell.params_4p_syn)
 
     # add mechanisms
     cell.make_soma_mechanisms()
