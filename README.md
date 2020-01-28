@@ -296,18 +296,13 @@ The main cell object `Cell` contains all filter methods inside.
         pop2.plot(animate=True)
    ```
 
-  * You can Debug any cell and synapse on interactive plot:
-    * pressing defined key (default is w) will stimulate synapses provided to the Debugger
+  * Debug any cell and synapse on interactive plot. By pressing defined key (default is w) you can stimulate synapses provided to the Debugger
   ```python
-    # Prepare cell
-    cell = Ebner2019Cell("cell", "../commons/mods/ebner2019")
+    cell = Cell("cell")
     cell.make_sec("soma", diam=20, l=20, nseg=10)
-    syn_4p = cell.make_sypanses(source=None, target_sec="soma", target_loc=0.5,
-                                weight=0.1, mod_name="Syn4P", delay=1, **cell.params_4p_syn)
-    cell.make_soma_mechanisms()
+    syns = cell.make_sypanses(source=None, mod_name="Exp2Syn", target_sec="soma", target_loc=0.5, weight=0.1)
 
-    # Debug
-    debug = SynapticDebugger(syns=syn_4p, secs=cell.filter_secs("soma"), init_v=-83, warmup=200)
+    debug = SynapticDebugger(syns=syns, secs=cell.filter_secs("soma"))
     debug.debug_interactive(stim_key='w')
   ```
 
