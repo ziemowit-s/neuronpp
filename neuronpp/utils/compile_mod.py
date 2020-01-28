@@ -109,10 +109,6 @@ def compile_and_load_mods(mod_folders):
         comp = CompileMOD()
         targ_path = os.path.join(os.getcwd(), "compiled", "mods%s" % len(mods_loaded))
         comp.compile(source_paths=mod_folders, target_path=targ_path)
-
-        compiled_folder = "%s%scompiled" % (os.getcwd(), os.sep)
-        for folder in mod_folders:
-            for m in folder.split(' '):
-                neuron.load_mechanisms(compiled_folder)
-                mods_loaded.append(m)
+        neuron.load_mechanisms(targ_path)
+        mods_loaded.extend(mod_folders)
 

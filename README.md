@@ -254,6 +254,7 @@ The main cell object `Cell` contains all filter methods inside.
    ```
 
   * create a population:
+    * This is an experimental feature so may not be so easy to use
   ```python
     # Define a new Population class. 
     # You need to implement abstract method make_cell() and make_conn() for each new Population 
