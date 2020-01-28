@@ -10,6 +10,8 @@ Neuron++ wraps NEURON (http://www.neuron.yale.edu) with easy to use Python objec
     * Manage synaptic signaling
     * Dendritic spines creation
     * Defining experimental protocols (eg. STDP paradigms)
+    * Debugging synapses on the neuron in real time
+    * Easy define populations of neurons
   
   * Provide helpful exception messages and guidelines of how to use NEURON functions without errors
     
