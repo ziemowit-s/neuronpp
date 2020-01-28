@@ -32,7 +32,7 @@ if __name__ == '__main__':
     # Create population 2
     pop2 = ExcitatoryPopulation("pop2")
     pop2.create(2)
-    pop2.connect(source=pop1, rule='all', source_sec_name="soma", source_loc=0.5, weight=0.01)
+    pop2.connect(source=pop1, rule='all', weight=0.01)
     pop2.record()
 
     # Run

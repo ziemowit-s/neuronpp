@@ -265,8 +265,8 @@ The main cell object `Cell` contains all filter methods inside.
             cell.insert("pas")
             cell.insert("hh")
             return cell
-
-        def make_conn(self, cell: Cell, source, source_loc=None, weight=1, **kwargs) -> list:
+    
+        def make_conn(self, cell, source, source_loc=None, weight=1, **kwargs) -> list:
             syns, heads = cell.make_spine_with_synapse(source=source, mod_name="Exp2Syn",
                                                        source_loc=source_loc, weight=weight, target_sec="dend")
             return syns
@@ -275,7 +275,7 @@ The main cell object `Cell` contains all filter methods inside.
     stim = NetStimCell("stim").make_netstim(start=21, number=10, interval=10)
 
     # Create population 1
-    pop1 = ExcitatoryPopulation("pop")
+    pop1 = ExcitatoryPopulation("pop1")
     pop1.create(2)
     pop1.connect(sources=stim, rule='all', weight=0.01)
     pop1.record()
@@ -283,7 +283,7 @@ The main cell object `Cell` contains all filter methods inside.
     # Create population 2
     pop2 = ExcitatoryPopulation("pop2")
     pop2.create(2)
-    pop2.connect(sources=pop1, rule='all', source_sec_name="soma", source_loc=0.5, weight=0.01)
+    pop2.connect(sources=pop1, rule='all', weight=0.01)
     pop2.record()
 
     # Run
