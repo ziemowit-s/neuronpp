@@ -63,8 +63,6 @@ def make_netconn(parent, source: HocWrapper = None, target: PointProcess = None,
         con = h.NetCon(None, target)
     else:
         if isinstance(source, (NetStim, VecStim)):
-            if source_loc is not None:
-                raise ValueError("If source is type of NetStim or VecStim you must remain 'source_loc' param None.")
             con = h.NetCon(source.hoc, target)
 
         elif isinstance(source, Sec):

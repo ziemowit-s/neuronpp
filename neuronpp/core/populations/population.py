@@ -1,5 +1,7 @@
 import abc
 import numpy as np
+from neuronpp.core.hocwrappers.sec import Sec
+
 from neuronpp.core.cells.core_cell import CoreCell
 
 from neuronpp.cells.cell import Cell
@@ -28,16 +30,16 @@ class Population:
         for cell in self.cells:
             single_cell_mechs(cell)
 
-    def connect(self, source, source_sec_name=None, source_loc=None, rule="all", **kwargs):
+    def connect(self, source, source_sec_name="soma", source_loc=0.5, rule="all", **kwargs):
         """
         :param source:
             None for empty sources, int for empty source int-times, NetStim/VecStim, Cell/s, CoreCell/s
             or other Population for connections.
-            If it is Cell/s, CoreCell/s or Population you must provide 'source_sec_name' and 'source_loc' params.
+            If it is Cell/s, CoreCell/s or Population consider to change 'source_sec_name' and 'source_loc' params.
         :param source_sec_name:
-            Default None. If sources is Section - must be specified.
+            Default None. If source is None, VecStim/NetStim or int - it will not be used.
         :param source_loc:
-            Default None. If sources is Section - must be specified.
+            Default None. If source is None, VecStim/NetStim or int - it will not be used.
         :param rule:
             'all' - all-to-all connections
             'one' - one-to-one connections
@@ -57,14 +59,20 @@ class Population:
         elif not isinstance(source, (list, set, np.ndarray)):
             source = [source]
 
-        if isinstance(source[0], CoreCell) and (source_sec_name is None or source_loc is None):
-            raise ValueError("If source is type of Cell, CoreCell or Population you must provide "
-                             "'source_sec_name' and 'source_loc' params.")
+        if isinstance(source[0], Sec):
+            raise TypeError("If you want to connect other Cell/s you must provide Cell object, not its sections.")
+
+        if isinstance(source[0], CoreCell):
+            if (source_sec_name is None or source_loc is None):
+                raise ValueError("If source is type of Cell, CoreCell or Population you must provide "
+                                 "'source_sec_name' and 'source_loc' params.")
+
+            source = [cell.filter_secs(source_sec_name)[0] for cell in source]
 
         if rule == 'all':
             for source in source:
                 for cell in self.cells:
-                    syns = self._conn(source, source_sec_name, cell, source_loc, **kwargs)
+                    syns = self.make_conn(cell=cell, source=source, source_loc=source_loc, **kwargs)
                     result.append(syns)
 
         elif rule == 'one':
@@ -73,7 +81,7 @@ class Population:
                                   "but it was %s and %s respectively." % (len(source), len(self.cells)))
 
             for source, cell in zip(source, self.cells):
-                syns = self._conn(source, source_sec_name, cell, source_loc, **kwargs)
+                syns = self.make_conn(cell=cell, source=source, source_loc=source_loc, **kwargs)
                 result.append(syns)
         else:
             raise TypeError("The only allowed rules are 'all' or 'one', but provided rule '%s'" % rule)
@@ -128,10 +136,3 @@ class Population:
             Must return a single cell created by the population.
         """
         raise NotImplementedError()
-
-    def _conn(self, source, source_sec_name, cell, source_loc, **kwargs):
-        if source_sec_name:
-            source = source.filter_secs(source_sec_name)[0]
-        syns = self.make_conn(cell=cell, source=source, source_loc=source_loc, **kwargs)
-
-        return syns
