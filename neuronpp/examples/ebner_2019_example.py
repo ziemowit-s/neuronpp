@@ -11,7 +11,7 @@ WARMUP = 200
 
 if __name__ == '__main__':
     # define cell
-    cell = Ebner2019Cell(name="cell", compile_paths="../commons/mods/ebner2019")
+    cell = Ebner2019Cell(name="cell")
     cell.load_morpho(filepath='../commons/morphologies/swc/my.swc', seg_per_L_um=1, make_const_segs=11)
 
     # stimulation

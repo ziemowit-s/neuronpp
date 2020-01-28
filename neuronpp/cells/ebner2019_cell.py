@@ -2,7 +2,7 @@ from neuronpp.cells.hay2011_cell import Hay2011Cell
 
 
 class Ebner2019Cell(Hay2011Cell):
-    def __init__(self, name=None, compile_paths="commons/mods/ebner2019 commons/mods/neuron_commons"):
+    def __init__(self, name=None, compile_paths="../commons/mods/ebner2019"):
         Hay2011Cell.__init__(self, name=name, compile_paths=compile_paths)
 
         self.params_4p_syn = {

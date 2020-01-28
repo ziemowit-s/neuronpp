@@ -15,8 +15,7 @@ WARMUP = 200
 
 if __name__ == '__main__':
     # define cell
-    compile_paths = "../commons/mods/ebner2019 ../commons/mods/4p_ach_da_syns"
-    cell = Ebner2019AChDACell(name="cell", compile_paths=compile_paths)
+    cell = Ebner2019AChDACell(name="cell")
     cell.load_morpho(filepath='../commons/morphologies/swc/my.swc', seg_per_L_um=1, make_const_segs=11)
     cell.make_spines(spine_number=10, head_nseg=10, neck_nseg=10, sec='dend')
 
