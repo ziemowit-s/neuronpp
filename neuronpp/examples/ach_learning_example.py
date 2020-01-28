@@ -17,8 +17,8 @@ def create_cell(syn_4p_source=None, syn_ach_source=None, syn_da_source=None):
     # make synapses with spines
     syn_4p, heads = cell.make_spine_with_synapse(source=syn_4p_source, number=3, weight=WEIGHT,
                                                  mod_name="Syn4PAChDa", delay=1, **cell.params_4p_syn)
-    syn_ach = cell.make_sypanses(source=syn_ach_source, weight=1.0, mod_name="SynACh", target_sec=heads, delay=1)
-    syn_da = cell.make_sypanses(source=syn_da_source, weight=1.0, mod_name="SynDa", target_sec=heads, delay=1)
+    syn_ach = cell.make_sypanses(source=syn_ach_source, weight=1.0, mod_name="SynACh", target_sec=heads, delay=1, target_loc=1.0)
+    syn_da = cell.make_sypanses(source=syn_da_source, weight=1.0, mod_name="SynDa", target_sec=heads, delay=1, target_loc=1.0)
 
     for s1, s2, s3 in zip(syn_4p, syn_ach, syn_da):
         cell.set_synaptic_pointers(syn_4p, syn_ach, syn_da)
