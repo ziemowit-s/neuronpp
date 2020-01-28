@@ -36,7 +36,7 @@ class CompileMOD:
         working_dir = os.getcwd()
 
         target_path = target_path.replace(self.compiled_folder_name, "")
-        target_path += "%scompiled%s%s" % (os.sep, os.sep, self.compiled_folder_name)
+        target_path = os.path.join(target_path, self.compiled_folder_name)
 
         if isinstance(source_paths, str):
             source_paths = source_paths.split(" ")
@@ -107,7 +107,8 @@ def compile_and_load_mods(mod_folders):
 
     if len(mod_folders) > 0:
         comp = CompileMOD()
-        comp.compile(source_paths=mod_folders, target_path=os.getcwd())
+        targ_path = os.path.join(os.getcwd(), "compiled", "mods%s" % len(mods_loaded))
+        comp.compile(source_paths=mod_folders, target_path=targ_path)
 
         compiled_folder = "%s%scompiled" % (os.getcwd(), os.sep)
         for folder in mod_folders:
