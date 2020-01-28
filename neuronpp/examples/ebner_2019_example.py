@@ -25,7 +25,7 @@ if __name__ == '__main__':
 
     # make plots
     rec_w = Record(cell.filter_point_processes(mod_name="Syn4P", name="head[0][0]"), variables="w")
-    rec_v = Record(cell.filter_secs(name="head[0]"), locs=1.0, variables="v")
+    rec_v = Record(cell.filter_secs(name="head[0]"), loc=1.0, variables="v")
 
     # init and run
     sim = RunSim(init_v=-70, warmup=WARMUP)

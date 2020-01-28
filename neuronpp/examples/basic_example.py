@@ -23,7 +23,7 @@ ic = IClamp(segment=cell.filter_secs("soma")[0].hoc(0.5))
 ic.stim(delay=100, dur=10, amp=0.1)
 
 # prepare plots and spike detector
-rec_v = Record(cell.filter_secs(name="soma"), locs=0.5, variables="v")
+rec_v = Record(cell.filter_secs(name="soma"), loc=0.5, variables="v")
 cell.make_spike_detector(sec="soma", loc=0.5)
 
 # run

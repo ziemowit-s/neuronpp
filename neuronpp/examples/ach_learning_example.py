@@ -1,5 +1,3 @@
-import matplotlib.pyplot as plt
-
 from neuronpp.utils.run_sim import RunSim
 
 from neuronpp.utils.record import Record
@@ -41,7 +39,7 @@ if __name__ == '__main__':
     synach = syns[0]['SynACh']
 
     rec_syn = Record(syn4p, variables="w stdp_ach ach_stdp ACh ACh_w")
-    rec_soma = Record(soma, locs=0.5, variables="v")
+    rec_soma = Record(soma, loc=0.5, variables="v")
 
     sim = RunSim(init_v=-83, warmup=WARMUP)
 

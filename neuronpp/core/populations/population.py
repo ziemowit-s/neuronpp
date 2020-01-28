@@ -91,7 +91,7 @@ class Population:
 
     def record(self, sec_name="soma", loc=0.5, variable='v'):
         d = [cell.filter_secs(sec_name)[0] for cell in self.cells]
-        rec = Record(d, locs=loc, variables=variable)
+        rec = Record(d, loc=loc, variables=variable)
         self.recs[variable] = rec
 
     def plot(self, animate=False, **kwargs):

@@ -1,10 +1,7 @@
-import os
-import neuron
 from neuron import h
+from threading import Thread
 
-from neuronpp.utils.compile_mod import CompileMOD
-
-mods_loaded = []
+from pynput.keyboard import Listener
 
 
 def make_shape_plot(variable=None, min_val=-70, max_val=40):
@@ -18,12 +15,10 @@ def make_shape_plot(variable=None, min_val=-70, max_val=40):
     return ps
 
 
-def compile_and_load_mods(*mod_folders):
-    mod_folders = [m for m in mod_folders if m not in mods_loaded]
+def key_release_listener(on_press_func):
+    def listen():
+        with Listener(on_press=on_press_func, on_release=None) as listener:
+            listener.join()
 
-    if len(mod_folders) > 0:
-        comp = CompileMOD()
-        comp.compile(source_paths=mod_folders, target_path=os.getcwd())
-
-        neuron.load_mechanisms("%s%scompiled" % (os.getcwd(), os.sep))
-        mods_loaded.extend(mod_folders)
+    listenThread = Thread(target=listen)
+    listenThread.start()

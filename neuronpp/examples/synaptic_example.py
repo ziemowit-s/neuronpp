@@ -29,7 +29,7 @@ syn1 = cell.make_sypanses(source=stim_cell.make_netstim(start=300, number=3, int
 syn2 = cell.make_sypanses(source=None, weight=0.01, mod_name="Syn4P", target_sec="soma", target_loc=0.5, delay=1)[0]
 
 # prepare plots
-rec_v = Record(cell.filter_secs(name="soma"), locs=0.5, variables="v")
+rec_v = Record(cell.filter_secs(name="soma"), loc=0.5, variables="v")
 
 # run
 sim = RunSim(init_v=-55, warmup=20)
