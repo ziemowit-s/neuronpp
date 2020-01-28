@@ -26,18 +26,19 @@ if __name__ == '__main__':
     # Create population 1
     pop1 = ExcitatoryPopulation("pop")
     pop1.create(2)
-    pop1.connect(sources=stim, rule='all', weight=0.01)
+    pop1.connect(source=stim, rule='all', weight=0.01)
     pop1.record()
 
     # Create population 2
     pop2 = ExcitatoryPopulation("pop2")
     pop2.create(2)
-    pop2.connect(sources=pop1.cells, rule='all', source_sec_name="soma", source_loc=0.5, weight=0.01)
+    pop2.connect(source=pop1.cells, rule='all', source_sec_name="soma", source_loc=0.5, weight=0.01)
     pop2.record()
 
     # Run
     sim = RunSim(init_v=-70, warmup=20)
     for i in range(1000):
         sim.run(runtime=1)
-        pop1.plot()
-        pop2.plot()
+        print('plot')
+        pop1.plot(animate=True)
+        pop2.plot(animate=True)

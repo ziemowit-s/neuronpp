@@ -27,10 +27,10 @@ class Population:
         for cell in self.cells:
             single_cell_mechs(cell)
 
-    def connect(self, sources, source_sec_name=None, source_loc=None, rule="all", **kwargs):
+    def connect(self, source, source_sec_name=None, source_loc=None, rule="all", **kwargs):
         """
 
-        :param sources:
+        :param source:
             int for empty synapses, or Cells for real connections
         :param source_sec_name:
             Default None. If sources is Section - must be specified.
@@ -43,27 +43,27 @@ class Population:
             list of list of synapses
         """
         result = []
-        if sources is None:
-            sources = [None for _ in range(len(self.cells))]
+        if source is None:
+            source = [None for _ in range(len(self.cells))]
 
-        elif isinstance(sources, int):
-            sources = [None for _ in range(sources)]
+        elif isinstance(source, int):
+            source = [None for _ in range(source)]
 
-        elif not isinstance(sources, (list, set, np.ndarray)):
-            sources = [sources]
+        elif not isinstance(source, (list, set, np.ndarray)):
+            source = [source]
 
         if rule == 'all':
-            for source in sources:
+            for source in source:
                 for cell in self.cells:
                     syns = self._conn(source, source_sec_name, cell, source_loc, **kwargs)
                     result.append(syns)
 
         elif rule == 'one':
-            if len(sources) != len(self.cells):
+            if len(source) != len(self.cells):
                 raise LookupError("for rule 'one' len of sources and population cells must be the same, "
-                                  "but it was %s and %s respectively." % (len(sources), len(self.cells)))
+                                  "but it was %s and %s respectively." % (len(source), len(self.cells)))
 
-            for source, cell in zip(sources, self.cells):
+            for source, cell in zip(source, self.cells):
                 syns = self._conn(source, source_sec_name, cell, source_loc, **kwargs)
                 result.append(syns)
         else:
@@ -77,10 +77,14 @@ class Population:
         rec = Record(d, locs=loc, variables=variable)
         self.recs[variable] = rec
 
-    def plot(self, steps=10000, y_lim=(-80, 50), position=None):
+    def plot(self, animate=False, **kwargs):
         """
         Plots each recorded variable for each neurons in the population.
 
+        If animate=True it will live update graphs. Other params are for live update purpose.
+
+        :param animate:
+            If True it will live update graphs.
         :param steps:
             how many timesteps to see on the graph
         :param y_lim:
@@ -92,7 +96,7 @@ class Population:
             * position=None -> Default, each neuron has separated  axis (row) on the figure.
         """
         for r in self.recs.values():
-            r.plot(steps=steps, y_lim=y_lim, position=position)
+            r.plot(animate=animate, **kwargs)
 
     @abc.abstractmethod
     def make_conn(self, cell: Cell, source, source_loc=None, **kwargs) -> list:

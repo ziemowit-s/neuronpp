@@ -290,8 +290,8 @@ The main cell object `Cell` contains all filter methods inside.
     sim = RunSim(init_v=-70, warmup=20)
     for i in range(1000):
         sim.run(runtime=1)
-        pop1.plot()
-        pop2.plot()
+        pop1.plot(animate=True)
+        pop2.plot(animate=True)
    ```
 
   * and more...
