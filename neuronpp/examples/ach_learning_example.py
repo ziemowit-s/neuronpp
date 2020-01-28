@@ -17,8 +17,8 @@ def create_cell(syn_4p_source=None, syn_ach_source=None, syn_da_source=None):
     # make synapses with spines
     syn_4p, heads = cell.make_spine_with_synapse(source=syn_4p_source, number=3, weight=WEIGHT,
                                                  mod_name="Syn4PAChDa", delay=1, **cell.params_4p_syn)
-    syn_ach = cell.make_sypanses(source=syn_ach_source, weight=WEIGHT, mod_name="SynACh", target_sec=heads, delay=1)
-    syn_da = cell.make_sypanses(source=syn_da_source, weight=WEIGHT, mod_name="SynDa", target_sec=heads, delay=1)
+    syn_ach = cell.make_sypanses(source=syn_ach_source, weight=1.0, mod_name="SynACh", target_sec=heads, delay=1)
+    syn_da = cell.make_sypanses(source=syn_da_source, weight=1.0, mod_name="SynDa", target_sec=heads, delay=1)
 
     for s1, s2, s3 in zip(syn_4p, syn_ach, syn_da):
         cell.set_synaptic_pointers(syn_4p, syn_ach, syn_da)
@@ -41,16 +41,17 @@ if __name__ == '__main__':
     rec_syn = Record(syn4p, variables="w stdp_ach ach_stdp ACh ACh_w")
     rec_soma = Record(soma, loc=0.5, variables="v")
 
-    sim = RunSim(init_v=-83, warmup=WARMUP)
+    sim = RunSim(init_v=-80, warmup=WARMUP)
 
     event = 0
     inter = 5
-    for i in range(100):
+    for i in range(1):
         for syn in syns:
             syn['Syn4PAChDa'].make_event(event)
+            syn['SynACh'].make_event(event)
             event += inter
 
-    sim.run(runtime=500)
+    sim.run(runtime=1500)
 
     # plot
     rec_soma.plot()

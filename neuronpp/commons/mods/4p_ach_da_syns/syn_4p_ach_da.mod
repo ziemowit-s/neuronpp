@@ -44,8 +44,8 @@ ENDCOMMENT
   }
 
   PARAMETER {
-    ACh_tau = 200 (ms) <1e-9, 1e9>
-    Da_tau = 200 (ms) <1e-9, 1e9>
+    ACh_tau = 50 (ms) <1e-9, 1e9>
+    Da_tau = 50 (ms) <1e-9, 1e9>
 
   	: Parameters of the original Exp2Syn
   	tau_a = 0.2 (ms) <1e-9,1e9>			: time constant of EPSP rise // used for AMPAR currents
@@ -228,7 +228,7 @@ ENDCOMMENT
   DERIVATIVE state {
   	LOCAL D, u, Eta, g_update, N_alpha, N_beta, N
 
-    : Check if there was a presynaptic event
+    : if Hebbian
   	if(flag_D == 1) {
   		D = 1
   	    flag_D = -1
@@ -249,27 +249,32 @@ ENDCOMMENT
   	    D = 0
   	}
 
+    : If ACh
 	if(flag_D_ACh == 1) {
   	    flag_D_ACh = -1
 
   	    if(stdp_ach > 0){
-  	        ACh = stdp_ach :* ACh_w
+  	        ACh = stdp_ach * ACh_w
   	        stdp_ach = 0
   	        ach_stdp = 0
         } else {
             ach_stdp = ACh_w
         }
+        ACh_w = 0
   	}
+
+  	: If Da
   	if(flag_D_Da == 1) {
   	    flag_D_Da = -1
 
   	    if(stdp_da > 0){
-  	        Da = stdp_da :* da_stdp
+  	        Da = stdp_da * Da_w
   	        stdp_da = 0
   	        da_stdp = 0
         } else {
             da_stdp = Da_w
         }
+        Da_w = 0
   	}
 
 

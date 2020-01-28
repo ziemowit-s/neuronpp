@@ -15,9 +15,10 @@ class SynapticDebugger:
         self.warmup_time = warmup
         self.sim = None
 
-    def add_syns(self, syns, syn_variables="w", key_press=None):
-        rec = Record(elements=syns, variables=syn_variables)
-        self.syn_recs.append(rec)
+    def add_syns(self, syns, syn_variables="w", key_press=None, plot=True):
+        if plot:
+            rec = Record(elements=syns, variables=syn_variables)
+            self.syn_recs.append(rec)
 
         name = key_press
         if name is None:
