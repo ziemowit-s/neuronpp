@@ -14,6 +14,8 @@ from neuronpp.core.hocwrappers.point_process import PointProcess
 
 class Synapse(ComposedHocWrapper):
     def __init__(self, source, point_process: PointProcess, netconn: NetConn, parent_sec: Sec, name, tag=None):
+        self.mod_name = point_process.mod_name
+        name = "%s[%s]" % (self.mod_name, name)
         ComposedHocWrapper.__init__(self, parent=parent_sec, name=name)
 
         self.hoc = point_process.hoc

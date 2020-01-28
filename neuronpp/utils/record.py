@@ -108,6 +108,9 @@ class Record:
                     if y_lim:
                         ax.set_ylim(y_lim[0], y_lim[1])
                     line, = ax.plot([], lw=1)
+                    ax.set_title(name)
+                    ax.set_ylabel(var_name)
+                    ax.set_xlabel("t (ms)")
                     self.axs[var_name].append((ax, line))
 
                 ax, line = self.axs[var_name][i]
@@ -116,7 +119,7 @@ class Record:
 
                 ax.set_xlim(t.min(), t.max())
                 if y_lim is None:
-                    ax.set_ylim(r.min()-(np.abs(r.min()*0.01)), r.max()+(np.abs(r.max()*0.01)))
+                    ax.set_ylim(r.min()-(np.abs(r.min()*0.05)), r.max()+(np.abs(r.max()*0.05)))
 
                 # update data
                 line.set_data(t, r)

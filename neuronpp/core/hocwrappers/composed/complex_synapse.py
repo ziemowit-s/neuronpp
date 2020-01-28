@@ -7,6 +7,7 @@ class ComplexSynapse(ComposedHocWrapper, dict):
     def __init__(self, synapses, name, tag=None):
         self.tag = tag
         self.mod_name = '+'.join([s.mod_name for s in synapses])
+        name = "%s[%s]" % (self.mod_name, name)
 
         parent = None
         for s in synapses:

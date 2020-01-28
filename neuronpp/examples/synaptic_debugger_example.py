@@ -1,6 +1,4 @@
 from neuronpp.cells.ebner2019_ach_da_cell import Ebner2019AChDACell
-
-from neuronpp.cells.ebner2019_cell import Ebner2019Cell
 from neuronpp.utils.synaptic_debugger import SynapticDebugger
 
 if __name__ == '__main__':
