@@ -68,7 +68,7 @@ nrmivmodl
     * compiled_folder_name="x86_64"
     * mod_compile_command="nrnivmodl"
     
-## Predefined Cells
+## Predefined Cell models
 This repository contains the basic cell model `Cell` object as well predefined cell models from ModelDB (https://senselab.med.yale.edu/modeldb)
   * All of those models are located in the cells/ folder. 
   * If you want to create your own model it is recommended to use `Cell` object.
