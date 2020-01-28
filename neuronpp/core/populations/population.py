@@ -1,5 +1,6 @@
 import abc
 import numpy as np
+from neuronpp.core.cells.core_cell import CoreCell
 
 from neuronpp.cells.cell import Cell
 from neuronpp.utils.record import Record
@@ -29,9 +30,10 @@ class Population:
 
     def connect(self, source, source_sec_name=None, source_loc=None, rule="all", **kwargs):
         """
-
         :param source:
-            int for empty synapses, or Cells for real connections
+            None for empty sources, int for empty source int-times, NetStim/VecStim, Cell/s, CoreCell/s
+            or other Population for connections.
+            If it is Cell/s, CoreCell/s or Population you must provide 'source_sec_name' and 'source_loc' params.
         :param source_sec_name:
             Default None. If sources is Section - must be specified.
         :param source_loc:
@@ -49,8 +51,15 @@ class Population:
         elif isinstance(source, int):
             source = [None for _ in range(source)]
 
+        elif isinstance(source, Population):
+            source = source.cells
+
         elif not isinstance(source, (list, set, np.ndarray)):
             source = [source]
+
+        if isinstance(source[0], CoreCell) and (source_sec_name is None or source_loc is None):
+            raise ValueError("If source is type of Cell, CoreCell or Population you must provide "
+                             "'source_sec_name' and 'source_loc' params.")
 
         if rule == 'all':
             for source in source:
@@ -103,6 +112,8 @@ class Population:
         """
         Must return syns list.
         :param cell:
+        :param source:
+            list of Secs
         :return:
             Must return a list of synapses.
         """
