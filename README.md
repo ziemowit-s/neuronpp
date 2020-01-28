@@ -300,7 +300,8 @@ The main cell object `Cell` contains all filter methods inside.
   ```python
     cell = Cell("cell")
     cell.make_sec("soma", diam=20, l=20, nseg=10)
-    syns = cell.make_sypanses(source=None, mod_name="Exp2Syn", target_sec="soma", target_loc=0.5, weight=0.1)
+    syns = cell.make_sypanses(source=None, mod_name="Exp2Syn", target_sec="soma", target_loc=0.5, 
+                              weight=0.1)
 
     debug = SynapticDebugger(syns=syns, secs=cell.filter_secs("soma"))
     debug.debug_interactive(stim_key='w')
