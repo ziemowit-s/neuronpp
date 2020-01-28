@@ -70,19 +70,13 @@ class SynapticDebugger:
             in ms
         :return:
         """
-        keys = [None]
-
+        keys = ['']
         def key_press(key):
-            print(key)
             keys[0] = key
-
         key_release_listener(key_press)
-
         while True:
             key_pressed = keys[0]
-            print(key_pressed)
-            if key_pressed is not None and hasattr(key_pressed, 'char'):
-                if key_pressed.char == stim_key:
-                    self.stim(index=index)
-                    keys[0] = None
+            if key_pressed == stim_key:
+                self.stim(index=index)
+                keys[0] = None
             self.run(interval, plot_steps=plot_steps)

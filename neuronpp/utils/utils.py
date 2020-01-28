@@ -16,8 +16,12 @@ def make_shape_plot(variable=None, min_val=-70, max_val=40):
 
 
 def key_release_listener(on_press_func):
+    def final_func(key):
+        if key is not None and hasattr(key, 'char'):
+            on_press_func(key.char)
+
     def listen():
-        with Listener(on_press=on_press_func, on_release=None) as listener:
+        with Listener(on_press=final_func, on_release=None) as listener:
             listener.join()
 
     listenThread = Thread(target=listen)
