@@ -1,0 +1,23 @@
+objref p
+p = new PWManager()
+strdef tstr, nstr
+sprint (nstr, "I am the main menu!")
+
+load_file("nrngui.hoc")
+
+xpanel(nstr)
+xbutton("Fig. 2B","start(\"Fig2B\")")
+xbutton("Fig. 3","start(\"Fig3\")")
+xbutton("Fig. 4B","start(\"Fig4B\")")
+xbutton("Fig. 5B","start(\"Fig5B\")")
+xbutton("Fig. 6B","start(\"Fig6B\")")
+xbutton("Fig. 7B","start(\"Fig7B\")")
+xpanel()
+
+proc start() { local counter
+	for counter = 0, p.count - 1 {
+		if(strcmp(nstr, p.name(counter)) == 0) { p.hide(counter) }
+	}
+	sprint(tstr, "%s.hoc", $s1)
+	load_file(1,tstr)
+}

@@ -1,0 +1,167 @@
+/*
+Stimulus protocol as used by Weber et al. (2016)
+Demonstrating the synaptic plasticity rule by Ebner et al. (2019)
+https://doi.org/10.1016/j.celrep.2019.11.068
+Made to work with the Hay et al. (2011) L5b pyramidal cell model
+*/
+
+load_file("nrngui.hoc")
+
+// ## Parameters
+REPS = 1		// Number of events (per synapse)
+DT = 0.025		// ms, integration step
+WARM_UP = 2300	// ms, silence phase before stimulation
+N_SYN = 4		// Number of synapses
+WEIGHT = 0.0025	// µS, strength of each synapse
+BLOCK = 0		// 0 ... control; 1 ... block apical Na+/Ca2+ channels
+
+objref trec, vrec
+
+// ## Create cell
+load_file("import3d.hoc")
+objref L5PC
+strdef morphology_file
+morphology_file = "morphologies/cell1.asc"
+load_file("models/L5PCbiophys4.hoc")
+load_file("models/L5PCtemplate.hoc")
+L5PC = new L5PCtemplate(morphology_file)
+
+if (BLOCK == 1) {
+	// block apical Na+ channels
+	forsec L5PC.apical { gNaTs2_tbar_NaTs2_t = 0.0 }
+	// block apical Ca2+ channels
+	forsec L5PC.apical {
+		gCa_HVAbar_Ca_HVA = 0.0
+		gCa_LVAstbar_Ca_LVAst = 0.0
+	}
+}
+
+// ## Custom init procedure
+proc init(){
+            finitialize(-70)
+            dt = 10
+            i = 0
+            for i = 1,224 fadvance()	// Run warm-up phase using big steps
+            print t
+            dt = DT
+}
+
+// ## Stim protocol
+func stimulation() { local dist, outcome, counter, target, temp localobj synlist, stimlist, nclist
+
+	dist = $1	
+	synlist = new List()
+	stimlist = new List()
+	nclist = new List()
+
+	// Create objects
+	for counter = 0, N_SYN - 1 {
+		synlist.append(new Syn4P(dist)) 					// at the specified location
+		synlist.o(counter).tau_a = 0.2 						// time constant of EPSP rise
+		synlist.o(counter).tau_b = 2 						// time constant of EPSP decay
+		synlist.o(counter).e = 0							// reversal potential
+		synlist.o(counter).w_pre_init = 0.5					// pre factor initial value
+		synlist.o(counter).w_post_init = 2.0				// post factor initial value
+		synlist.o(counter).s_ampa = 0.8						// contribution of AMPAR currents
+		synlist.o(counter).s_nmda = 0.2						// contribution of NMDAR currents
+		synlist.o(counter).tau_G_a = 2 						// time constant of synaptic event G2 (rise)
+		synlist.o(counter).tau_G_b = 50 					// time constant of synaptic event G2 (decay)
+		synlist.o(counter).m_G = 10							// slope of the saturation function for G2
+		synlist.o(counter).A_LTD_pre = 1.5e-3				// amplitude of pre-LTD
+		synlist.o(counter).A_LTP_pre = 2.5e-4				// amplitude of pre-LTP
+		synlist.o(counter).A_LTD_post = 7.5e-4				// amplitude of post-LTD
+		synlist.o(counter).A_LTP_post = 7.8e-2				// amplitude of post-LTP
+		synlist.o(counter).tau_u_T = 10 					// time constant for filtering u to calculate T
+		synlist.o(counter).theta_u_T = -60					// voltage threshold applied to u to calculate T
+		synlist.o(counter).m_T = 1.7						// slope of the saturation function for T
+		synlist.o(counter).theta_u_N = -30					// voltage threshold applied to u to calculate N
+		synlist.o(counter).tau_Z_a = 1						// time constant of presynlist.o(counter)aptic event Z (rise)
+		synlist.o(counter).tau_Z_b = 15 					// time constant of presynlist.o(counter)aptic event Z (decay)
+		synlist.o(counter).m_Z = 6							// slope of the saturation function for Z
+		synlist.o(counter).tau_N_alpha = 7.5 				// time constant for calculating N-alpha
+		synlist.o(counter).tau_N_beta = 30					// time constant for calculating N-beta
+		synlist.o(counter).m_N_alpha = 2					// slope of the saturation function for N_alpha
+		synlist.o(counter).m_N_beta = 10					// slope of the saturation function for N_beta
+		synlist.o(counter).theta_N_X = 0.2					// threshold for N to calculate X
+		synlist.o(counter).theta_u_C = -68					// voltage threshold applied to u to calculate C
+		synlist.o(counter).theta_C_minus = 15				// threshold applied to C for post-LTD (P activation)
+		synlist.o(counter).theta_C_plus = 35				// threshold applied to C for post-LTP (K-alpha activation)
+		synlist.o(counter).tau_K_alpha = 15 				// time constant for filtering K_alpha to calculate K_alpha_bar
+		synlist.o(counter).tau_K_gamma = 20 				// time constant for filtering K_beta to calculate K_gamma
+		synlist.o(counter).m_K_alpha = 1.5					// slope of the saturation function for K_alpha
+		synlist.o(counter).m_K_beta = 1.7					// slope of the saturation function for K_beta
+		synlist.o(counter).s_K_beta = 100					// scaling factor for calculation of K_beta
+
+		stimlist.append(new NetStim())
+		stimlist.o(counter).number = REPS
+		stimlist.o(counter).start = WARM_UP + counter * 0.1	// Each subsequent synapse is activated 0.1 ms later than the previous
+		stimlist.o(counter).noise = 0
+		nclist.append(new NetCon(stimlist.o(counter), synlist.o(counter), 0, 0, WEIGHT))
+	}
+
+	total_time = WARM_UP + 100
+	tstop = total_time
+	
+	// Recording
+	trec = new Vector()
+	trec.record(&t)
+	print 0
+	vrec = new Vector()
+	// vrec.record(&synlist.o(counter).v)
+	vrec.record(&L5PC.apic[67].v(0.9))
+print 1
+	init()
+	run()
+	
+	temp = 0
+	print "Distance: ", dist
+	print "Single synapses:"
+	for counter = 0, N_SYN - 1 {
+		w_init = synlist.o(counter).w_pre_init * synlist.o(counter).w_post_init
+		delta_w_pre = synlist.o(counter).w_pre - synlist.o(counter).w_pre_init		// Difference of present and initial values
+		delta_w_post = synlist.o(counter).w_post - synlist.o(counter).w_post_init 
+		w_final_pre = synlist.o(counter).w_pre_init + delta_w_pre * 50				// 50 repetitions
+		w_final_post = synlist.o(counter).w_post_init + delta_w_post * 50
+		w_final = w_final_pre * w_final_post
+		if (w_final_pre > 1.0) { w_final_pre = 1.0 }
+		if (w_final_pre < 0.0) { w_final_pre = 0.0 }
+		if (w_final_post > 5.0) { w_final_post = 5.0 }
+		if (w_final_post < 0.0) { w_final_post = 0.0 }
+		print "SYN", counter, ": ", (w_final - w_init) / w_init * 100, "%"
+		temp += (w_final - w_init) / w_init * 100
+	}
+	outcome = temp / N_SYN		// Calculate average weight change of the cluster
+	print "Average: ", outcome, "%"
+	print "---------------------------------"
+    return outcome
+}
+
+// ## Main run procedure
+objref weight_changes
+objref example_seclist
+example_seclist = new SectionList()
+L5PC.apic[9] example_seclist.append()		// Oblique dendrite
+L5PC.apic[67] example_seclist.append()		// Apical tuft dendrite
+objref example_dists
+example_dists = new Vector()
+example_dists.append(0.2, 0.9)				// Relative distances along the branch
+weight_changes = new Vector()
+forsec example_seclist {
+	print secname()
+	for counter = 0, example_dists.size() - 1 { weight_changes.append(stimulation(example_dists.x(counter))) }
+}
+
+// ## Visualization
+objref voltplot
+voltplot = new Graph(0)		// voltage over time (final run only)
+voltplot.size(0, 6625, -85, 10)
+voltplot.view(-0.3, -85, 6625, 105, 65, 105, 300, 200)
+vrec.line(voltplot, 1, 2)
+objref compplot, compvec
+compvec = new Vector()
+compvec.append(-18, 39)		// Experimental data (Weber et al., 2016)
+compplot = new Graph(0)
+compplot.size(0, 3, -30, 50)
+compplot.view(-0.3, -30, 3.3, 80, 65, 105, 300, 200)
+compvec.line(compplot, 9, 2)
+weight_changes.line(compplot, 2, 2)

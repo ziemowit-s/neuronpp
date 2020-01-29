@@ -1,6 +1,7 @@
 import time
 import numpy as np
 from neuron import h
+from neuron.hoc import HocObject
 from neuron.units import ms, mV
 
 h.load_file('stdrun.hoc')
@@ -21,6 +22,9 @@ class RunSim:
         """
         if with_neuron_gui:
             from neuron import gui
+
+        if isinstance(shape_plots, HocObject):
+            shape_plots = [shape_plots]
 
         if init_v is None:
             init_v = h.v_init

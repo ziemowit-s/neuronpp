@@ -1,0 +1,77 @@
+/*
+Stimulus protocol as used by Sj?str?m et al. (2001)
+Demonstrating the synaptic plasticity rule by Ebner et al. (2019)
+https://doi.org/10.1016/j.celrep.2019.11.068
+Made to work with the Hay et al. (2011) L5b pyramidal cell model
+*/
+
+load_file("nrngui.hoc")
+
+// ## Object references
+objref freqs, loc_prox, loc_dist
+objref trec, vrec_prox, vrec_dist
+objref pre_post, post_pre
+objref syn, stim, nc, ic
+
+// ## Parameters
+REPS = 5		// Number of pre- and postsynaptic spikes
+DT = 0.025		// ms, integration step.
+AMP = 2.7		// nA, amplitude of current injection to trigger postsynaptic spikes
+DUR = 5.0		// ms, duration of the current injection
+WARM_UP = 2300 	// ms, silence phase before stimulation
+COOL_DOWN = 100	// ms, silence phase after stimulation
+WEIGHT = 0.0035	// ?S, conductance of (single) synaptic potentials
+LOCATION = 1	// 1 ... proximal (90 ?m) / 2 ... distal (669 ?m)
+
+freqs = new Vector() // stimulation frequencies (Hz)
+// freqs.append(0.1, 10, 20, 40, 50)	// use this to include 0.1 Hz condition. This will take some time.
+freqs.append(10, 20, 40, 50)
+
+// ## Create cell
+load_file("import3d.hoc")
+objref L5PC
+strdef morphology_file
+morphology_file = "morphologies/cell1.asc"
+load_file("models/L5PCbiophys4.hoc")
+load_file("models/L5PCtemplate.hoc")
+L5PC = new L5PCtemplate(morphology_file)
+
+// ## Create synapse
+L5PC.apic[1] loc_prox = new SectionRef()
+L5PC.apic[50] loc_dist = new SectionRef()
+if(LOCATION == 1) {loc_prox.sec syn = new Syn4P(0.5)
+	} else {loc_dist.sec syn = new Syn4P(0.5)}
+syn.tau_a = 0.2 					// time constant of EPSP rise
+syn.tau_b = 2 						// time constant of EPSP decay
+syn.e = 0							// reversal potential
+syn.w_pre_init = 0.5				// pre factor initial value
+syn.w_post_init = 2.0				// post factor initial value
+syn.s_ampa = 0.5					// contribution of AMPAR currents
+syn.s_nmda = 0.5					// contribution of NMDAR currents
+syn.tau_G_a = 2 					// time constant of presynaptic event G (rise)
+syn.tau_G_b = 50 					// time constant of presynaptic event G (decay)
+syn.m_G = 10						// slope of the saturation function for G
+syn.A_LTD_pre = 3e-3				// amplitude of pre-LTD
+syn.A_LTP_pre = 33e-4				// amplitude of pre-LTP
+syn.A_LTD_post = 36e-5				// amplitude of post-LTD
+syn.A_LTP_post = 2e-1				// amplitude of post-LTP
+syn.tau_u_T = 10 					// time constant for filtering u to calculate T
+syn.theta_u_T = -60					// voltage threshold applied to u to calculate T
+syn.m_T = 1.7						// slope of the saturation function for T
+syn.theta_u_N = -30					// voltage threshold applied to u to calculate N
+syn.tau_Z_a = 1						// time constant of presynaptic event Z (rise)
+syn.tau_Z_b = 15 					// time constant of presynaptic event Z (decay)
+syn.m_Z = 6							// slope of the saturation function for Z
+syn.tau_N_alpha = 7.5 				// time constant for calculating N-alpha
+syn.tau_N_beta = 30					// time constant for calculating N-beta
+syn.m_N_alpha = 2					// slope of the saturation function for N_alpha
+syn.m_N_beta = 10					// slope of the saturation function for N_beta
+syn.theta_N_X = 0.2					// threshold for N to calculate X
+syn.theta_u_C = -68					// voltage threshold applied to u to calculate C
+syn.theta_C_minus = 15				// threshold applied to C for post-LTD (P activation)
+syn.theta_C_plus = 35				// threshold applied to C for post-LTP (K-alpha activation)
+syn.tau_K_alpha = 15 				// time constant for filtering K_alpha to calculate K_alpha_bar
+syn.tau_K_gamma = 20 				// time constant for filtering K_beta to calculate K_gamma
+syn.m_K_alpha = 1.5					// slope of the saturation function for K_alpha
+syn.m_K_beta = 1.7					// slope of the saturation function for K_beta
+syn.s_K_beta = 100					// scaling factor for calculation of K_beta

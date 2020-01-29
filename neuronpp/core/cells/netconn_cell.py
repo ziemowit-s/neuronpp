@@ -1,4 +1,3 @@
-
 from neuron import h
 from neuronpp.core.hocwrappers.vecstim import VecStim
 import matplotlib.pyplot as plt
@@ -6,7 +5,6 @@ from collections import defaultdict
 
 from neuronpp.core.hocwrappers.sec import Sec
 from neuronpp.core.cells.utils import make_netconn
-from neuronpp.core.hocwrappers.netconn import NetConn
 from neuronpp.core.hocwrappers.netstim import NetStim
 from neuronpp.core.hocwrappers.hoc_wrapper import HocWrapper
 from neuronpp.core.cells.point_process_cell import PointProcessCell

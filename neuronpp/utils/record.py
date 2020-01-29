@@ -50,11 +50,11 @@ class Record:
 
     def plot(self, animate=False, **kwargs):
         if animate:
-            self.plot_animate(**kwargs)
+            self._plot_animate(**kwargs)
         else:
-            self.plot_static()
+            self._plot_static()
 
-    def plot_static(self):
+    def _plot_static(self):
         for var_name, section_recs in self.recs.items():
             fig, axs = plt.subplots(len(section_recs))
             axs = axs.flat if isinstance(axs, np.ndarray) else [axs]
@@ -64,7 +64,7 @@ class Record:
                 ax.plot(self.t, rec)
                 ax.set(xlabel='t (ms)', ylabel=var_name)
 
-    def plot_animate(self, steps=10000, y_lim=None, position=None):
+    def _plot_animate(self, steps=10000, y_lim=None, position=None):
         """
         Call each time you want to redraw plot.
 

@@ -3,10 +3,10 @@ from neuronpp.core.cells.netstim_cell import NetStimCell
 from neuronpp.core.hocwrappers.netstim import NetStim
 
 from neuronpp.cells.cell import Cell
-from neuronpp.core.cells.hoc_cell import HocCell
+from neuronpp.core.cells.core_hoc_cell import CoreHocCell
 
 
-class Combe2018Cell(Cell, HocCell):
+class Combe2018Cell(Cell, CoreHocCell):
     def __init__(self, name=None, model_folder="../commons/hocmodels/combe2018", spine_number=0, spine_sec="apic",
                  spine_seed: int = None):
         """
@@ -28,10 +28,10 @@ class Combe2018Cell(Cell, HocCell):
             Seed value for the random_uniform spike distribution. Default is None, meaning - there is no seed
         """
         Cell.__init__(self, name, model_folder)
-        HocCell.__init__(self, name)
+        CoreHocCell.__init__(self, name)
 
         main_file = "%s/load_cell.hoc" % model_folder
-        self.make_hoc(main_file)
+        self.load_hoc(main_file)
 
         # Add spines with AMPA and NMDA synapses
         self.combe_syns = []

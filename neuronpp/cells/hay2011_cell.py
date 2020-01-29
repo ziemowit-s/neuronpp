@@ -2,7 +2,7 @@ from neuronpp.cells.cell import Cell
 
 
 class Hay2011Cell(Cell):
-    def __init__(self, name, compile_paths=None):
+    def __init__(self, name, compile_paths='../commons/mods/hay2011'):
         Cell.__init__(self, name=name, compile_paths=compile_paths)
 
     def make_soma_mechanisms(self, sections='soma'):

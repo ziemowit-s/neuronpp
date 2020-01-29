@@ -1,0 +1,180 @@
+/*
+Stimulus protocol as used by Nevian & Sakmann (2006)
+Demonstrating the synaptic plasticity rule by Ebner et al. (2019)
+https://doi.org/10.1016/j.celrep.2019.11.068
+Made to work with the Hay et al. (2011) L5b pyramidal cell model
+*/
+
+load_file("nrngui.hoc")
+
+// ## Object references
+objref PRE_REPS, POST_REPS, FREQ, DELTA_T, syn_loc, weight_changes
+objref trec, vrec, vrecs
+objref syn, stim, nc, ic
+
+// ## Parameters
+DT = 0.025 			// ms, integration step
+AMP = 2.1 			// nA, amplitude of current injection to trigger postsynaptic spikes
+DUR = 5.0			// ms, duration of the current injection
+WARM_UP = 2300 		// ms, delay from beginning of simulation
+COOL_DOWN = 100		// ms, silence phase after stimulation
+WEIGHT = 0.0035		// µS, conductance of (single) synaptic potentials
+
+// ## Stimulation protocol vectors
+PRE_REPS = new Vector()		// number of pre-events
+PRE_REPS.append(1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1)
+POST_REPS = new Vector()	// number of post-events
+POST_REPS.append(0,3,3,3,3,3,3,3,1,1,2,2,3,3,3,3)
+FREQ = new Vector()			// Hz, frequency of post-events (1000 means there's actually only one post-event)
+FREQ.append(1000,50,50,50,50,50,50,50,1000,1000,50,50,20,20,100,100)
+DELTA_T = new Vector()		// ms, delay between pre- and postsynaptic events
+DELTA_T.append(0,0,50,-90,-50,10,-30,-10,10,-10,10,-30,10,-110,10,-30)	// corrected for delta_t' and delta_t definitions (see paper)
+
+// ## Create cell
+load_file("import3d.hoc")
+objref L5PC
+strdef morphology_file
+morphology_file = "morphologies/cell1.asc"
+load_file("models/L5PCbiophys4.hoc")
+load_file("models/L5PCtemplate.hoc")
+L5PC = new L5PCtemplate(morphology_file)
+
+L5PC.dend[80] syn_loc = new SectionRef()		// proximal basal dendrite: 55 µm at center of the section
+
+// ## Create synapse
+syn_loc.sec syn = new Syn4P(0.5) 	// at the specified branch
+syn.tau_a = 0.2 					// time constant of EPSP rise
+syn.tau_b = 2 						// time constant of EPSP decay
+syn.e = 0							// reversal potential
+syn.w_pre_init = 0.5				// pre factor initial value
+syn.w_post_init = 2.0				// post factor initial value
+syn.s_ampa = 0.5					// contribution of AMPAR currents
+syn.s_nmda = 0.5					// contribution of NMDAR currents
+syn.tau_G_a = 2 					// time constant of presynaptic event G (rise)
+syn.tau_G_b = 50 					// time constant of presynaptic event G (decay)
+syn.m_G = 10						// slope of the saturation function for G
+syn.A_LTD_pre = 2.8e-3				// amplitude of pre-LTD
+syn.A_LTP_pre = 13e-4				// amplitude of pre-LTP
+syn.A_LTD_post = 36e-5				// amplitude of post-LTD
+syn.A_LTP_post = 5.7e-1				// amplitude of post-LTP
+syn.tau_u_T = 10 					// time constant for filtering u to calculate T
+syn.theta_u_T = -60					// voltage threshold applied to u to calculate T
+syn.m_T = 1.7						// slope of the saturation function for T
+syn.theta_u_N = -30					// voltage threshold applied to u to calculate N
+syn.tau_Z_a = 1						// time constant of presynaptic event Z (rise)
+syn.tau_Z_b = 15 					// time constant of presynaptic event Z (decay)
+syn.m_Z = 6							// slope of the saturation function for Z
+syn.tau_N_alpha = 7.5 				// time constant for calculating N-alpha
+syn.tau_N_beta = 30					// time constant for calculating N-beta
+syn.m_N_alpha = 2					// slope of the saturation function for N_alpha
+syn.m_N_beta = 10					// slope of the saturation function for N_beta
+syn.theta_N_X = 0.2					// threshold for N to calculate X
+syn.theta_u_C = -68					// voltage threshold applied to u to calculate C
+syn.theta_C_minus = 15				// threshold applied to C for post-LTD (P activation)
+syn.theta_C_plus = 35				// threshold applied to C for post-LTP (K-alpha activation)
+syn.tau_K_alpha = 15 				// time constant for filtering K_alpha to calculate K_alpha_bar
+syn.tau_K_gamma = 20 				// time constant for filtering K_beta to calculate K_gamma
+syn.m_K_alpha = 1.5					// slope of the saturation function for K_alpha
+syn.m_K_beta = 1.7					// slope of the saturation function for K_beta
+syn.s_K_beta = 100					// scaling factor for calculation of K_beta
+
+// ## Custom init procedure
+proc init(){ local i
+	finitialize(-70)
+	dt = 10
+	i = 0
+	for i = 1,217 fadvance()	// Run warm-up phase using big steps
+	print t
+	dt = DT
+}
+
+// ## Current trace vector
+obfunc current_trace() { local freq, delta_t, total_t, start_t, end_t, counter localobj trace
+	freq = $1
+	delta_t = $2
+	total_t = $3
+	trace = new Vector(total_t/DT, 0)
+	for counter = 0, POST_REPS.x(runs) - 1 {
+		start_t = (0 + delta_t + counter * (1000.0 / freq) + WARM_UP)
+		end_t = (start_t + DUR) // this is the actual duration of the current injection
+        trace.fill(AMP, start_t/DT, end_t/DT)
+	}
+    return trace
+}
+
+// ## Stim protocol
+func stimulation() { local pre, post, freq, delta_t, delta_w localobj trace
+	pre = $1
+	post = $2
+	freq = $3
+	delta_t = $4
+	
+	// Create objects
+	L5PC.soma ic = new IClamp(0.5)
+	ic.del = 0
+	ic.dur = 1e9 // not the actual duration
+	stim = new NetStim()
+	stim.number = pre
+	stim.start = WARM_UP
+	stim.noise = 0
+	nc = new NetCon(stim, syn, 0, 0, WEIGHT)
+	
+	print "\n*Loop ", runs + 1, "of ", FREQ.size()
+	stim.interval = 1000.0 / freq // calculate interval
+	total_time = WARM_UP + post * (1000.0 / freq) + COOL_DOWN
+	tstop = total_time
+	
+	trace = new Vector()
+	trace = current_trace(freq, delta_t, total_time)
+	trace.play(&ic.amp, DT) // play the trace vector into the IClamp protocol
+	
+	// Recording
+	trec = new Vector()
+	trec.record(&t)
+	vrec = new Vector()
+	vrec.record(&syn_loc.sec.v(0.5))	// voltage at proximal location
+	
+	init()
+	run()
+	
+	w_init = syn.w_pre_init * syn.w_post_init
+	delta_w_pre = syn.w_pre - syn.w_pre_init	// Difference of present and initial values
+	delta_w_post = syn.w_post - syn.w_post_init
+	w_final_pre = syn.w_pre_init + delta_w_pre * 60			// 60 repetitions
+	w_final_post = syn.w_post_init + delta_w_post * 60
+	if (w_final_pre > 1.0) { w_final_pre = 1.0 }
+	if (w_final_pre < 0.0) { w_final_pre = 0.0 }
+	if (w_final_post > 5.0) { w_final_post = 5.0 }
+	if (w_final_post < 0.0) { w_final_post = 0.0 }
+	w_final = w_final_pre * w_final_post
+	outcome = (w_final - w_init) / w_init * 100
+		
+	print "dw(pre)  = ", delta_w_pre, "--> ", (w_final_pre - syn.w_pre_init) / syn.w_pre_init * 100, "%"
+	print "dw(post) = ", delta_w_post, "--> ", (w_final_post - syn.w_post_init) / syn.w_post_init * 100, "%"
+	print "w(start) = ", w_init
+	print "w(end)   = ", w_final
+	print "Weight change --> ", outcome, "%"
+	return outcome
+}
+
+// ## Main run procedure
+weight_changes = new Vector()
+for runs = 0, FREQ.size() - 1 {
+	// continue_dialog("wait")
+	weight_changes.append(stimulation(PRE_REPS.x(runs), POST_REPS.x(runs), FREQ.x(runs), DELTA_T.x(runs)))
+}
+
+// ## Visualization
+objref voltplot
+voltplot = new Graph(0)		// voltage over time (final run only)
+voltplot.size(0, 10618, -85, 10)
+voltplot.view(-0.3, -85, 10618, 105, 65, 105, 300, 200)
+vrec.line(voltplot, 1, 2)
+objref compplot, compvec
+compvec = new Vector()
+compvec.append(-3, 5, -8, 0, -32, 101, -2, 42, 4, -20, 95, -28, 9, -28, 129, -48) // Experimental data (Nevian & Sakmann, 2006)
+compplot = new Graph(0)
+compplot.size(0, 15, -50, 200)
+compplot.view(-0.3, -50, 15.3, 250, 65, 105, 300, 200)
+compvec.line(compplot, 9, 2)
+weight_changes.line(compplot, 2, 2)

@@ -6,12 +6,12 @@ from neuronpp.core.hocwrappers.sec import Sec
 from neuronpp.core.cells.section_cell import SectionCell
 
 
-class HocCell(PointProcessCell):
+class CoreHocCell(PointProcessCell):
     def __init__(self, name, compile_paths=None):
         SectionCell.__init__(self, name, compile_paths=compile_paths)
         self._hoc_loaded = False
 
-    def make_hoc(self, hoc_file, cell_template_name: str = None, reinitialize=True):
+    def load_hoc(self, hoc_file, cell_template_name: str = None, reinitialize=True):
         """
         This method allows to load a single cell to your model. It is experimental function so may not work stable.
         It is useful when loading a hoc file with a single cell declaration.
