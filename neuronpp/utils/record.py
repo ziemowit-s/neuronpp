@@ -27,6 +27,9 @@ class Record:
         if isinstance(loc, float) or isinstance(loc, int) or loc is None:
             loc = [loc for _ in range(len(elements))]
 
+        if len(elements) == 0:
+            raise IndexError("The list of provided elements to record is empty.")
+
         if len(loc) != len(elements):
             raise IndexError("loc can be single float (eg. 0.5) or a list where len(loc) must be the same as len(sections).")
 
@@ -49,20 +52,47 @@ class Record:
         self.t = h.Vector().record(h._ref_t)
 
     def plot(self, animate=False, **kwargs):
+        """
+        :param animate:
+            if true, it will redraw the plot on the same figure each time this function is called
+        :param steps:
+            [used only if animate=True] how many timesteps to see on the graph
+        :param y_lim:
+            [used only if animate=True] tuple of limits for y axis. Default is (-80, 50)
+        :param position:
+            position of all subplots ON EACH figure (each figure is created for each variable separately).
+            * position=(3,3) -> if you have 9 neurons and want to display 'v' on 3x3 matrix
+            * position='merge' -> it will display all figures on the same graph.
+            * position=None -> Default, each neuron has separated  axis (row) on the figure.
+        :return:
+        """
         if animate:
             self._plot_animate(**kwargs)
         else:
-            self._plot_static()
+            self._plot_static(**kwargs)
 
-    def _plot_static(self):
-        for var_name, section_recs in self.recs.items():
-            fig, axs = plt.subplots(len(section_recs))
-            axs = axs.flat if isinstance(axs, np.ndarray) else [axs]
+    def _plot_static(self, position=None):
+        """
+        :param position:
+            position of all subplots ON EACH figure (each figure is created for each variable separately).
+            * position=(3,3) -> if you have 9 neurons and want to display 'v' on 3x3 matrix
+            * position='merge' -> it will display all figures on the same graph.
+            * position=None -> Default, each neuron has separated  axis (row) on the figure.
+        :return:
+        """
+        for i, (var_name, section_recs) in enumerate(self.recs.items()):
+            fig = plt.figure()
 
-            for ax, (name, rec) in zip(axs, section_recs):
-                ax.set_title("%s.%s" % (name, var_name))
-                ax.plot(self.t, rec)
+            if position is "merge":
+                ax = fig.add_subplot(1, 1, 1)
+
+            for i, (name, rec) in enumerate(section_recs):
+                if position is not "merge":
+                    ax = self._get_subplot(fig=fig, var_name=var_name, position=position, row_len=len(section_recs), index=i + 1)
+                ax.set_title("Variable: %s" % var_name)
+                ax.plot(self.t, rec, label=name)
                 ax.set(xlabel='t (ms)', ylabel=var_name)
+                ax.legend()
 
     def _plot_animate(self, steps=10000, y_lim=None, position=None):
         """
@@ -93,24 +123,19 @@ class Record:
 
             for i, (name, rec) in enumerate(section_recs):
                 if create_fig:
-                    if position is None:
-                        ax = fig.add_subplot(len(section_recs), 1, i + 1)
-                    elif position == 'merge':
+                    if position == 'merge':
                         ax = fig.add_subplot(1, 1, 1)
                     else:
-                        size = position[0] * position[1]
-                        if position[0] * position[1] < len(section_recs):
-                            raise IndexError("Provided position %s declared %s graphs on the figure, "
-                                             "however you have %s records on the variable '%s'." %
-                                             (position, size, len(section_recs), var_name))
-                        ax = fig.add_subplot(position[0], position[1], i + 1)
+                        ax = self._get_subplot(fig=fig, var_name=var_name, position=position, row_len=len(section_recs), index=i + 1)
 
                     if y_lim:
                         ax.set_ylim(y_lim[0], y_lim[1])
                     line, = ax.plot([], lw=1)
-                    ax.set_title(name)
+                    ax.set_title("Variable: %s" % var_name)
                     ax.set_ylabel(var_name)
                     ax.set_xlabel("t (ms)")
+                    ax.legend()
+
                     self.axs[var_name].append((ax, line))
 
                 ax, line = self.axs[var_name][i]
@@ -141,3 +166,22 @@ class Record:
 
         df = pd.DataFrame(list(zip(*data)), columns=cols)
         df.to_csv(filename, index=False)
+
+    @staticmethod
+    def _get_subplot(fig, var_name, position, row_len=1, index=1):
+        if position is None:
+            ax = fig.add_subplot(row_len, 1, index)
+        elif position == 'grid':
+            n = np.sqrt(row_len)
+            if n % int(n) != 0:
+                n += 1
+            ax = fig.add_subplot(n, n, index)
+        else:
+            size = position[0] * position[1]
+            if position[0] * position[1] < row_len:
+                raise IndexError("Provided position %s declared %s graphs on the figure, "
+                                 "however you have %s records on the variable '%s'." %
+                                 (position, size, row_len, var_name))
+            ax = fig.add_subplot(position[0], position[1], index)
+
+        return ax

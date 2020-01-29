@@ -176,8 +176,8 @@ objref voltplot
 voltplot = new Graph(0)		// proximal & distal voltage over time (final run only)
 voltplot.size(0, 10625, -85, 10)
 voltplot.view(-0.3, -85, 10625, 105, 65, 105, 300, 200)
-vrec_prox.line(voltplot, 1, 2)
-vrec_dist.line(voltplot, 3, 2)
+vrec_prox.line(voltplot, 1, 2)  // Black
+vrec_dist.line(voltplot, 3, 2)  // Blue
 objref compplot, compvec1, compvec2
 compvec1 = new Vector()
 compvec1.append(14, 29, 53, 56)		// Experimental data (Sj?str?m et al., 2001) pre-post

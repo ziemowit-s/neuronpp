@@ -50,7 +50,7 @@ class CoreHocCell(PointProcessCell):
         return result
 
     def _add_new_sections(self, obj):
-        result = []
+        result = {}
         for d in dir(obj):
             try:
                 if d.startswith("_") or d == 'h':
@@ -58,24 +58,31 @@ class CoreHocCell(PointProcessCell):
                 f = getattr(obj, d)
 
                 if isinstance(f, Section):
-                    sec = self._append_sec_and_point_processes(f)
-                    result.append(sec)
-
-                elif len(f) > 0 and isinstance(f[0], Section):
-                    for ff in f:
-                        sec = self._append_sec_and_point_processes(ff)
-                        result.append(sec)
+                    hoc_sec = f
+                    self._add_sec(result, hoc_sec)
+                elif "SectionList" in str(f) or (len(f) > 0 and isinstance(f[0], Section)):
+                    secs = [i for i in f]
+                    for i, hoc_sec in enumerate(secs):
+                        self._add_sec(result, hoc_sec)
 
             except (TypeError, IndexError):
                 continue
+
         return result
+
+    def _add_sec(self, result, hoc_sec):
+        if str(hoc_sec) not in result:
+            obj_sec = self._append_sec_and_point_processes(hoc_sec)
+            result[str(hoc_sec)] = obj_sec
 
     def _append_sec_and_point_processes(self, hoc_sec_obj):
         pps = hoc_sec_obj.psection()['point_processes']
         if len(pps) > 0:
             for mod_name, hoc_obj in pps.items():
-                self._append_pp(hoc_point_process=hoc_obj, mod_name=mod_name, single_sec=hoc_sec_obj)
-
+                try:
+                    self._append_pp(hoc_point_process=list(hoc_obj)[0], mod_name=mod_name, single_sec=hoc_sec_obj)
+                except Exception as e:
+                    print("Error while trying to retrieve PointProcess. This is en experimental feature, error %s" % e)
         sec = Sec(hoc_sec_obj, parent=self, name=hoc_sec_obj.name())
         self.secs.append(sec)
         return sec
