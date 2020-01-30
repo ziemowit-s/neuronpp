@@ -5,6 +5,12 @@ class Hay2011Cell(Cell):
     def __init__(self, name, compile_paths='../commons/mods/hay2011'):
         Cell.__init__(self, name=name, compile_paths=compile_paths)
 
+    def make_default_mechanisms(self):
+        self.make_soma_mechanisms()
+        self.make_apical_mechanisms()
+        self.make_basal_mechanisms()
+        self.make_axonal_mechanisms()
+
     def make_soma_mechanisms(self, sections='soma'):
         """
         :param sections:
@@ -59,6 +65,7 @@ class Hay2011Cell(Cell):
             s.hoc.ek = -85
             s.hoc.ena = 50
 
+            s.hoc.insert("Ih")
             s.hoc.gIhbar_Ih = 0.0001
             s.hoc.g_pas = 3e-5
             s.hoc.gImbar_Im = 0.013322
@@ -117,6 +124,14 @@ class Hay2011Cell(Cell):
             s.hoc.gIhbar_Ih = 0.0001
             s.hoc.cm = 2
             s.hoc.g_pas = 6e-5
+
+    def distribute_channel(self):
+        """
+        $o1.distribute_channels("apic","gIhbar_Ih",2,-0.8696,3.6161,0.0,2.0870,0.00010000000)
+        $o1.distribute_channels("apic","gCa_LVAstbar_Ca_LVAst",3,1.000000,0.010000,700.000000,900.000000,0.1419540000)
+        :return:
+        """
+        pass
 
     @staticmethod
     def _set_pas(secs):

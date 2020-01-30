@@ -59,8 +59,9 @@ class NetConnCell(PointProcessCell):
                 err = True
             if err:
                 raise TypeError("Param 'source' can be only hocwrappers.NetStim, hocwrappers.VecStim, hocwrappers.Sec or None. "
-                                "If it is 'Sec', 'source_loc' need to be also provided. Instead 'source' was of type: '%s' "
-                                "and 'source_loc' has a value of '%s' instead." % (type(source), source_loc))
+                                "If it is 'Sec', 'source_loc' need to be also provided.\n"
+                                "Instead 'source' was of type: '%s' and 'source_loc' has a value of '%s' instead."
+                                % (type(source), source_loc))
 
         if point_process is None and mod_name is None:
             raise LookupError("If point_process is None you need to provide mod_name string param.")
