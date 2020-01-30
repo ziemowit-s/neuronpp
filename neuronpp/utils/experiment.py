@@ -19,6 +19,8 @@ class Experiment:
         """
         Create an experimental protocol of EPSPs and APs.
 
+        Each element of the experiment (EPSP or AP) is separated by isi (in ms).
+
         :param protocol:
             string eg. 3xEPSP[int=10,w=2.5,thr=5,del=2] 3xAP[int=10,dur=3,amp=1.6]
 
