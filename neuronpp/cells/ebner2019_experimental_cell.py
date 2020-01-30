@@ -1,17 +1,14 @@
-from neuron import h
-from neuronpp.core.hocwrappers.composed.synapse import Synapse
-
-from neuronpp.cells.hay2011_cell import Hay2011Cell
+from neuronpp.cells.hay2011_experimental_cell import Hay2011ExperimentalCell
 
 
-class Ebner2019AChDACell(Hay2011Cell):
-    def __init__(self, name=None, compile_paths="../commons/mods/hay2011 ../commons/mods/ebner2019 ../commons/mods/4p_ach_da_syns"):
+class Ebner2019ExperimentalCell(Hay2011ExperimentalCell):
+    def __init__(self, name=None, compile_paths="../commons/mods/hay2011 ../commons/mods/ebner2019"):
         """
-        In order to run you need to call set_synaptic_pointers() which takes 3 synapses as arguments.
-        Otherwise it will generate HOC error and cause SIGKILL exit to console.
+        Experimental cell of Ebner 2019 rewrited to Python
         :param name:
+        :param compile_paths:
         """
-        Hay2011Cell.__init__(self, name=name, compile_paths=compile_paths)
+        Hay2011ExperimentalCell.__init__(self, name=name, compile_paths=compile_paths)
 
         self.params_4p_syn = {
             "tau_a": 0.2,  # time constant of EPSP rise
@@ -49,24 +46,3 @@ class Ebner2019AChDACell(Hay2011Cell):
             "m_K_beta": 1.7,  # slope of the saturation function for K_beta
             "s_K_beta": 100,  # scaling factor for calculation of K_beta
         }
-
-    @staticmethod
-    def set_synaptic_pointers(syn_4p: Synapse, syn_ach: Synapse, syn_da: Synapse):
-        """
-        POINTER ach_stdp
-        POINTER da_stdp
-        POINTER flag_D_ACh
-        POINTER flag_D_Da
-
-        POINTER last_max_w_ACh
-        POINTER last_max_w_Da
-        """
-        for p, a, d in zip(syn_4p, syn_ach, syn_da):
-            h.setpointer(a.point_process.hoc._ref_w, 'ACh_w', p.point_process.hoc)
-            h.setpointer(d.point_process.hoc._ref_w, 'Da_w', p.point_process.hoc)
-
-            h.setpointer(a.point_process.hoc._ref_flag_D, 'flag_D_ACh', p.point_process.hoc)
-            h.setpointer(d.point_process.hoc._ref_flag_D, 'flag_D_Da', p.point_process.hoc)
-
-            h.setpointer(a.point_process.hoc._ref_last_max_w, 'last_max_w_ACh', p.point_process.hoc)
-            h.setpointer(d.point_process.hoc._ref_last_max_w, 'last_max_w_Da', p.point_process.hoc)

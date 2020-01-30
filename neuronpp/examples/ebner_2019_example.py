@@ -1,7 +1,7 @@
 from neuronpp.utils.run_sim import RunSim
 
 from neuronpp.utils.record import Record
-from neuronpp.cells.ebner2019_cell import Ebner2019Cell
+from neuronpp.cells.ebner2019_experimental_cell import Ebner2019ExperimentalCell
 from neuronpp.core.cells.netstim_cell import NetStimCell
 
 
@@ -11,7 +11,7 @@ WARMUP = 200
 
 if __name__ == '__main__':
     # define cell
-    cell = Ebner2019Cell(name="cell")
+    cell = Ebner2019ExperimentalCell(name="cell")
     cell.load_morpho(filepath='../commons/morphologies/swc/my.swc', seg_per_L_um=1, make_const_segs=11)
 
     # stimulation

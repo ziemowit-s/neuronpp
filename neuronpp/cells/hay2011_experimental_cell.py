@@ -1,8 +1,15 @@
+import numpy as np
+from neuron import h
 from neuronpp.cells.cell import Cell
 
 
-class Hay2011Cell(Cell):
+class Hay2011ExperimentalCell(Cell):
     def __init__(self, name, compile_paths='../commons/mods/hay2011'):
+        """
+        Experimental cell of Hay 2011 rewrited to Python
+        :param name:
+        :param compile_paths:
+        """
         Cell.__init__(self, name=name, compile_paths=compile_paths)
 
     def make_default_mechanisms(self):
@@ -19,6 +26,7 @@ class Hay2011Cell(Cell):
 
         """
         secs = self.filter_secs(name=sections)
+        self._adjust_nsec(secs)
         self._set_pas(secs)
         for s in secs:
             s.hoc.insert("Im")
@@ -49,6 +57,7 @@ class Hay2011Cell(Cell):
             start with 'regex:any pattern' to use regular expression. If without 'regex:' - will look which Hoc objects contain the str
         """
         secs = self.filter_secs(name=section_name)
+        self._adjust_nsec(secs)
         self._set_pas(secs)
         for s in secs:
             s.hoc.insert("Im")
@@ -88,6 +97,7 @@ class Hay2011Cell(Cell):
 
         """
         secs = self.filter_secs(name=sections)
+        self._adjust_nsec(secs)
         self._set_pas(secs)
         for s in secs:
             s.hoc.insert("CaDynamics_E2")
@@ -110,6 +120,10 @@ class Hay2011Cell(Cell):
             s.hoc.gNaTs2_tbar_NaTs2_t = 0.021489
             s.hoc.gImbar_Im = 0.00099
 
+        # Parameters and the function rewrite to Python from Hay2011 proc distribute_channels()
+        self._distribute_channel(mech="Ih", mech_param="gIhbar", dist_type="exp", s3=-0.8696, s4=3.6161, s5=0, s6=2.0870, s7=0.0001)
+        self._distribute_channel(mech="Ca_LVAst", mech_param="gCa_LVAstbar", dist_type="abs", s3=-1, s4=0.01, s5=700, s6=900, s7=0.141954)
+
     def make_basal_mechanisms(self, sections='basal'):
         """
         :param sections:
@@ -118,6 +132,7 @@ class Hay2011Cell(Cell):
 
         """
         secs = self.filter_secs(name=sections)
+        self._adjust_nsec(secs)
         self._set_pas(secs)
         for s in secs:
             s.hoc.insert("Ih")
@@ -125,13 +140,53 @@ class Hay2011Cell(Cell):
             s.hoc.cm = 2
             s.hoc.g_pas = 6e-5
 
-    def distribute_channel(self):
+    def _distribute_channel(self, mech, mech_param, sections='apic', soma_name='soma', dist_type='abs', s3=None, s4=None, s5=None, s6=None, s7=None):
         """
-        $o1.distribute_channels("apic","gIhbar_Ih",2,-0.8696,3.6161,0.0,2.0870,0.00010000000)
-        $o1.distribute_channels("apic","gCa_LVAstbar_Ca_LVAst",3,1.000000,0.010000,700.000000,900.000000,0.1419540000)
+        This function is rewrited to Python from Hay2011 L5PCTemplate.hoc file, proc distribute_channels()
+
+        :param sections:
+        :param soma_name:
+        :param dist_type:
+            'abs' - absolute [default]
+            'lin' - linear
+            'sigm' - sigmoidal
+            'exp' - exponential
         :return:
         """
-        pass
+        soma = self.filter_secs(soma_name)[0]
+        secs = self.filter_secs(name=sections)
+
+        max_dist = max([h.distance(soma.hoc(0.5), s.hoc(1)) for s in secs])
+        for sec in secs:
+            for x in sec.hoc:
+                dist = h.distance(soma.hoc(0.5), x)
+                dist_norm = dist/max_dist
+
+                if dist_type == 'lin':
+                    val = s3 + dist_norm * s4
+                elif dist_type == 'sigm':
+                    ex = np.exp((dist_norm - s5) / s6)
+                    sigmoid = s4 / (1 + ex)
+                    val = s3 + sigmoid
+                elif dist_type == 'exp':
+                    ex = np.exp(s4 * (dist_norm - s5))
+                    val = s3 + s6 * ex
+                elif dist_type == 'abs':
+                    if s5 < dist < s6:
+                        val = s3
+                    else:
+                        val = s4
+                else:
+                    raise ValueError("The only allowed dist_type are abs,lin,sigm,exp, but provided %s" % dist_type)
+                val *= s7
+
+                mech_obj = getattr(x, mech)
+                setattr(mech_obj, mech_param, val)
+
+    @staticmethod
+    def _adjust_nsec(secs):
+        for s in secs:
+            s.hoc.nseg = 1 + 2*int(s.hoc.L/40)
 
     @staticmethod
     def _set_pas(secs):
