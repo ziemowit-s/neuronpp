@@ -35,11 +35,20 @@ class CoreCell:
         :return:
             list of hoc objects which match the filter
         """
+        def is_regex(pattern):
+            return "SRE_Pattern" == pattern.__class__.__name__
+
         patterns = []
         for attr_name, v in kwargs.items():
-            if v is not None and "regex:" in v:
-                v = v.replace("regex:", "")
-                v = re.compile(v)
+
+            if v is not None:
+                if "regex:" in v:
+                    v = v.replace("regex:", "")
+                    v = re.compile(v)
+                elif "," in v:
+                    v = '|'.join(["(%s)" % re.escape(p) for p in v.split(",")])
+                    v = re.compile(v)
+
             patterns.append((attr_name, v))
         pat_len = len(patterns)
 
@@ -58,9 +67,11 @@ class CoreCell:
 
                 if pat is None:
                     pat_found += 1
-                elif "SRE_Pattern" == pat.__class__.__name__:
+
+                elif is_regex(pat):
                     if pat.search(attr) is not None:
                         pat_found += 1
+
                 elif pat in attr:
                     pat_found += 1
 

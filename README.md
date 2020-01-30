@@ -142,6 +142,12 @@ You can filter any part of the cell by string or regular expression filters
     sections = cell.filter_secs(name="dend")
   ```
 
+  * filter by string with separated by coma:
+  ```python
+    # Each coma function as OR between string which is separating:
+    sections = cell.filter_secs(name="apic[1],apic[50]")
+  ```
+
   * filter section of the cell by regular expression:
   ```python
     # Assuming you have sections dend[0]...dend[100] and apic[0]...apic[100] it will return all of them
