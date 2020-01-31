@@ -1,7 +1,7 @@
 from neuronpp.utils.run_sim import RunSim
 
 from neuronpp.utils.record import Record
-from neuronpp.cells.ebner2019_experimental_ach_da_cell import Ebner2019ExperimentalAChDACell
+from neuronpp.cells.ebner2019_ach_da_cell import Ebner2019AChDACell
 
 
 WEIGHT = 0.01  # 0.07 µS is ~10mV, default threshold pass
@@ -9,7 +9,7 @@ WARMUP = 100
 
 
 def create_cell(syn_4p_source=None, syn_ach_source=None, syn_da_source=None):
-    cell = Ebner2019ExperimentalAChDACell("cell", "../commons/mods/ebner2019 ../commons/mods/4p_ach_da_syns")
+    cell = Ebner2019AChDACell("cell", "../commons/mods/ebner2019 ../commons/mods/4p_ach_da_syns")
     cell.make_sec("soma", diam=20, l=20, nseg=10)
     cell.make_sec("dend", diam=8, l=500, nseg=100)
     cell.connect_secs(source="dend", target="soma", source_loc=0, target_loc=1)

@@ -19,6 +19,7 @@ proc biophys() {
 	}
 
   forsec $o1.axonal {
+  print "AXONAL"
   	insert Im 
   	insert Ca_LVAst 
   	insert Ca_HVA
@@ -48,6 +49,7 @@ proc biophys() {
 	}
 
   forsec $o1.somatic {
+  print "SOMATIC"
   	insert Im 
   	insert Ca_LVAst 
   	insert Ca_HVA
@@ -71,6 +73,7 @@ proc biophys() {
   }
 
 	forsec $o1.apical {
+	print "APICAL"
     insert CaDynamics_E2 
   	insert SK_E2 
   	insert Ca_LVAst 
@@ -96,6 +99,7 @@ proc biophys() {
   $o1.distribute_channels("apic","gCa_LVAstbar_Ca_LVAst",3,1.000000,0.010000,700.000000,900.000000,0.1419540000) 
 	
   forsec $o1.basal {
+  print "BASAL"
     insert Ih
   	gIhbar_Ih = 0.0001 
 		cm = 2

@@ -6,7 +6,7 @@ from neuronpp.utils.run_sim import RunSim
 from neuronpp.utils.record import Record
 from neuronpp.core.cells.netstim_cell import NetStimCell
 from neuronpp.core.cells.vecstim_cell import VecStimCell
-from neuronpp.cells.ebner2019_experimental_ach_da_cell import Ebner2019ExperimentalAChDACell
+from neuronpp.cells.ebner2019_ach_da_cell import Ebner2019AChDACell
 
 
 WEIGHT = 0.0035		# µS, conductance of (single) synaptic potentials
@@ -15,7 +15,7 @@ WARMUP = 200
 
 if __name__ == '__main__':
     # define cell
-    cell = Ebner2019ExperimentalAChDACell(name="cell")
+    cell = Ebner2019AChDACell(name="cell")
     cell.load_morpho(filepath='../commons/morphologies/swc/my.swc', seg_per_L_um=1, make_const_segs=11)
     cell.make_spines(spine_number=10, head_nseg=10, neck_nseg=10, sec='dend')
 

@@ -1,9 +1,9 @@
-from neuronpp.cells.ebner2019_experimental_ach_da_cell import Ebner2019ExperimentalAChDACell
+from neuronpp.cells.ebner2019_ach_da_cell import Ebner2019AChDACell
 from neuronpp.utils.synaptic_debugger import SynapticDebugger
 
 if __name__ == '__main__':
     # Prepare cell
-    cell = Ebner2019ExperimentalAChDACell("cell")
+    cell = Ebner2019AChDACell("cell")
     cell.make_sec("soma", diam=20, l=20, nseg=10)
     syns = cell.make_sypanses(source=None, weight=0.0035, target_sec="soma", target_loc=0.5, mod_name="Syn4PAChDa",
                               **cell.params_4p_syn)

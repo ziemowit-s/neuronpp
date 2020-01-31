@@ -1,19 +1,14 @@
-from neuron import h
-from neuronpp.core.hocwrappers.composed.synapse import Synapse
-
-from neuronpp.cells.hay2011_experimental_cell import Hay2011ExperimentalCell
+from neuronpp.cells.hay2011_cell import Hay2011Cell
 
 
-class Ebner2019ExperimentalAChDACell(Hay2011ExperimentalCell):
-    def __init__(self, name=None, compile_paths="../commons/mods/hay2011 ../commons/mods/ebner2019 ../commons/mods/4p_ach_da_syns"):
+class Ebner2019Cell(Hay2011Cell):
+    def __init__(self, name=None, compile_paths="../commons/mods/hay2011 ../commons/mods/ebner2019"):
         """
-        Experimental cell of Ebner2019 rewrited to Python with ACh Da neuromodulation.
-
-        In order to run you need to call set_synaptic_pointers() which takes 3 synapses as arguments.
-        Otherwise it will generate HOC error and cause SIGKILL exit to console.
+        Experimental cell of Ebner 2019 rewrited to Python
         :param name:
+        :param compile_paths:
         """
-        Hay2011ExperimentalCell.__init__(self, name=name, compile_paths=compile_paths)
+        Hay2011Cell.__init__(self, name=name, compile_paths=compile_paths)
 
         self.params_4p_syn = {
             "tau_a": 0.2,  # time constant of EPSP rise
@@ -33,12 +28,14 @@ class Ebner2019ExperimentalAChDACell(Hay2011ExperimentalCell):
             "tau_u_T": 10,  # time constant for filtering u to calculate T
             "theta_u_T": -60,  # voltage threshold applied to u to calculate T
             "m_T": 1.7,  # slope of the saturation function for T
+
             "theta_u_N": -30,  # voltage threshold applied to u to calculate N
             "tau_Z_a": 1,  # time constant of presynaptic event Z (rise)
             "tau_Z_b": 15,  # time constant of presynaptic event Z (decay)
             "m_Z": 6,  # slope of the saturation function for Z
             "tau_N_alpha": 7.5,  # time constant for calculating N-alpha
             "tau_N_beta": 30,  # time constant for calculating N-beta
+
             "m_N_alpha": 2,  # slope of the saturation function for N_alpha
             "m_N_beta": 10,  # slope of the saturation function for N_beta
             "theta_N_X": 0.2,  # threshold for N to calculate X
@@ -51,24 +48,3 @@ class Ebner2019ExperimentalAChDACell(Hay2011ExperimentalCell):
             "m_K_beta": 1.7,  # slope of the saturation function for K_beta
             "s_K_beta": 100,  # scaling factor for calculation of K_beta
         }
-
-    @staticmethod
-    def set_synaptic_pointers(syn_4p: Synapse, syn_ach: Synapse, syn_da: Synapse):
-        """
-        POINTER ach_stdp
-        POINTER da_stdp
-        POINTER flag_D_ACh
-        POINTER flag_D_Da
-
-        POINTER last_max_w_ACh
-        POINTER last_max_w_Da
-        """
-        for p, a, d in zip(syn_4p, syn_ach, syn_da):
-            h.setpointer(a.point_process.hoc._ref_w, 'ACh_w', p.point_process.hoc)
-            h.setpointer(d.point_process.hoc._ref_w, 'Da_w', p.point_process.hoc)
-
-            h.setpointer(a.point_process.hoc._ref_flag_D, 'flag_D_ACh', p.point_process.hoc)
-            h.setpointer(d.point_process.hoc._ref_flag_D, 'flag_D_Da', p.point_process.hoc)
-
-            h.setpointer(a.point_process.hoc._ref_last_max_w, 'last_max_w_ACh', p.point_process.hoc)
-            h.setpointer(d.point_process.hoc._ref_last_max_w, 'last_max_w_Da', p.point_process.hoc)

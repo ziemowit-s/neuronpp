@@ -1,3 +1,5 @@
+import os
+
 from neuron import h
 from neuronpp.core.cells.point_process_cell import PointProcessCell
 from nrn import Section
@@ -26,6 +28,9 @@ class CoreHocCell(PointProcessCell):
         """
         if self._hoc_loaded:
             raise RuntimeError("make_hoc() function can be called only once per Cell object and it have been called earlier.")
+
+        if not os.path.isfile(hoc_file):
+            raise FileNotFoundError("There is no HOC file %s." % hoc_file)
 
         h.load_file(hoc_file)
         if reinitialize:

@@ -3,7 +3,7 @@ from neuron import h
 from neuronpp.cells.cell import Cell
 
 
-class Hay2011ExperimentalCell(Cell):
+class Hay2011Cell(Cell):
     def __init__(self, name, compile_paths='../commons/mods/hay2011'):
         """
         Experimental cell of Hay 2011 rewrited to Python
@@ -13,10 +13,16 @@ class Hay2011ExperimentalCell(Cell):
         Cell.__init__(self, name=name, compile_paths=compile_paths)
 
     def make_default_mechanisms(self):
+        self._adjust_nsec(self.secs)
+        self._set_pas(self.secs)
+        self.make_axonal_mechanisms()
         self.make_soma_mechanisms()
         self.make_apical_mechanisms()
         self.make_basal_mechanisms()
-        self.make_axonal_mechanisms()
+
+        for s in self.secs:
+            if s.hoc.diam == 0:
+                s.hoc.diam = 1
 
     def make_soma_mechanisms(self, sections='soma'):
         """
@@ -26,8 +32,6 @@ class Hay2011ExperimentalCell(Cell):
 
         """
         secs = self.filter_secs(name=sections)
-        self._adjust_nsec(secs)
-        self._set_pas(secs)
         for s in secs:
             s.hoc.insert("Im")
             s.hoc.insert("Ca_LVAst")
@@ -36,10 +40,10 @@ class Hay2011ExperimentalCell(Cell):
             s.hoc.insert("SK_E2")
             s.hoc.insert("SKv3_1")
             s.hoc.insert("NaTs2_t")
-            s.hoc.insert("Ih")
             s.hoc.ek = -85
             s.hoc.ena = 50
 
+            s.hoc.insert("Ih")
             s.hoc.gIhbar_Ih = 0.0001
             s.hoc.g_pas = 3e-5
             s.hoc.gImbar_Im = 0.000008
@@ -57,8 +61,6 @@ class Hay2011ExperimentalCell(Cell):
             start with 'regex:any pattern' to use regular expression. If without 'regex:' - will look which Hoc objects contain the str
         """
         secs = self.filter_secs(name=section_name)
-        self._adjust_nsec(secs)
-        self._set_pas(secs)
         for s in secs:
             s.hoc.insert("Im")
             s.hoc.insert("Ca_LVAst")
@@ -97,8 +99,6 @@ class Hay2011ExperimentalCell(Cell):
 
         """
         secs = self.filter_secs(name=sections)
-        self._adjust_nsec(secs)
-        self._set_pas(secs)
         for s in secs:
             s.hoc.insert("CaDynamics_E2")
             s.hoc.insert("SK_E2")
@@ -121,10 +121,10 @@ class Hay2011ExperimentalCell(Cell):
             s.hoc.gImbar_Im = 0.00099
 
         # Parameters and the function rewrite to Python from Hay2011 proc distribute_channels()
-        self._distribute_channel(mech="Ih", mech_param="gIhbar", dist_type="exp", s3=-0.8696, s4=3.6161, s5=0, s6=2.0870, s7=0.0001)
-        self._distribute_channel(mech="Ca_LVAst", mech_param="gCa_LVAstbar", dist_type="abs", s3=-1, s4=0.01, s5=700, s6=900, s7=0.141954)
+        self._distribute_channel(mech="Ih", mech_param="gIhbar", dist_type="exp", s3=-0.8696, s4=3.6161, s5=0.0, s6=2.0870, s7=0.0001)
+        self._distribute_channel(mech="Ca_LVAst", mech_param="gCa_LVAstbar", dist_type="abs", s3=1, s4=0.01, s5=700, s6=900, s7=0.141954)
 
-    def make_basal_mechanisms(self, sections='basal'):
+    def make_basal_mechanisms(self, sections='dend'):
         """
         :param sections:
             List of sections or string defining single section name or sections names separated by space
@@ -132,8 +132,6 @@ class Hay2011ExperimentalCell(Cell):
 
         """
         secs = self.filter_secs(name=sections)
-        self._adjust_nsec(secs)
-        self._set_pas(secs)
         for s in secs:
             s.hoc.insert("Ih")
             s.hoc.gIhbar_Ih = 0.0001
@@ -169,8 +167,7 @@ class Hay2011ExperimentalCell(Cell):
                     sigmoid = s4 / (1 + ex)
                     val = s3 + sigmoid
                 elif dist_type == 'exp':
-                    ex = np.exp(s4 * (dist_norm - s5))
-                    val = s3 + s6 * ex
+                    val = s3 + s6 * np.exp(s4 * (dist_norm - s5))
                 elif dist_type == 'abs':
                     if s5 < dist < s6:
                         val = s3
