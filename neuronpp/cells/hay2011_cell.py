@@ -120,9 +120,10 @@ class Hay2011Cell(Cell):
             s.hoc.gNaTs2_tbar_NaTs2_t = 0.021489
             s.hoc.gImbar_Im = 0.00099
 
-        # Parameters and the function rewrite to Python from Hay2011 proc distribute_channels()
-        self._distribute_channel(mech="Ih", mech_param="gIhbar", dist_type="exp", s3=-0.8696, s4=3.6161, s5=0.0, s6=2.0870, s7=0.0001)
-        self._distribute_channel(mech="Ca_LVAst", mech_param="gCa_LVAstbar", dist_type="abs", s3=1, s4=0.01, s5=700, s6=900, s7=0.141954)
+        if len(secs) > 0:
+            # Parameters and the function rewrite to Python from Hay2011 proc distribute_channels()
+            self._distribute_channel(mech="Ih", mech_param="gIhbar", dist_type="exp", s3=-0.8696, s4=3.6161, s5=0.0, s6=2.0870, s7=0.0001)
+            self._distribute_channel(mech="Ca_LVAst", mech_param="gCa_LVAstbar", dist_type="abs", s3=1, s4=0.01, s5=700, s6=900, s7=0.141954)
 
     def make_basal_mechanisms(self, sections='dend'):
         """
