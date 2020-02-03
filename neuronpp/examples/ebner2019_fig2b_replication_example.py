@@ -22,8 +22,6 @@ delta_t = 10  # LTP
 
 
 if __name__ == '__main__':
-    # cell = HocCell("cell", compile_paths="../commons/mods/hay2011 ../commons/mods/ebner2019")
-    # cell.load_hoc("../commons/hocmodels/ebner2019_minimum_load/load_model.hoc", cell_template_name="L5PCtemplate")
     cell = Ebner2019Cell(name="cell")
     cell.load_morpho(filepath='../commons/morphologies/asc/cell1.asc')
     cell.make_default_mechanisms()
