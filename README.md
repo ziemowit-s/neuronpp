@@ -180,7 +180,8 @@ The main cell object `Cell` contains all filter methods inside.
   * add synapses:
    ```python
     cell = Cell(name="cell")
-    cell.make_sypanses(source=None, weight=0.01, mod_name="Syn4P", target_sec="soma", target_loc=0.5, delay=1)
+    cell.make_sypanses(source=None, weight=0.01, mod_name="Syn4P", target_sec="soma", 
+                       target_loc=0.5, delay=1)
    ```
 
   * add spines:
@@ -198,7 +199,8 @@ The main cell object `Cell` contains all filter methods inside.
   ```python
     netstim = NetStimCell(name="netst")
     stim = netstim.make_netstim(start=300, number=5, interval=10)
-    cell.make_sypanses(source=stim, weight=0.01, mod_name="Syn4P", target_sec="soma", target_loc=0.5, delay=1)
+    cell.make_sypanses(source=stim, weight=0.01, mod_name="Syn4P", target_sec="soma", 
+                       target_loc=0.5, delay=1)
   ```
   
    * Make synaptic event (send external input to the synapse): 
@@ -293,8 +295,8 @@ define experimetal protocols, eg. STDP protocol:
             return cell
     
         def make_conn(self, cell, source, source_loc=None, weight=1, **kwargs) -> list:
-            syns, heads = cell.make_spine_with_synapse(source=source, mod_name="Exp2Syn",
-                                                       source_loc=source_loc, weight=weight, target_sec="dend")
+            syns, heads = cell.make_spine_with_synapse(source=source, mod_name="Exp2Syn", source_loc=source_loc, 
+                                                       weight=weight, target_sec="dend")
             return syns
 
     # Create NetStim
@@ -320,7 +322,7 @@ define experimetal protocols, eg. STDP protocol:
         pop2.plot(animate=True)
    ```
 
-### Debug a synapse and a point process
+### Debug synapse and point process
 
 Debug any cell and synapse on interactive plot. 
 * By pressing a key defined im 'stim_key' param (default is w) you can stimulate synapses provided to the Debugger
