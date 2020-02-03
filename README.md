@@ -118,7 +118,7 @@ There are other examples in the folder.
  * if the HOC cell model is defined as a Template - just specify the 'cell_template_name' param:
  ```python
     cell = HocCell(name="cell")
-    cell.load_hoc("../commons/hocmodels/ebner2019_minimum_load/load_model.hoc", cell_template_name="L5PCtemplate")
+    cell.load_hoc("bner2019_minimum_load/load_model.hoc", cell_template_name="L5PCtemplate")
    ```
    
   * create and connect sections:
