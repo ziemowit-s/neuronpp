@@ -42,7 +42,22 @@ python setup.py bdist_wheel
 ```bash
 pip install git+https://github.com/ziemowit-s//neuronpp
 ```
-* Bear in mind that if you install the library through the pip and you want to use provided model cells (from other publications) you need to copy commons/ folder from this repository to your working directory.
+* Bear in mind that if you install the library through the pip you will have access to all features of NEURON++, however additionally provided cell models from other publications (listed below) will not work correctly, unless you download the 'commons/' folder from the repository and change paths for the relevant objects. 
+* So if you want to work with those predefined models it is recommended to clone the repositoty as a whole.
+
+## Predefined Cell models
+This repository contains the basic cell model `Cell` class and the experimental 'HocCell' class which loads HOC based cell model. The repository also contains some predefined cell models from ModelDB (https://senselab.med.yale.edu/modeldb)
+  * All of those models are located in the cells/ folder. 
+  * If you want to create your own model it is recommended to use `Cell` class or 'HocCell' class.
+  
+The list of predefined cell models:
+  * Ebner et al. 2019
+  * Custom implementation of Ebner et. al 2019 with ACh/DA modulation
+  * Combe et al. 2018
+  * Graham et al. 2014
+  * Hay et al. 2011
+  
+MOD files for the all of those models are located in the commons/mods/ folder. Combe 2018 model and Graham 2014 model additionaly have HOC files located in the commons/hocmodels/ folder 
 
 ## MOD compilation
 Before run you must compile mod files of your model (if it provides specialised mod features)
@@ -72,22 +87,6 @@ nrmivmodl
   * By default it works on Linux but you can change default params so that they express your OS params:
     * compiled_folder_name="x86_64"
     * mod_compile_command="nrnivmodl"
-    
-## Predefined Cell models
-This repository contains the basic cell model `Cell` object as well predefined cell models from ModelDB (https://senselab.med.yale.edu/modeldb)
-  * All of those models are located in the cells/ folder. 
-  * If you want to create your own model it is recommended to use `Cell` object.
-  
-The list of predefined cell models:
-  * Ebner et al. 2019
-  * Custom implementation of Ebner et. al 2019 with ACh/DA modulation
-  * Combe et al. 2018
-  * Graham et al. 2014
-  * Hay et al. 2011
-  
-MOD files to all of those models are located in the commons/mods/ folder. Combe 2018 model and Graham 2014 model additionaly have hoc files located in the commons/hocmodels/ folder 
-  
-
 
 ## Importing HOC model
 There is an experimental Cell model `HocCell` which is not a part of `Cell`, however it allows to import HOC files and load its model to the Cell object.
