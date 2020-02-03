@@ -107,9 +107,9 @@ There are other examples in the folder.
    ```
  
   * load HOC based cell model to the Cell object:
-    * allows to work with most modelDB single cell models with the NEURON++ paradigm:
-    * it will auto load all sections and point processes to furher usage and filter 
-    * This is an experimental feature, so currently works with single cell hoc models
+    * allows to work with most modelDB single cell models with the NEURON++ paradigm
+    * it will auto load all sections and point processes for furher usage and/or filtering 
+    * This is an experimental feature, so currently works ONLY with HOC models which define a single cell
    ```python
     cell = HocCell(name="cell")
     cell.load_hoc("your_cell_model.hoc")
