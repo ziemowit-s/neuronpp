@@ -1,4 +1,4 @@
-Neuron++ wraps NEURON (http://www.neuron.yale.edu) with easy to use Python objects.
+Neuron++ wraps NEURON (http://www.neuron.yale.edu) with easy to use Python objects. The main intention behind this library was to perform tidius tasks in few lines of code.
 
 ## Key features
 
@@ -6,12 +6,17 @@ Neuron++ wraps NEURON (http://www.neuron.yale.edu) with easy to use Python objec
 
   * Precisely define models of a single cell and connect them together to create a small network.
   
-  * Perform tidius tasks in a single line of code, eg.: 
-    * Manage synaptic signaling
-    * Dendritic spines creation
-    * Defining experimental protocols (eg. STDP paradigms)
-    * Debugging synapses on the neuron in real time
-    * Easy define populations of neurons
+  * Upload HOC based single cell model and adopt them to your needs
+  
+  * Manage synaptic signaling
+  
+  * Dendritic spines creation
+  
+  * Defining in vitro experimental protocols (eg. STDP paradigms)
+  
+  * Debug synapse RANGE values in real time
+  
+  * Define populations of neurons and connect them together
   
   * Provide helpful exception messages and guidelines of how to use NEURON functions without errors
     
