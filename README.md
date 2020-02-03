@@ -148,7 +148,7 @@ There are other examples in the folder.
    ic.debug(delay=100, dur=10, amp=0.1)
    ```
 
-### Filters
+### Easy filters
 You can filter any part of the cell by string or regular expression filter
   
   * filter section of the cell by string:
@@ -177,7 +177,7 @@ You can filter any part of the cell by string or regular expression filter
 There are many more filter functions. Check each one of them to discover each filter params.
 The main cell object `Cell` contains all filter methods inside.
 
-### Synapses
+### Define Synapses
 
   * add synapses:
    ```python
@@ -222,7 +222,7 @@ The main cell object `Cell` contains all filter methods inside.
     syn.add_source(source=stim, weight=weight, threshold=threshold, delay=delay)
   ```
 
-### Recording and ploting
+### Record and plot
 
   * make spike detector for the cell:
   ```python
@@ -266,7 +266,7 @@ The main cell object `Cell` contains all filter methods inside.
    make_shape_plot(variable="v", min_val=-70, max_val=40)
    ```
    
-### Define experiments
+### Replicate in vitro experiments
 
 define experimetal protocols, eg. STDP protocol:
   ```python
@@ -280,7 +280,8 @@ define experimetal protocols, eg. STDP protocol:
 
 ### Populations of neurons
 
-create a population:
+[Experimental feature] Create a population of many neurons of the same type and connect them between populations or stimulate them just as any synapse:
+
   * This is an experimental feature so may not be so easy to use
   ```python
     # Define a new Population class. 
@@ -321,9 +322,11 @@ create a population:
         pop2.plot(animate=True)
    ```
 
-### Debugging of synapse and point process
+### Debug a synapse and a point process
 
-Debug any cell and synapse on interactive plot. By pressing defined key (default is w) you can stimulate synapses provided to the Debugger
+Debug any cell and synapse on interactive plot. 
+* By pressing a key defined im 'stim_key' param (default is w) you can stimulate synapses provided to the Debugger
+* May be used to easy plot synaptic weight (defined as MOD RANGE variable) to see how the plasticity behaves
   ```python
     cell = Cell("cell")
     cell.make_sec("soma", diam=20, l=20, nseg=10)
