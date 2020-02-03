@@ -105,7 +105,21 @@ There are other examples in the folder.
    ```python
     cell.load_morpho(filepath='commons/morphologies/asc/cell2.asc')
    ```
-
+ 
+  * load HOC based cell model to the Cell object, which allows you to work with most modelDB single cell models with the NEURON++ paradigm:
+    * it will auto load all sections and point processes to furher usage and filter 
+    * This is an experimental feature, so currently works with single cell hoc models
+   ```python
+    cell = HocCell(name="cell")
+    cell.load_hoc("your_cell_model.hoc")
+   ```
+   
+ * if the HOC cell's model is defined in as the Template - specify cell_template_name param:
+ ```python
+    cell = HocCell(name="cell")
+    cell.load_hoc("../commons/hocmodels/ebner2019_minimum_load/load_model.hoc", cell_template_name="L5PCtemplate")
+   ```
+   
   * create and connect sections:
    ```python
     cell.make_sec("soma", diam=20, l=20, nseg=10)
