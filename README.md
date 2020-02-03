@@ -295,8 +295,9 @@ define experimetal protocols, eg. STDP protocol:
             return cell
     
         def make_conn(self, cell, source, source_loc=None, weight=1, **kwargs) -> list:
-            syns, heads = cell.make_spine_with_synapse(source=source, mod_name="Exp2Syn", source_loc=source_loc, 
-                                                       weight=weight, target_sec="dend")
+            syns, heads = cell.make_spine_with_synapse(source=source, mod_name="Exp2Syn", 
+                                                       source_loc=source_loc, weight=weight, 
+                                                       target_sec="dend")
             return syns
 
     # Create NetStim
@@ -327,15 +328,15 @@ define experimetal protocols, eg. STDP protocol:
 Debug any cell and synapse on interactive plot. 
 * By pressing a key defined im 'stim_key' param (default is w) you can stimulate synapses provided to the Debugger
 * May be used to easy plot synaptic weight (defined as MOD RANGE variable) to see how the plasticity behaves
-  ```python
-    cell = Cell("cell")
-    cell.make_sec("soma", diam=20, l=20, nseg=10)
-    syns = cell.make_sypanses(source=None, mod_name="Exp2Syn", target_sec="soma", target_loc=0.5, 
-                              weight=0.1)
+```python
+  cell = Cell("cell")
+  cell.make_sec("soma", diam=20, l=20, nseg=10)
+  syns = cell.make_sypanses(source=None, mod_name="Exp2Syn", target_sec="soma", target_loc=0.5, 
+                            weight=0.1)
 
-    debug = SynapticDebugger(syns=syns, secs=cell.filter_secs("soma"))
-    debug.debug_interactive(stim_key='w')
-  ```
+  debug = SynapticDebugger(syns=syns, secs=cell.filter_secs("soma"))
+  debug.debug_interactive(stim_key='w')
+```
 
 
 
