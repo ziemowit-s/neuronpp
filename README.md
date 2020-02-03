@@ -106,7 +106,8 @@ There are other examples in the folder.
     cell.load_morpho(filepath='commons/morphologies/asc/cell2.asc')
    ```
  
-  * load HOC based cell model to the Cell object, which allows you to work with most modelDB single cell models with the NEURON++ paradigm:
+  * load HOC based cell model to the Cell object:
+    * allows to work with most modelDB single cell models with the NEURON++ paradigm:
     * it will auto load all sections and point processes to furher usage and filter 
     * This is an experimental feature, so currently works with single cell hoc models
    ```python
