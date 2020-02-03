@@ -115,7 +115,7 @@ There are other examples in the folder.
     cell.load_hoc("your_cell_model.hoc")
    ```
    
- * if the HOC cell's model is defined in as the Template - specify cell_template_name param:
+ * if the HOC cell model is defined as a Template - just specify the 'cell_template_name' param:
  ```python
     cell = HocCell(name="cell")
     cell.load_hoc("../commons/hocmodels/ebner2019_minimum_load/load_model.hoc", cell_template_name="L5PCtemplate")
