@@ -149,7 +149,7 @@ There are other examples in the folder.
    ```
 
 ### Filters
-You can filter any part of the cell by string or regular expression filters
+You can filter any part of the cell by string or regular expression filter
   
   * filter section of the cell by string:
   ```python
@@ -157,9 +157,9 @@ You can filter any part of the cell by string or regular expression filters
     sections = cell.filter_secs(name="dend")
   ```
 
-  * filter by string with separated by coma:
+  * filter by string separated by coma:
   ```python
-    # Each coma function as OR between string which is separating:
+    # Each coma function as OR between strings
     sections = cell.filter_secs(name="apic[1],apic[50]")
   ```
 
@@ -177,7 +177,7 @@ You can filter any part of the cell by string or regular expression filters
 There are many more filter functions. Check each one of them to discover each filter params.
 The main cell object `Cell` contains all filter methods inside.
 
-### More features
+### Synapses
 
   * add synapses:
    ```python
@@ -190,23 +190,21 @@ The main cell object `Cell` contains all filter methods inside.
    cell.make_spines(spine_number=10, head_nseg=10, neck_nseg=10, sec='dend')
    ```
 
-  * define NetStim (or VecStim) and pass it to synapses while creating:
-  ```python
-    netstim = NetStimCell(name="netst")
-    stim = netstim.make_netstim(start=300, number=5, interval=10)
-    cell.make_sypanses(source=stim, weight=0.01, mod_name="Syn4P", target_sec="soma", target_loc=0.5, delay=1)
-  ```
-
   * add synapses with spines in a single function:
    ```python
     syns = cell.make_spine_with_synapse(source=stim, weight=0.01, mod="ExpSyn",
                                         target_sec="dend", delay=1, head_nseg=10, neck_nseg=10, number=10)
    ```
-   
-   * Make synaptic event: 
-     * every synapse can be stimulated by making event
-     * but good practice is to define source=None 
-     * it will return the synapse which an empty source, which can be stimulated externally
+  
+  * define NetStim (or VecStim) and pass it to synapses as a source while creating:
+  ```python
+    netstim = NetStimCell(name="netst")
+    stim = netstim.make_netstim(start=300, number=5, interval=10)
+    cell.make_sypanses(source=stim, weight=0.01, mod_name="Syn4P", target_sec="soma", target_loc=0.5, delay=1)
+  ```
+  
+   * Make synaptic event (send external input to the synapse): 
+     * every synapse can be stimulated by making event, however a good practice is to define source=None 
    ```python
     syns = cell.make_sypanses(source=None, weight=0.01, mod_name=SYNAPSE_MECH, target_sec="soma", 
                               target_loc=0.5, delay=1)
@@ -223,6 +221,8 @@ The main cell object `Cell` contains all filter methods inside.
   ```python
     syn.add_source(source=stim, weight=weight, threshold=threshold, delay=delay)
   ```
+
+### Recording and ploting
 
   * make spike detector for the cell:
   ```python
@@ -265,8 +265,10 @@ The main cell object `Cell` contains all filter methods inside.
    # show 'v' propagation in range -70-40 mV
    make_shape_plot(variable="v", min_val=-70, max_val=40)
    ```
+   
+### Define experiments
 
-  * define experimetal protocols, eg. STDP protocol:
+define experimetal protocols, eg. STDP protocol:
   ```python
     soma = cell.filter_secs("soma")[0]
     syn = cell.filter_synapses(tag="my_synapse")
@@ -276,8 +278,10 @@ The main cell object `Cell` contains all filter methods inside.
                        epsp_synapse=syn, i_clamp_section=soma)
    ```
 
-  * create a population:
-    * This is an experimental feature so may not be so easy to use
+### Populations of neurons
+
+create a population:
+  * This is an experimental feature so may not be so easy to use
   ```python
     # Define a new Population class. 
     # You need to implement abstract method make_cell() and make_conn() for each new Population 
@@ -317,7 +321,9 @@ The main cell object `Cell` contains all filter methods inside.
         pop2.plot(animate=True)
    ```
 
-  * Debug any cell and synapse on interactive plot. By pressing defined key (default is w) you can stimulate synapses provided to the Debugger
+### Debugging of synapse and point process
+
+Debug any cell and synapse on interactive plot. By pressing defined key (default is w) you can stimulate synapses provided to the Debugger
   ```python
     cell = Cell("cell")
     cell.make_sec("soma", diam=20, l=20, nseg=10)
@@ -328,6 +334,5 @@ The main cell object `Cell` contains all filter methods inside.
     debug.debug_interactive(stim_key='w')
   ```
 
-  * and more...
 
 
