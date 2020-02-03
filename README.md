@@ -14,7 +14,7 @@ Neuron++ wraps NEURON (http://www.neuron.yale.edu) with easy to use Python objec
   
   * Defining in vitro experimental protocols (eg. STDP paradigms)
   
-  * Debug synapse RANGE values in real time
+  * Debug synapse and point process RANGE values in real time
   
   * Define populations of neurons and connect them together
   
