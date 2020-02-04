@@ -20,13 +20,13 @@ class SectionCell(CoreCell):
             self.secs = []
             self._core_cell_builded = True
 
-    def filter_secs(self, name=None):
+    def filter_secs(self, name=None, **kwargs):
         """
         :param name:
             start with 'regex:any pattern' to use regular expression. If without 'regex:' - will look which Hoc objects contain the str
         :return:
         """
-        return self.filter(searchable=self.secs, name=name)
+        return self.filter(searchable=self.secs, name=name, **kwargs)
 
     def insert(self, mechanism_name: str, sec=None):
         if isinstance(sec, Sec):

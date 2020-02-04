@@ -41,7 +41,7 @@ class CoreCell:
         patterns = []
         for attr_name, v in kwargs.items():
 
-            if v is not None:
+            if v is not None and isinstance(v, str):
                 if "regex:" in v:
                     v = v.replace("regex:", "")
                     v = re.compile(v)
@@ -57,23 +57,28 @@ class CoreCell:
             pat_found = 0
 
             for attr_name, pat in patterns:
+
+                # Get attribute
                 try:
-                    attr = getattr(hoc_obj, attr_name)
+                    value = getattr(hoc_obj, attr_name)
                 except AttributeError:
                     break
 
-                if not isinstance(attr, str):
-                    attr = str(attr)
-
-                if pat is None:
+                # Check pattern of the attribute
+                if pat is None:  #
                     pat_found += 1
 
-                elif is_regex(pat):
-                    if pat.search(attr) is not None:
+                elif callable(pat):
+                    if pat(value):
                         pat_found += 1
 
-                elif pat in attr:
-                    pat_found += 1
+                elif isinstance(pat, str):
+                    value = str(value)
+                    if is_regex(pat):
+                        if pat.search(value) is not None:
+                            pat_found += 1
+                    elif pat in value:
+                        pat_found += 1
 
             if pat_found == pat_len:
                 result.append(hoc_obj)

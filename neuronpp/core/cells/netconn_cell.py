@@ -17,7 +17,7 @@ class NetConnCell(PointProcessCell):
         self._spike_detector = None
         self._nc_num = defaultdict(int)
 
-    def filter_netcons(self, mod_name: str, name: str):
+    def filter_netcons(self, mod_name: str, name: str, **kwargs):
         """
         :param mod_name:
             single string defining name of target point process type name, eg. concere synaptic mechanisms like Syn4PAChDa
@@ -25,7 +25,7 @@ class NetConnCell(PointProcessCell):
             start with 'regex:any pattern' to use regular expression. If without 'regex:' - will look which Hoc objects contain the str
         :return:
         """
-        return self.filter(searchable=self.ncs, mod_name=mod_name, name=name)
+        return self.filter(searchable=self.ncs, mod_name=mod_name, name=name, **kwargs)
 
     def make_netcons(self, source: HocWrapper, weight, rand_weight=False, source_loc=None, point_process=None,
                      mod_name: str = None, delay=0, threshold=10):

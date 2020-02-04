@@ -16,7 +16,7 @@ class PointProcessCell(SectionCell):
         self.pps = []
         self._pp_num = defaultdict(int)
 
-    def filter_point_processes(self, mod_name: str = None, name: str = None, parent: str = None):
+    def filter_point_processes(self, mod_name: str = None, name: str = None, parent: str = None, **kwargs):
         """
         :param mod_name:
             single string defining name of point process type name, eg. concere synaptic mechanisms like Syn4PAChDa
@@ -24,7 +24,7 @@ class PointProcessCell(SectionCell):
             start with 'regex:any pattern' to use regular expression. If without 'regex:' - will look which Hoc objects contain the str
         :return:
         """
-        return self.filter(searchable=self.pps, mod_name=mod_name, name=name, parent=parent)
+        return self.filter(searchable=self.pps, mod_name=mod_name, name=name, parent=parent, **kwargs)
 
     def make_point_processes(self, mod_name: str, loc, sec=None, tag: str = None, **point_process_params):
         """

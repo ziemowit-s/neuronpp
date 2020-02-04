@@ -11,7 +11,7 @@ class ComplexSynapticCell(SynapticCell):
         self.complex_syns = []
         self._syn_num = defaultdict(int)
 
-    def filter_complex_synapses(self, mod_name: str = None, name=None, parent=None, tag=None):
+    def filter_complex_synapses(self, mod_name: str = None, name=None, parent=None, tag=None, **kwargs):
         """
         :param mod_name:
             single string defining name of point process type name, eg. concere synaptic mechanisms like Syn4PAChDa
@@ -23,7 +23,7 @@ class ComplexSynapticCell(SynapticCell):
             string of point process compound name
         :return:
         """
-        return self.filter(self.complex_syns, mod_name=mod_name, name=name, parent=parent, tag=tag)
+        return self.filter(self.complex_syns, mod_name=mod_name, name=name, parent=parent, tag=tag, **kwargs)
 
     def group_complex_sypanses(self, tag=None, *synapses):
         """
