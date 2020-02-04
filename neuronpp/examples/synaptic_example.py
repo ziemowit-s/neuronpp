@@ -7,7 +7,7 @@ from neuronpp.core.cells.netstim_cell import NetStimCell
 
 # Prepare cell
 cell = Cell(name="cell", compile_paths="../commons/mods/ebner2019")
-cell.load_morpho(filepath='../commons/morphologies/swc/my.swc', seg_per_L_um=1, make_const_segs=11)
+cell.load_morpho(filepath='../commons/morphologies/swc/my.swc')
 cell.make_sec("dend[1]", diam=10, l=10, nseg=10)
 cell.connect_secs(source="dend[1]", target="soma")
 cell.insert("pas")

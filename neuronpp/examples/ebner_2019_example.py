@@ -12,7 +12,7 @@ WARMUP = 200
 if __name__ == '__main__':
     # define cell
     cell = Ebner2019Cell(name="cell")
-    cell.load_morpho(filepath='../commons/morphologies/swc/my.swc', seg_per_L_um=1, make_const_segs=11)
+    cell.load_morpho(filepath='../commons/morphologies/swc/my.swc')
 
     # stimulation
     stim = NetStimCell("stim_cell").make_netstim(start=WARMUP + 1, number=300, interval=1)
@@ -20,8 +20,8 @@ if __name__ == '__main__':
                                  number=10, head_nseg=10, neck_nseg=10, target_sec='dend', **cell.params_4p_syn)
 
     # add mechanisms
-    cell.make_soma_mechanisms()
-    cell.make_apical_mechanisms(sections='dend head neck')
+    cell.make_default_mechanisms()
+    cell.make_apical_mechanisms(sections='head neck')
 
     # make plots
     rec_w = Record(cell.filter_point_processes(mod_name="Syn4P", name="head[0][0]"), variables="w")

@@ -55,6 +55,16 @@ class CoreHocCell(PointProcessCell):
         return result
 
     def _add_new_sections(self, obj):
+        def get_sec_list_objects(f):
+            is_section_list = False
+            if "SectionList" in str(f):
+                secs = [i for i in f]
+                for i, hoc_sec in enumerate(secs):
+                    if not get_sec_list_objects(f=hoc_sec):
+                        self._add_sec(result, hoc_sec)
+                    is_section_list = True
+            return is_section_list
+
         result = {}
         for d in dir(obj):
             try:
@@ -65,10 +75,8 @@ class CoreHocCell(PointProcessCell):
                 if isinstance(f, Section):
                     hoc_sec = f
                     self._add_sec(result, hoc_sec)
-                elif "SectionList" in str(f) or (len(f) > 0 and isinstance(f[0], Section)):
-                    secs = [i for i in f]
-                    for i, hoc_sec in enumerate(secs):
-                        self._add_sec(result, hoc_sec)
+                else:
+                    get_sec_list_objects(f=f)
 
             except (TypeError, IndexError):
                 continue

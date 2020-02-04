@@ -9,7 +9,7 @@ WARMUP = 100
 
 
 def create_cell(syn_4p_source=None, syn_ach_source=None, syn_da_source=None):
-    cell = Ebner2019AChDACell("cell", "../commons/mods/ebner2019 ../commons/mods/4p_ach_da_syns")
+    cell = Ebner2019AChDACell("cell")
     cell.make_sec("soma", diam=20, l=20, nseg=10)
     cell.make_sec("dend", diam=8, l=500, nseg=100)
     cell.connect_secs(source="dend", target="soma", source_loc=0, target_loc=1)
@@ -25,7 +25,7 @@ def create_cell(syn_4p_source=None, syn_ach_source=None, syn_da_source=None):
         cell.group_complex_sypanses("input_syn", s1, s2, s3)
 
     # add mechanisms
-    cell.make_soma_mechanisms()
+    cell.make_default_mechanisms()
     cell.make_apical_mechanisms(sections='dend head neck')
     return cell
 

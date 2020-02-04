@@ -10,7 +10,7 @@ if __name__ == '__main__':
     syn_ach = cell.make_sypanses(source=None, weight=0.1, target_sec="soma", target_loc=0.5, mod_name="SynACh")
     syn_da = cell.make_sypanses(source=None, weight=0.1, target_sec="soma", target_loc=0.5, mod_name="SynDa")
     cell.set_synaptic_pointers(syns, syn_ach, syn_da)
-    cell.make_soma_mechanisms()
+    cell.make_default_mechanisms()
 
     # Debug
     debug = SynapticDebugger(init_v=-80, warmup=200)
