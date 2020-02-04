@@ -51,6 +51,9 @@ class SectionCell(CoreCell):
         hoc_sec.diam = diam
         hoc_sec.nseg = nseg
 
+        if len(self.filter_secs(name)) > 0:
+            raise LookupError("The name '%s' is already taken by another section of the cell: '%s' of type: '%s'."
+                              % (name, self.name, self.__class__.__name__))
         sec = Sec(hoc_sec, parent=self, name=name)
         self.secs.append(sec)
         return sec
@@ -121,6 +124,9 @@ class SectionCell(CoreCell):
 
         for hoc_sec in self.all:
             name = hoc_sec.name().split('.')[-1]  # eg. name="dend[19]"
+            if len(self.filter_secs(name)) > 0:
+                raise LookupError("The name '%s' is already taken by another section of the cell: '%s' of type: '%s'."
+                                  % (name, self.name, self.__class__.__name__))
             sec = Sec(hoc_sec, parent=self, name=name)
             self.secs.append(sec)
 
