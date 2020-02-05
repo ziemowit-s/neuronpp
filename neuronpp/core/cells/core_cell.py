@@ -35,6 +35,9 @@ class CoreCell:
         :return:
             list of hoc objects which match the filter
         """
+        def is_regex(pattern):
+            return "SRE_Pattern" == pattern.__class__.__name__
+
         patterns = []
         for attr_name, v in kwargs.items():
 
@@ -73,7 +76,7 @@ class CoreCell:
                     if isinstance(pat, str):
                         if pat in value:
                             pat_found += 1
-                    elif isinstance(pat, re.Pattern):
+                    elif is_regex(pat):
                         if pat.search(value) is not None:
                             pat_found += 1
 

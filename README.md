@@ -24,6 +24,7 @@ This is a pre-Alpha version
 
 ## Prerequisites
 
+* Python 3.6
 * Install NEURON from the instruction: https://github.com/ziemowit-s/neuron_netpyne_get_started
 * Install requirements.txt
 
