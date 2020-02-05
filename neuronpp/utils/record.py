@@ -99,7 +99,7 @@ class Record:
                 ax.set(xlabel='t (ms)', ylabel=var_name)
                 ax.legend()
 
-    def _plot_animate(self, steps=10000, y_lim=None, position=None):
+    def _plot_animate(self, steps=10000, y_lim=None, position=None, full_screen=False):
         """
         Call each time you want to redraw plot.
 
@@ -112,7 +112,8 @@ class Record:
             * position=(3,3) -> if you have 9 neurons and want to display 'v' on 3x3 matrix
             * position='merge' -> it will display all figures on the same graph.
             * position=None -> Default, each neuron has separated  axis (row) on the figure.
-        :return:
+        :param full_screen:
+            put figure into full screen
         """
         create_fig = False
         for var_name, section_recs in self.recs.items():
@@ -124,6 +125,9 @@ class Record:
                 create_fig = True
                 fig = plt.figure()
                 fig.canvas.draw()
+                if full_screen:
+                    manager = plt.get_current_fig_manager()
+                    manager.resize(*manager.window.maxsize())
                 self.figs[var_name] = fig
 
             for i, (name, rec) in enumerate(section_recs):
@@ -141,7 +145,7 @@ class Record:
                     ax.set_xlabel("t (ms)")
                     ax.legend()
 
-                    self._ax_backgrounds[var_name] = (fig.canvas.copy_from_bbox(ax.bbox), sum(ax.bbox.size))
+                    self._ax_backgrounds[var_name].append((fig.canvas.copy_from_bbox(ax.bbox), sum(ax.bbox.size)))
                     self.axs[var_name].append((ax, line))
 
                 ax, line = self.axs[var_name][i]
@@ -156,7 +160,7 @@ class Record:
                 line.set_data(t, r)
 
                 # restore background
-                bg, size = self._ax_backgrounds[var_name]
+                bg, size = self._ax_backgrounds[var_name][i]
                 current_size = sum(ax.bbox.size)
                 if current_size != size:
                     ax.cla()
@@ -165,7 +169,7 @@ class Record:
                     ax.set_xlabel("t (ms)")
                     ax.legend()
                     fig.canvas.draw()
-                    self._ax_backgrounds[var_name] = fig.canvas.copy_from_bbox(ax.bbox), current_size
+                    self._ax_backgrounds[var_name][i] = (fig.canvas.copy_from_bbox(ax.bbox), current_size)
                 else:
                     fig.canvas.restore_region(bg)
                     ax.draw_artist(line)
