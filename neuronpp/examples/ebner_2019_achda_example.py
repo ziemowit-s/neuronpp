@@ -1,9 +1,7 @@
 import numpy as np
-import matplotlib.pyplot as plt
-
-from neuronpp.utils.run_sim import RunSim
 
 from neuronpp.utils.record import Record
+from neuronpp.utils.run_sim import RunSim
 from neuronpp.core.cells.netstim_cell import NetStimCell
 from neuronpp.core.cells.vecstim_cell import VecStimCell
 from neuronpp.cells.ebner2019_ach_da_cell import Ebner2019AChDACell

@@ -4,3 +4,4 @@ scipy
 cython
 wheel
 pynput
+pandas

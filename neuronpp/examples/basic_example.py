@@ -1,7 +1,8 @@
 import matplotlib.pyplot as plt
-from neuronpp.utils.run_sim import RunSim
 
 from neuronpp.cells.cell import Cell
+from neuronpp.utils.run_sim import RunSim
+
 from neuronpp.utils.record import Record
 from neuronpp.utils.iclamp import IClamp
 from neuronpp.utils.utils import make_shape_plot

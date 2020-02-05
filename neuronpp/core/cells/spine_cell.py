@@ -10,6 +10,7 @@ class SpineCell(SectionCell):
         SectionCell.__init__(self, name, compile_paths=compile_paths)
         self.heads = []
         self.necks = []
+        self._next_index = 0
 
     def make_spines(self, spine_number, sec: str = None, head_nseg=2, neck_nseg=2, seed: int = None):
         """
@@ -34,13 +35,15 @@ class SpineCell(SectionCell):
 
         if seed:
             random.seed(seed)
-        for i in range(spine_number):
+        for _ in range(spine_number):
+            i = self._next_index
             head = self.make_sec(name="head[%s]" % i, diam=1, l=1, nseg=head_nseg)
             neck = self.make_sec(name="neck[%s]" % i, diam=0.5, l=0.5, nseg=neck_nseg)
             self.heads.append(head)
             self.necks.append(neck)
             self.connect_secs(source=head, target=neck)
             self._connect_necks_rand_uniform(neck, sec)
+            self._next_index += 1
 
         return self.heads, self.necks
 
