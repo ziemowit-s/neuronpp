@@ -1,3 +1,4 @@
+import time
 from collections import defaultdict
 
 import numpy as np
@@ -140,7 +141,7 @@ class Record:
                     ax.set_xlabel("t (ms)")
                     ax.legend()
 
-                    self._ax_backgrounds[var_name] = fig.canvas.copy_from_bbox(ax.bbox)
+                    self._ax_backgrounds[var_name] = (fig.canvas.copy_from_bbox(ax.bbox), sum(ax.bbox.size))
                     self.axs[var_name].append((ax, line))
 
                 ax, line = self.axs[var_name][i]
@@ -155,12 +156,16 @@ class Record:
                 line.set_data(t, r)
 
                 # restore background
-                fig.canvas.restore_region(self._ax_backgrounds[var_name])
-                # redraw just the points
-                ax.draw_artist(line)
-                # fill in the axes rectangle
-                fig.canvas.blit(ax.bbox)
-
+                bg, size = self._ax_backgrounds[var_name]
+                current_size = sum(ax.bbox.size)
+                if current_size != size:
+                    ax.cla()
+                    fig.canvas.draw()
+                    self._ax_backgrounds[var_name] = fig.canvas.copy_from_bbox(ax.bbox), current_size
+                else:
+                    fig.canvas.restore_region(bg)
+                    ax.draw_artist(line)
+                    fig.canvas.blit(ax.bbox)
             fig.canvas.flush_events()
 
         if create_fig:
