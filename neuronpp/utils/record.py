@@ -37,7 +37,7 @@ class Record:
         self.recs = dict([(v, []) for v in variables])
         self.figs = {}
         self.axs = defaultdict(list)
-        self._ax_backgrounds = {}
+        self._ax_backgrounds = defaultdict(list)
 
         for sec, loc in zip(elements, loc):
             for var in variables:
@@ -141,7 +141,7 @@ class Record:
                     ax.set_xlabel("t (ms)")
                     ax.legend()
 
-                    self._ax_backgrounds[var_name] = (fig.canvas.copy_from_bbox(ax.bbox), sum(ax.bbox.size))
+                    self._ax_backgrounds[var_name].append((fig.canvas.copy_from_bbox(ax.bbox), sum(ax.bbox.size)))
                     self.axs[var_name].append((ax, line))
 
                 ax, line = self.axs[var_name][i]
@@ -156,12 +156,12 @@ class Record:
                 line.set_data(t, r)
 
                 # restore background
-                bg, size = self._ax_backgrounds[var_name]
+                bg, size = self._ax_backgrounds[var_name][i]
                 current_size = sum(ax.bbox.size)
                 if current_size != size:
                     ax.cla()
                     fig.canvas.draw()
-                    self._ax_backgrounds[var_name] = fig.canvas.copy_from_bbox(ax.bbox), current_size
+                    self._ax_backgrounds[var_name][i] = (fig.canvas.copy_from_bbox(ax.bbox), current_size)
                 else:
                     fig.canvas.restore_region(bg)
                     ax.draw_artist(line)
