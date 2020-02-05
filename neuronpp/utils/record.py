@@ -36,6 +36,7 @@ class Record:
         self.recs = dict([(v, []) for v in variables])
         self.figs = {}
         self.axs = defaultdict(list)
+        self._ax_backgrounds = {}
 
         for sec, loc in zip(elements, loc):
             for var in variables:
@@ -139,6 +140,7 @@ class Record:
                     ax.set_xlabel("t (ms)")
                     ax.legend()
 
+                    self._ax_backgrounds[var_name] = fig.canvas.copy_from_bbox(ax.bbox)
                     self.axs[var_name].append((ax, line))
 
                 ax, line = self.axs[var_name][i]
@@ -152,7 +154,13 @@ class Record:
                 # update data
                 line.set_data(t, r)
 
-            fig.canvas.draw()
+                # restore background
+                fig.canvas.restore_region(self._ax_backgrounds[var_name])
+                # redraw just the points
+                ax.draw_artist(line)
+                # fill in the axes rectangle
+                fig.canvas.blit(ax.bbox)
+
             fig.canvas.flush_events()
 
         if create_fig:
