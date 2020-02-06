@@ -286,7 +286,7 @@ The main cell object `Cell` contains all filter methods inside.
                        epsp_synapse=syn, i_clamp_section=soma)
    ```
 
-  * Example of the above STDP experimental protocol performed on Combe et al. 2018 cell model with customly added dendritic spines:
+  * Example of the above STDP experimental protocol performed on Combe et al. 2018 cell model with custom added dendritic spines:
   https://doi.org/10.1523/JNEUROSCI.0449-18.2018
   ![STDP](images/combe2018_stdp.png) 
 
