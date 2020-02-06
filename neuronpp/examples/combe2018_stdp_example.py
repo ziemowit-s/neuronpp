@@ -4,18 +4,18 @@ from neuronpp.utils.run_sim import RunSim
 from neuronpp.cells.combe2018_cell import Combe2018Cell
 
 # Create cell
-cell = Combe2018Cell(name="cell", spine_number=10, spine_sec="apic", spine_seed=13)
+cell = Combe2018Cell(name="cell", spine_number=10, spine_secs_names="apic", spine_seed=13)
 
-soma = cell.filter_secs("soma")[0]
-syn = cell.filter_complex_synapses(tag="combe")[0]
+soma = cell.filter_secs("soma")
+syns = cell.filter_complex_synapses(tag="combe")
 
 # Prepare STDP protocol
 stdp = Experiment()
-stdp.make_protocol("3xEPSP[int=10]", start=1, isi=10, epsp_synapse=syn, i_clamp_section=soma)
+stdp.make_protocol("3xEPSP[int=10] 3xAP[int=10,dur=3,amp=1.6]", start=1, isi=10, epsp_synapse=syns[0], i_clamp_section=soma)
 
 # Prepare plots
-v_soma_rec = Record([soma, syn.parent], variables='v', loc=0.5)
-cai_head0_rec = Record(syn.parent, variables='cai', loc=0.5)
+v_soma_rec = Record([soma, syns[0].parent], variables='v', loc=0.5)
+cai_head0_rec = Record(syns[0].parent, variables='cai', loc=0.5)
 
 # Run
 sim = RunSim(init_v=-70, warmup=20, with_neuron_gui=True, constant_timestep=False)

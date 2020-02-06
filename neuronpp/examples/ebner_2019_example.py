@@ -1,5 +1,4 @@
 from neuronpp.utils.run_sim import RunSim
-
 from neuronpp.utils.record import Record
 from neuronpp.cells.ebner2019_cell import Ebner2019Cell
 from neuronpp.core.cells.netstim_cell import NetStimCell
@@ -16,15 +15,15 @@ if __name__ == '__main__':
 
     # stimulation
     stim = NetStimCell("stim_cell").make_netstim(start=WARMUP + 1, number=300, interval=1)
-    cell.make_spine_with_synapse(source=stim, weight=WEIGHT, mod_name="Syn4P", delay=1,
-                                 number=10, head_nseg=10, neck_nseg=10, target_sec='dend', **cell.params_4p_syn)
+    cell.add_synapses_with_spine(source=stim, secs=cell.secs, mod_name="Syn4P", weight=WEIGHT, delay=1,
+                                 head_nseg=10, neck_nseg=10, number=10, **cell.params_4p_syn)
 
     # add mechanisms
     cell.make_default_mechanisms()
-    cell.make_apical_mechanisms(sections='head neck')
+    cell.make_apical_mechanisms(sections='dend head neck')
 
     # make plots
-    rec_w = Record(cell.filter_point_processes(mod_name="Syn4P", name="head[0][0]"), variables="w")
+    rec_w = Record(cell.filter_point_processes(mod_name="Syn4P", name="head[0]"), variables="w")
     rec_v = Record(cell.filter_secs(name="head[0]"), loc=1.0, variables="v")
 
     # init and run

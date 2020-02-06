@@ -126,7 +126,7 @@ class Experiment:
 
         elif ptype == 'ap':
             for _ in range(num):
-                iclamp.debug(delay=event_time, dur=dur, amp=amp)
+                iclamp.stim(delay=event_time, dur=dur, amp=amp)
                 event_time += interval
         else:
             raise TypeError("Only allowed types are EPSP or AP.")

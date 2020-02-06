@@ -1,9 +1,9 @@
+from nrn import Segment, Section
 from collections import defaultdict
 
 import numpy as np
-from neuron import h
 import pandas as pd
-from math import ceil
+from neuron import h
 import matplotlib.pyplot as plt
 
 
@@ -37,16 +37,26 @@ class Record:
         self.figs = {}
         self.axs = defaultdict(list)
 
-        for sec, loc in zip(elements, loc):
+        for elem, loc in zip(elements, loc):
             for var in variables:
-                s = sec.hoc if loc is None else sec.hoc(loc)
+                if isinstance(elem, Segment):
+                    s = elem
+                    loc = elem.x
+                    elem = elem.sec
+                    name = elem.name()
+                elif isinstance(elem, Section):
+                    s = elem(loc)
+                    name = elem.name()
+                else:
+                    s = elem.hoc if loc is None else elem.hoc(loc)
+                    name = elem.name
                 try:
                     s = getattr(s, "_ref_%s" % var)
                 except AttributeError:
                     raise AttributeError("there is no attribute of %s. Maybe you forgot to append loc param for sections?" % var)
 
                 rec = h.Vector().record(s)
-                name = "%s(%s)" % (sec.name, loc)
+                name = "%s(%s)" % (name, loc)
                 self.recs[var].append((name, rec))
 
         self.t = h.Vector().record(h._ref_t)

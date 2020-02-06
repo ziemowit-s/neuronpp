@@ -1,7 +1,6 @@
 from collections import defaultdict
 
 from neuronpp.core.cells.synaptic_cell import SynapticCell
-
 from neuronpp.core.hocwrappers.composed.complex_synapse import ComplexSynapse
 
 
@@ -9,7 +8,7 @@ class ComplexSynapticCell(SynapticCell):
     def __init__(self, name=None, compile_paths=None):
         SynapticCell.__init__(self, name, compile_paths=compile_paths)
         self.complex_syns = []
-        self._syn_num = defaultdict(int)
+        self._complex_syn_num = defaultdict(int)
 
     def filter_complex_synapses(self, mod_name: str = None, name=None, parent=None, tag=None, **kwargs):
         """
@@ -34,11 +33,12 @@ class ComplexSynapticCell(SynapticCell):
         """
         if isinstance(synapses[0], (list, tuple, set)):
             synapses = [s for syns in synapses for s in syns]
-        mod_names = '+'.join([s.mod_name for s in synapses])
-        i = self._syn_num[mod_names]
-        self._syn_num[mod_names] += 1
 
-        comp_syn = ComplexSynapse(synapses=synapses, name=str(i), tag=tag)
+        mod_names = '+'.join([s.mod_name for s in synapses])
+
+        name = str(self._complex_syn_num[mod_names])
+        comp_syn = ComplexSynapse(synapses=synapses, name=name, tag=tag)
         self.complex_syns.append(comp_syn)
+        self._complex_syn_num[mod_names] += 1
 
         return comp_syn

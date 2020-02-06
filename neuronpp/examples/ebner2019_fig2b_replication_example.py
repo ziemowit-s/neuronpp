@@ -30,7 +30,7 @@ if __name__ == '__main__':
 
     # Netstim to synapse
     stim = NetStimCell("stim").make_netstim(start=WARMUP, number=REPS, interval=interval)
-    syn = cell.make_sypanses(source=stim, weight=WEIGHT, mod_name="Syn4P", delay=1, source_loc=0.5, target_sec='apic[1]')[0]
+    syn = cell.add_sypanse(source=stim, weight=WEIGHT, mod_name="Syn4P", delay=1, source_loc=0.5, sec='apic[1]')[0]
 
     # IClamp to soma
     iclamp = IClamp(segment=cell.filter_secs("soma")[0].hoc(0.5))

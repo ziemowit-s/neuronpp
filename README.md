@@ -122,8 +122,8 @@ There are other examples in the folder.
    
   * create and connect sections:
    ```python
-    cell.make_sec("soma", diam=20, l=20, nseg=10)
-    cell.make_sec("dend", diam=2, l=100, nseg=10)
+    cell.add_sec("soma", diam=20, l=20, nseg=10)
+    cell.add_sec("dend", diam=2, l=100, nseg=10)
     cell.connect_secs(source="dend", target="soma")
    ```
 
@@ -181,34 +181,42 @@ The main cell object `Cell` contains all filter methods inside.
   * add synapses:
    ```python
     cell = Cell(name="cell")
-    cell.make_sypanses(source=None, weight=0.01, mod_name="Syn4P", target_sec="soma", 
-                       target_loc=0.5, delay=1)
+    soma = cell.filter_secs(name="soma")
+    cell.add_sypanse(source=None, mod_name="Syn4P", sec=soma(0.5), weight=0.01, delay=1)
    ```
 
   * add spines:
    ```python
-   cell.make_spines(spine_number=10, head_nseg=10, neck_nseg=10, sec='dend')
+   cell = Cell(name="cell")
+   dendrites = cell.filter_secs(name="dend")
+   cell.make_spines(spine_number=10, head_nseg=10, neck_nseg=10, secs=dendrites)
    ```
 
   * add synapses with spines in a single function:
    ```python
-    syns = cell.make_spine_with_synapse(source=stim, weight=0.01, mod="ExpSyn",
-                                        target_sec="dend", delay=1, head_nseg=10, neck_nseg=10, number=10)
+    cell = Cell(name="cell")
+    dendrites = cell.filter_secs(name="dend")
+    syns = cell.add_synapses_with_spine(source=None, secs=dendrites, mod="ExpSyn",
+                                        weight=0.01, delay=1, number=10)
    ```
   
   * define NetStim (or VecStim) and pass it to synapses as a source while creating:
   ```python
     netstim = NetStimCell(name="netst")
     stim = netstim.make_netstim(start=300, number=5, interval=10)
-    cell.make_sypanses(source=stim, weight=0.01, mod_name="Syn4P", target_sec="soma", 
-                       target_loc=0.5, delay=1)
+    
+    cell = Cell(name="cell")
+    soma = cell.filter_secs(name="soma")
+    cell.add_sypanse(source=stim, sec=soma(0.5), mod_name="ExpSyn", weight=0.01, delay=1)
   ```
   
    * Make synaptic event (send external input to the synapse): 
      * every synapse can be stimulated by making event, however a good practice is to define source=None 
    ```python
-    syns = cell.make_sypanses(source=None, weight=0.01, mod_name=SYNAPSE_MECH, target_sec="soma", 
-                              target_loc=0.5, delay=1)
+    cell = Cell(name="cell")
+    soma = cell.filter_secs(name="soma")
+    syns = cell.add_sypanse(source=None, sec=soma(0.5), mod_name="ExpSyn", 
+                            weight=0.01, delay=1)
                               
     sim = RunSim(init_v=-55, warmup=20)
     
@@ -220,7 +228,7 @@ The main cell object `Cell` contains all filter methods inside.
 
   * Add source to previously created synapse:
   ```python
-    syn.add_source(source=stim, weight=weight, threshold=threshold, delay=delay)
+    syn.add_source(source=None, weight=0.035, threshold=15, delay=2)
   ```
 
 ### Record and plot
@@ -238,8 +246,8 @@ The main cell object `Cell` contains all filter methods inside.
   * record variables from sections and point_processes:
    ```python
     # record section's voltage
-    secs = cell.filter_secs(name="soma")
-    rec_v = Record(secs, locs=0.5, variables="v")
+    soma = cell.filter_secs(name="soma")
+    rec_v = Record(soma, locs=0.5, variables="v")
 
     # record synaptic (point_process) wariables (weight 'w')
     point_processes = cell.filter_point_processes(mod_name="Syn4P", name="dend")
@@ -254,7 +262,6 @@ The main cell object `Cell` contains all filter methods inside.
     rec_v.plot()
     rec_syn.plot()
     plt.show()
-
     rec_v.to_csv("vrec.csv")
    ```
   
@@ -271,13 +278,16 @@ The main cell object `Cell` contains all filter methods inside.
 
 define experimetal protocols, eg. STDP protocol:
   ```python
-    soma = cell.filter_secs("soma")[0]
+    soma = cell.filter_secs("soma")
     syn = cell.filter_synapses(tag="my_synapse")
 
     stdp = Experiment()
     stdp.make_protocol("3xEPSP[int=10] 3xAP[int=10,dur=3,amp=1.6]", start=1, isi=10, iti=3000,
                        epsp_synapse=syn, i_clamp_section=soma)
    ```
+
+Example of the above STDP stimulation on Combe et al. 2018 model:
+![STDP](images/combe2018_stdp.png) 
 
 ### Populations of neurons
 
@@ -288,56 +298,58 @@ define experimetal protocols, eg. STDP protocol:
     # Define a new Population class. 
     # You need to implement abstract method make_cell() and make_conn() for each new Population 
     class ExcitatoryPopulation(Population):
-        def make_cell(self, **kwargs) -> Cell:
+        def cell_definition(self, **kwargs) -> Cell:
             cell = Cell(name="cell")
             cell.load_morpho(filepath='../commons/morphologies/swc/my.swc')
             cell.insert("pas")
             cell.insert("hh")
             return cell
     
-        def make_conn(self, cell, source, source_loc=None, weight=1, **kwargs) -> list:
-            syns, heads = cell.make_spine_with_synapse(source=source, mod_name="Exp2Syn", 
-                                                       source_loc=source_loc, weight=weight, 
-                                                       target_sec="dend")
+        def syn_definition(self, cell, source, weight=1, **kwargs) -> list:
+            secs = cell.filter_secs("dend")
+            syns, heads = cell.add_synapses_with_spine(source=source, secs=secs, mod_name="Exp2Syn", weight=weight)
             return syns
-
-    # Create NetStim
-    stim = NetStimCell("stim").make_netstim(start=21, number=10, interval=10)
-
-    # Create population 1
-    pop1 = ExcitatoryPopulation("pop1")
-    pop1.create(2)
-    pop1.connect(sources=stim, rule='all', weight=0.01)
-    pop1.record()
-
-    # Create population 2
-    pop2 = ExcitatoryPopulation("pop2")
-    pop2.create(2)
-    pop2.connect(sources=pop1, rule='all', weight=0.01)
-    pop2.record()
-
-    # Run
-    sim = RunSim(init_v=-70, warmup=20)
-    for i in range(1000):
-        sim.run(runtime=1)
-        pop1.plot(animate=True)
-        pop2.plot(animate=True)
+    
+    
+    if __name__ == '__main__':
+        # Create NetStim
+        stim = NetStimCell("stim").make_netstim(start=21, number=10, interval=10)
+    
+        # Create population 1
+        pop1 = ExcitatoryPopulation("pop")
+        pop1.create(2)
+        pop1.connect(source=stim, rule='all', weight=0.01)
+        pop1.record()
+    
+        # Create population 2
+        pop2 = ExcitatoryPopulation("pop2")
+        pop2.create(2)
+        pop2.connect(source=pop1, rule='all', weight=0.01)
+        pop2.record()
+    
+        # Run
+        sim = RunSim(init_v=-70, warmup=20)
+        for i in range(1000):
+            sim.run(runtime=1)
+            pop1.plot(animate=True)
+            pop2.plot(animate=True)
    ```
 
 ### Debug synapse and point process
 
 Debug any cell and synapse on interactive plot. 
-* By pressing a key defined im 'stim_key' param (default is w) you can stimulate synapses provided to the Debugger
-* May be used to easy plot synaptic weight (defined as MOD RANGE variable) to see how the plasticity behaves
-```python
-  cell = Cell("cell")
-  cell.make_sec("soma", diam=20, l=20, nseg=10)
-  syns = cell.make_sypanses(source=None, mod_name="Exp2Syn", target_sec="soma", target_loc=0.5, 
-                            weight=0.1)
+  * By pressing a key defined im 'stim_key' param (default is w) you can stimulate synapses provided to the Debugger
+  * May be used to easy plot synaptic weight (defined as MOD RANGE variable) to see how the plasticity behaves
+  ```python
+    cell = Cell("cell")
+    soma = cell.add_sec("soma", diam=20, l=20, nseg=10)
+    syns = cell.add_sypanse(source=None, mod_name="Exp2Syn", sec=soma, weight=0.1)
 
-  debug = SynapticDebugger(syns=syns, secs=cell.filter_secs("soma"))
-  debug.debug_interactive(stim_key='w')
-```
+    debug = SynapticDebugger(init_v=-80, warmup=200)
+    debug.add_syn(syn, key_press='w', syn_variables="w")
+    debug.add_sec(soma)
+    debug.debug_interactive()
+  ```
 
 
 

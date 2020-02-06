@@ -7,8 +7,8 @@ class SynapticSpineCell(SpineCell, ComplexSynapticCell):
         ComplexSynapticCell.__init__(self, name, compile_paths=compile_paths)
         SpineCell.__init__(self, name)
 
-    def make_spine_with_synapse(self, source, mod_name: str, weight=1, rand_weight=False, number=1, tag: str = None, delay=0,
-                                target_sec=None, head_nseg=2, neck_nseg=2, source_loc=None, **synaptic_params):
+    def add_synapses_with_spine(self, source, mod_name: str, secs, weight=1, rand_weight=False,
+                                number=1, delay=0, head_nseg=2, neck_nseg=2, tag: str = None, **synaptic_params):
         """
 
         :param source:
@@ -21,18 +21,20 @@ class SynapticSpineCell(SpineCell, ComplexSynapticCell):
         :param tag:
         :param mod_name:
         :param delay:
-        :param target_sec:
+        :param secs:
         :param head_nseg:
         :param neck_nseg:
-        :param source_loc:
         :param synaptic_params:
         :return:
         """
-
-        heads, _ = self.make_spines(spine_number=number, sec=target_sec, head_nseg=head_nseg, neck_nseg=neck_nseg)
+        heads, _ = self.make_spines(spine_number=number, secs=secs, head_nseg=head_nseg, neck_nseg=neck_nseg)
 
         # loc=1.0 put synase on the top of the spine's head
-        syns = self.make_sypanses(source=source, weight=weight, tag=tag, mod_name=mod_name, target_sec=heads,
-                                  source_loc=source_loc, rand_weight=rand_weight, target_loc=1.0, delay=delay,
-                                  **synaptic_params)
+        syns = []
+        for h in heads:
+            h_segment = h(1.0)
+            syn = self.add_sypanse(source=source, sec=h_segment, mod_name=mod_name, weight=weight,
+                                   rand_weight=rand_weight, delay=delay, tag=tag, **synaptic_params)
+            syns.append(syn)
+
         return syns, heads

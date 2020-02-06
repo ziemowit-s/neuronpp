@@ -6,16 +6,16 @@ from neuronpp.utils.run_sim import RunSim
 
 
 class ExcitatoryPopulation(Population):
-    def make_cell(self, **kwargs) -> Cell:
+    def cell_definition(self, **kwargs) -> Cell:
         cell = Cell(name="cell")
         cell.load_morpho(filepath='../commons/morphologies/swc/my.swc')
         cell.insert("pas")
         cell.insert("hh")
         return cell
 
-    def make_conn(self, cell, source, source_loc=None, weight=1, **kwargs) -> list:
-        syns, heads = cell.make_spine_with_synapse(source=source, mod_name="Exp2Syn",
-                                                   source_loc=source_loc, weight=weight, target_sec="dend")
+    def syn_definition(self, cell, source, weight=1, **kwargs) -> list:
+        secs = cell.filter_secs("dend")
+        syns, heads = cell.add_synapses_with_spine(source=source, secs=secs, mod_name="Exp2Syn", weight=weight)
         return syns
 
 

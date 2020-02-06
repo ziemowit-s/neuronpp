@@ -1,12 +1,16 @@
+import numpy as np
 from neuron import h
+from nrn import Segment, Section
+
+from neuronpp.core.hocwrappers.netcon import NetCon
+from neuronpp.core.hocwrappers.point_process import PointProcess
 from neuronpp.core.hocwrappers.vecstim import VecStim
 import matplotlib.pyplot as plt
 from collections import defaultdict
 
 from neuronpp.core.hocwrappers.sec import Sec
-from neuronpp.core.cells.utils import make_netconn
+from neuronpp.core.cells.utils import make_netconn, get_default
 from neuronpp.core.hocwrappers.netstim import NetStim
-from neuronpp.core.hocwrappers.hoc_wrapper import HocWrapper
 from neuronpp.core.cells.point_process_cell import PointProcessCell
 
 
@@ -27,8 +31,7 @@ class NetConnCell(PointProcessCell):
         """
         return self.filter(searchable=self.ncs, mod_name=mod_name, name=name, **kwargs)
 
-    def make_netcons(self, source: HocWrapper, weight, rand_weight=False, source_loc=None, point_process=None,
-                     mod_name: str = None, delay=0, threshold=10):
+    def add_netcon(self, source, point_process, weight=1, rand_weight=False, delay=0, threshold=10):
         """
         :param source:
             Can be only: hocwrappers.NetStim, hocwrappers.VecStim, hocwrappers.Sec or None. If it is Sec also loc param need to be defined.
@@ -50,58 +53,78 @@ class NetConnCell(PointProcessCell):
         return:
             A list of added NetConns.
         """
-        if source is not None:
-            err = False
-            if isinstance(source, Sec):
-                if source_loc is None or not isinstance(source_loc, (float, int)):
-                    err = True
-            elif not isinstance(source, (NetStim, VecStim)):
-                err = True
-            if err:
-                raise TypeError("Param 'source' can be only hocwrappers.NetStim, hocwrappers.VecStim, hocwrappers.Sec or None. "
-                                "If it is 'Sec', 'source_loc' need to be also provided.\n"
-                                "Instead 'source' was of type: '%s' and 'source_loc' has a value of '%s' instead."
-                                % (type(source), source_loc))
+        source = get_default(source)
+        if source is not None and not isinstance(source, (NetStim, VecStim, Segment)):
+            raise TypeError("Param 'source' can be NetStim, VecStim, Segment, Section (Sec or HOC's Section) or None, "
+                            "but provided %s" % source.__class__)
 
-        if point_process is None and mod_name is None:
-            raise LookupError("If point_process is None you need to provide mod_name string param.")
+        conn, name = self._make_netcon(source=source, point_process=point_process, weight=weight,
+                                       rand_weight=rand_weight, delay=delay, threshold=threshold)
+        self.ncs.append(conn)
+        self._nc_num[name] += 1
+        return conn
 
-        if isinstance(point_process, str) or point_process is None:
-            if mod_name is None:
-                raise LookupError("If point_process is str you need to provide mod_name string param.")
-            point_process = self.filter_point_processes(mod_name=mod_name, name=point_process)
-
-        results = []
-
-        for pp in point_process:
-            conn, name = make_netconn(parent=self, source=source, source_loc=source_loc, target=pp,
-                                      weight=weight, rand_weight=rand_weight, delay=delay, threshold=threshold)
-            results.append(conn)
-
-            self.ncs.append(conn)
-            self._nc_num[name] += 1
-
-        return results
-
-    def make_spike_detector(self, sec="soma", loc=0.5):
+    def _make_netcon(self, source, point_process, ref_variable: str = 'v',
+                     delay=1.0, weight=1.0, rand_weight=None, threshold=10):
         """
-        :param sec:
-            The name of the section where spike detector will be set. Default is 'soma'.
-        :param loc:
-            Location on the sec where spike detector will be set. Default is 0.5
+        :param source:
+            NetStim, VecStim or Sec. If None it will create a NetConn without the source.
+        :param point_process:
+            PointProcess object. If None - will create NetConn without target, it is used as a spike detector.
+        :param ref_variable:
+            Name of the variable which is reference to pass to the NetConn. In most cases it is voltage 'v'.
+            If the source is NetStim or VecStim is the ref_variable is not used.
+        :param delay:
+        :param weight:
+        :param rand_weight:
+            Truncated normal distribution (only positive) with mu=weight, sigma=weight
+        :param threshold:
         :return:
         """
-        if isinstance(sec, str):
-            sec = self.filter_secs(sec)
-            if len(sec) != 1:
-                raise IndexError("If 'sec' is string, filter must return exactly single element, but returned %s for filter: '%s'"
-                                 % (len(sec), sec))
-            sec = sec[0]
+        if rand_weight:
+            current_weight = np.abs(np.random.normal(weight, weight, 1)[0])
+        else:
+            current_weight = weight
 
-        if not isinstance(sec, Sec):
-            raise TypeError("Param 'sec' must be a type of hocwrappers.sec.Sec after string filter find or as explicite param.")
+        if point_process is not None:
+            if not isinstance(point_process, PointProcess):
+                raise TypeError("target can be only None or type of PointProcess, but provided: %s"
+                                % point_process.__class__.__name__)
+            point_process = point_process.hoc
 
-        nc_detector, name = make_netconn(parent=self, source=sec, source_loc=loc, target=None)
+        if source is None:
+            con = h.NetCon(None, point_process)
+        else:
+            if isinstance(source, (NetStim, VecStim)):
+                con = h.NetCon(source.hoc, point_process)
+
+            else:
+                source_ref = getattr(source, "_ref_%s" % ref_variable)
+                con = h.NetCon(source_ref, point_process, sec=source.sec)
+
+        if delay:
+            con.delay = delay
+        if weight:
+            con.weight[0] = current_weight
+        if threshold:
+            con.threshold = threshold
+
+        name = "%s->%s" % (source, point_process)
+        con = NetCon(con, parent=self, name=name)
+        return con, name
+
+    def make_spike_detector(self, segment):
+        """
+        :param segment:
+            If Sec or HOC Section, default loc is 0.5
+        :return:
+        """
+        segment = get_default(segment)
+        if not isinstance(segment, Segment):
+            raise TypeError("Param 'segment' can be only Sec, HOC's: Segment or Section.")
+
+        # source, point_process, weight, rand_weight=False, delay=0, threshold=10
+        nc_detector = self.add_netcon(source=segment, point_process=None)
         nc_detector.name = self.name
 
         result_vector = h.Vector()

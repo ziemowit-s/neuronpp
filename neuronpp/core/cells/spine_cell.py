@@ -12,7 +12,7 @@ class SpineCell(SectionCell):
         self.necks = []
         self._next_index = 0
 
-    def make_spines(self, spine_number, sec: str = None, head_nseg=2, neck_nseg=2, seed: int = None):
+    def make_spines(self, spine_number, secs=None, head_nseg=2, neck_nseg=2, seed: int = None):
         """
         Currently the only supported spine distribution is random_uniform
 
@@ -22,7 +22,7 @@ class SpineCell(SectionCell):
 
         :param spine_number:
             The number of spines to make
-        :param sec:
+        :param secs:
         :param head_nseg
         :param neck_nseg
         :param seed:
@@ -30,19 +30,23 @@ class SpineCell(SectionCell):
         :return:
             list of added spine heads
         """
-        if isinstance(sec, str) or sec is None:
-            sec = self.filter_secs(name=sec)
+        if not isinstance(secs, list):
+            secs = [secs]
+        # Hack to prevent a loop between sections while adding necks
+        # neck is added to self.secs, so if param secs is the same list it will append to the list each head and neck
+        # after each iteration of the loop. To prevent this we need to copy secs list
+        secs = [s for s in secs]
 
         if seed:
             random.seed(seed)
         for _ in range(spine_number):
             i = self._next_index
-            head = self.make_sec(name="head[%s]" % i, diam=1, l=1, nseg=head_nseg)
-            neck = self.make_sec(name="neck[%s]" % i, diam=0.5, l=0.5, nseg=neck_nseg)
+            head = self.add_sec(name="head[%s]" % i, diam=1, l=1, nseg=head_nseg)
+            neck = self.add_sec(name="neck[%s]" % i, diam=0.5, l=0.5, nseg=neck_nseg)
             self.heads.append(head)
             self.necks.append(neck)
             self.connect_secs(source=head, target=neck)
-            self._connect_necks_rand_uniform(neck, sec)
+            self._connect_necks_rand_uniform(neck, secs)
             self._next_index += 1
 
         return self.heads, self.necks

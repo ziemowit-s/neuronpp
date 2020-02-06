@@ -38,7 +38,7 @@ class SectionCell(CoreCell):
             se.hoc.insert(mechanism_name)
         return self
 
-    def make_sec(self, name: str, diam=None, l=None, nseg=1):
+    def add_sec(self, name: str, diam=None, l=None, nseg=1):
         """
         :param name:
         :param diam:
@@ -82,17 +82,15 @@ class SectionCell(CoreCell):
 
         if isinstance(source, str):
             source = self.filter_secs(name=source)
-            if len(source) != 1:
+            if isinstance(source, list):
                 raise LookupError("To connect sections source name must return exactly 1 Section, "
                                   "but returned %s elements for name=%s" % (len(source), source))
-            source = source[0]
 
         if isinstance(target, str) or target is None:
             target = self.filter_secs(name=target)
-            if len(target) != 1:
+            if isinstance(target, list):
                 raise LookupError("To connect sections target name must return exactly 1 Section, "
                                   "but returned %s elements for name=%s" % (len(source), source))
-            target = target[0]
 
         target_loc = float(target_loc)
         source_loc = float(source_loc)

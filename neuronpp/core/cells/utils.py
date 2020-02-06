@@ -1,6 +1,7 @@
 import numpy as np
 from neuron import h
-from neuronpp.core.hocwrappers.netconn import NetConn
+from nrn import Segment, Section
+from neuronpp.core.hocwrappers.netcon import NetCon
 
 from neuronpp.core.hocwrappers.hoc_wrapper import HocWrapper
 from neuronpp.core.hocwrappers.point_process import PointProcess
@@ -27,6 +28,12 @@ def get_vecstim(ping_array):
     stim.play(vec)
 
     return stim, vec
+
+
+def get_default(seg):
+    if isinstance(seg, (Sec, Section)):
+        seg = seg.hoc(0.5)
+    return seg
 
 
 def make_netconn(parent, source: HocWrapper = None, target: PointProcess = None, ref_variable: str = 'v', source_loc: float = None,
@@ -84,5 +91,5 @@ def make_netconn(parent, source: HocWrapper = None, target: PointProcess = None,
         con.threshold = threshold
 
     name = "%s->%s" % (source, target)
-    con = NetConn(con, parent=parent, name=name)
+    con = NetCon(con, parent=parent, name=name)
     return con, name

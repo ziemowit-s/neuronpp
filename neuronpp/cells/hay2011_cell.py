@@ -31,8 +31,10 @@ class Hay2011Cell(Cell):
             None will take all sections
 
         """
-        secs = self.filter_secs(name=sections)
-        for s in secs:
+        sec = self.filter_secs(name=sections)
+        if not isinstance(sec, list):
+            sec = [sec]
+        for s in sec:
             s.hoc.insert("Im")
             s.hoc.insert("Ca_LVAst")
             s.hoc.insert("Ca_HVA")
@@ -60,8 +62,10 @@ class Hay2011Cell(Cell):
         :param section_name:
             start with 'regex:any pattern' to use regular expression. If without 'regex:' - will look which Hoc objects contain the str
         """
-        secs = self.filter_secs(name=section_name)
-        for s in secs:
+        sec = self.filter_secs(name=section_name)
+        if not isinstance(sec, list):
+            sec = [sec]
+        for s in sec:
             s.hoc.insert("Im")
             s.hoc.insert("Ca_LVAst")
             s.hoc.insert("Ca_HVA")
@@ -98,8 +102,10 @@ class Hay2011Cell(Cell):
             None will take all sections
 
         """
-        secs = self.filter_secs(name=sections)
-        for s in secs:
+        sec = self.filter_secs(name=sections)
+        if not isinstance(sec, list):
+            sec = [sec]
+        for s in sec:
             s.hoc.insert("CaDynamics_E2")
             s.hoc.insert("SK_E2")
             s.hoc.insert("Ca_LVAst")
@@ -120,7 +126,7 @@ class Hay2011Cell(Cell):
             s.hoc.gNaTs2_tbar_NaTs2_t = 0.021489
             s.hoc.gImbar_Im = 0.00099
 
-        if len(secs) > 0:
+        if len(sec) > 0:
             # Parameters and the function rewrite to Python from Hay2011 proc distribute_channels()
             self._distribute_channel(mech="Ih", mech_param="gIhbar", dist_type="exp", s3=-0.8696, s4=3.6161, s5=0.0, s6=2.0870, s7=0.0001)
             self._distribute_channel(mech="Ca_LVAst", mech_param="gCa_LVAstbar", dist_type="abs", s3=1, s4=0.01, s5=700, s6=900, s7=0.141954)
@@ -132,8 +138,10 @@ class Hay2011Cell(Cell):
             None will take all sections
 
         """
-        secs = self.filter_secs(name=sections)
-        for s in secs:
+        sec = self.filter_secs(name=sections)
+        if not isinstance(sec, list):
+            sec = [sec]
+        for s in sec:
             s.hoc.insert("Ih")
             s.hoc.gIhbar_Ih = 0.0001
             s.hoc.cm = 2

@@ -12,7 +12,8 @@ class SynapticCell(NetConnCell):
         self.syns = []
         self._syn_num = defaultdict(int)
 
-    def filter_synapses(self, mod_name: str = None, name=None, source=None, point_process=None, parent=None, tag=None, **kwargs):
+    def filter_synapses(self, mod_name: str = None, name=None, source=None, point_process=None, parent=None, tag=None,
+                        **kwargs):
         """
         :param mod_name:
             single string defining name of point process type name, eg. concere synaptic mechanisms like Syn4PAChDa
@@ -24,11 +25,12 @@ class SynapticCell(NetConnCell):
             string of point process compound name
         :return:
         """
-        return self.filter(self.syns, mod_name=mod_name, name=name, source=source, point_process=point_process, parent=parent,
+        return self.filter(self.syns, mod_name=mod_name, name=name, source=source, point_process=point_process,
+                           parent=parent,
                            tag=tag, **kwargs)
 
-    def make_sypanses(self, source, mod_name: str, weight=1, rand_weight=False, tag: str = None, target_sec=None, source_loc=None, target_loc=0.0,
-                      delay=0, threshold=10, **synaptic_params):
+    def add_sypanse(self, source, mod_name: str, sec=None, weight=1, rand_weight=False,
+                    delay=0, threshold=10, tag: str = None, **synaptic_params):
         """
 
         :param source:
@@ -39,7 +41,7 @@ class SynapticCell(NetConnCell):
             if True, will find rand weight [0,1) and multiply this by weight.
         :param tag:
         :param mod_name:
-        :param target_sec:
+        :param sec:
         :param source_loc:
         :param target_loc:
         :param delay:
@@ -48,17 +50,13 @@ class SynapticCell(NetConnCell):
         :return:
         """
 
-        pps = self.make_point_processes(tag=tag, mod_name=mod_name, sec=target_sec, loc=target_loc, **synaptic_params)
-        nns = self.make_netcons(source=source, source_loc=source_loc, weight=weight, mod_name=mod_name, point_process=pps,
-                                rand_weight=rand_weight, delay=delay, threshold=threshold)
+        pp = self.add_point_process(mod_name=mod_name, sec=sec, tag=tag, **synaptic_params)
+        nn = self.add_netcon(source=source, weight=weight, point_process=pp,
+                             rand_weight=rand_weight, delay=delay, threshold=threshold)
 
-        result = []
-        for p, n in zip(pps, nns):
-            i = self._syn_num[p.mod_name]
-            self._syn_num[p.mod_name] += 1
+        syn_name = str(self._syn_num[mod_name])
+        syn = Synapse(source, point_process=pp, netconn=nn, parent_sec=pp.parent, name=syn_name, tag=tag)
+        self.syns.append(syn)
+        self._syn_num[mod_name] += 1
 
-            syn = Synapse(source, point_process=p, netconn=n, parent_sec=p.parent, name=str(i), tag=tag)
-            self.syns.append(syn)
-            result.append(syn)
-
-        return result
+        return syn

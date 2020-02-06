@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from neuronpp.utils.record import Record
 from neuronpp.utils.run_sim import RunSim
 from neuronpp.utils.utils import key_release_listener
@@ -5,7 +7,7 @@ from neuronpp.utils.utils import key_release_listener
 
 class SynapticDebugger:
     def __init__(self, init_v=-70, warmup=0):
-        self.syns = {}
+        self.syns = defaultdict(list)
         self.secs = []
 
         self.syn_recs = []
@@ -15,18 +17,18 @@ class SynapticDebugger:
         self.warmup_time = warmup
         self.sim = None
 
-    def add_syns(self, syns, syn_variables="w", key_press=None, plot=True):
+    def add_syn(self, syn, syn_variables="w", key_press=None, plot=True):
         if plot:
-            rec = Record(elements=syns, variables=syn_variables)
+            rec = Record(elements=syn, variables=syn_variables)
             self.syn_recs.append(rec)
 
         name = key_press
         if name is None:
             name = str(len(self.syns))
-        self.syns[name] = syns
+        self.syns[name].append(syn)
 
-    def add_secs(self, secs, sec_variables='v', sec_loc=0.5):
-        rec = Record(elements=secs, variables=sec_variables, loc=sec_loc)
+    def add_sec(self, sec, sec_variables='v', sec_loc=0.5):
+        rec = Record(elements=sec, variables=sec_variables, loc=sec_loc)
         self.sec_recs.append(rec)
 
     def warmup(self):

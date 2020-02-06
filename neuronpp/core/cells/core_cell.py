@@ -22,7 +22,7 @@ class CoreCell:
         self.name = name
 
     @staticmethod
-    def filter(searchable, **kwargs):
+    def filter(searchable, as_list=False, **kwargs):
         """
         Currently all patterns in kwargs are treated as AND statements
         :param searchable:
@@ -83,6 +83,8 @@ class CoreCell:
             if pat_found == pat_len:
                 result.append(hoc_obj)
 
+        if len(result) == 1 and as_list is False:
+            result = result[0]
         return result
 
     @staticmethod

@@ -1,11 +1,10 @@
 import abc
 import numpy as np
-from neuronpp.core.hocwrappers.sec import Sec
-
-from neuronpp.core.cells.core_cell import CoreCell
 
 from neuronpp.cells.cell import Cell
 from neuronpp.utils.record import Record
+from neuronpp.core.hocwrappers.sec import Sec
+from neuronpp.core.cells.core_cell import CoreCell
 
 
 class Population:
@@ -19,7 +18,7 @@ class Population:
     def create(self, cell_num, **kwargs):
         result = []
         for i in range(cell_num):
-            cell = self.make_cell(**kwargs)
+            cell = self.cell_definition(**kwargs)
             self.cell_counter += 1
             self.cells.append(cell)
             result.append(cell)
@@ -67,12 +66,12 @@ class Population:
                 raise ValueError("If source is type of Cell, CoreCell or Population you must provide "
                                  "'source_sec_name' and 'source_loc' params.")
 
-            source = [cell.filter_secs(source_sec_name)[0] for cell in source]
+            source = [cell.filter_secs(source_sec_name, as_list=True)[0] for cell in source]
 
         if rule == 'all':
             for source in source:
                 for cell in self.cells:
-                    syns = self.make_conn(cell=cell, source=source, source_loc=source_loc, **kwargs)
+                    syns = self.syn_definition(cell=cell, source=source, source_loc=source_loc, **kwargs)
                     result.append(syns)
 
         elif rule == 'one':
@@ -81,7 +80,7 @@ class Population:
                                   "but it was %s and %s respectively." % (len(source), len(self.cells)))
 
             for source, cell in zip(source, self.cells):
-                syns = self.make_conn(cell=cell, source=source, source_loc=source_loc, **kwargs)
+                syns = self.syn_definition(cell=cell, source=source, source_loc=source_loc, **kwargs)
                 result.append(syns)
         else:
             raise TypeError("The only allowed rules are 'all' or 'one', but provided rule '%s'" % rule)
@@ -90,7 +89,7 @@ class Population:
         return result
 
     def record(self, sec_name="soma", loc=0.5, variable='v'):
-        d = [cell.filter_secs(sec_name)[0] for cell in self.cells]
+        d = [cell.filter_secs(sec_name, as_list=True)[0] for cell in self.cells]
         rec = Record(d, loc=loc, variables=variable)
         self.recs[variable] = rec
 
@@ -116,7 +115,7 @@ class Population:
             r.plot(animate=animate, **kwargs)
 
     @abc.abstractmethod
-    def make_conn(self, cell: Cell, source, source_loc=None, **kwargs) -> list:
+    def syn_definition(self, cell: Cell, source, source_loc=None, **kwargs) -> list:
         """
         Must return syns list.
         :param cell:
@@ -128,7 +127,7 @@ class Population:
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def make_cell(self, **kwargs) -> Cell:
+    def cell_definition(self, **kwargs) -> Cell:
         """
         You can pass any param you like to this this method
         as long as you provide default param during the method definition.
