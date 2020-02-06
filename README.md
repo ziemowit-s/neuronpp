@@ -178,21 +178,21 @@ The main cell object `Cell` contains all filter methods inside.
 
 ### Define Synapses
 
-  * add synapses:
+  * add single synapse:
    ```python
     cell = Cell(name="cell")
     soma = cell.filter_secs(name="soma")
     cell.add_sypanse(source=None, mod_name="Syn4P", sec=soma(0.5), weight=0.01, delay=1)
    ```
 
-  * add spines:
+  * add many spines to provided sections:
    ```python
    cell = Cell(name="cell")
    dendrites = cell.filter_secs(name="dend")
    cell.make_spines(spine_number=10, head_nseg=10, neck_nseg=10, secs=dendrites)
    ```
 
-  * add synapses with spines in a single function:
+  * add many synapses with spines (1 synapse/spine) in a single function to provided sections:
    ```python
     cell = Cell(name="cell")
     dendrites = cell.filter_secs(name="dend")
@@ -226,9 +226,9 @@ The main cell object `Cell` contains all filter methods inside.
     sim.run(runtime=100)
    ```
 
-  * Add source to previously created synapse:
+  * Change source to the previously created synapse:
   ```python
-    syn.add_source(source=None, weight=0.035, threshold=15, delay=2)
+    synapse.add_source(source=None, weight=0.035, threshold=15, delay=2)
   ```
 
 ### Record and plot
@@ -257,7 +257,7 @@ The main cell object `Cell` contains all filter methods inside.
     sim.run(runtime=500)
    ```
 
-  * make plots and export to CSV recorded variables
+  * make plots and export recorded variables to CSV:
    ```python
     rec_v.plot()
     rec_syn.plot()
@@ -265,7 +265,7 @@ The main cell object `Cell` contains all filter methods inside.
     rec_v.to_csv("vrec.csv")
    ```
   
-  * make shape plot in NEURON GUI:
+  * make shape plot of the cell in NEURON GUI:
    ```python
    # show 'cai' propagation in range 0-0.01 uM 
    make_shape_plot(variable="cai", min_val=0, max_val=0.01)
@@ -276,7 +276,7 @@ The main cell object `Cell` contains all filter methods inside.
    
 ### Replicate in vitro experiments
 
-define experimetal protocols, eg. STDP protocol:
+  * define experimetal protocols, eg. STDP protocol:
   ```python
     soma = cell.filter_secs("soma")
     syn = cell.filter_synapses(tag="my_synapse")
@@ -286,12 +286,12 @@ define experimetal protocols, eg. STDP protocol:
                        epsp_synapse=syn, i_clamp_section=soma)
    ```
 
-Example of the above STDP stimulation on Combe et al. 2018 model:
-![STDP](images/combe2018_stdp.png) 
+  * Example of the above STDP experimental protocol performed on Combe et al. 2018 cell model:
+  ![STDP](images/combe2018_stdp.png) 
 
 ### Populations of neurons
 
-[Experimental feature] Create a population of many neurons of the same type and connect them between populations or stimulate them just as any synapse:
+[Experimental feature] Create a population of many neurons of the same type and connect them between populations or stimulate them just as any synapse (with NetStim, VecStim or event based stimulation):
 
   * This is an experimental feature so may not be so easy to use
   ```python
@@ -338,8 +338,8 @@ Example of the above STDP stimulation on Combe et al. 2018 model:
 ### Debug synapse and point process
 
 Debug any cell and synapse on interactive plot. 
-  * By pressing a key defined im 'stim_key' param (default is w) you can stimulate synapses provided to the Debugger
-  * May be used to easy plot synaptic weight (defined as MOD RANGE variable) to see how the plasticity behaves
+  * By pressing a key defined as 'stim_key' param (default is w) you can stimulate synapses provided to the Debugger
+  * Allows to easily plot synaptic weight (defined as MOD's RANGE variable) to see how the plasticity behaves in real time
   ```python
     cell = Cell("cell")
     soma = cell.add_sec("soma", diam=20, l=20, nseg=10)
