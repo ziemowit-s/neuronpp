@@ -52,11 +52,11 @@ This repository contains the basic cell model `Cell` class and the experimental 
   * If you want to create your own model it is recommended to use `Cell` class or 'HocCell' class.
   
 The list of predefined cell models:
-  * Ebner et al. 2019
+  * Ebner et al. 2019, https://doi.org/10.1016/j.celrep.2019.11.068
   * Custom implementation of Ebner et. al 2019 with ACh/DA modulation
-  * Combe et al. 2018
-  * Graham et al. 2014
-  * Hay et al. 2011
+  * Combe et al. 2018, https://doi.org/10.1523/JNEUROSCI.0449-18.2018
+  * Graham et al. 2014, https://doi.org/10.1162/NECO_a_00640
+  * Hay et al. 2011, https://doi.org/10.1371/journal.pcbi.1002107
   
 MOD files for the all of those models are located in the commons/mods/ folder. Combe 2018 model and Graham 2014 model additionaly have HOC files located in the commons/hocmodels/ folder 
 
