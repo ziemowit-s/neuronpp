@@ -287,6 +287,7 @@ The main cell object `Cell` contains all filter methods inside.
    ```
 
   * Example of the above STDP experimental protocol performed on Combe et al. 2018 cell model:
+  https://doi.org/10.1016/j.celrep.2019.11.068
   ![STDP](images/combe2018_stdp.png) 
 
 ### Populations of neurons
