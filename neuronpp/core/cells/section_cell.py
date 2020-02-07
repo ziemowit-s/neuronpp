@@ -50,7 +50,7 @@ class SectionCell(CoreCell):
         if isinstance(sec, Sec):
             sec = [sec]
         elif sec is None or isinstance(sec, str):
-            sec = self.filter_secs(name=sec)
+            sec = self.filter_secs(name=sec, as_list=True)
 
         for se in sec:
             se.hoc.insert(mechanism_name)
