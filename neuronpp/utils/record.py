@@ -97,7 +97,8 @@ class Record:
                 ax = fig.add_subplot(1, 1, 1)
 
             for i, (name, rec) in enumerate(section_recs):
-                if np.max(np.isnan(rec.as_numpy())):
+                rec_np = rec.as_numpy()
+                if np.max(np.isnan(rec_np)):
                     raise ValueError("Vector recorded for variable: '%s' and segment: '%s' contains nan values." % (var_name, name))
 
                 if position is not "merge":

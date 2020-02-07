@@ -46,6 +46,7 @@ class Population:
             list of list of synapses
         """
         result = []
+        # The first group of ifs
         if source is None:
             source = [None for _ in range(len(self.cells))]
 
@@ -58,20 +59,30 @@ class Population:
         elif not isinstance(source, (list, set, np.ndarray)):
             source = [source]
 
+        # The second group of ifs
         if isinstance(source[0], Sec):
-            raise TypeError("If you want to connect other Cell/s you must provide Cell object, not its sections.")
+            source = [s(source_loc) for s in source]
 
-        if isinstance(source[0], CoreCell):
+        elif isinstance(source[0], CoreCell):
             if (source_sec_name is None or source_loc is None):
                 raise ValueError("If source is type of Cell, CoreCell or Population you must provide "
                                  "'source_sec_name' and 'source_loc' params.")
 
-            source = [cell.filter_secs(source_sec_name, as_list=True)[0] for cell in source]
+            new_source = []
+            for cell in source:
+                r = cell.filter_secs(source_sec_name, as_list=True)
+                if len(r) > 1:
+                    raise LookupError("If source is a group of cells, each cell can have only single source section, but the cell: "
+                                      "%s has %s for filter name: %s" % (cell.__class__, len(r), source_sec_name))
+                new_source.append(r[0](source_loc))
+            source = new_source
+            del new_source
 
+        # The third group of ifs
         if rule == 'all':
-            for source in source:
+            for s in source:
                 for cell in self.cells:
-                    syns = self.syn_definition(cell=cell, source=source, source_loc=source_loc, **kwargs)
+                    syns = self.syn_definition(cell=cell, source=s, **kwargs)
                     result.append(syns)
 
         elif rule == 'one':
@@ -79,8 +90,8 @@ class Population:
                 raise LookupError("for rule 'one' len of sources and population cells must be the same, "
                                   "but it was %s and %s respectively." % (len(source), len(self.cells)))
 
-            for source, cell in zip(source, self.cells):
-                syns = self.syn_definition(cell=cell, source=source, source_loc=source_loc, **kwargs)
+            for s, cell in zip(source, self.cells):
+                syns = self.syn_definition(cell=cell, source=s, **kwargs)
                 result.append(syns)
         else:
             raise TypeError("The only allowed rules are 'all' or 'one', but provided rule '%s'" % rule)

@@ -44,7 +44,7 @@ class SynapticCell(NetConnCell):
         return self.filter(self.syns, obj_filter=obj_filter, mod_name=mod_name, name=name, source=source,
                            point_process=point_process, parent=parent, tag=tag, **kwargs)
 
-    def add_sypanse(self, source, mod_name: str, sec=None, weight=1, rand_weight=False,
+    def add_sypanse(self, source, mod_name: str, sec, weight=1, rand_weight=False,
                     delay=0, threshold=10, tag: str = None, **synaptic_params):
         """
 
