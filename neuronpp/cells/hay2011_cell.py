@@ -165,9 +165,9 @@ class Hay2011Cell(Cell):
             raise LookupError("Central section for channel distribution must be only one for name %s, "
                               "but found %s sections containing this name." % (soma_name, len(soma)))
         soma = soma[0]
-        secs = self.filter_secs(name=sections)
+        secs = self.filter_secs(name=sections, as_list=True)
 
-        max_dist = max([h.distance(soma.hoc(0.5), s.hoc(1)) for s in secs])
+        max_dist = max([h.distance(soma(0.5), s(1)) for s in secs])
         for sec in secs:
             for x in sec.hoc:
                 dist = h.distance(soma.hoc(0.5), x)
