@@ -36,8 +36,9 @@ class RunSim:
         if not constant_timestep:
             h.CVode().active(True)
 
-        print("sleep before run for: %s seconds" % init_sleep)
-        time.sleep(init_sleep)
+        if init_sleep > 0:
+            print("sleep before run for: %s seconds" % init_sleep)
+            time.sleep(init_sleep)
 
         if warmup > 0:
             h.dt = 10

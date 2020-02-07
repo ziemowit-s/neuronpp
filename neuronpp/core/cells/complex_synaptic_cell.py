@@ -10,19 +10,35 @@ class ComplexSynapticCell(SynapticCell):
         self.complex_syns = []
         self._complex_syn_num = defaultdict(int)
 
-    def filter_complex_synapses(self, mod_name: str = None, name=None, parent=None, tag=None, **kwargs):
+    def filter_complex_synapses(self, mod_name: str = None, name=None, parent=None, tag=None, obj_filter=None,
+                                **kwargs):
         """
+        Currently all filter passed are treated as AND statements.
+
+        * Whole object callable function passed to the obj_filter param.
+            eg. (lambda expression) returns sections which name contains 'apic' or their distance > 1000 um from the soma:
+          ```
+           soma = cell.filter_secs("soma")
+           cell.filter_secs(obj_filter=lambda o: 'apic' in o.name or h.distance(soma(0.5), o(0.5)) > 1000)
+          ```
+
+        * Single object field filter based on callable function passed to the obj_filter param.
+          eg. (lambda expression) returns sections which parent's name contains less than 10 characters
+          ```
+          cell.filter_secs(parent=lambda o: len(o.parent.name) < 10)
+          ```
+
         :param mod_name:
             single string defining name of point process type name, eg. concere synaptic mechanisms like Syn4PAChDa
         :param name:
             start with 'regex:any pattern' to use regular expression. If without 'regex:' - will look which Hoc objects contain the str
-        :param source:
-            string of source compound name (if source is provided)
-        :param point_process:
-            string of point process compound name
+        :param obj_filter:
+            Whole object callable functional filter. If you added also any kwargs they will be together with the
+            obj_filter treated as AND statement.
         :return:
         """
-        return self.filter(self.complex_syns, mod_name=mod_name, name=name, parent=parent, tag=tag, **kwargs)
+        return self.filter(self.complex_syns, obj_filter=obj_filter, mod_name=mod_name, name=name, parent=parent,
+                           tag=tag, **kwargs)
 
     def group_complex_sypanses(self, tag=None, *synapses):
         """

@@ -1,6 +1,6 @@
 import numpy as np
 from neuron import h
-from nrn import Segment, Section
+from nrn import Section
 from neuronpp.core.hocwrappers.netcon import NetCon
 
 from neuronpp.core.hocwrappers.hoc_wrapper import HocWrapper

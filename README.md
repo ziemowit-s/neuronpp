@@ -173,6 +173,19 @@ You can filter any part of the cell by string or regular expression filter
     cell.filter_synapses(mod_name="ExpSyn", name="head")
    ```
 
+  * Whole object callable function passed to the obj_filter param.
+    eg. (lambda expression) returns sections which name contains 'apic' or their distance > 1000 um from the soma:
+  ```python
+   soma = cell.filter_secs("soma")
+   cell.filter_secs(obj_filter=lambda o: 'apic' in o.name or h.distance(soma(0.5), o(0.5)) > 1000)
+  ```
+         
+  * Single object field filter based on callable function passed to the obj_filter param.
+  eg. (lambda expression) returns sections which parent's name contains less than 10 characters
+  ```python
+  cell.filter_secs(parent=lambda o: len(o.parent.name) < 10)
+  ```
+
 There are many more filter functions. Check each one of them to discover each filter params.
 The main cell object `Cell` contains all filter methods inside.
 
@@ -345,7 +358,7 @@ Debug any cell and synapse on interactive plot.
   ```python
     cell = Cell("cell")
     soma = cell.add_sec("soma", diam=20, l=20, nseg=10)
-    syns = cell.add_sypanse(source=None, mod_name="Exp2Syn", sec=soma, weight=0.1)
+    syn = cell.add_sypanse(source=None, mod_name="Exp2Syn", sec=soma, weight=0.1)
 
     debug = SynapticDebugger(init_v=-80, warmup=200)
     debug.add_syn(syn, key_press='w', syn_variables="w")
