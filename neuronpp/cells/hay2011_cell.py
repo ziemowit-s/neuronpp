@@ -160,7 +160,11 @@ class Hay2011Cell(Cell):
             'exp' - exponential
         :return:
         """
-        soma = self.filter_secs(soma_name)[0]
+        soma = self.filter_secs(soma_name, as_list=True)
+        if len(soma) != 1:
+            raise LookupError("Central section for channel distribution must be only one for name %s, "
+                              "but found %s sections containing this name." % (soma_name, len(soma)))
+        soma = soma[0]
         secs = self.filter_secs(name=sections)
 
         max_dist = max([h.distance(soma.hoc(0.5), s.hoc(1)) for s in secs])
