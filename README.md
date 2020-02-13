@@ -349,6 +349,13 @@ The main cell object `Cell` contains all filter methods inside.
             pop2.plot(animate=True)
    ```
 
+  * Create graph of connected cells:
+  ```python
+  # Based on the previously created 2 populations
+  make_cell_graph(pop1.cells + pop2.cells)
+  ```
+  
+
 ### Debug synapse and point process
 
 Debug any cell and synapse on interactive plot. 

@@ -1,7 +1,7 @@
 from neuronpp.cells.cell import Cell
 from neuronpp.core.cells.netstim_cell import NetStimCell
 from neuronpp.core.populations.population import Population
-from neuronpp.core.populations.utils import make_cell_graph
+from neuronpp.utils.utils import make_cell_graph
 
 from neuronpp.utils.run_sim import RunSim
 
