@@ -1,19 +1,19 @@
 import numpy as np
 from neuron import h
-from nrn import Segment, Section
+from nrn import Segment
 
+from neuronpp.core.cells.utils import get_default
 from neuronpp.core.hocwrappers.netcon import NetCon
 from neuronpp.core.hocwrappers.point_process import PointProcess
 from neuronpp.core.hocwrappers.vecstim import VecStim
 import matplotlib.pyplot as plt
 from collections import defaultdict
 
-from neuronpp.core.cells.utils import get_default
 from neuronpp.core.hocwrappers.netstim import NetStim
 from neuronpp.core.cells.point_process_cell import PointProcessCell
 
 
-class NetConnCell(PointProcessCell):
+class NetConCell(PointProcessCell):
     def __init__(self, name=None, compile_paths=None):
         PointProcessCell.__init__(self, name, compile_paths=compile_paths)
         self.ncs = []

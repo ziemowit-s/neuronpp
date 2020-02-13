@@ -1,12 +1,12 @@
 from collections import defaultdict
 
-from neuronpp.core.cells.netconn_cell import NetConnCell
+from neuronpp.core.cells.netcon_cell import NetConCell
 from neuronpp.core.hocwrappers.composed.synapse import Synapse
 
 
-class SynapticCell(NetConnCell):
+class SynapticCell(NetConCell):
     def __init__(self, name=None, compile_paths=None):
-        NetConnCell.__init__(self, name, compile_paths=compile_paths)
+        NetConCell.__init__(self, name, compile_paths=compile_paths)
         self.syns = []
         self._syn_num = defaultdict(int)
 

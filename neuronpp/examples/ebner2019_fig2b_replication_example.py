@@ -1,12 +1,10 @@
-from neuronpp.cells.ebner2019_cell import Ebner2019Cell
-from neuronpp.cells.hay2011_cell import Hay2011Cell
+import matplotlib.pylab as plt
 
-from neuronpp.core.cells.netstim_cell import NetStimCell
-
-from neuronpp.cells.hoc_cell import HocCell
-from neuronpp.utils.record import Record
 from neuronpp.utils.iclamp import IClamp
+from neuronpp.utils.record import Record
 from neuronpp.utils.run_sim import RunSim
+from neuronpp.cells.ebner2019_cell import Ebner2019Cell
+from neuronpp.core.cells.netstim_cell import NetStimCell
 
 REPS = 5  # Number of pre-and postsynaptic spikes
 DT = 0.025
@@ -26,14 +24,15 @@ if __name__ == '__main__':
     cell.load_morpho(filepath='../commons/morphologies/asc/cell1.asc')
     cell.make_default_mechanisms()
 
-    soma = cell.filter_secs("soma")[0]
+    soma = cell.filter_secs("soma")
 
     # Netstim to synapse
     stim = NetStimCell("stim").make_netstim(start=WARMUP, number=REPS, interval=interval)
-    syn = cell.add_sypanse(source=stim, weight=WEIGHT, mod_name="Syn4P", delay=1, source_loc=0.5, sec='apic[1]')[0]
+    syn = cell.add_sypanse(source=stim, weight=WEIGHT, mod_name="Syn4P", delay=1,
+                           sec=cell.filter_secs('apic[1]'))
 
     # IClamp to soma
-    iclamp = IClamp(segment=cell.filter_secs("soma")[0].hoc(0.5))
+    iclamp = IClamp(segment=cell.filter_secs("soma").hoc(0.5))
     for i in range(REPS):
         start_t = WARMUP + delta_t + i * interval
         iclamp.stim(delay=start_t, dur=DUR, amp=AMP)
@@ -48,3 +47,4 @@ if __name__ == '__main__':
 
     # Plot
     rec.plot(position="merge")
+    plt.plot()

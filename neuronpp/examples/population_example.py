@@ -1,7 +1,7 @@
 from neuronpp.cells.cell import Cell
 from neuronpp.core.cells.netstim_cell import NetStimCell
 from neuronpp.core.populations.population import Population
-from neuronpp.core.populations.utils import graph
+from neuronpp.core.populations.utils import make_cell_graph
 
 from neuronpp.utils.run_sim import RunSim
 
@@ -36,7 +36,7 @@ if __name__ == '__main__':
     pop2.connect(source=pop1, rule='all', weight=0.01)
     pop2.record()
 
-    graph(pop1.cells + pop2.cells, result_folder="graphs")
+    make_cell_graph(pop1.cells + pop2.cells)
 
     # Run
     sim = RunSim(init_v=-70, warmup=20)

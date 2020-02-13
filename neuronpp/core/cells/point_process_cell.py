@@ -92,6 +92,6 @@ class PointProcessCell(SectionCell):
         if tag:
             result_name = "%s[%s]" % (result_name, tag)
 
-        pp = PointProcess(hoc_point_process, parent_sec=segment, name=result_name, mod_name=mod_name)
+        pp = PointProcess(hoc_point_process, seg=segment, name=result_name, mod_name=mod_name, cell=self)
         self.pps.append(pp)
         return pp
