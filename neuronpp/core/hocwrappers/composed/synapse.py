@@ -1,9 +1,3 @@
-import random
-
-from neuron import h
-from neuron.units import ms
-from neuronpp.core.cells.utils import make_netconn
-
 from neuronpp.core.hocwrappers.hoc_wrapper import HocWrapper
 from neuronpp.core.hocwrappers.sec import Sec
 
@@ -43,7 +37,7 @@ class Synapse(ComposedHocWrapper):
         for nc in self.netconns:
             nc.make_event(time, use_global_sim_time)
 
-    def add_source(self, source: HocWrapper, source_loc=None, weight=1.0, rand_weight=False, delay=1.0, threshold=10):
+    def add_source(self, source: HocWrapper, weight=1.0, rand_weight=False, delay=1.0, threshold=10):
         """
         Currently it allows to add single new source
         :param source:
@@ -59,10 +53,9 @@ class Synapse(ComposedHocWrapper):
         :param threshold:
             threshold for NetConn, default=10
         """
-        netconn = make_netconn(parent=self.parent, source=source, target=self.point_process, ref_variable='v',
-                               source_loc=source_loc, delay=delay, weight=weight, rand_weight=rand_weight,
-                               threshold=threshold)
-        self.netconns.append(netconn)
+        conn = self.point_process.cell.add_netcon(source=source, point_process=self.point_process, weight=weight,
+                                                  rand_weight=rand_weight, delay=delay, threshold=threshold)
+        self.netconns.append(conn)
         if source is not None:
             self.sources.append(source)
 

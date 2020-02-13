@@ -29,7 +29,7 @@ cell.make_spike_detector(soma(0.5))
 
 # run
 sim = RunSim(init_v=-65, warmup=20, init_sleep=2, with_neuron_gui=True, shape_plots=[make_shape_plot()])
-sim.run(runtime=200, stepsize=1, delay_between_steps=500)
+sim.run(runtime=200, stepsize=1, delay_between_steps=1)
 
 # plot
 cell.plot_spikes()

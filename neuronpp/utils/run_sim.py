@@ -52,11 +52,11 @@ class RunSim:
     def run(self, runtime, stepsize=None, delay_between_steps=1, debug=False):
         """
         :param runtime:
-            in ms
+            in ms (simulation time)
         :param stepsize:
             in ms. Default None -> stepsize is the size of runtime
         :param delay_between_steps:
-            in ms
+            in ms (computer real time)
         """
         if stepsize is None:
             stepsize = runtime

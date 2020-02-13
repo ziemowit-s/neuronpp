@@ -1,5 +1,6 @@
 import abc
 import numpy as np
+from pyvis.network import Network
 
 from neuronpp.cells.cell import Cell
 from neuronpp.utils.record import Record

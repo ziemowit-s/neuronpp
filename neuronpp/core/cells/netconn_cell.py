@@ -8,8 +8,7 @@ from neuronpp.core.hocwrappers.vecstim import VecStim
 import matplotlib.pyplot as plt
 from collections import defaultdict
 
-from neuronpp.core.hocwrappers.sec import Sec
-from neuronpp.core.cells.utils import make_netconn, get_default
+from neuronpp.core.cells.utils import get_default
 from neuronpp.core.hocwrappers.netstim import NetStim
 from neuronpp.core.cells.point_process_cell import PointProcessCell
 
@@ -52,7 +51,7 @@ class NetConnCell(PointProcessCell):
     def add_netcon(self, source, point_process, weight=1, rand_weight=False, delay=0, threshold=10):
         """
         :param source:
-            Can be only: hocwrappers.NetStim, hocwrappers.VecStim, hocwrappers.Sec or None. If it is Sec also loc param need to be defined.
+            NetStim, VecStim, HOC's Section or None. If it is Sec also loc param need to be defined.
             If remain None it will create NetConn with no source, which can be use as external event source
         :param weight:
         :param rand_weight:
@@ -86,7 +85,7 @@ class NetConnCell(PointProcessCell):
                      delay=1.0, weight=1.0, rand_weight=None, threshold=10):
         """
         :param source:
-            NetStim, VecStim or Sec. If None it will create a NetConn without the source.
+            NetStim, VecStim, HOC's Section or None. If None it will create a NetConn without the source.
         :param point_process:
             PointProcess object. If None - will create NetConn without target, it is used as a spike detector.
         :param ref_variable:
@@ -128,7 +127,7 @@ class NetConnCell(PointProcessCell):
             con.threshold = threshold
 
         name = "%s->%s" % (source, point_process)
-        con = NetCon(con, parent=self, name=name)
+        con = NetCon(con, source=source, parent=self, name=name)
         return con, name
 
     def make_spike_detector(self, segment):

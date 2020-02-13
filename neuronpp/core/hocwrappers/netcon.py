@@ -6,8 +6,9 @@ from neuronpp.core.hocwrappers.hoc_wrapper import HocWrapper
 
 
 class NetCon(HocWrapper):
-    def __init__(self, hoc_obj, name, parent: CoreCell):
+    def __init__(self, hoc_obj, name, source: HocWrapper, parent: CoreCell):
         HocWrapper.__init__(self, hoc_obj=hoc_obj, parent=parent, name=name)
+        self.source = source
 
     def make_event(self, time, use_global_sim_time=True):
         """
