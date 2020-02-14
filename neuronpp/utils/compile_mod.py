@@ -1,4 +1,5 @@
 import os
+import shutil
 
 import neuron
 from argparse import ArgumentParser
@@ -34,36 +35,24 @@ class CompileMOD:
             Path to the target folder.
         """
         working_dir = os.getcwd()
-
         target_path = target_path.replace(self.compiled_folder_name, "")
-        target_path = os.path.join(target_path, self.compiled_folder_name)
+        shutil.rmtree(target_path, ignore_errors=True, onerror=None)
+        os.makedirs(target_path)
 
         if isinstance(source_paths, str):
             source_paths = source_paths.split(" ")
 
-        tmp_path = "%s%s%s%s" % (target_path, os.sep, "tmp", os.sep)
-        os.makedirs(tmp_path, exist_ok=True)
-
         for s in source_paths:
-            self.copy_mods(s, tmp_path)
+            self.copy_mods(s, target_path)
 
-        if len(os.listdir(tmp_path)) == 0:
-            remove_tree(tmp_path)
-            raise FileNotFoundError("No *.mod files copied from source paths: %s. Check if source paths contains mod files" % source_paths)
-
-        os.chdir(tmp_path)
+        os.chdir(target_path)
         r = os.popen('nrnivmodl')
         output = r.read()
         print(output)
 
-        compiled_path = "%s%s%s" % (tmp_path, os.sep, self.compiled_folder_name)
-        copy_tree(src=compiled_path, dst=target_path, update=1)
+        compiled_path = os.path.join(target_path, self.compiled_folder_name)
         os.chdir(working_dir)
-
-        remove_tree(tmp_path)
-
-        target_main_path = target_path.replace("%s%s" % (os.sep, self.compiled_folder_name), "")
-        neuron.load_mechanisms(target_main_path)
+        neuron.load_mechanisms(compiled_path)
 
     def copy_mods(self, source_path, tmp_path):
         for filename in os.listdir(source_path):

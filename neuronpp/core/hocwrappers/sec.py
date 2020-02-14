@@ -1,5 +1,6 @@
 from neuronpp.core.cells.core_cell import CoreCell
 from neuronpp.core.hocwrappers.hoc_wrapper import HocWrapper
+#from neuronpp.core.hocwrappers.seg import Seg
 
 
 class Sec(HocWrapper):
