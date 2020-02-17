@@ -21,8 +21,9 @@ def make_shape_plot(variable=None, min_val=-70, max_val=40):
     return ps
 
 
-def make_conectivity_graph(cells, result_folder="graphs", height="100%", width="100%", bgcolor="#222222", font_color="white",
-                           stim_color="#f5ce42", cell_color="#80bfff", node_distance=200, spring_strength=0.001):
+def make_conectivity_graph(cells, result_folder=None, file_name="conectivity_graph.html", height="100%", width="100%",
+                           bgcolor="#222222", font_color="white", stim_color="#f5ce42", cell_color="#80bfff", node_distance=200,
+                           spring_strength=0.001):
     """
     Creates graph of connections between passed cells. It will create a HTML file presenting the graph in
     the result_folder as well as run the graph in your browser.
@@ -33,7 +34,8 @@ def make_conectivity_graph(cells, result_folder="graphs", height="100%", width="
     :param cells:
         All cells must be of type NetConCell or just Cell
     :param result_folder:
-        Any folder where to put your graph, eg. "graphs". The default is 'graphs' in your working directory.
+        Any folder where to put your graph, eg. "graphs". The default is None, meaning that the graph
+        html file will be saved to the current working directory
     :param height:
     :param width:
     :param bgcolor:
@@ -65,7 +67,10 @@ def make_conectivity_graph(cells, result_folder="graphs", height="100%", width="
     g.show_buttons(filter_=['physics'])
     g.hrepulsion(node_distance=node_distance, spring_strength=spring_strength)
 
-    save_path = '%s/cell_graph.html' % result_folder
+    if result_folder:
+        save_path = '%s/%s' % (result_folder, file_name)
+    else:
+        save_path = file_name
 
     os.makedirs(result_folder, exist_ok=True)
     g.show(save_path)
