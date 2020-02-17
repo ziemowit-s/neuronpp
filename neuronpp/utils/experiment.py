@@ -70,7 +70,7 @@ class Experiment:
 
         iclamp = None
         if i_clamp_section:
-            iclamp = IClamp(i_clamp_section.hoc(0.5))
+            iclamp = IClamp(i_clamp_section(0.5))
             self.iclamps.append(iclamp)
 
         event_time = start

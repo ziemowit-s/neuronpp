@@ -17,8 +17,8 @@ if __name__ == '__main__':
                                                   number=3, weight=1, delay=1, **cell.params_4p_syn)
 
     for s, h in zip(syns_4p, heads):
-        syn_ach = cell.add_sypanse(source=None, mod_name="SynACh", sec=h(1.0), weight=0.1, delay=1)
-        syn_da = cell.add_sypanse(source=None, mod_name="SynDa", sec=h(1.0), weight=0.1, delay=1)
+        syn_ach = cell.add_sypanse(source=None, mod_name="SynACh", seg=h(1.0), weight=0.1, delay=1)
+        syn_da = cell.add_sypanse(source=None, mod_name="SynDa", seg=h(1.0), weight=0.1, delay=1)
         cell.set_synaptic_pointers(s, syn_ach, syn_da)
         cell.group_complex_sypanses("input_syn", s, syn_ach, syn_da)
 
@@ -33,7 +33,7 @@ if __name__ == '__main__':
     synach = syns[0]['SynACh']
 
     rec_syn = Record(syn4p, variables="w stdp_ach ach_stdp ACh ACh_w")
-    rec_soma = Record(soma, loc=0.5, variables="v")
+    rec_soma = Record(soma(0.5), variables="v")
 
     sim = RunSim(init_v=-80, warmup=WARMUP)
 

@@ -19,6 +19,7 @@ class Population:
         result = []
         for i in range(cell_num):
             cell = self.cell_definition(**kwargs)
+            cell.name = "%s[%s][%s]" % (self.name, cell.name, self.cell_counter)
             self.cell_counter += 1
             self.cells.append(cell)
             result.append(cell)
@@ -100,8 +101,8 @@ class Population:
         return result
 
     def record(self, sec_name="soma", loc=0.5, variable='v'):
-        d = [cell.filter_secs(sec_name, as_list=True)[0] for cell in self.cells]
-        rec = Record(d, loc=loc, variables=variable)
+        d = [cell.filter_secs(sec_name, as_list=True)[0](loc) for cell in self.cells]
+        rec = Record(d, variables=variable)
         self.recs[variable] = rec
 
     def plot(self, animate=False, **kwargs):

@@ -1,10 +1,9 @@
 import numpy as np
 from neuron import h
-from nrn import Segment
 
-from neuronpp.core.cells.utils import get_default
 from neuronpp.core.hocwrappers.netcon import NetCon
 from neuronpp.core.hocwrappers.point_process import PointProcess
+from neuronpp.core.hocwrappers.seg import Seg
 from neuronpp.core.hocwrappers.vecstim import VecStim
 import matplotlib.pyplot as plt
 from collections import defaultdict
@@ -51,7 +50,7 @@ class NetConCell(PointProcessCell):
     def add_netcon(self, source, point_process, weight=1, rand_weight=False, delay=0, threshold=10):
         """
         :param source:
-            NetStim, VecStim, HOC's Section or None. If it is Sec also loc param need to be defined.
+            NetStim, VecStim, Seg or None.
             If remain None it will create NetConn with no source, which can be use as external event source
         :param weight:
         :param rand_weight:
@@ -70,9 +69,8 @@ class NetConCell(PointProcessCell):
         return:
             A list of added NetConns.
         """
-        source = get_default(source)
-        if source is not None and not isinstance(source, (NetStim, VecStim, Segment)):
-            raise TypeError("Param 'source' can be NetStim, VecStim, Segment, Section (Sec or HOC's Section) or None, "
+        if source is not None and not isinstance(source, (NetStim, VecStim, Seg)):
+            raise TypeError("Param 'source' can be NetStim, VecStim, Seg or None, "
                             "but provided %s" % source.__class__)
 
         conn, name = self._make_netcon(source=source, point_process=point_process, weight=weight,
@@ -115,9 +113,11 @@ class NetConCell(PointProcessCell):
             if isinstance(source, (NetStim, VecStim)):
                 con = h.NetCon(source.hoc, point_process)
 
+            elif isinstance(source, Seg):
+                source_ref = getattr(source.hoc, "_ref_%s" % ref_variable)
+                con = h.NetCon(source_ref, point_process, sec=source.hoc.sec)
             else:
-                source_ref = getattr(source, "_ref_%s" % ref_variable)
-                con = h.NetCon(source_ref, point_process, sec=source.sec)
+                raise TypeError("Source can only be NetStim, VecStim or Seg, but provided type of: %s" % source.__class__)
 
         if delay:
             con.delay = delay
@@ -133,12 +133,9 @@ class NetConCell(PointProcessCell):
     def make_spike_detector(self, segment):
         """
         :param segment:
-            If Sec or HOC Section, default loc is 0.5
-        :return:
         """
-        segment = get_default(segment)
-        if not isinstance(segment, Segment):
-            raise TypeError("Param 'segment' can be only Sec, HOC's: Segment or Section.")
+        if not isinstance(segment, Seg):
+            raise TypeError("Param 'segment' can be only a Seg object.")
 
         # source, point_process, weight, rand_weight=False, delay=0, threshold=10
         nc_detector = self.add_netcon(source=segment, point_process=None)

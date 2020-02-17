@@ -6,15 +6,14 @@ import pandas as pd
 from neuron import h
 import matplotlib.pyplot as plt
 
+from neuronpp.core.hocwrappers.seg import Seg
+
 
 class Record:
-    def __init__(self, elements, variables='v', loc=None):
+    def __init__(self, elements, variables='v'):
         """
         :param elements:
             elements can any object from HocWrappers which implements hoc param
-        :param loc:
-            float (if loc for all sections is the same), or list of floats (in that case len must be the same as len(sections).
-            Default None. If None - loc will be skipped (eg. for point process)
         :param variables:
             str or list_of_str of variable names to track
         """
@@ -24,39 +23,25 @@ class Record:
         if isinstance(variables, str):
             variables = variables.split(' ')
 
-        if isinstance(loc, float) or isinstance(loc, int) or loc is None:
-            loc = [loc for _ in range(len(elements))]
-
         if len(elements) == 0:
             raise IndexError("The list of provided elements to record is empty.")
-
-        if len(loc) != len(elements):
-            raise IndexError("loc can be single float (eg. 0.5) or a list where len(loc) must be the same as len(sections).")
 
         self.recs = dict([(v, []) for v in variables])
         self.figs = {}
         self.axs = defaultdict(list)
 
-        for elem, loc in zip(elements, loc):
+        for elem in elements:
             for var in variables:
-                if isinstance(elem, Segment):
-                    s = elem
-                    loc = elem.x
-                    elem = elem.sec
-                    name = elem.name()
-                elif isinstance(elem, Section):
-                    s = elem(loc)
-                    name = elem.name()
+                if isinstance(elem, Seg):
+                    name = elem.parent.name
                 else:
-                    s = elem.hoc if loc is None else elem.hoc(loc)
                     name = elem.name
                 try:
-                    s = getattr(s, "_ref_%s" % var)
+                    s = getattr(elem.hoc, "_ref_%s" % var)
                 except AttributeError:
                     raise AttributeError("there is no attribute of %s. Maybe you forgot to append loc param for sections?" % var)
 
                 rec = h.Vector().record(s)
-                name = "%s(%s)" % (name, loc)
                 self.recs[var].append((name, rec))
 
         self.t = h.Vector().record(h._ref_t)

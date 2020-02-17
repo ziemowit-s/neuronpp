@@ -52,6 +52,6 @@ class NetStimCell(CoreCell):
         ns_hoc = get_netstim(start=start, number=number, interval=interval, noise=noise)
         name = str(len(self.nss))
 
-        ns = NetStim(ns_hoc, parent=self, name=name)
+        ns = NetStim(ns_hoc, parent=self, name="NetStim[%s]" % name)
         self.nss.append(ns)
         return ns

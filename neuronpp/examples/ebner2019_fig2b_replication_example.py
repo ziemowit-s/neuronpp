@@ -28,17 +28,16 @@ if __name__ == '__main__':
 
     # Netstim to synapse
     stim = NetStimCell("stim").make_netstim(start=WARMUP, number=REPS, interval=interval)
-    syn = cell.add_sypanse(source=stim, weight=WEIGHT, mod_name="Syn4P", delay=1,
-                           sec=cell.filter_secs('apic[1]'))
+    syn = cell.add_sypanse(source=stim, weight=WEIGHT, mod_name="Syn4P", delay=1, seg=cell.filter_secs('apic[1]')(0.5))
 
     # IClamp to soma
-    iclamp = IClamp(segment=cell.filter_secs("soma").hoc(0.5))
+    iclamp = IClamp(segment=cell.filter_secs("soma")(0.5))
     for i in range(REPS):
         start_t = WARMUP + delta_t + i * interval
         iclamp.stim(delay=start_t, dur=DUR, amp=AMP)
 
     # Record
-    rec = Record(cell.filter_secs("apic[1],apic[50]"), loc=0.5)
+    rec = Record([s(0.5) for s in cell.filter_secs("apic[1],apic[50]")])
 
     # Run
     sim = RunSim(init_v=-70, warmup=WARMUP, dt=DT)

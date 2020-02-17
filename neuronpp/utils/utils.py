@@ -3,11 +3,11 @@ from neuron import h
 from threading import Thread
 from time import gmtime, strftime
 
-from nrn import Segment
 from pyvis.network import Network
 from pynput.keyboard import Listener
 
 from neuronpp.cells.cell import Cell
+from neuronpp.core.hocwrappers.seg import Seg
 
 
 def make_shape_plot(variable=None, min_val=-70, max_val=40):
@@ -22,7 +22,7 @@ def make_shape_plot(variable=None, min_val=-70, max_val=40):
 
 
 def make_cell_graph(cells, result_folder="graphs", height="100%", width="100%", bgcolor="#222222", font_color="white",
-                    cell_color="#f5ce42", stim_color="#80bfff", node_distance=140, spring_strength=0.001):
+                    stim_color="#f5ce42", cell_color="#80bfff", node_distance=200, spring_strength=0.001):
     """
     Creates graph of connections between passed cells. It will create a HTML file presenting the graph in
     the result_folder as well as run the graph in your browser.
@@ -47,28 +47,25 @@ def make_cell_graph(cells, result_folder="graphs", height="100%", width="100%", 
     g = Network(height=height, width=width, bgcolor=bgcolor, font_color=font_color, directed=True)
     nodes = []
     for c in cells:
-        # hack to have HOC's name
-        node = str(c.secs[0].hoc.cell())
-        nodes.append(node)
-        g.add_node(node, color=cell_color)
+        nodes.append(c.name)
+        g.add_node(c.name, color=cell_color)
         for nc in c.ncs:
-            if isinstance(nc.source, Segment):
-                nc_node = str(nc.source.sec.cell())
+            if isinstance(nc.source, Seg):
+                nc_node = nc.source.parent.parent.name
             else:
-                nc_node = str(nc.source)
+                nc_node = nc.source.name
             if nc_node not in nodes:
                 nodes.append(nc_node)
                 if isinstance(nc, Cell):
                     g.add_node(nc_node, color=cell_color)
                 else:
                     g.add_node(nc_node, color=stim_color)
-            g.add_edge(nc_node, node)
+            g.add_edge(nc_node, c.name)
 
     g.show_buttons(filter_=['physics'])
     g.hrepulsion(node_distance=node_distance, spring_strength=spring_strength)
 
-    date = strftime("%Y-%m-%d_%H-%M-%S", gmtime())
-    save_path = '%s/cell_graph_%s.html' % (result_folder, date)
+    save_path = '%s/cell_graph.html' % result_folder
 
     os.makedirs(result_folder, exist_ok=True)
     g.show(save_path)

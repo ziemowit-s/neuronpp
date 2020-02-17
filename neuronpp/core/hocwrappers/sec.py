@@ -1,6 +1,6 @@
+from neuronpp.core.hocwrappers.seg import Seg
 from neuronpp.core.cells.core_cell import CoreCell
 from neuronpp.core.hocwrappers.hoc_wrapper import HocWrapper
-#from neuronpp.core.hocwrappers.seg import Seg
 
 
 class Sec(HocWrapper):
@@ -8,4 +8,5 @@ class Sec(HocWrapper):
         HocWrapper.__init__(self, hoc_obj=obj, parent=parent, name=name)
 
     def __call__(self, loc):
-        return self.hoc(loc)
+        hoc_seg = self.hoc(loc)
+        return Seg(obj=hoc_seg, parent=self, name="%s(%s)" % (self.name, loc))

@@ -33,7 +33,7 @@ class SynapticSpineCell(SpineCell, ComplexSynapticCell):
         syns = []
         for h in heads:
             h_segment = h(1.0)
-            syn = self.add_sypanse(source=source, sec=h_segment, mod_name=mod_name, weight=weight,
+            syn = self.add_sypanse(source=source, seg=h_segment, mod_name=mod_name, weight=weight,
                                    rand_weight=rand_weight, delay=delay, tag=tag, **synaptic_params)
             syns.append(syn)
 

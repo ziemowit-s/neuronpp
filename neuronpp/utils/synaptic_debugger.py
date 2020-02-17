@@ -1,5 +1,6 @@
 from collections import defaultdict
 
+from neuronpp.core.hocwrappers.seg import Seg
 from neuronpp.utils.record import Record
 from neuronpp.utils.run_sim import RunSim
 from neuronpp.utils.utils import key_release_listener
@@ -27,8 +28,8 @@ class SynapticDebugger:
             name = str(len(self.syns))
         self.syns[name].append(syn)
 
-    def add_sec(self, sec, sec_variables='v', sec_loc=0.5):
-        rec = Record(elements=sec, variables=sec_variables, loc=sec_loc)
+    def add_sec(self, seg: Seg, sec_variables='v'):
+        rec = Record(elements=seg, variables=sec_variables)
         self.sec_recs.append(rec)
 
     def warmup(self):

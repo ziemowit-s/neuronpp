@@ -1,12 +1,13 @@
 from neuron import h
 from neuron.units import ms
-from nrn import Segment
+
+from neuronpp.core.hocwrappers.seg import Seg
 
 
 class IClamp:
-    def __init__(self, segment: Segment):
-        if not isinstance(segment, Segment):
-            raise TypeError("Segment must be a valid NEURON segment with location defined, eg. soma(0.5).")
+    def __init__(self, segment: Seg):
+        if not isinstance(segment, Seg):
+            raise TypeError("Param 'segment' must be a Seg object, eg. soma(0.5).")
 
         self._segment = segment
         self.iclamps = []
@@ -24,7 +25,7 @@ class IClamp:
             by default in nA
         :return:
         """
-        clamp = h.IClamp(self._segment)
+        clamp = h.IClamp(self._segment.hoc)
         clamp.delay = delay * ms
         clamp.dur = dur * ms
         clamp.amp = amp

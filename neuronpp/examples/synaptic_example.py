@@ -19,17 +19,17 @@ stim = stim_cell.make_netstim(start=250, number=30, interval=1)
 soma = cell.filter_secs("soma")
 
 # 1) Hoc-style synapse
-pp = cell.add_point_process(mod_name="ExpSyn", sec=soma(0.5))
+pp = cell.add_point_process(mod_name="ExpSyn", seg=soma(0.5))
 cell.add_netcon(source=stim, point_process=pp, weight=0.01, delay=1)
 
 # 2) Recommended synapse
-syn1 = cell.add_sypanse(source=stim, sec=soma(0.5), weight=0.01, mod_name="Syn4P", delay=1)
+syn1 = cell.add_sypanse(source=stim, seg=soma(0.5), weight=0.01, mod_name="Syn4P", delay=1)
 
 # 3) Event synapse
-syn2 = cell.add_sypanse(source=None, sec=soma(0.5), weight=0.01, mod_name="Syn4P", delay=1)
+syn2 = cell.add_sypanse(source=None, seg=soma(0.5), weight=0.01, mod_name="Syn4P", delay=1)
 
 # prepare plots
-rec_v = Record(soma, loc=0.5, variables="v")
+rec_v = Record(soma(0.5), variables="v")
 
 # run
 sim = RunSim(init_v=-55, warmup=20)
