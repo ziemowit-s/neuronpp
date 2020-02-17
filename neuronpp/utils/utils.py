@@ -54,8 +54,11 @@ def show_connectivity_graph(cells, result_folder=None, file_name="conectivity_gr
         for nc in c.ncs:
             if isinstance(nc.source, Seg):
                 nc_node = nc.source.parent.parent.name
+            elif nc.source is not None:
+                nc_node = "None"
             else:
                 nc_node = nc.source.name
+
             if nc_node not in nodes:
                 nodes.append(nc_node)
                 if isinstance(nc, Cell):
