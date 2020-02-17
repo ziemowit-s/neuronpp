@@ -310,7 +310,7 @@ The main cell object `Cell` contains all filter methods inside.
   * This is an experimental feature so may not be so easy to use
   ```python
     # Define a new Population class. 
-    # You need to implement abstract method cell_definition() and syn_definition() for each new Population 
+    # You need to implement abstract method cell_definition() and syn_definition() for each new Population
     class ExcitatoryPopulation(Population):
     def cell_definition(self, **kwargs) -> Cell:
         cell = Cell(name="cell")
@@ -321,7 +321,7 @@ The main cell object `Cell` contains all filter methods inside.
 
     def syn_definition(self, cell, source, weight=1, **kwargs) -> list:
         secs = cell.filter_secs("dend")
-        syns, heads = cell.add_synapses_with_spine(source=source, secs=secs, mod_name="Exp2Syn", 
+        syns, heads = cell.add_synapses_with_spine(source=source, secs=secs, mod_name="Exp2Syn",
                                                    weight=weight)
         return syns
 
