@@ -321,7 +321,8 @@ The main cell object `Cell` contains all filter methods inside.
 
     def syn_definition(self, cell, source, weight=1, **kwargs) -> list:
         secs = cell.filter_secs("dend")
-        syns, heads = cell.add_synapses_with_spine(source=source, secs=secs, mod_name="Exp2Syn", weight=weight)
+        syns, heads = cell.add_synapses_with_spine(source=source, secs=secs, mod_name="Exp2Syn", 
+                                                   weight=weight)
         return syns
 
 
