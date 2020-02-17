@@ -360,9 +360,9 @@ The main cell object `Cell` contains all filter methods inside.
   * Create interactive graph of connected cells:
   ```python
   # Based on the previously created 3 populations
-  make_cell_graph(pop1.cells + pop2.cells + pop3.cells)
+  make_conectivity_graph(pop1.cells + pop2.cells + pop3.cells)
   ```
-![Network Graph](images/network_graph.png) 
+![Network Graph](images/conectivity_graph.png) 
   
 
 ### Debug synapse and point process
