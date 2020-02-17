@@ -139,7 +139,7 @@ class NetConCell(PointProcessCell):
 
         # source, point_process, weight, rand_weight=False, delay=0, threshold=10
         nc_detector = self.add_netcon(source=segment, point_process=None)
-        nc_detector.name = self.name
+        nc_detector.name = "SpikeDetector[%s]" % self.name
 
         result_vector = h.Vector()
         nc_detector.hoc.record(result_vector)

@@ -52,6 +52,8 @@ def show_connectivity_graph(cells, result_folder=None, file_name="conectivity_gr
         nodes.append(c.name)
         g.add_node(c.name, color=cell_color)
         for nc in c.ncs:
+            if "SpikeDetector" in nc.name:
+                continue
             if isinstance(nc.source, Seg):
                 nc_node = nc.source.parent.parent.name
             elif nc.source is not None:
