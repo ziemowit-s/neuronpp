@@ -72,7 +72,8 @@ def make_conectivity_graph(cells, result_folder=None, file_name="conectivity_gra
     else:
         save_path = file_name
 
-    os.makedirs(result_folder, exist_ok=True)
+    if result_folder:
+        os.makedirs(result_folder, exist_ok=True)
     g.show(save_path)
     print("Saved cell graph into: %s" % save_path)
 
