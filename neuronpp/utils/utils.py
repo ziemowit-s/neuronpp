@@ -21,7 +21,7 @@ def make_shape_plot(variable=None, min_val=-70, max_val=40):
     return ps
 
 
-def make_conectivity_graph(cells, result_folder=None, file_name="conectivity_graph.html", height="100%", width="100%",
+def show_conectivity_graph(cells, result_folder=None, file_name="conectivity_graph.html", height="100%", width="100%",
                            bgcolor="#222222", font_color="white", stim_color="#f5ce42", cell_color="#80bfff", node_distance=200,
                            spring_strength=0.001):
     """
