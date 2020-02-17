@@ -382,6 +382,8 @@ Debug any cell and synapse on interactive plot.
   ```
 
 ![Debugger](images/debugger.gif) 
+Example of Ebner et al. 2019 model of synaptic weight (variable w) changing based on synaptic stimulation on demand
+by pressing key "w" on the keyboard:
 * variable: w - weight on the synapse.
 * variable v: voltage on the soma.
 * Pressing "w" on the keyboard produce a synaptic event. 
