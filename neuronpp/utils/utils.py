@@ -21,9 +21,9 @@ def make_shape_plot(variable=None, min_val=-70, max_val=40):
     return ps
 
 
-def show_conectivity_graph(cells, result_folder=None, file_name="conectivity_graph.html", height="100%", width="100%",
-                           bgcolor="#222222", font_color="white", stim_color="#f5ce42", cell_color="#80bfff", node_distance=200,
-                           spring_strength=0.001):
+def show_connectivity_graph(cells, result_folder=None, file_name="conectivity_graph.html", height="100%", width="100%",
+                            bgcolor="#222222", font_color="white", stim_color="#f5ce42", cell_color="#80bfff", node_distance=200,
+                            spring_strength=0.001):
     """
     Creates graph of connections between passed cells. It will create a HTML file presenting the graph in
     the result_folder as well as run the graph in your browser.
