@@ -18,6 +18,7 @@ ENDCOMMENT
   	:ACh/DA params
   	RANGE ACh, ACh_tau, stdp_ach, ach_stdp
   	RANGE Da, Da_tau, stdp_da, da_stdp
+  	RANGE sign : sign = 1 if excitatory; -1 if inhibitory
 
   	: Parameters & variables of the original Exp2Syn
   	RANGE tau_a, tau_b, e, i
@@ -95,6 +96,8 @@ ENDCOMMENT
   	LTP_pre = 0
   	LTD_post = 0
   	LTP_post = 0
+
+  	sign = 1
   }
 
   ASSIGNED {
@@ -337,8 +340,8 @@ ENDCOMMENT
     : DA acts on LTP_post; ACh has no effect on LTP_post
 
     E = D * T
-    LTD_pre  = - A_LTD_pre  * (E + ACh * (last_max_w_Da-Da)/last_max_w_Da * Eta) : Eta only for ACh/Da
-  	LTP_post =   A_LTP_post * (K + Da) * Eta : Eta for all params
+    LTD_pre  = - A_LTD_pre  * (E + sign * ACh * ((last_max_w_Da-Da)/last_max_w_Da) * Eta) : Eta only for ACh/Da
+  	LTP_post =   A_LTP_post * (K + sign * Da) * Eta : Eta for all params
 
   	: Update weights
   	w_pre = w_pre + LTD_pre + LTP_pre
