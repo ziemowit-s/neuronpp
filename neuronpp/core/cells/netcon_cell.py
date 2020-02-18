@@ -101,21 +101,22 @@ class NetConCell(PointProcessCell):
         else:
             current_weight = weight
 
+        hoc_pp = None
         if point_process is not None:
             if not isinstance(point_process, PointProcess):
                 raise TypeError("target can be only None or type of PointProcess, but provided: %s"
                                 % point_process.__class__.__name__)
-            point_process = point_process.hoc
+            hoc_pp = point_process.hoc
 
         if source is None:
-            con = h.NetCon(None, point_process)
+            con = h.NetCon(None, hoc_pp)
         else:
             if isinstance(source, (NetStim, VecStim)):
-                con = h.NetCon(source.hoc, point_process)
+                con = h.NetCon(source.hoc, hoc_pp)
 
             elif isinstance(source, Seg):
                 source_ref = getattr(source.hoc, "_ref_%s" % ref_variable)
-                con = h.NetCon(source_ref, point_process, sec=source.hoc.sec)
+                con = h.NetCon(source_ref, hoc_pp, sec=source.hoc.sec)
             else:
                 raise TypeError("Source can only be NetStim, VecStim or Seg, but provided type of: %s" % source.__class__)
 
@@ -127,7 +128,7 @@ class NetConCell(PointProcessCell):
             con.threshold = threshold
 
         name = "%s->%s" % (source, point_process)
-        con = NetCon(con, source=source, parent=self, name=name)
+        con = NetCon(con, source=source, target=point_process, parent=self, name=name)
         return con, name
 
     def make_spike_detector(self, segment):

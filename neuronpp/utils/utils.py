@@ -1,7 +1,6 @@
 import os
 from neuron import h
 from threading import Thread
-from time import gmtime, strftime
 
 from pyvis.network import Network
 from pynput.keyboard import Listener
@@ -22,10 +21,11 @@ def make_shape_plot(variable=None, min_val=-70, max_val=40):
 
 
 def show_connectivity_graph(cells, result_folder=None, file_name="conectivity_graph.html", height="100%", width="100%",
-                            bgcolor="#222222", font_color="white", stim_color="#f5ce42", cell_color="#80bfff", node_distance=100,
-                            spring_strength=0):
+                            bgcolor="#222222", font_color="white", stim_color="#f5ce42", cell_color="#80bfff",
+                            edge_excitatory_color="#7dd100", edge_inhibitory_color="#d12d00",
+                            is_excitatory_func=lambda pp: pp.hoc.e >= -20, node_distance=100, spring_strength=0):
     """
-    Creates graph of connections between passed cells. It will create a HTML file presenting the graph in
+        Creates graph of connections between passed cells. It will create a HTML file presenting the graph in
     the result_folder as well as run the graph in your browser.
 
     It will create a file cell_graph_[DATE].html in the result_folder, where [DATE is the current date with seconds,
@@ -36,12 +36,21 @@ def show_connectivity_graph(cells, result_folder=None, file_name="conectivity_gr
     :param result_folder:
         Any folder where to put your graph, eg. "graphs". The default is None, meaning that the graph
         html file will be saved to the current working directory
+    :param file_name:
     :param height:
     :param width:
     :param bgcolor:
     :param font_color:
-    :param cell_color:
     :param stim_color:
+    :param cell_color:
+    :param edge_excitatory_color:
+        Color for the excitatory connection; By default it is default edge color
+    :param edge_inhibitory_color:
+        Color for the inhibitory connection
+    :param is_excitatory_func:
+        This is the default function:
+            lambda point_process = point_process.hoc.e >= -20
+        If returns true - a particular connection is excitatory, otherwise inhibitory.
     :param node_distance:
     :param spring_strength:
     :return:
@@ -57,7 +66,7 @@ def show_connectivity_graph(cells, result_folder=None, file_name="conectivity_gr
             elif isinstance(nc.source, Seg):
                 nc_node = nc.source.parent.parent.name
             elif nc.source is None:
-                nc_node = "None"
+                nc_node = "External Stim"
             else:
                 nc_node = nc.source.name
 
@@ -68,8 +77,14 @@ def show_connectivity_graph(cells, result_folder=None, file_name="conectivity_gr
                 else:
                     g.add_node(nc_node, color=stim_color)
             g.add_edge(nc_node, c.name)
-
-    g.show_buttons(filter_=['physics'])
+            if is_excitatory_func is None:
+                g.edges[-1]['color'] = edge_excitatory_color
+            else:
+                if is_excitatory_func(nc.target):
+                    g.edges[-1]['color'] = edge_excitatory_color
+                else:
+                    g.edges[-1]['color'] = edge_inhibitory_color
+    g.show_buttons()
     g.hrepulsion(node_distance=node_distance, spring_strength=spring_strength)
 
     if result_folder:

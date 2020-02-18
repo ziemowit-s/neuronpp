@@ -41,6 +41,10 @@ if __name__ == '__main__':
     pop3.create(4)
     pop3.connect(source=pop2, rule='all', weight=0.01)
     pop3.record()
+    # Creates inhibitory connections between pop2->pop3
+    for c in pop3.cells:
+        for p in c.pps:
+            p.hoc.e = -90
 
     show_connectivity_graph(pop1.cells + pop2.cells + pop3.cells)
 
