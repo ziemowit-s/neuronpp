@@ -23,7 +23,7 @@ def make_shape_plot(variable=None, min_val=-70, max_val=40):
 def show_connectivity_graph(cells, result_folder=None, file_name="conectivity_graph.html", height="100%", width="100%",
                             bgcolor="#222222", font_color="white", stim_color="#f5ce42", cell_color="#80bfff",
                             edge_excitatory_color="#7dd100", edge_inhibitory_color="#d12d00",
-                            is_excitatory_func=lambda pp: hasattr(pp.hoc, "e") and pp.hoc.e >= -20,
+                            is_excitatory_func=lambda pp: pp.hoc.e >= -20, is_show_edge_func=lambda pp: hasattr(pp.hoc, "e"),
                             node_distance=100, spring_strength=0):
     """
         Creates graph of connections between passed cells. It will create a HTML file presenting the graph in
@@ -52,9 +52,12 @@ def show_connectivity_graph(cells, result_folder=None, file_name="conectivity_gr
         This is the default function:
             lambda point_process = point_process.hoc.e >= -20
         If returns true - a particular connection is excitatory, otherwise inhibitory.
+    :param is_show_edge_func:
+        This is the default function:
+            lambda point_process = hasattr(point_process.hoc, "e"),
+        Define whether to show the edge.
     :param node_distance:
     :param spring_strength:
-    :return:
     """
     g = Network(height=height, width=width, bgcolor=bgcolor, font_color=font_color, directed=True)
     nodes = []
@@ -77,6 +80,9 @@ def show_connectivity_graph(cells, result_folder=None, file_name="conectivity_gr
                     g.add_node(nc_node, color=cell_color)
                 else:
                     g.add_node(nc_node, color=stim_color)
+            if is_show_edge_func is not None and not is_show_edge_func(nc.target):
+                continue
+
             g.add_edge(nc_node, c.name)
             if is_excitatory_func is None:
                 g.edges[-1]['color'] = edge_excitatory_color
