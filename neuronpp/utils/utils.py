@@ -23,7 +23,8 @@ def make_shape_plot(variable=None, min_val=-70, max_val=40):
 def show_connectivity_graph(cells, result_folder=None, file_name="conectivity_graph.html", height="100%", width="100%",
                             bgcolor="#222222", font_color="white", stim_color="#f5ce42", cell_color="#80bfff",
                             edge_excitatory_color="#7dd100", edge_inhibitory_color="#d12d00",
-                            is_excitatory_func=lambda pp: pp.hoc.e >= -20, node_distance=100, spring_strength=0):
+                            is_excitatory_func=lambda pp: hasattr(pp.hoc, "e") and pp.hoc.e >= -20,
+                            node_distance=100, spring_strength=0):
     """
         Creates graph of connections between passed cells. It will create a HTML file presenting the graph in
     the result_folder as well as run the graph in your browser.
