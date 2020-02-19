@@ -167,10 +167,10 @@ class Hay2011Cell(Cell):
         soma = soma[0]
         secs = self.filter_secs(name=sections, as_list=True)
 
-        max_dist = max([h.distance(soma(0.5), s(1)) for s in secs])
+        max_dist = max([h.distance(soma(0.5).hoc, s(1).hoc) for s in secs])
         for sec in secs:
             for x in sec.hoc:
-                dist = h.distance(soma.hoc(0.5), x)
+                dist = h.distance(soma(0.5).hoc, x)
                 dist_norm = dist/max_dist
 
                 if dist_type == 'lin':

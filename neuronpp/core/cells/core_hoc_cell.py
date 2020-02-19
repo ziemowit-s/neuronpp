@@ -6,6 +6,7 @@ from nrn import Section
 
 from neuronpp.core.hocwrappers.sec import Sec
 from neuronpp.core.cells.section_cell import SectionCell
+from neuronpp.core.hocwrappers.seg import Seg
 
 
 class CoreHocCell(PointProcessCell):
@@ -93,7 +94,9 @@ class CoreHocCell(PointProcessCell):
         if len(pps) > 0:
             for mod_name, hoc_obj in pps.items():
                 try:
-                    self._append_pp(hoc_point_process=list(hoc_obj)[0], mod_name=mod_name, segment=hoc_sec_obj)
+                    loc = list(hoc_obj)[0].get_segment().x
+                    seg = Seg(obj=hoc_sec_obj(loc), parent=hoc_sec_obj, name="%s(%s)" % (hoc_sec_obj.name(), loc))
+                    self._append_pp(hoc_point_process=list(hoc_obj)[0], mod_name=mod_name, segment=seg)
                 except Exception as e:
                     print("Error while trying to retrieve PointProcess. This is en experimental feature, error %s" % e)
 

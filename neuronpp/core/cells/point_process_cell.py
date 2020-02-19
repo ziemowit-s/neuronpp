@@ -1,11 +1,9 @@
 from neuron import h
-from nrn import Segment, Section
 from collections import defaultdict
 
 from neuronpp.core.cells.section_cell import SectionCell
-from neuronpp.core.cells.utils import get_default
 from neuronpp.core.hocwrappers.point_process import PointProcess
-from neuronpp.core.hocwrappers.sec import Sec
+from neuronpp.core.hocwrappers.seg import Seg
 
 
 class PointProcessCell(SectionCell):
@@ -48,12 +46,12 @@ class PointProcessCell(SectionCell):
         return self.filter(searchable=self.pps, obj_filter=obj_filter, mod_name=mod_name, name=name, parent=parent,
                            **kwargs)
 
-    def add_point_process(self, mod_name: str, sec, tag: str = None, **point_process_params):
+    def add_point_process(self, mod_name: str, seg, tag: str = None, **point_process_params):
         """
         :param mod_name:
-        :param sec:
+        :param seg:
             Segment where to put point process. If section is provided the default loc will be sec(0.5)
-            Can be only a Segment, Section or Sec.
+            Can be only Seg object.
         :param point_process_params:
             Dictionary containing params for the mod point_process
         :param tag:
@@ -67,12 +65,11 @@ class PointProcessCell(SectionCell):
             raise LookupError("There is no Point Process of name %s. Maybe you forgot to compile or copy mod files?" % mod_name)
 
         pp_obj = getattr(h, mod_name)
-        if not isinstance(sec, (Sec, Segment, Section)):
-            raise TypeError("Param 'segment' can be only a Segment, Section or Sec, but provided %s" % sec.__class__)
+        if not isinstance(seg, Seg):
+            raise TypeError("Param 'segment' can be only Seg object, but provided %s" % seg.__class__)
 
-        sec = get_default(sec)
-        hoc_pp = pp_obj(sec)
-        pp = self._append_pp(hoc_point_process=hoc_pp, mod_name=mod_name, segment=sec, tag=tag)
+        hoc_pp = pp_obj(seg.hoc)
+        pp = self._append_pp(hoc_point_process=hoc_pp, mod_name=mod_name, segment=seg, tag=tag)
 
         for key, value in point_process_params.items():
             if not hasattr(pp.hoc, key):
@@ -83,8 +80,8 @@ class PointProcessCell(SectionCell):
         return pp
 
     def _append_pp(self, hoc_point_process, mod_name, segment, tag=None):
-        sec_name = "%s(%s)" % (segment.sec.name(), segment.x)
-        current_mod_name = "%s_%s" % (mod_name, segment.sec.name())
+        sec_name = "%s(%s)" % (segment.parent.name, segment.hoc.x)
+        current_mod_name = "%s_%s" % (mod_name, segment.parent.name)
 
         result_name = "%s[%s]" % (sec_name, self._pp_num[current_mod_name])
         self._pp_num[current_mod_name] += 1
@@ -92,6 +89,6 @@ class PointProcessCell(SectionCell):
         if tag:
             result_name = "%s[%s]" % (result_name, tag)
 
-        pp = PointProcess(hoc_point_process, seg=segment, name=result_name, mod_name=mod_name, cell=self)
+        pp = PointProcess(hoc_point_process, parent=segment, name=result_name, mod_name=mod_name, cell=self)
         self.pps.append(pp)
         return pp

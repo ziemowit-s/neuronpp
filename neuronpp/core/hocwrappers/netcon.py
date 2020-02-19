@@ -1,14 +1,16 @@
 from neuron import h
 from neuron.units import ms
+from neuronpp.core.hocwrappers.point_process import PointProcess
 
 from neuronpp.core.cells.core_cell import CoreCell
 from neuronpp.core.hocwrappers.hoc_wrapper import HocWrapper
 
 
 class NetCon(HocWrapper):
-    def __init__(self, hoc_obj, name, source: HocWrapper, parent: CoreCell):
+    def __init__(self, hoc_obj, name, source: HocWrapper, target: PointProcess, parent: CoreCell):
         HocWrapper.__init__(self, hoc_obj=hoc_obj, parent=parent, name=name)
         self.source = source
+        self.target = target
 
     def make_event(self, time, use_global_sim_time=True):
         """

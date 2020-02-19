@@ -16,7 +16,7 @@ class ComplexSynapse(ComposedHocWrapper, dict):
             if parent is None:
                 parent = s.parent
             else:
-                if s.parent != parent:
+                if s.parent.name != parent.name:
                     raise TypeError("All synapses must have same parent element inside a single ComplexSynapse, "
                                     "but the parent of the first element was '%s' and of the second '%s'" % (parent, s.parent))
             self[s.mod_name] = s

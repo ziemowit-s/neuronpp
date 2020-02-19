@@ -50,9 +50,7 @@ class CompileMOD:
         output = r.read()
         print(output)
 
-        compiled_path = os.path.join(target_path, self.compiled_folder_name)
         os.chdir(working_dir)
-        neuron.load_mechanisms(compiled_path)
 
     def copy_mods(self, source_path, tmp_path):
         for filename in os.listdir(source_path):

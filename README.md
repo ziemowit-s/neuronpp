@@ -143,7 +143,7 @@ There are other examples in the folder.
    sections = cell.filter_secs("soma")
    soma = sections[0]
 
-   ic = IClamp(segment=soma.hoc(0.5))
+   ic = IClamp(segment=soma(0.5))
    ic.debug(delay=100, dur=10, amp=0.1)
    ```
 
@@ -195,7 +195,7 @@ The main cell object `Cell` contains all filter methods inside.
    ```python
     cell = Cell(name="cell")
     soma = cell.filter_secs(name="soma")
-    cell.add_sypanse(source=None, mod_name="Syn4P", sec=soma(0.5), weight=0.01, delay=1)
+    cell.add_sypanse(source=None, mod_name="Syn4P", seg=soma(0.5), weight=0.01, delay=1)
    ```
 
   * add many spines to provided sections:
@@ -220,7 +220,7 @@ The main cell object `Cell` contains all filter methods inside.
     
     cell = Cell(name="cell")
     soma = cell.filter_secs(name="soma")
-    cell.add_sypanse(source=stim, sec=soma(0.5), mod_name="ExpSyn", weight=0.01, delay=1)
+    cell.add_sypanse(source=stim, seg=soma(0.5), mod_name="ExpSyn", weight=0.01, delay=1)
   ```
   
    * Make synaptic event (send external input to the synapse): 
@@ -228,7 +228,7 @@ The main cell object `Cell` contains all filter methods inside.
    ```python
     cell = Cell(name="cell")
     soma = cell.filter_secs(name="soma")
-    syns = cell.add_sypanse(source=None, sec=soma(0.5), mod_name="ExpSyn", 
+    syns = cell.add_sypanse(source=None, seg=soma(0.5), mod_name="ExpSyn", 
                             weight=0.01, delay=1)
                               
     sim = RunSim(init_v=-55, warmup=20)
@@ -260,7 +260,7 @@ The main cell object `Cell` contains all filter methods inside.
    ```python
     # record section's voltage
     soma = cell.filter_secs(name="soma")
-    rec_v = Record(soma, locs=0.5, variables="v")
+    rec_v = Record(soma(0.5), variables="v")
 
     # record synaptic (point_process) wariables (weight 'w')
     point_processes = cell.filter_point_processes(mod_name="Syn4P", name="dend")
@@ -310,7 +310,7 @@ The main cell object `Cell` contains all filter methods inside.
   * This is an experimental feature so may not be so easy to use
   ```python
     # Define a new Population class. 
-    # You need to implement abstract method cell_definition() and syn_definition() for each new Population 
+    # You need to implement abstract method cell_definition() and syn_definition() for each new Population
     class ExcitatoryPopulation(Population):
     def cell_definition(self, **kwargs) -> Cell:
         cell = Cell(name="cell")
@@ -321,7 +321,8 @@ The main cell object `Cell` contains all filter methods inside.
 
     def syn_definition(self, cell, source, weight=1, **kwargs) -> list:
         secs = cell.filter_secs("dend")
-        syns, heads = cell.add_synapses_with_spine(source=source, secs=secs, mod_name="Exp2Syn", weight=weight)
+        syns, heads = cell.add_synapses_with_spine(source=source, secs=secs, mod_name="Exp2Syn",
+                                                   weight=weight)
         return syns
 
 
@@ -330,16 +331,22 @@ The main cell object `Cell` contains all filter methods inside.
         stim = NetStimCell("stim").make_netstim(start=21, number=10, interval=10)
     
         # Create population 1
-        pop1 = ExcitatoryPopulation("pop")
-        pop1.create(2)
+        pop1 = ExcitatoryPopulation("pop1")
+        pop1.create(4)
         pop1.connect(source=stim, rule='all', weight=0.01)
         pop1.record()
     
         # Create population 2
         pop2 = ExcitatoryPopulation("pop2")
-        pop2.create(2)
+        pop2.create(4)
         pop2.connect(source=pop1, rule='all', weight=0.01)
         pop2.record()
+    
+        # Create population 3
+        pop3 = ExcitatoryPopulation("pop3")
+        pop3.create(4)
+        pop3.connect(source=pop2, rule='all', weight=0.01)
+        pop3.record()
     
         # Run
         sim = RunSim(init_v=-70, warmup=20)
@@ -347,13 +354,15 @@ The main cell object `Cell` contains all filter methods inside.
             sim.run(runtime=1)
             pop1.plot(animate=True)
             pop2.plot(animate=True)
+            pop3.plot(animate=True)
    ```
 
-  * Create graph of connected cells:
+  * Create interactive graph of connected cells:
   ```python
-  # Based on the previously created 2 populations
-  make_cell_graph(pop1.cells + pop2.cells)
+  # Based on the previously created 3 populations
+  make_conectivity_graph(pop1.cells + pop2.cells + pop3.cells)
   ```
+![Network Graph](images/conectivity_graph.png) 
   
 
 ### Debug synapse and point process
@@ -364,13 +373,20 @@ Debug any cell and synapse on interactive plot.
   ```python
     cell = Cell("cell")
     soma = cell.add_sec("soma", diam=20, l=20, nseg=10)
-    syn = cell.add_sypanse(source=None, mod_name="Exp2Syn", sec=soma, weight=0.1)
+    syn = cell.add_sypanse(source=None, mod_name="Exp2Syn", seg=soma, weight=0.1)
 
     debug = SynapticDebugger(init_v=-80, warmup=200)
     debug.add_syn(syn, key_press='w', syn_variables="w")
-    debug.add_sec(soma)
+    debug.add_sec(soma(0.5))
     debug.debug_interactive()
   ```
+
+![Debugger](images/debugger.gif) 
+Example of Ebner et al. 2019 model of synaptic weight (variable w) changing based on synaptic stimulation on demand
+by pressing key "w" on the keyboard:
+* variable: w - weight on the synapse.
+* variable v: voltage on the soma.
+* Pressing "w" on the keyboard produce a synaptic event. 
 
 
 

@@ -15,6 +15,7 @@ neuronpp/compiled/x86_64/
 neuronpp/examples/compiled/x86_64/
 neuronpp/neuronpp/mods/*/x86_64/
 neuronpp/neuronpp/mods/x86_64/
+*.html
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

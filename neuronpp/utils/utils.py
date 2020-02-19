@@ -1,13 +1,12 @@
 import os
 from neuron import h
 from threading import Thread
-from time import gmtime, strftime
 
-from nrn import Segment
 from pyvis.network import Network
 from pynput.keyboard import Listener
 
 from neuronpp.cells.cell import Cell
+from neuronpp.core.hocwrappers.seg import Seg
 
 
 def make_shape_plot(variable=None, min_val=-70, max_val=40):
@@ -21,10 +20,13 @@ def make_shape_plot(variable=None, min_val=-70, max_val=40):
     return ps
 
 
-def make_cell_graph(cells, result_folder="graphs", height="100%", width="100%", bgcolor="#222222", font_color="white",
-                    cell_color="#f5ce42", stim_color="#80bfff", node_distance=140, spring_strength=0.001):
+def show_connectivity_graph(cells, result_folder=None, file_name="conectivity_graph.html", height="100%", width="100%",
+                            bgcolor="#222222", font_color="white", stim_color="#f5ce42", cell_color="#80bfff",
+                            edge_excitatory_color="#7dd100", edge_inhibitory_color="#d12d00",
+                            is_excitatory_func=lambda pp: pp.hoc.e >= -20, is_show_edge_func=lambda pp: hasattr(pp.hoc, "e"),
+                            node_distance=100, spring_strength=0):
     """
-    Creates graph of connections between passed cells. It will create a HTML file presenting the graph in
+        Creates graph of connections between passed cells. It will create a HTML file presenting the graph in
     the result_folder as well as run the graph in your browser.
 
     It will create a file cell_graph_[DATE].html in the result_folder, where [DATE is the current date with seconds,
@@ -33,44 +35,72 @@ def make_cell_graph(cells, result_folder="graphs", height="100%", width="100%", 
     :param cells:
         All cells must be of type NetConCell or just Cell
     :param result_folder:
-        Any folder where to put your graph, eg. "graphs". The default is 'graphs' in your working directory.
+        Any folder where to put your graph, eg. "graphs". The default is None, meaning that the graph
+        html file will be saved to the current working directory
+    :param file_name:
     :param height:
     :param width:
     :param bgcolor:
     :param font_color:
-    :param cell_color:
     :param stim_color:
+    :param cell_color:
+    :param edge_excitatory_color:
+        Color for the excitatory connection; By default it is default edge color
+    :param edge_inhibitory_color:
+        Color for the inhibitory connection
+    :param is_excitatory_func:
+        This is the default function:
+            lambda point_process = point_process.hoc.e >= -20
+        If returns true - a particular connection is excitatory, otherwise inhibitory.
+    :param is_show_edge_func:
+        This is the default function:
+            lambda point_process = hasattr(point_process.hoc, "e"),
+        Define whether to show the edge.
     :param node_distance:
     :param spring_strength:
-    :return:
     """
     g = Network(height=height, width=width, bgcolor=bgcolor, font_color=font_color, directed=True)
     nodes = []
     for c in cells:
-        # hack to have HOC's name
-        node = str(c.secs[0].hoc.cell())
-        nodes.append(node)
-        g.add_node(node, color=cell_color)
+        nodes.append(c.name)
+        g.add_node(c.name, color=cell_color)
         for nc in c.ncs:
-            if isinstance(nc.source, Segment):
-                nc_node = str(nc.source.sec.cell())
+            if "SpikeDetector" in nc.name:
+                continue
+            elif isinstance(nc.source, Seg):
+                nc_node = nc.source.parent.parent.name
+            elif nc.source is None:
+                nc_node = "External Stim"
             else:
-                nc_node = str(nc.source)
+                nc_node = nc.source.name
+
             if nc_node not in nodes:
                 nodes.append(nc_node)
                 if isinstance(nc, Cell):
                     g.add_node(nc_node, color=cell_color)
                 else:
                     g.add_node(nc_node, color=stim_color)
-            g.add_edge(nc_node, node)
+            if is_show_edge_func is not None and not is_show_edge_func(nc.target):
+                continue
 
-    g.show_buttons(filter_=['physics'])
+            g.add_edge(nc_node, c.name)
+            if is_excitatory_func is None:
+                g.edges[-1]['color'] = edge_excitatory_color
+            else:
+                if is_excitatory_func(nc.target):
+                    g.edges[-1]['color'] = edge_excitatory_color
+                else:
+                    g.edges[-1]['color'] = edge_inhibitory_color
+    g.show_buttons()
     g.hrepulsion(node_distance=node_distance, spring_strength=spring_strength)
 
-    date = strftime("%Y-%m-%d_%H-%M-%S", gmtime())
-    save_path = '%s/cell_graph_%s.html' % (result_folder, date)
+    if result_folder:
+        save_path = '%s/%s' % (result_folder, file_name)
+    else:
+        save_path = file_name
 
-    os.makedirs(result_folder, exist_ok=True)
+    if result_folder:
+        os.makedirs(result_folder, exist_ok=True)
     g.show(save_path)
     print("Saved cell graph into: %s" % save_path)
 

@@ -14,8 +14,8 @@ stdp = Experiment()
 stdp.make_protocol("3xEPSP[int=10] 3xAP[int=10,dur=3,amp=1.6]", start=1, isi=10, epsp_synapse=syns[0], i_clamp_section=soma)
 
 # Prepare plots
-v_soma_rec = Record([soma, syns[0].parent], variables='v', loc=0.5)
-cai_head0_rec = Record(syns[0].parent, variables='cai', loc=0.5)
+v_soma_rec = Record([soma(0.5), syns[0].parent], variables='v')
+cai_head0_rec = Record(syns[0].parent, variables='cai')
 
 # Run
 sim = RunSim(init_v=-70, warmup=20, with_neuron_gui=True, constant_timestep=False)

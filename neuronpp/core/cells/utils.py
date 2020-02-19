@@ -19,9 +19,3 @@ def get_vecstim(ping_array):
     stim.play(vec)
 
     return stim, vec
-
-
-def get_default(seg):
-    if isinstance(seg, (Sec, Section)):
-        seg = seg.hoc(0.5)
-    return seg
