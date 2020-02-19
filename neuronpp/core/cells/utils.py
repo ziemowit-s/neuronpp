@@ -1,7 +1,4 @@
 from neuron import h
-from nrn import Section
-
-from neuronpp.core.hocwrappers.sec import Sec
 
 
 def get_netstim(start, number, interval, noise):

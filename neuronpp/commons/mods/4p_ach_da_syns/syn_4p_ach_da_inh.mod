@@ -3,7 +3,7 @@ COMMENT
   See Ebner et al. (2019)
   https://doi.org/10.1016/j.celrep.2019.11.068
 ENDCOMMENT
-  
+
   NEURON {
   	POINT_PROCESS Syn4PAChDa
   	: Pointers for ACh and DA synapses
@@ -51,7 +51,7 @@ ENDCOMMENT
   	: Parameters of the original Exp2Syn
   	tau_a = 0.2 (ms) <1e-9,1e9>			: time constant of EPSP rise // used for AMPAR currents
   	tau_b = 2 (ms) <1e-9,1e9>			: time constant of EPSP decay
-  	e = 0 (mV)							: reversal potential
+  	e = -90 (mV)							: reversal potential
 
   	w_pre_init = 0.5					: pre factor initial value
   	w_post_init = 2.0					: post factor initial value
@@ -344,8 +344,8 @@ ENDCOMMENT
     Da_val = Da * Eta
 
     E = D * T
-    LTD_pre  = -(A_LTD_pre  * E + ACh_amplitude * ACh_val)
-  	LTP_post =  (A_LTP_post * K * Eta) + Da_amplitude  * Da_val : Eta for all params
+    LTD_pre  = -(A_LTD_pre  * E + ACh_amplitude * (-ACh_val))
+  	LTP_post =  (A_LTP_post * K * Eta) + Da_amplitude  * (-Da_val) : Eta for all params
 
   	: Update weights
   	w_pre = w_pre + LTD_pre + LTP_pre
@@ -399,7 +399,7 @@ ENDCOMMENT
   FUNCTION sigmoid_sat(slope, value) {	: sigmoidal saturation
   	sigmoid_sat = 2.0 / (1.0 + pow(slope, -value)) - 1.0 : [-1 move down to -1; 2: move up to 1]
   }
-  
+
   FUNCTION mgblock(v(mV)) {	: Mg2+ block
   	LOCAL u
   	UNITSOFF

@@ -50,6 +50,10 @@ class CompileMOD:
         output = r.read()
         print(output)
 
+        if "failed" in output.lower():
+            error_msg = [s for s in output.lower().split("\n") if "failed" in s][0]
+            raise RuntimeError("MOD compilation error: %s" % error_msg)
+
         os.chdir(working_dir)
 
     def copy_mods(self, source_path, tmp_path):
