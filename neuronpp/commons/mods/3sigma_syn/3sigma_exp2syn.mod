@@ -1,6 +1,7 @@
 COMMENT
-Modified version of original Exp2Syn
+Modified version of original Exp2Syn which implements additional LTP/LTD hebbian learning.
 
+The learnable weight of the synapse is the RANGE variable 'w', which by default is set to 1.0
 ENDCOMMENT
 
 NEURON {
