@@ -75,7 +75,7 @@ BREAKPOINT {
 
     ltd = sigmoid_thr(learning_slope, v, ltd_theshold)
 	ltp = sigmoid_thr(learning_slope, v, ltd_theshold)
-	learning_w = (-ltd + 2 * ltp) / learning_tau
+	learning_w = sigmoid_sat(learning_slope, (-ltd + 2 * ltp) / learning_tau)
 	SOLVE learn METHOD cnexp
 
 	w = w + learning_w
