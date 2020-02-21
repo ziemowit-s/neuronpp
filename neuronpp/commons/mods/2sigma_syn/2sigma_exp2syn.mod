@@ -70,9 +70,14 @@ INITIAL {
 
 BREAKPOINT {
 	SOLVE state METHOD cnexp
-	SOLVE learn METHOD cnexp
 	g = B - A
 	i = g*(v - e)
+
+    ltd = sigmoid_thr(learning_slope, v, ltd_theshold)
+	ltp = sigmoid_thr(learning_slope, v, ltd_theshold)
+	learning_w = (-ltd + 2 * ltp) / learning_tau
+	SOLVE learn METHOD cnexp
+
 	w = w + learning_w
 }
 
@@ -86,12 +91,8 @@ DERIVATIVE learn {
 }
 
 NET_RECEIVE(weight (uS)) {
-	A = A + weight*factor
-	B = B + weight*factor
-
-	ltd = sigmoid_thr(learning_slope, v, ltd_theshold)
-	ltp = sigmoid_thr(learning_slope, v, ltd_theshold)
-	learning_w = (-ltd + 2 * ltp) / learning_tau
+	A = A + w*weight*factor
+	B = B + w*weight*factor
 }
 
 : sigmoid with threshold
