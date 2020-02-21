@@ -46,14 +46,18 @@ class SectionCell(CoreCell):
         """
         return self.filter(searchable=self.secs, obj_filter=obj_filter, name=name, **kwargs)
 
-    def insert(self, mechanism_name: str, sec=None):
+    def insert(self, mechanism_name: str, sec=None, **params):
         if isinstance(sec, Sec):
             sec = [sec]
         elif sec is None or isinstance(sec, str):
             sec = self.filter_secs(name=sec, as_list=True)
 
-        for se in sec:
-            se.hoc.insert(mechanism_name)
+        for s in sec:
+            s.hoc.insert(mechanism_name)
+            for name, val in params.items():
+                for seg in s.hoc:
+                    mech = getattr(seg, mechanism_name)
+                    setattr(mech, name, val)
         return self
 
     def add_sec(self, name: str, diam=None, l=None, nseg=1):

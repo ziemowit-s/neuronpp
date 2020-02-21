@@ -5,7 +5,7 @@ The learnable weight of the synapse is the RANGE variable 'w', which by default 
 ENDCOMMENT
 
 NEURON {
-	POINT_PROCESS Exp2Syn
+	POINT_PROCESS Sigma3Exp2Syn
 	RANGE tau1, tau2, e, i
 	NONSPECIFIC_CURRENT i
 	RANGE g
@@ -41,13 +41,12 @@ ASSIGNED {
 
 	ltd
 	ltp
-	w
-	learning_w
 }
 
 STATE {
 	A (uS)
 	B (uS)
+	learning_w
 }
 
 INITIAL {
@@ -70,25 +69,29 @@ INITIAL {
 }
 
 BREAKPOINT {
+    ltd = sigmoid_thr(learning_slope, v, ltd_theshold)
+	ltp = sigmoid_thr(learning_slope, v, ltp_theshold)
+	learning_w = sigmoid_sat(learning_slope, (-ltd + 2 * ltp) / learning_tau)
+
 	SOLVE state METHOD cnexp
+
 	g = B - A
 	i = g*(v - e)
 
-    ltd = sigmoid_thr(learning_slope, v, ltd_theshold)
-	ltp = sigmoid_thr(learning_slope, v, ltd_theshold)
-	learning_w = sigmoid_sat(learning_slope, (-ltd + 2 * ltp) / learning_tau)
-	SOLVE learn METHOD cnexp
-
 	w = w + learning_w
+
+	if (w > 5) {
+	    w = 5
+	}
+	if (w < 0) {
+	    w = 1
+	}
 }
 
 DERIVATIVE state {
 	A' = -A/tau1
 	B' = -B/tau2
-}
-
-DERIVATIVE learn {
-    learning_w' = learning_w*0.8
+	learning_w' = learning_w*0.8
 }
 
 NET_RECEIVE(weight (uS)) {
@@ -98,7 +101,7 @@ NET_RECEIVE(weight (uS)) {
 
 : sigmoid with threshold
 FUNCTION sigmoid_thr(slope, value, thr) {
-    sigmoid_sat = 1 / (1.0 + pow(slope, -(value-thr)))
+    sigmoid_thr = 1 / (1.0 + pow(slope, -(value-thr)))
 }
 
 : sigmoidal saturation

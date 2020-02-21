@@ -48,7 +48,12 @@ class CompileMOD:
         os.chdir(target_path)
         r = os.popen('nrnivmodl')
         output = r.read()
-        print(output)
+
+        if "failed" in output.lower():
+            error_msg = [s for s in output.lower().split("\n") if "failed" in s][0]
+            raise RuntimeError("MOD compilation error: %s" % error_msg)
+        else:
+            print(output)
 
         os.chdir(working_dir)
 
