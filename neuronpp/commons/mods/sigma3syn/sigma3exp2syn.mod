@@ -82,7 +82,7 @@ BREAKPOINT {
 	} else {
 	    ltp = 0
 	}
-	learning_w = sigmoid_sat(learning_slope, (-ltd + 2 * ltp) / learning_tau)*0.8
+	learning_w = sigmoid_sat(learning_slope, (-ltd + 2 * ltp) / learning_tau)/10
 
 	SOLVE state METHOD cnexp
 
