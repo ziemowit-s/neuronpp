@@ -82,7 +82,7 @@ BREAKPOINT {
 	} else {
 	    ltp = 0
 	}
-	learning_w = sigmoid_sat(learning_slope, (-ltd + 2 * ltp) / learning_tau)/10
+	learning_w = learning_w + sigmoid_sat(learning_slope, (-ltd + 2 * ltp) / learning_tau)/5000
 
 	SOLVE state METHOD cnexp
 
@@ -102,6 +102,7 @@ BREAKPOINT {
 DERIVATIVE state {
 	A' = -A/tau1
 	B' = -B/tau2
+	learning_w' = -learning_w/4
 }
 
 NET_RECEIVE(weight (uS)) {
