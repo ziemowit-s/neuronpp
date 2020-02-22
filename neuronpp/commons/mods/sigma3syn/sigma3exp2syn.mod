@@ -26,13 +26,14 @@ PARAMETER {
 	tau2 = 5 (ms) <1e-9,1e9>
 	e=0	(mV)
 
-    ltd_theshold = -58 (mV) <1e-9,1e9>
-	ltp_theshold = -38 (mV) <1e-9,1e9>
+    ltd_theshold = -60 (mV) <1e-9,1e9>
+	ltp_theshold = -45 (mV) <1e-9,1e9>
 
-    ltd_sigmoid_half = -50 (mV) <1e-9,1e9>
-	ltp_sigmoid_half = -30 (mV) <1e-9,1e9>
+    ltd_sigmoid_half = -55 (mV) <1e-9,1e9>
+	ltp_sigmoid_half = -40 (mV) <1e-9,1e9>
+
 	learning_slope = 1.3
-	learning_tau = 15
+	learning_tau = 20
 	w = 1.0
 }
 

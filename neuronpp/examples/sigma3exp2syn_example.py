@@ -11,14 +11,14 @@ if __name__ == '__main__':
     cell.insert('pas')
     cell.insert('hh')
 
-    syn = cell.add_sypanse(source=None, weight=0.0022, seg=soma(0.5), mod_name="Sigma3Exp2Syn")
+    syn = cell.add_sypanse(source=None, weight=0.003, seg=soma(0.5), mod_name="Sigma3Exp2Syn")
 
     # prepare plots and spike detector
     rec_v = Record(soma(0.5), variables="v")
     rec_w = Record(syn, variables="w")
 
     # run
-    sim = RunSim(init_v=-65, warmup=5)
+    sim = RunSim(init_v=-68, warmup=5)
     syn.make_event(5)
     sim.run(runtime=50)
 
