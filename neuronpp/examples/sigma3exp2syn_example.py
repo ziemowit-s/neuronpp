@@ -1,5 +1,8 @@
+import matplotlib.pyplot as plt
+
 from neuronpp.cells.cell import Cell
-from neuronpp.utils.synaptic_debugger import SynapticDebugger
+from neuronpp.utils.record import Record
+from neuronpp.utils.run_sim import RunSim
 
 if __name__ == '__main__':
     # Prepare cell
@@ -10,8 +13,15 @@ if __name__ == '__main__':
 
     syn = cell.add_sypanse(source=None, weight=0.01, seg=soma(0.5), mod_name="Sigma3Exp2Syn")
 
-    debug = SynapticDebugger(init_v=-70, warmup=100)
-    debug.add_syn(syn, key_press='w', syn_variables="w")
-    debug.add_sec(soma(0.5))
+    # prepare plots and spike detector
+    rec_v = Record(soma(0.5), variables="v")
+    rec_w = Record(syn, variables="w")
 
-    debug.debug_interactive()
+    # run
+    sim = RunSim(init_v=-65, warmup=5)
+    syn.make_event(5)
+    sim.run(runtime=20)
+
+    # plot
+    rec_w.plot()
+    rec_v.plot()

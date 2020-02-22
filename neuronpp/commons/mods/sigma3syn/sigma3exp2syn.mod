@@ -11,7 +11,7 @@ NEURON {
 	RANGE g
 
     RANGE ltd, ltp, learning_slope, learning_tau
-	RANGE ltd_theshold, ltp_threshold
+	RANGE ltd_sigmoid_half, ltp_threshold
 	RANGE w, learning_w
 }
 
@@ -26,8 +26,11 @@ PARAMETER {
 	tau2 = 5 (ms) <1e-9,1e9>
 	e=0	(mV)
 
-    ltd_theshold = -40 (mV) <1e-9,1e9>
-	ltp_theshold = 0 (mV) <1e-9,1e9>
+    ltd_theshold = -58 (mV) <1e-9,1e9>
+	ltp_theshold = -38 (mV) <1e-9,1e9>
+
+    ltd_sigmoid_half = -50 (mV) <1e-9,1e9>
+	ltp_sigmoid_half = -30 (mV) <1e-9,1e9>
 	learning_slope = 1.3
 	learning_tau = 15
 	w = 1.0
@@ -69,9 +72,17 @@ INITIAL {
 }
 
 BREAKPOINT {
-    ltd = sigmoid_thr(learning_slope, v, ltd_theshold)
-	ltp = sigmoid_thr(learning_slope, v, ltp_theshold)
-	learning_w = sigmoid_sat(learning_slope, (-ltd + 2 * ltp) / learning_tau)
+    if(v-ltd_theshold > 0) {
+        ltd = sigmoid_thr(learning_slope, v, ltd_sigmoid_half)
+    } else {
+        ltd = 0
+    }
+    if(v-ltp_theshold > 0) {
+	    ltp = sigmoid_thr(learning_slope, v, ltp_sigmoid_half)
+	} else {
+	    ltp = 0
+	}
+	learning_w = sigmoid_sat(learning_slope, (-ltd + 2 * ltp) / learning_tau)*0.8
 
 	SOLVE state METHOD cnexp
 
@@ -91,7 +102,6 @@ BREAKPOINT {
 DERIVATIVE state {
 	A' = -A/tau1
 	B' = -B/tau2
-	learning_w' = learning_w*0.8
 }
 
 NET_RECEIVE(weight (uS)) {
@@ -107,4 +117,14 @@ FUNCTION sigmoid_thr(slope, value, thr) {
 : sigmoidal saturation
 FUNCTION sigmoid_sat(slope, value) {
     sigmoid_sat = 2.0 / (1.0 + pow(slope, -value)) - 1.0 : [-1 move down to -1; 2: move up to 1]
+}
+
+: rectification function
+FUNCTION relu(value) {
+	if(value < 0) {
+		relu = 0
+	}
+	else {
+		relu = value
+	}
 }

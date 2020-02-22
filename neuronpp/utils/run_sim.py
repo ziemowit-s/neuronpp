@@ -8,14 +8,14 @@ h.load_file('stdrun.hoc')
 
 
 class RunSim:
-    def __init__(self, init_v=None, dt=0.025, warmup=0, init_sleep=0, shape_plots=(), constant_timestep=True, with_neuron_gui=False):
+    def __init__(self, init_v=None, dt=0.025, warmup=1, init_sleep=0, shape_plots=(), constant_timestep=True, with_neuron_gui=False):
         """
         :param init_v:
             initial value in mV for the neuron function finitialize().
             In many cases it is -70 mV but you need to specify it explicitely.
             If left None it will take h.v_init param as default init_v.
         :param warmup:
-            in ms, for warmup with dt=10*ms
+            in ms, default is 1 ms.
         :param init_sleep
             sleep time in seconds. To sleep before first run
         :param with_neuron_gui
@@ -41,7 +41,7 @@ class RunSim:
             time.sleep(init_sleep)
 
         if warmup > 0:
-            h.dt = 10
+            h.dt = warmup/10
             h.continuerun(warmup * ms)
         h.dt = self.dt
 
