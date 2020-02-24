@@ -1,11 +1,14 @@
 COMMENT
+Inhibitory synapse
+Default parameters assume that eq membrane potential~=-68mV
+
 Modified version of original Exp2Syn which implements additional LTP/LTD hebbian learning.
 
 The learnable weight of the synapse is the RANGE variable 'w', which by default is set to 1.0
 ENDCOMMENT
 
 NEURON {
-	POINT_PROCESS Sigma3Exp2Syn
+	POINT_PROCESS InhSigma3Exp2Syn
 	RANGE tau1, tau2, e, i
 	NONSPECIFIC_CURRENT i
 	RANGE g
@@ -24,13 +27,13 @@ UNITS {
 PARAMETER {
 	tau1 = 1 (ms) <1e-9,1e9>
 	tau2 = 5 (ms) <1e-9,1e9>
-	e=0	(mV)
+	e=-90	(mV)
 
-    ltd_theshold = -60 (mV) <1e-9,1e9>
-	ltp_theshold = -45 (mV) <1e-9,1e9>
+    ltd_theshold = -70 (mV) <1e-9,1e9>
+	ltp_theshold = -77 (mV) <1e-9,1e9>
 
-    ltd_sigmoid_half = -55 (mV) <1e-9,1e9>
-	ltp_sigmoid_half = -40 (mV) <1e-9,1e9>
+    ltd_sigmoid_half = -73 (mV) <1e-9,1e9>
+	ltp_sigmoid_half = -80 (mV) <1e-9,1e9>
 
 	learning_slope = 1.3
 	learning_tau = 20
@@ -73,12 +76,12 @@ INITIAL {
 }
 
 BREAKPOINT {
-    if(v-ltd_theshold > 0) {
+    if(v-ltd_theshold < 0) {
         ltd = sigmoid_thr(learning_slope, v, ltd_sigmoid_half)
     } else {
         ltd = 0
     }
-    if(v-ltp_theshold > 0) {
+    if(v-ltp_theshold < 0) {
 	    ltp = sigmoid_thr(learning_slope, v, ltp_sigmoid_half)
 	} else {
 	    ltp = 0
@@ -96,14 +99,14 @@ BREAKPOINT {
 	    w = 5
 	}
 	if (w < 0) {
-	    w = 1
+	    w = 0.0001
 	}
 }
 
 DERIVATIVE state {
 	A' = -A/tau1
 	B' = -B/tau2
-	learning_w' = -learning_w/4
+	learning_w' = -learning_w
 }
 
 NET_RECEIVE(weight (uS)) {

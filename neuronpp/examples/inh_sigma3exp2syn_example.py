@@ -1,5 +1,3 @@
-import matplotlib.pyplot as plt
-
 from neuronpp.cells.cell import Cell
 from neuronpp.utils.record import Record
 from neuronpp.utils.run_sim import RunSim
@@ -11,7 +9,9 @@ if __name__ == '__main__':
     cell.insert('pas')
     cell.insert('hh')
 
-    syn = cell.add_sypanse(source=None, weight=0.003, seg=soma(0.5), mod_name="Sigma3Exp2Syn")
+    w = 0.013  # LTD
+    #w = 1  # LTP
+    syn = cell.add_sypanse(source=None, weight=w, seg=soma(0.5), mod_name="InhSigma3Exp2Syn")
 
     # prepare plots and spike detector
     rec_v = Record(soma(0.5), variables="v")
