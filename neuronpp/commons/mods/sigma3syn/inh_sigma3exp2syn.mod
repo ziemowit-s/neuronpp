@@ -35,7 +35,7 @@ PARAMETER {
     ltd_sigmoid_half = -73 (mV) <1e-9,1e9>
 	ltp_sigmoid_half = -80 (mV) <1e-9,1e9>
 
-	learning_slope = 1.3
+	learning_slope = 1.2
 	learning_tau = 20
 	w = 1.0
 }
