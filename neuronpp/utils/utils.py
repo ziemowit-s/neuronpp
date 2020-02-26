@@ -69,17 +69,17 @@ def show_connectivity_graph(cells, result_folder=None, file_name="conectivity_gr
                 continue
             elif isinstance(nc.source, Seg):
                 nc_node = nc.source.parent.parent.name
+                node_color = cell_color
             elif nc.source is None:
                 nc_node = "External Stim"
+                node_color = stim_color
             else:
                 nc_node = nc.source.name
+                node_color = stim_color
 
             if nc_node not in nodes:
                 nodes.append(nc_node)
-                if isinstance(nc, Cell):
-                    g.add_node(nc_node, color=cell_color)
-                else:
-                    g.add_node(nc_node, color=stim_color)
+                g.add_node(nc_node, color=node_color)
             if is_show_edge_func is not None and not is_show_edge_func(nc.target):
                 continue
 
