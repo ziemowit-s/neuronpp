@@ -36,7 +36,7 @@ class Synapse(ComposedHocWrapper):
         for nc in self.netconns:
             nc.make_event(time, use_global_sim_time)
 
-    def add_source(self, source: HocWrapper, weight=1.0, rand_weight=False, delay=1.0, threshold=10):
+    def add_source(self, source: HocWrapper, weight=1.0, delay=1.0, threshold=10):
         """
         Currently it allows to add single new source
         :param source:
@@ -45,15 +45,13 @@ class Synapse(ComposedHocWrapper):
         :param source_loc:
             if source is type of hocwrapper.Sec - source_loc need to be between 0-1, otherwise must remain None.
         :param weight:
-        :param rand_weight:
-            if True, will find rand weight [0,1) and multiply this by weight.
         :param delay:
             in ms
         :param threshold:
             threshold for NetConn, default=10
         """
-        conn = self.point_process.cell.add_netcon(source=source, point_process=self.point_process, weight=weight,
-                                                  rand_weight=rand_weight, delay=delay, threshold=threshold)
+        conn = self.point_process.cell.add_netcon(source=source, point_process=self.point_process, netcon_weight=weight,
+                                                  delay=delay, threshold=threshold)
         self.netconns.append(conn)
         if source is not None:
             self.sources.append(source)

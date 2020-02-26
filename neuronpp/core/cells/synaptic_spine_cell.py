@@ -7,7 +7,7 @@ class SynapticSpineCell(SpineCell, ComplexSynapticCell):
         ComplexSynapticCell.__init__(self, name, compile_paths=compile_paths)
         SpineCell.__init__(self, name)
 
-    def add_synapses_with_spine(self, source, mod_name: str, secs, weight=1, rand_weight=False,
+    def add_synapses_with_spine(self, source, mod_name: str, secs, weight=1,
                                 number=1, delay=0, head_nseg=2, neck_nseg=2, tag: str = None, **synaptic_params):
         """
 
@@ -15,8 +15,6 @@ class SynapticSpineCell(SpineCell, ComplexSynapticCell):
             Can be only: hocwrappers.NetStim, hocwrappers.VecStim, hocwrappers.Sec or None. If it is Sec also loc param need to be defined.
             If None it will create NetConn with no source, which can be use as external event source
         :param weight:
-        :param rand_weight:
-            if True, will find rand weight [0,1) and multiply this by weight.
         :param number:
         :param tag:
         :param mod_name:
@@ -33,8 +31,7 @@ class SynapticSpineCell(SpineCell, ComplexSynapticCell):
         syns = []
         for h in heads:
             h_segment = h(1.0)
-            syn = self.add_sypanse(source=source, seg=h_segment, mod_name=mod_name, weight=weight,
-                                   rand_weight=rand_weight, delay=delay, tag=tag, **synaptic_params)
+            syn = self.add_sypanse(source=source, seg=h_segment, mod_name=mod_name, weight=weight, delay=delay, tag=tag, **synaptic_params)
             syns.append(syn)
 
         return syns, heads

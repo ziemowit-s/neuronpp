@@ -47,14 +47,12 @@ class NetConCell(PointProcessCell):
         """
         return self.filter(searchable=self.ncs, obj_filter=obj_filter, mod_name=mod_name, name=name, **kwargs)
 
-    def add_netcon(self, source, point_process, weight=1, rand_weight=False, delay=0, threshold=10):
+    def add_netcon(self, source, point_process, netcon_weight=1, delay=0, threshold=10):
         """
         :param source:
             NetStim, VecStim, Seg or None.
             If remain None it will create NetConn with no source, which can be use as external event source
-        :param weight:
-        :param rand_weight:
-            if True, will find rand weight [0,1) and multiply this by weight.
+        :param netcon_weight:
         :param source_loc:
             if source is type of hocwrapper.Sec - source_loc need to be between 0-1, otherwise must remain None.
         :param mod_name:
@@ -73,14 +71,13 @@ class NetConCell(PointProcessCell):
             raise TypeError("Param 'source' can be NetStim, VecStim, Seg or None, "
                             "but provided %s" % source.__class__)
 
-        conn, name = self._make_netcon(source=source, point_process=point_process, weight=weight,
-                                       rand_weight=rand_weight, delay=delay, threshold=threshold)
+        conn, name = self._make_netcon(source=source, point_process=point_process, netcon_weight=netcon_weight, delay=delay, threshold=threshold)
         self.ncs.append(conn)
         self._nc_num[name] += 1
         return conn
 
     def _make_netcon(self, source, point_process, ref_variable: str = 'v',
-                     delay=1.0, weight=1.0, rand_weight=None, threshold=10):
+                     delay=1.0, netcon_weight=1.0, threshold=10):
         """
         :param source:
             NetStim, VecStim, HOC's Section or None. If None it will create a NetConn without the source.
@@ -90,17 +87,10 @@ class NetConCell(PointProcessCell):
             Name of the variable which is reference to pass to the NetConn. In most cases it is voltage 'v'.
             If the source is NetStim or VecStim is the ref_variable is not used.
         :param delay:
-        :param weight:
-        :param rand_weight:
-            Truncated normal distribution (only positive) with mu=weight, sigma=weight
+        :param netcon_weight:
         :param threshold:
         :return:
         """
-        if rand_weight:
-            current_weight = np.abs(np.random.normal(weight, weight, 1)[0])
-        else:
-            current_weight = weight
-
         hoc_pp = None
         if point_process is not None:
             if not isinstance(point_process, PointProcess):
@@ -122,8 +112,8 @@ class NetConCell(PointProcessCell):
 
         if delay:
             con.delay = delay
-        if weight:
-            con.weight[0] = current_weight
+        if netcon_weight:
+            con.weight[0] = netcon_weight
         if threshold:
             con.threshold = threshold
 
@@ -138,7 +128,6 @@ class NetConCell(PointProcessCell):
         if not isinstance(segment, Seg):
             raise TypeError("Param 'segment' can be only a Seg object.")
 
-        # source, point_process, weight, rand_weight=False, delay=0, threshold=10
         nc_detector = self.add_netcon(source=segment, point_process=None)
         nc_detector.name = "SpikeDetector[%s]" % self.name
 
