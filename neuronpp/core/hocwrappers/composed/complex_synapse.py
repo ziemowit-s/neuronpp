@@ -33,7 +33,7 @@ class ComplexSynapse(ComposedHocWrapper, dict):
         for syn in self.values():
             syn.make_event(time, use_global_sim_time)
 
-    def add_source(self, source: HocWrapper, weight=1.0, rand_weight=False, delay=1.0, threshold=10):
+    def add_source(self, source: HocWrapper, weight=1.0, delay=1.0, threshold=10):
         """
         This is use on all synapses in this object. If you want to set source only for particular subset of synapses,
         get them by complex_synapse['synaptic_mod_name'], where complex_synapse is your object and synaptic_mod_name is
@@ -43,15 +43,13 @@ class ComplexSynapse(ComposedHocWrapper, dict):
             NetStim, VecStim, HOC's Section or None. If it is Sec also loc param need to be defined.
             If remain None it will create NetConn with no source, which can be use as external event source
         :param weight:
-        :param rand_weight:
-            if True, will find rand weight [0,1) and multiply this by weight.
         :param delay:
             in ms
         :param threshold:
             threshold for NetConn, default=10
         """
         for s in self.values():
-            s.add_source(source, weight, rand_weight, delay, threshold)
+            s.add_source(source, weight, delay, threshold)
 
     def __repr__(self):
         synapses_in = '+'.join(self.keys())

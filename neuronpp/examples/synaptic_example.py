@@ -20,7 +20,7 @@ soma = cell.filter_secs("soma")
 
 # 1) Hoc-style synapse
 pp = cell.add_point_process(mod_name="ExpSyn", seg=soma(0.5))
-cell.add_netcon(source=stim, point_process=pp, weight=0.01, delay=1)
+cell.add_netcon(source=stim, point_process=pp, netcon_weight=0.01, delay=1)
 
 # 2) Recommended synapse
 syn1 = cell.add_sypanse(source=stim, seg=soma(0.5), weight=0.01, mod_name="Syn4P", delay=1)
