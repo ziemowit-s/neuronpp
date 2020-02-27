@@ -12,12 +12,12 @@ if __name__ == '__main__':
 
     w = 0.003  # LTP
     #w = 0.0022  # LTD
-    syn = cell.add_sypanse(source=None, weight=w, seg=soma(0.5), mod_name="ExcSigma3Exp2SynAchDa")
+    syn = cell.add_sypanse(source=None, netcon_weight=w, seg=soma(0.5), mod_name="ExcSigma3Exp2SynAchDa")
     pp = syn.point_process
     ach_netcon = cell.add_netcon(source=None, point_process=pp,
-                                 weight=0.1+pp.hoc.ach_substractor, delay=1)
+                                 netcon_weight=0.1+pp.hoc.ach_substractor, delay=1)
     da_netcon = cell.add_netcon(source=None, point_process=syn.point_process,
-                                weight=0.1+pp.hoc.da_substractor, delay=1)
+                                netcon_weight=0.1+pp.hoc.da_substractor, delay=1)
     # prepare plots and spike detector
     rec_v = Record(soma(0.5), variables="v")
     rec_w = Record(syn, variables="w")

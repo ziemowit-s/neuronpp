@@ -198,7 +198,6 @@ NET_RECEIVE(weight (uS)) {
             da = heb_da_w * da_w
             heb_da_w = 0
         }
-        printf("da: %g\n", da_w)
 
     } else if (weight-ach_substractor > 0) { : ACh stim
         ach_w = weight-ach_substractor
@@ -210,12 +209,10 @@ NET_RECEIVE(weight (uS)) {
             ach = heb_ach_w * ach_w
             heb_ach_w = 0
         }
-        printf("ach: %g\n", ach_w)
 
     } else { : Ex2Syn stim
         A = A + weight*factor
         B = B + weight*factor
-        printf("weight: %g\n", weight)
 
         if (ach_w > 0) {
             ach = ach_w

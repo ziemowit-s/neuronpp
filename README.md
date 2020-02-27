@@ -195,7 +195,7 @@ The main cell object `Cell` contains all filter methods inside.
    ```python
     cell = Cell(name="cell")
     soma = cell.filter_secs(name="soma")
-    cell.add_sypanse(source=None, mod_name="Syn4P", seg=soma(0.5), weight=0.01, delay=1)
+    cell.add_sypanse(source=None, mod_name="Syn4P", seg=soma(0.5), netcon_weight=0.01, delay=1)
    ```
 
   * add many spines to provided sections:
@@ -210,7 +210,7 @@ The main cell object `Cell` contains all filter methods inside.
     cell = Cell(name="cell")
     dendrites = cell.filter_secs(name="dend")
     syns = cell.add_synapses_with_spine(source=None, secs=dendrites, mod="ExpSyn",
-                                        weight=0.01, delay=1, number=10)
+                                        netcon_weight=0.01, delay=1, number=10)
    ```
   
   * define NetStim (or VecStim) and pass it to synapses as a source while creating:
@@ -220,7 +220,7 @@ The main cell object `Cell` contains all filter methods inside.
     
     cell = Cell(name="cell")
     soma = cell.filter_secs(name="soma")
-    cell.add_sypanse(source=stim, seg=soma(0.5), mod_name="ExpSyn", weight=0.01, delay=1)
+    cell.add_sypanse(source=stim, seg=soma(0.5), mod_name="ExpSyn", netcon_weight=0.01, delay=1)
   ```
   
    * Make synaptic event (send external input to the synapse): 
@@ -229,7 +229,7 @@ The main cell object `Cell` contains all filter methods inside.
     cell = Cell(name="cell")
     soma = cell.filter_secs(name="soma")
     syns = cell.add_sypanse(source=None, seg=soma(0.5), mod_name="ExpSyn", 
-                            weight=0.01, delay=1)
+                            netcon_weight=0.01, delay=1)
                               
     sim = RunSim(init_v=-55, warmup=20)
     
@@ -322,7 +322,7 @@ The main cell object `Cell` contains all filter methods inside.
     def syn_definition(self, cell, source, weight=1, **kwargs) -> list:
         secs = cell.filter_secs("dend")
         syns, heads = cell.add_synapses_with_spine(source=source, secs=secs, mod_name="Exp2Syn",
-                                                   weight=weight)
+                                                   netcon_weight=weight)
         return syns
 
 
@@ -373,7 +373,7 @@ Debug any cell and synapse on interactive plot.
   ```python
     cell = Cell("cell")
     soma = cell.add_sec("soma", diam=20, l=20, nseg=10)
-    syn = cell.add_sypanse(source=None, mod_name="Exp2Syn", seg=soma, weight=0.1)
+    syn = cell.add_sypanse(source=None, mod_name="Exp2Syn", seg=soma, netcon_weight=0.1)
 
     debug = SynapticDebugger(init_v=-80, warmup=200)
     debug.add_syn(syn, key_press='w', syn_variables="w")

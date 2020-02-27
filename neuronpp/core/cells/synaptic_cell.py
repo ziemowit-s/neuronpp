@@ -44,13 +44,13 @@ class SynapticCell(NetConCell):
         return self.filter(self.syns, obj_filter=obj_filter, mod_name=mod_name, name=name, source=source,
                            point_process=point_process, parent=parent, tag=tag, **kwargs)
 
-    def add_sypanse(self, source, mod_name: str, seg, weight=1, delay=0, threshold=10, tag: str = None, **synaptic_params):
+    def add_sypanse(self, source, mod_name: str, seg, netcon_weight=1, delay=0, threshold=10, tag: str = None, **synaptic_params):
         """
 
         :param source:
             Can be only: hocwrappers.NetStim, hocwrappers.VecStim, Seg or None.
             If None it will create NetConn with no source, which can be use as external event source
-        :param weight:
+        :param netcon_weight:
         :param tag:
         :param mod_name:
         :param seg:
@@ -63,7 +63,7 @@ class SynapticCell(NetConCell):
         """
 
         pp = self.add_point_process(mod_name=mod_name, seg=seg, tag=tag, **synaptic_params)
-        nn = self.add_netcon(source=source, netcon_weight=weight, point_process=pp, delay=delay, threshold=threshold)
+        nn = self.add_netcon(source=source, netcon_weight=netcon_weight, point_process=pp, delay=delay, threshold=threshold)
 
         syn_name = str(self._syn_num[mod_name])
         syn = Synapse(source, point_process=pp, netcon=nn, name=syn_name, tag=tag)

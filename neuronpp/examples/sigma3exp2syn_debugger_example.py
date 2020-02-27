@@ -8,7 +8,7 @@ if __name__ == '__main__':
     cell.insert('pas')
     cell.insert('hh')
 
-    syn = cell.add_sypanse(source=None, weight=0.002, seg=soma(0.5), mod_name="Sigma3Exp2Syn")
+    syn = cell.add_sypanse(source=None, netcon_weight=0.002, seg=soma(0.5), mod_name="Sigma3Exp2Syn")
 
     debug = SynapticDebugger(init_v=-70, warmup=100)
     debug.add_syn(syn, key_press='w', syn_variables="w")

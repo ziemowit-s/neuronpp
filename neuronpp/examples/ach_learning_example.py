@@ -14,11 +14,11 @@ if __name__ == '__main__':
 
     # make synapses with spines
     syns_4p, heads = cell.add_synapses_with_spine(source=None, secs=cell.secs, mod_name="Syn4PAChDa",
-                                                  number=3, weight=1, delay=1, **cell.params_4p_syn)
+                                                  number=3, netcon_weight=1, delay=1, **cell.params_4p_syn)
 
     for s, h in zip(syns_4p, heads):
-        syn_ach = cell.add_sypanse(source=None, mod_name="SynACh", seg=h(1.0), weight=0.1, delay=1)
-        syn_da = cell.add_sypanse(source=None, mod_name="SynDa", seg=h(1.0), weight=0.1, delay=1)
+        syn_ach = cell.add_sypanse(source=None, mod_name="SynACh", seg=h(1.0), netcon_weight=0.1, delay=1)
+        syn_da = cell.add_sypanse(source=None, mod_name="SynDa", seg=h(1.0), netcon_weight=0.1, delay=1)
         cell.set_synaptic_pointers(s, syn_ach, syn_da)
         cell.group_complex_sypanses("input_syn", s, syn_ach, syn_da)
 
