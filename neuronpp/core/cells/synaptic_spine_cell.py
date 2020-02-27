@@ -12,7 +12,7 @@ class SynapticSpineCell(SpineCell, ComplexSynapticCell):
         """
 
         :param source:
-            Can be only: hocwrappers.NetStim, hocwrappers.VecStim, hocwrappers.Sec or None. If it is Sec also loc param need to be defined.
+            Can be only: hocwrappers.NetStim, hocwrappers.VecStim, hocwrappers.Seg or None. If it is Sec also loc param need to be defined.
             If None it will create NetConn with no source, which can be use as external event source
         :param netcon_weight:
         :param number:

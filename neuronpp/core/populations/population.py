@@ -127,12 +127,12 @@ class Population:
             r.plot(animate=animate, **kwargs)
 
     @abc.abstractmethod
-    def syn_definition(self, cell: Cell, source, source_loc=None, **kwargs) -> list:
+    def syn_definition(self, cell: Cell, source, **kwargs) -> list:
         """
         Must return syns list.
         :param cell:
         :param source:
-            list of Secs
+            Can be only: hocwrappers.NetStim, hocwrappers.VecStim, hocwrappers.Seg or None
         :return:
             Must return a list of synapses.
         """
