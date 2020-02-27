@@ -6,7 +6,7 @@ from neuronpp.core.hocwrappers.point_process import PointProcess
 
 
 class Synapse(ComposedHocWrapper):
-    def __init__(self, source, point_process: PointProcess, netconn: NetCon, name, tag=None):
+    def __init__(self, source, point_process: PointProcess, netcon: NetCon, name, tag=None):
         self.mod_name = point_process.mod_name
         name = "%s[%s]" % (self.mod_name, name)
         ComposedHocWrapper.__init__(self, parent=point_process.parent, name=name)
@@ -18,9 +18,9 @@ class Synapse(ComposedHocWrapper):
         if source is not None:
             self.sources.append(source)
 
-        self.netconns = []
-        if netconn is not None:
-            self.netconns.append(netconn)
+        self.netcons = []
+        if netcon is not None:
+            self.netcons.append(netcon)
 
         self.point_process = point_process
         self.mod_name = point_process.mod_name
@@ -33,7 +33,7 @@ class Synapse(ComposedHocWrapper):
         :param use_global_sim_time:
             If true it will use global time of hoc simulation (don't need to add h.t or sim.time the the event time)
         """
-        for nc in self.netconns:
+        for nc in self.netcons:
             nc.make_event(time, use_global_sim_time)
 
     def add_source(self, source: HocWrapper, weight=1.0, rand_weight=False, delay=1.0, threshold=10):
@@ -54,10 +54,10 @@ class Synapse(ComposedHocWrapper):
         """
         conn = self.point_process.cell.add_netcon(source=source, point_process=self.point_process, weight=weight,
                                                   rand_weight=rand_weight, delay=delay, threshold=threshold)
-        self.netconns.append(conn)
+        self.netcons.append(conn)
         if source is not None:
             self.sources.append(source)
 
     def __repr__(self):
-        ncs = '+'.join([str(nc) for nc in self.netconns])
+        ncs = '+'.join([str(nc) for nc in self.netcons])
         return "{}[{}]{}+{}".format(self.parent, self.__class__.__name__, ncs, self.name)

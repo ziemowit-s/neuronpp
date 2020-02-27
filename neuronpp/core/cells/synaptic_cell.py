@@ -70,7 +70,7 @@ class SynapticCell(NetConCell):
                              rand_weight=rand_weight, delay=delay, threshold=threshold)
 
         syn_name = str(self._syn_num[mod_name])
-        syn = Synapse(source, point_process=pp, netconn=nn, name=syn_name, tag=tag)
+        syn = Synapse(source, point_process=pp, netcon=nn, name=syn_name, tag=tag)
         self.syns.append(syn)
         self._syn_num[mod_name] += 1
 

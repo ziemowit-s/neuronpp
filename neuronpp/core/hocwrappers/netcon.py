@@ -12,18 +12,22 @@ class NetCon(HocWrapper):
         self.source = source
         self.target = target
 
-    def make_event(self, time, use_global_sim_time=True):
+    def make_event(self, time, use_global_sim_time=True, use_delay=True):
         """
         Currently it makes events to all NetConns connected to the synapse.
         :param time:
             time in ms of next synaptic event
         :param use_global_sim_time:
             If true it will use global time of hoc simulation (don't need to add h.t or sim.time the the event time)
+        :param use_delay:
+            If true use delay (ms) defined for the NetCon while creation
         """
         if h.t == 0:
             raise ConnectionRefusedError("NetConn cannot make event before running the simulation. "
                                          "Run SimRun at least for 1 ms and then make event.")
         sim_time = time * ms
+        if use_delay:
+            sim_time += self.hoc.delay
         if use_global_sim_time:
             sim_time = h.t + sim_time
-            self.hoc.event(sim_time)
+        self.hoc.event(sim_time)
