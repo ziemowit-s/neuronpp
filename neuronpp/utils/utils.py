@@ -36,7 +36,7 @@ def set_random_normal_weights(point_processes: List[PointProcess], mean, std, we
     weights = np.abs(np.random.normal(mean, std, len(point_processes)))
     for pp, w in zip(point_processes, weights):
         current_weight = w
-        pp.hoc.w = current_weight
+        setattr(pp.hoc, weight_name, current_weight)
 
 
 def show_connectivity_graph(cells, result_folder=None, file_name="conectivity_graph.html", height="100%", width="100%",
