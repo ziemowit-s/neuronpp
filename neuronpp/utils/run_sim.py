@@ -1,7 +1,10 @@
 import time
 import numpy as np
 from neuron import h
-from neuron.hoc import HocObject
+try: 
+    from neuron.hoc import HocObject
+except: 
+    from neuron.hoc36 import HocObject
 from neuron.units import ms, mV
 
 h.load_file('stdrun.hoc')
