@@ -1,11 +1,14 @@
 import os
+from typing import List
+
+import numpy as np
 from neuron import h
 from threading import Thread
 
+from neuronpp.core.hocwrappers.point_process import PointProcess
 from pyvis.network import Network
 from pynput.keyboard import Listener
 
-from neuronpp.cells.cell import Cell
 from neuronpp.core.hocwrappers.seg import Seg
 
 
@@ -18,6 +21,22 @@ def make_shape_plot(variable=None, min_val=-70, max_val=40):
     h.fast_flush_list.append(ps)
     ps.exec_menu('Shape Plot')
     return ps
+
+
+def set_random_normal_weights(point_processes: List[PointProcess], mean, std, weight_name="w"):
+    """
+    :param point_processes:
+        list of point processes
+    :param mean:
+    :param std:
+        standard deviation
+    :param weight_name:
+        name of the weight param in the point process. By default it assumes the name "w"
+    """
+    weights = np.abs(np.random.normal(mean, std, len(point_processes)))
+    for pp, w in zip(point_processes, weights):
+        current_weight = w
+        pp.hoc.w = current_weight
 
 
 def show_connectivity_graph(cells, result_folder=None, file_name="conectivity_graph.html", height="100%", width="100%",
