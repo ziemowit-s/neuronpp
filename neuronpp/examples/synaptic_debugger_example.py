@@ -22,5 +22,5 @@ if __name__ == '__main__':
     debug.add_syn(syn_ach, key_press='a', plot=False)
     debug.add_syn(syn_da, key_press='d', plot=False)
 
-    debug.add_sec(soma(0.5))
+    debug.add_seg(soma(0.5))
     debug.debug_interactive()

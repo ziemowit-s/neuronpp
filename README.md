@@ -122,8 +122,8 @@ There are other examples in the folder.
    
   * create and connect sections:
    ```python
-    cell.add_sec("soma", diam=20, l=20, nseg=10)
-    cell.add_sec("dend", diam=2, l=100, nseg=10)
+    cell.add_seg("soma", diam=20, l=20, nseg=10)
+    cell.add_seg("dend", diam=2, l=100, nseg=10)
     cell.connect_secs(source="dend", target="soma")
    ```
 
@@ -372,12 +372,12 @@ Debug any cell and synapse on interactive plot.
   * Allows to easily plot synaptic weight (defined as MOD's RANGE variable) to see how the plasticity behaves in real time
   ```python
     cell = Cell("cell")
-    soma = cell.add_sec("soma", diam=20, l=20, nseg=10)
+    soma = cell.add_seg("soma", diam=20, l=20, nseg=10)
     syn = cell.add_sypanse(source=None, mod_name="Exp2Syn", seg=soma, netcon_weight=0.1)
 
     debug = SynapticDebugger(init_v=-80, warmup=200)
     debug.add_syn(syn, key_press='w', syn_variables="w")
-    debug.add_sec(soma(0.5))
+    debug.add_seg(soma(0.5))
     debug.debug_interactive()
   ```
 

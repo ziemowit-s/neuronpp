@@ -1,5 +1,7 @@
 from collections import defaultdict
 
+from neuronpp.core.hocwrappers.composed.synapse import Synapse
+from neuronpp.core.hocwrappers.netcon import NetCon
 from neuronpp.core.hocwrappers.seg import Seg
 from neuronpp.utils.record import Record
 from neuronpp.utils.run_sim import RunSim
@@ -18,7 +20,9 @@ class SynapticDebugger:
         self.warmup_time = warmup
         self.sim = None
 
-    def add_syn(self, syn, syn_variables="w", key_press=None, plot=True):
+    def add_syn(self, syn: Synapse, syn_variables="w", key_press=None, plot=True):
+        if not isinstance(syn, Synapse):
+            raise TypeError("Param 'syn' must be of type Synapse, but provided '%s'" % syn.__class__)
         if plot:
             rec = Record(elements=syn, variables=syn_variables)
             self.syn_recs.append(rec)
@@ -28,7 +32,17 @@ class SynapticDebugger:
             name = str(len(self.syns))
         self.syns[name].append(syn)
 
-    def add_sec(self, seg: Seg, sec_variables='v'):
+    def add_con(self, con: NetCon, key_press=None):
+        if not isinstance(con, NetCon):
+            raise TypeError("Param 'con' must be of type NetCon, but provided '%s'" % con.__class__)
+        name = key_press
+        if name is None:
+            name = str(len(self.syns))
+        self.syns[name].append(con)
+
+    def add_seg(self, seg: Seg, sec_variables='v'):
+        if not isinstance(seg, Seg):
+            raise TypeError("Param 'seg' must be of type Seg, but provided '%s'" % seg.__class__)
         rec = Record(elements=seg, variables=sec_variables)
         self.sec_recs.append(rec)
 
@@ -118,3 +132,4 @@ class SynapticDebugger:
             syn_rec.plot(animate=True, steps=plot_steps)
         for sec_rec in self.sec_recs:
             sec_rec.plot(animate=True, steps=plot_steps)
+        print('plot')
