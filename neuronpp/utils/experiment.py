@@ -134,9 +134,9 @@ class Experiment:
         return event_time
 
     @staticmethod
-    def _set_source(stim, syn, weight, threshold, delay, copy_netcon_params):
-        if copy_netcon_params:
-            nc = syn.netcons[-1]
+    def _set_source(stim, syn, weight, threshold, delay, copy_netconn_params):
+        if copy_netconn_params:
+            nc = syn.netconns[-1]
             delay = nc.hoc.delay
             weight = nc.hoc.weight[0]
             threshold = nc.hoc.threshold

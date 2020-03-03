@@ -7,8 +7,10 @@ from threading import Thread
 
 from neuronpp.core.hocwrappers.point_process import PointProcess
 from pyvis.network import Network
+import matplotlib.pyplot as py
 from pynput.keyboard import Listener
 
+from neuronpp.utils.record import Record
 from neuronpp.core.hocwrappers.seg import Seg
 
 
@@ -123,7 +125,51 @@ def show_connectivity_graph(cells, result_folder=None, file_name="conectivity_gr
     g.show(save_path)
     print("Saved cell graph into: %s" % save_path)
 
-
+class plot_network_status:
+    def __init__(self, cells):
+        self.unique_cells=[]
+        self.cells_count = []
+        self.nodes =[]
+        spike_list= []
+        colors = []
+        self.texts = []
+        self.x_list = []
+        self.y_list = []
+        self.correct_position = (-0.1, 0.1)
+        for c in cells:
+            if 'mot' in c.name: continue
+            soma = c.filter_secs('soma')
+            c.make_spike_detector(soma(0.5))
+            spikes = c.get_spikes()
+            if c.name not in self.cells_count:
+                self.unique_cells.append(c)
+                self.cells_count.append(c.name)
+                split_name = c.name.split('[')
+                spike_list.append(spikes)
+                self.x_list.append(int(split_name[0][-1]))
+                self.y_list.append(int(split_name[-1][:-1]))
+                if 'inh' in c.name: colors.append('red')
+                elif 'hid' in c.name: colors.append('blue')
+                else: colors.append('grey') 
+        py.figure()
+        ax2 = py.subplot(111)
+        ax2.scatter(self.x_list,self.y_list,s=200, color=colors, alpha=0.5)
+        for n,spikes in enumerate(spike_list): 
+            self.texts.append(ax2.text(self.x_list[n]-self.correct_position(0), 
+                                       self.y_list[n]-self.correct_position(0), 
+                                       str(len(spikes))))
+        ax2.spines['right'].set_visible(False)
+        ax2.spines['top'].set_visible(False)
+        py.xticks([0,1,2,3], ['Input', 'Hidden', 'Inhibitory', 'Output'])
+    
+    def update_spikes(self):
+        for n,c in enumerate(self.unique_cells):
+            if 'mot' in c.name: continue
+            self.texts[n].set_position((self.x_list[n]-0.05, self.y_list[n]-0.05))
+            self.texts[n].set_text(str(len(c.get_spikes())))
+            py.draw()
+    
+    
 def key_release_listener(on_press_func):
     def final_func(key):
         if key is not None and hasattr(key, 'char'):
