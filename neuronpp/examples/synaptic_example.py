@@ -23,10 +23,10 @@ pp = cell.add_point_process(mod_name="ExpSyn", seg=soma(0.5))
 cell.add_netcon(source=stim, point_process=pp, netcon_weight=0.01, delay=1)
 
 # 2) Recommended synapse
-syn1 = cell.add_sypanse(source=stim, seg=soma(0.5), netcon_weight=0.01, mod_name="Syn4P", delay=1)
+syn1 = cell.add_synapse(source=stim, seg=soma(0.5), netcon_weight=0.01, mod_name="Syn4P", delay=1)
 
 # 3) Event synapse
-syn2 = cell.add_sypanse(source=None, seg=soma(0.5), netcon_weight=0.01, mod_name="Syn4P", delay=1)
+syn2 = cell.add_synapse(source=None, seg=soma(0.5), netcon_weight=0.01, mod_name="Syn4P", delay=1)
 
 # prepare plots
 rec_v = Record(soma(0.5), variables="v")

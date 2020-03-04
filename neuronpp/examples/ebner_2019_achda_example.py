@@ -28,8 +28,8 @@ if __name__ == '__main__':
     syns_4p, heads = cell.add_synapses_with_spine(source=None, secs=cell.secs, number=100, netcon_weight=WEIGHT,
                                                   mod_name="Syn4PAChDa", delay=1, **cell.params_4p_syn)
     for s, h in zip(syns_4p, heads):
-        syn_ach = cell.add_sypanse(source=stim1, mod_name="SynACh", seg=h(1.0), netcon_weight=0.1, delay=1)
-        syn_da = cell.add_sypanse(source=stim2, mod_name="SynDa", seg=h(1.0), netcon_weight=0.1, delay=1)
+        syn_ach = cell.add_synapse(source=stim1, mod_name="SynACh", seg=h(1.0), netcon_weight=0.1, delay=1)
+        syn_da = cell.add_synapse(source=stim2, mod_name="SynDa", seg=h(1.0), netcon_weight=0.1, delay=1)
         cell.set_synaptic_pointers(s, syn_ach, syn_da)
 
     # add mechanisms

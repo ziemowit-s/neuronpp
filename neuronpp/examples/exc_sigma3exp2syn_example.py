@@ -11,7 +11,7 @@ if __name__ == '__main__':
 
     w = 0.003  # LTP
     #w = 0.0022  # LTD
-    syn = cell.add_sypanse(source=None, netcon_weight=w, seg=soma(0.5), mod_name="ExcSigma3Exp2Syn")
+    syn = cell.add_synapse(source=None, netcon_weight=w, seg=soma(0.5), mod_name="ExcSigma3Exp2Syn")
 
     # prepare plots and spike detector
     rec_v = Record(soma(0.5), variables="v")

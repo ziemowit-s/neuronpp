@@ -52,7 +52,7 @@ class Combe2018Cell(Cell, CoreHocCell):
             # Create AMPA synapses
             ampa_weight = 1.2 * 0.00156
             for h in heads:
-                syn = self.add_sypanse(source=None, seg=h(1.0), mod_name="Exp2Syn", netcon_weight=ampa_weight)
+                syn = self.add_synapse(source=None, seg=h(1.0), mod_name="Exp2Syn", netcon_weight=ampa_weight)
                 syn.point_process.hoc.e = 0
                 syn.point_process.hoc.tau1 = .5
                 syn.point_process.hoc.tau2 = 1.0
@@ -61,11 +61,11 @@ class Combe2018Cell(Cell, CoreHocCell):
             # Create NMDA synapses
             nmda_weight = 1.2 * 0.000882
             for h in heads:
-                syn = self.add_sypanse(source=None, seg=h(1.0), mod_name="nmdanet", netcon_weight=nmda_weight)
+                syn = self.add_synapse(source=None, seg=h(1.0), mod_name="nmdanet", netcon_weight=nmda_weight)
                 syn.point_process.hoc.Alpha = 0.35
                 syn.point_process.hoc.Beta = 0.035
                 nmda_syns.append(syn)
 
             for syns in zip(ampa_syns, nmda_syns):
-                comp_syn = self.group_complex_sypanses("combe_type", syns)
+                comp_syn = self.group_complex_synapses("combe_type", syns)
                 self.combe_syns.append(comp_syn)

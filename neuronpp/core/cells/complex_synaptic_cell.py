@@ -40,7 +40,7 @@ class ComplexSynapticCell(SynapticCell):
         return self.filter(self.complex_syns, obj_filter=obj_filter, mod_name=mod_name, name=name, parent=parent,
                            tag=tag, **kwargs)
 
-    def group_complex_sypanses(self, tag=None, *synapses):
+    def group_complex_synapses(self, tag=None, *synapses):
         """
 
         :param synapses:

@@ -12,7 +12,7 @@ if __name__ == '__main__':
     ach_w = 0.1
     da_w = 0.1
 
-    syn = cell.add_sypanse(source=None, netcon_weight=w, seg=soma(0.5), mod_name="ExcSigma3Exp2SynAchDa",
+    syn = cell.add_synapse(source=None, netcon_weight=w, seg=soma(0.5), mod_name="ExcSigma3Exp2SynAchDa",
                            tau1=1, tau2=5)
     pp = syn.point_process
     ach_netcon = cell.add_netcon(source=None, point_process=pp,
