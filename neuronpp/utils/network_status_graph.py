@@ -4,9 +4,12 @@ Created on Tue Mar  3 17:39:28 2020
 
 @author: Wladek
 """
-from neuronpp.core.hocwrappers.seg import Seg
+import re
+import math
 import numpy as np
 import matplotlib.pyplot as py
+
+from neuronpp.core.hocwrappers.seg import Seg
 from neuronpp.core.hocwrappers.point_process import PointProcess
 
 
@@ -39,15 +42,12 @@ class NetworkStatusGraph:
                 self.lines.append(line)
         n = 0
         for c in self.cells:
-            if 'mot' in c.name:
-                continue
-
             self.texts.append(ax2.text(self.x_list[n] - self.correct_position[0],
                                        self.y_list[n] - self.correct_position[1], ''))
             n += 1
         ax2.spines['right'].set_visible(False)
         ax2.spines['top'].set_visible(False)
-        py.xticks([i for i in range(1, len(self.population_names)+1)], self.population_names)
+        py.xticks([i for i in range(0, len(self.population_names)+1)], self.population_names)
 
     def update_weights(self, weight_name):
         n = 0
@@ -60,8 +60,6 @@ class NetworkStatusGraph:
     def update_spikes(self, sim_time):
         n = 0
         for c in self.cells:
-            if 'mot' in c.name:
-                continue
             spikes = np.asarray(c.get_spikes())
             self.texts[n].set_text(str(spikes.shape[0]))
             alpha = spikes > (sim_time - 50)
@@ -75,9 +73,6 @@ class NetworkStatusGraph:
     def _get_edges(self, weight_name):
         result = []
         for c in self.cells:
-            if 'mot' in c.name:
-                continue
-
             soma = c.filter_secs('soma')
             c.make_spike_detector(soma(0.5))
             split_name = c.name.split('[')
@@ -87,8 +82,6 @@ class NetworkStatusGraph:
             if 'inh' in c.name:
                 self.colors.append('red')
                 y_pos -= 5
-            elif 'hid' in c.name:
-                self.colors.append('blue')
             else:
                 self.colors.append('green')
 
@@ -131,4 +124,9 @@ class NetworkStatusGraph:
             population_name = c.name.split('[')[0]
             if population_name not in result:
                 result.append(population_name)
-        return result
+
+        regs = [(re.findall("[0-9]+", n), n) for n in result]
+        # sort by number in population name (if contains)
+        result = sorted([(int(l[0]) if len(l) > 0 else math.inf, n) for l, n in regs], key=lambda x: x[0])
+
+        return [n for i, n in result]
