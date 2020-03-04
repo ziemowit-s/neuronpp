@@ -1,6 +1,7 @@
 from neuronpp.cells.cell import Cell
 from neuronpp.core.cells.netstim_cell import NetStimCell
 from neuronpp.core.populations.population import Population
+from neuronpp.utils.network_status_graph import NetworkStatusGraph
 from neuronpp.utils.utils import show_connectivity_graph
 
 from neuronpp.utils.run_sim import RunSim
@@ -46,7 +47,12 @@ if __name__ == '__main__':
         for p in c.pps:
             p.hoc.e = -90
 
+    # Create interactive connectivity graph
     show_connectivity_graph(pop1.cells + pop2.cells + pop3.cells)
+
+    # Create connectivity graph grouped by populations, with weighs and spike rates updated
+    graph = NetworkStatusGraph(cells=pop1.cells + pop2.cells + pop3.cells)
+    graph.plot()
 
     # Run
     sim = RunSim(init_v=-70, warmup=20)
