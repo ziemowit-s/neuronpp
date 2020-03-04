@@ -15,8 +15,10 @@ cell.insert("pas")
 cell.insert("hh")
 
 # Create stim and synapses
-stim = NetStimCell("stim_cell").make_netstim(start=30, number=5, interval=10)
-syns = cell.add_synapses_with_spine(source=stim, secs=cell.filter_secs("apic"), mod_name="ExpSyn", netcon_weight=0.01, delay=1,
+ns_cell = NetStimCell("stim_cell")
+ns = ns_cell.make_netstim(start=30, number=5, interval=10)
+
+syns = cell.add_synapses_with_spine(source=ns, secs=cell.filter_secs("apic"), mod_name="ExpSyn", netcon_weight=0.01, delay=1,
                                     number=100)
 soma = cell.filter_secs("soma")
 

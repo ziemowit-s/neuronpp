@@ -1,7 +1,3 @@
-from neuronpp.core.cells.netstim_cell import NetStimCell
-
-from neuronpp.core.hocwrappers.netstim import NetStim
-
 from neuronpp.cells.cell import Cell
 from neuronpp.core.cells.core_hoc_cell import CoreHocCell
 

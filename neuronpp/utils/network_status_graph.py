@@ -47,7 +47,7 @@ class NetworkStatusGraph:
             n += 1
         ax2.spines['right'].set_visible(False)
         ax2.spines['top'].set_visible(False)
-        py.xticks([i for i in range(0, len(self.population_names)+1)], self.population_names)
+        py.xticks([i for i in range(0, len(self.population_names))], self.population_names)
 
     def update_weights(self, weight_name):
         n = 0
@@ -82,6 +82,8 @@ class NetworkStatusGraph:
             if 'inh' in c.name:
                 self.colors.append('red')
                 y_pos -= 5
+            elif 'hid' in c.name:
+                self.colors.append('blue')
             else:
                 self.colors.append('green')
 
