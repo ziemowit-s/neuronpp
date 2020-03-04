@@ -44,7 +44,7 @@ class SynapticCell(NetConCell):
         return self.filter(self.syns, obj_filter=obj_filter, mod_name=mod_name, name=name, source=source,
                            point_process=point_process, parent=parent, tag=tag, **kwargs)
 
-    def add_sypanse(self, source, mod_name: str, seg, netcon_weight=1, delay=0, threshold=10, tag: str = None, **synaptic_params):
+    def add_synapse(self, source, mod_name: str, seg, netcon_weight=1, delay=0, threshold=10, tag: str = None, **synaptic_params):
         """
 
         :param source:

@@ -63,8 +63,8 @@ UNITS {
 }
 
 PARAMETER {
-	tau1 = 1 (ms) <1e-9,1e9>
-	tau2 = 5 (ms) <1e-9,1e9>
+	tau1 = 0.1 (ms) <1e-9,1e9>
+	tau2 = 10 (ms) <1e-9,1e9>
 	e=0	(mV)
 
     ltd_theshold = -60 (mV) <1e-9,1e9>
