@@ -1,4 +1,3 @@
-import numpy as np
 from neuron import h
 
 from neuronpp.core.hocwrappers.netcon import NetCon
@@ -127,6 +126,9 @@ class NetConCell(PointProcessCell):
         """
         if not isinstance(segment, Seg):
             raise TypeError("Param 'segment' can be only a Seg object.")
+        if self._spike_detector is not None:
+            raise RuntimeError("Spike detector has been created already for the cell %s, "
+                               "you can't create another one." % self.name)
 
         nc_detector = self.add_netcon(source=segment, point_process=None)
         nc_detector.name = "SpikeDetector[%s]" % self.name
