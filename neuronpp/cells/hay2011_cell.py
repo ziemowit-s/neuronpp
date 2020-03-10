@@ -1,10 +1,15 @@
+import os
+
 import numpy as np
 from neuron import h
 from neuronpp.cells.cell import Cell
 
+path = os.path.dirname(os.path.abspath(__file__))
+model_path = os.path.join(path, "..",
+                          "commons/mods/hay2011")
 
 class Hay2011Cell(Cell):
-    def __init__(self, name, compile_paths='../commons/mods/hay2011'):
+    def __init__(self, name, compile_paths=model_path):
         """
         Experimental cell of Hay 2011 rewrited to Python
         :param name:

@@ -1,8 +1,13 @@
+import os
+
 from neuron import h
 from neuronpp.cells.cell import Cell
 
+path = os.path.dirname(os.path.abspath(__file__))
+filepath = os.path.join(path, "..",
+                        "commons/morphologies/asc/cell1.asc")
 cell = Cell("cell")
-cell.load_morpho(filepath='../commons/morphologies/asc/cell1.asc')
+cell.load_morpho(filepath=filepath)
 soma = cell.filter_secs("soma")
 
 # Filter sections by distance to the soma (return only those distance > 1000 um)

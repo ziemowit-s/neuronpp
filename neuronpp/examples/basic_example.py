@@ -1,3 +1,4 @@
+import os
 import matplotlib.pyplot as plt
 
 from neuronpp.cells.cell import Cell
@@ -10,7 +11,10 @@ from neuronpp.core.cells.netstim_cell import NetStimCell
 
 # Create cell
 cell = Cell(name="cell")
-cell.load_morpho(filepath='../commons/morphologies/asc/cell2.asc')
+path = os.path.dirname(os.path.abspath(__file__))
+morpho_path = os.path.join(path, "..",
+                           "commons/morphologies/asc/cell2.asc")
+cell.load_morpho(filepath=morpho_path)
 cell.insert("pas")
 cell.insert("hh")
 

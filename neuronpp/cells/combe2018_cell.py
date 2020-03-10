@@ -1,9 +1,14 @@
+import os
+
 from neuronpp.cells.cell import Cell
 from neuronpp.core.cells.core_hoc_cell import CoreHocCell
 
+path = os.path.dirname(os.path.abspath(__file__))
+model_path = os.path.join(path, "..",
+                          "commons/hocmodels/combe2018")
 
 class Combe2018Cell(Cell, CoreHocCell):
-    def __init__(self, name=None, model_folder="../commons/hocmodels/combe2018", spine_number=0,
+    def __init__(self, name=None, model_folder=model_path, spine_number=0,
                  spine_secs_names="apic",
                  spine_seed: int = None):
         """
@@ -27,7 +32,7 @@ class Combe2018Cell(Cell, CoreHocCell):
         Cell.__init__(self, name, model_folder)
         CoreHocCell.__init__(self, name)
 
-        main_file = "%s/load_cell.hoc" % model_folder
+        main_file = os.path.join(model_folder, "load_cell.hoc")
         self.load_hoc(main_file)
 
         secs = self.filter_secs(name=spine_secs_names)
