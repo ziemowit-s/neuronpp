@@ -1,11 +1,21 @@
+import os
+
 from neuron import h
 from neuronpp.core.hocwrappers.composed.synapse import Synapse
 
 from neuronpp.cells.hay2011_cell import Hay2011Cell
 
+path = os.path.dirname(os.path.abspath(__file__))
+model_path1 = os.path.join(path, "..", "commons/mods/hay2011")
+model_path2 = os.path.join(path, "..", "commons/mods/ebner2019")
+model_path3 = os.path.join(path, "..", "commons/mods/4p_ach_da_syns")
+combined_path = "%s %s %s" % (model_path1,
+                              model_path2,
+                              model_path3)
+
 
 class Ebner2019AChDACell(Hay2011Cell):
-    def __init__(self, name=None, compile_paths="../commons/mods/hay2011 ../commons/mods/ebner2019 ../commons/mods/4p_ach_da_syns"):
+    def __init__(self, name=None, compile_paths=combined_path):
         """
         Experimental cell of Ebner2019 rewrited to Python with ACh Da neuromodulation.
 

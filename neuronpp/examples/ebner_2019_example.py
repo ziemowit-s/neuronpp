@@ -1,9 +1,11 @@
+import os
+
 from neuronpp.utils.run_sim import RunSim
 from neuronpp.utils.record import Record
 from neuronpp.cells.ebner2019_cell import Ebner2019Cell
 from neuronpp.core.cells.netstim_cell import NetStimCell
 
-
+path = os.path.dirname(os.path.abspath(__file__))
 WEIGHT = 0.0035  # µS, conductance of (single) synaptic potentials
 WARMUP = 200
 
@@ -11,7 +13,9 @@ WARMUP = 200
 if __name__ == '__main__':
     # define cell
     cell = Ebner2019Cell(name="cell")
-    cell.load_morpho(filepath='../commons/morphologies/swc/my.swc')
+    filepath = os.path.join(path, "..",
+                            "commons/morphologies/swc/my.swc")
+    cell.load_morpho(filepath=filepath)
 
     # stimulation
     stim = NetStimCell("stim_cell").make_netstim(start=WARMUP + 1, number=300, interval=1)

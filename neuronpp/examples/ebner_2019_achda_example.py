@@ -1,3 +1,4 @@
+import os
 import numpy as np
 
 from neuronpp.utils.record import Record
@@ -5,6 +6,8 @@ from neuronpp.utils.run_sim import RunSim
 from neuronpp.core.cells.netstim_cell import NetStimCell
 from neuronpp.core.cells.vecstim_cell import VecStimCell
 from neuronpp.cells.ebner2019_ach_da_cell import Ebner2019AChDACell
+
+path = os.path.dirname(os.path.abspath(__file__))
 
 
 WEIGHT = 0.0035		# µS, conductance of (single) synaptic potentials
@@ -14,7 +17,9 @@ WARMUP = 200
 if __name__ == '__main__':
     # define cell
     cell = Ebner2019AChDACell(name="cell")
-    cell.load_morpho(filepath='../commons/morphologies/swc/my.swc')
+    filepath = os.path.join(path, "..",
+                            "commons/morphologies/swc/my.swc")
+    cell.load_morpho(filepath=filepath)
 
     # make NetStim stims
     ns_cell = NetStimCell("netstim_cell")

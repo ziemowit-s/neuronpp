@@ -1,3 +1,5 @@
+import os
+
 from neuronpp.cells.cell import Cell
 from neuronpp.core.cells.netstim_cell import NetStimCell
 from neuronpp.core.populations.population import Population
@@ -6,11 +8,14 @@ from neuronpp.utils.utils import show_connectivity_graph
 
 from neuronpp.utils.run_sim import RunSim
 
+path = os.path.dirname(os.path.abspath(__file__))
 
 class ExcitatoryPopulation(Population):
     def cell_definition(self, **kwargs) -> Cell:
         cell = Cell(name="cell")
-        cell.load_morpho(filepath='../commons/morphologies/swc/my.swc')
+        morpho_path = os.path.join(path, "..",
+                          "commons/morphologies/swc/my.swc")
+        cell.load_morpho(filepath=morpho_path)
         cell.insert("pas")
         cell.insert("hh")
         return cell

@@ -1,9 +1,14 @@
+import os
 from neuronpp.cells.cell import Cell
 from neuronpp.utils.synaptic_debugger import SynapticDebugger
 
+path = os.path.dirname(os.path.abspath(__file__))
+
 if __name__ == '__main__':
     # Prepare cell
-    cell = Cell("cell", compile_paths='../commons/mods/sigma3syn')
+    filepath = os.path.join(path, "..",
+                            "commons/mods/sigma3syn")
+    cell = Cell("cell", compile_paths=filepath)
     soma = cell.add_sec("soma", diam=20, l=20, nseg=10)
     cell.insert('pas')
     cell.insert('hh')

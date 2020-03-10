@@ -1,13 +1,20 @@
+import os
+
 from neuronpp.utils.run_sim import RunSim
 
 from neuronpp.cells.cell import Cell
 from neuronpp.utils.record import Record
 from neuronpp.core.cells.netstim_cell import NetStimCell
 
+path = os.path.dirname(os.path.abspath(__file__))
+model_path1 = os.path.join(path, "..",
+                           "commons/mods/ebner2019")
+model_path2 = os.path.join(path, "..",
+                           "commons/morphologies/swc/my.swc")
 
 # Prepare cell
-cell = Cell(name="cell", compile_paths="../commons/mods/ebner2019")
-cell.load_morpho(filepath='../commons/morphologies/swc/my.swc')
+cell = Cell(name="cell", compile_paths=model_path1)
+cell.load_morpho(filepath=model_path2)
 cell.add_sec("dend[1]", diam=10, l=10, nseg=10)
 cell.connect_secs(source="dend[1]", target="soma")
 cell.insert("pas")

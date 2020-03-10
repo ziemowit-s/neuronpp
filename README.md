@@ -311,10 +311,14 @@ The main cell object `Cell` contains all filter methods inside.
   ```python
     # Define a new Population class. 
     # You need to implement abstract method cell_definition() and syn_definition() for each new Population
+    import os
+
+    path = os.path.dirname(os.path.abspath(__file__))
     class ExcitatoryPopulation(Population):
     def cell_definition(self, **kwargs) -> Cell:
         cell = Cell(name="cell")
-        cell.load_morpho(filepath='../commons/morphologies/swc/my.swc')
+	f_path = os.path.join(path, "..", "commons/morphologies/swc/my.swc")
+        cell.load_morpho(filepath=f_path)
         cell.insert("pas")
         cell.insert("hh")
         return cell
