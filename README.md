@@ -1,24 +1,24 @@
-Neuron++ wraps NEURON (http://www.neuron.yale.edu) with easy to use Python objects. The main intention behind this library was to perform tidius tasks in few lines of code.
+Neuron++ wraps NEURON (http://www.neuron.yale.edu) with easy to use Python objects. The main intention behind this library was to perform tedious tasks in few lines of code.
 
 ## Key features
 
-  * Fast prototyping environment to use NEURON with Python with OOP paradigm in the first place.
+  * Use an environment for fast prototyping of neuron models built in NEURON simulation environment using a Python interface utilizing object-oriented programming (OOP) paradigm.
 
-  * Precisely define models of a single cell and connect them together to create a small network.
+  * Precisely define single cell models and connect them together to create a small network.
   
-  * Upload HOC based single cell model and adopt them to your needs
+  * Upload HOC based single cell models and adapt them to your needs.
   
-  * Manage synaptic signaling
+  * Manage synaptic signaling.
   
-  * Dendritic spines creation
+  * Create dendritic spines.
   
-  * Defining in vitro experimental protocols (eg. STDP paradigms)
+  * Define in vitro experimental protocols (eg. STDP paradigms)
   
-  * Debug synapse and point process RANGE values in real time
+  * Debug synaptic connections and point process RANGE values in real time.
   
-  * Define populations of neurons and connect them together
+  * Define populations of neurons and connect them together.
   
-  * Provide helpful exception messages and guidelines of how to use NEURON functions without errors
+  * Provide helpful exception messages and guidelines of how to use NEURON functions without errors.
     
 This is a pre-Alpha version
 
