@@ -132,4 +132,3 @@ class SynapticDebugger:
             syn_rec.plot(animate=True, steps=plot_steps)
         for sec_rec in self.sec_recs:
             sec_rec.plot(animate=True, steps=plot_steps)
-        print('plot')
