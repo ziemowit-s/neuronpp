@@ -63,9 +63,6 @@ class NetworkStatusGraph:
             spikes = np.asarray(c.get_spikes())
             self.texts[n].set_text(str(spikes.shape[0]))
             alpha = spikes > (sim_time - 50)
-            if 'inp' in c.name:
-                print(alpha)
-                print(spikes)
             self.nodes[n].set_alpha(np.sum(alpha) / 10)
             n += 1
             py.draw()
