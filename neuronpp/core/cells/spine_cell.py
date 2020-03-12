@@ -102,3 +102,11 @@ class SpineCell(SectionCell):
                 neck.hoc.connect(s(loc), 0.0)
                 added[s.name()].append(loc)
                 break
+
+    def _connect_neck(neck: Sec, sec, which_one, total_spines):
+        """
+        Connect necks list to sections list with uniform random distribution
+        :param neck:
+        :param sections:
+        """
+        pass
