@@ -1,9 +1,38 @@
 import random
+import numpy as np
 from random import randint
 
 from neuronpp.core.cells.section_cell import SectionCell
 from neuronpp.core.hocwrappers.sec import Sec
+### Nomenclature and values adapted from Harris KM, Jensen FE, Tsao BE.
+### J Neurosci 1992
 
+SPINE_DIMENSIONS = {
+    "mushroom_spine":  {
+        "head_diam": 1.1,
+        "head_len": 0.8,
+        "neck_diam": 0.20,
+        "neck_len": 0.43,
+    },
+    "thin_spine": {
+        "head_diam": 0.2,
+        "head_len": 0.5,
+        "neck_diam": 0.1,
+        "neck_len": 0.5,
+    },
+    "stubby_spine": {
+        "head_diam": 0.32,
+        "head_len": 0.2,
+        "neck_diam": 0.32,
+        "neck_len": 0.2,
+        },
+    "generic":  {
+        "head_diam": 1.,
+        "head_len": 1,
+        "neck_diam": 0.5,
+        "neck_len": 0.5,
+    }
+}
 
 class SpineCell(SectionCell):
     def __init__(self, name=None, compile_paths=None):
