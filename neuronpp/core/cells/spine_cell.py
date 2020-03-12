@@ -110,3 +110,44 @@ class SpineCell(SectionCell):
         :param sections:
         """
         pass
+
+    def add_spines_with_length(self, distance_range, spine_density, spine_type,
+                               **kwargs):
+        """
+        Add spines with specified longitudal density (per 1 um) to a part
+        of dendritic range specified as distance from the soma. Spines can have
+        a predifined type (stubby, thin, mushroom) or, alternatively, their
+        dimentions (head_diam, head_len, neck_diam, neck_len) can be specified
+        in kwargs.
+
+
+        :param distance_range: tuple or list 
+            tuple containing begining and end of the distance range
+            where spines will be added
+        :param spine_density:
+            Longitudal spine density in [um]
+        :param spine_type:
+            Spine type. There are four predifined types: thin, stubby,
+            mushroom and other.
+        :param \**kwargs:
+            See below
+
+        Keyword arguments:
+        :head_diam:
+            Spine head diameter
+        :head_len:
+            Length of the spine head
+        :neck_diam:
+            Spine neck diameter
+        :neck_len:
+            Length of the spine neck
+        :seed: None
+            seed for the random number generator used for picking out
+            spine positions
+        :return:
+            list of added spine heads
+
+        TODO: add spines with a distribution of head dimensions and
+              neck dimensions
+        """
+
