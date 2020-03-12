@@ -2,6 +2,8 @@ import random
 import numpy as np
 from random import randint
 
+from neuron import h
+
 from neuronpp.core.cells.section_cell import SectionCell
 from neuronpp.core.hocwrappers.sec import Sec
 ### Nomenclature and values adapted from Harris KM, Jensen FE, Tsao BE.
@@ -103,18 +105,11 @@ class SpineCell(SectionCell):
                 added[s.name()].append(loc)
                 break
 
-    def _connect_neck(neck: Sec, sec, which_one, total_spines):
-        """
-        Connect necks list to sections list with uniform random distribution
-        :param neck:
-        :param sections:
-        """
-        pass
 
-    def add_spines_with_length(self, distance_range, spine_density, spine_type,
-                               **kwargs):
+    def add_spines_at(self, distance_range, spine_density,
+                                         spine_type, **kwargs):
         """
-        Add spines with specified longitudal density (per 1 um) to a part
+        Add spines with specified linear density (per 1 um) to a part
         of dendritic range specified as distance from the soma. Spines can have
         a predifined type (stubby, thin, mushroom) or, alternatively, their
         dimentions (head_diam, head_len, neck_diam, neck_len) can be specified
@@ -125,7 +120,7 @@ class SpineCell(SectionCell):
             tuple containing begining and end of the distance range
             where spines will be added
         :param spine_density:
-            Longitudal spine density in [um]
+            Linear spine density in [um]
         :param spine_type:
             Spine type. There are four predifined types: thin, stubby,
             mushroom and other.
@@ -147,21 +142,65 @@ class SpineCell(SectionCell):
         :return:
             list of added spine heads
 
-        TODO: add spines with a distribution of head dimensions and
-              neck dimensions
         """
 
-    def add_spines_to_regions(self, regions, spine_density, spine_type,
-                              **kwargs):
+        soma = self.filter_secs("soma")
+        secs = self.filter_secs(obj_filter=lambda o: h.distance(soma(0.0), o(1.0)) > distance_range[0]\
+                         and  h.distance(soma(0.0), o(1.0)) < distance_range[1] )
+        self._add_spines_to_sections(secs, spine_density, spine_type, kwargs)
+
+    def add_spines_to_regions(self, region, spine_density, spine_type,
+                               **kwargs):
         """
-        Add spines with specified longitudal density (per 1 um) to a part
-        of dendritic range specified as distance from the soma. Spines can have
+        Add spines with specified linear density (per 1 um) to regions with section
+        names starting with string region.
+        Spines can have a predifined type (stubby, thin, mushroom) or, alternatively, their
+        dimentions (head_diam, head_len, neck_diam, neck_len) can be specified
+        in kwargs.
+
+        :param region:
+            Region that will have spines
+        :param spine_density:
+            spine density
+        :param spine_type:
+            Spine type. There are four predifined types: thin, stubby,
+            mushroom and other.
+        :param \**kwargs:
+            See below
+
+        Keyword arguments:
+        :head_diam:
+            Spine head diameter
+        :head_len:
+            Length of the spine head
+        :neck_diam:
+            Spine neck diameter
+        :neck_len:
+            Length of the spine neck
+        :area_densisty:
+            if False spine_density is treated as linear spine density [um]
+            if True  spine_density is treated as area density [um2]
+        :return:
+            list of added spine heads
+
+        """
+
+        secs = self.filter_secs(obj_filter=lambda o: o.name.startswith(region))
+        self.add_spines_to_sections(secs, spine_density, spine_type, kwargs)
+
+
+
+    def add_spines_to_sections(self, sections, spine_density, spine_type,
+                               **kwargs):
+        """
+        Add spines with specified linear density (per 1 um) to specified
+        secions (compartments). Spines can have
         a predifined type (stubby, thin, mushroom) or, alternatively, their
         dimentions (head_diam, head_len, neck_diam, neck_len) can be specified
         in kwargs.
 
         :param regions:
-            Sections that will have spines
+            Section that will have spines
         :param spine_density:
             spine density 
         :param spine_type:
@@ -179,20 +218,16 @@ class SpineCell(SectionCell):
             Spine neck diameter
         :neck_len:
             Length of the spine neck
-        :seed: None
-            seed for the random number generator used for picking out
-            spine positions
         :area_densisty:
-            if False spine_density is treated as longitudal spine density [um]
+            if False spine_density is treated as linear spine density [um]
             if True  spine_density is treated as area density [um2]
         :return:
             list of added spine heads
 
         TODO: add spines with a distribution of head dimensions and
               neck dimensions
+        TODO: add distribution of locations along the dendrite
         """
-        if not isinstance(regions, list):
-            regions = [regions]
         try:
             spine_dimensions = SPINE_DIMENSIONS[spine_type]
         except KeyError
@@ -202,52 +237,29 @@ class SpineCell(SectionCell):
         head_len = kwargs.pop("head_len", spine_dimesions["head_len"])
         neck_diam = kwargs.pop("neck_diam", spine_dimesions["neck_diam"])
         neck_len = kwargs.pop("neck_len", spine_dimesions["neck_len"])
-        seed = kwargs.pop("seed", None)
         area_density = kwargs.pop("area_density", False)
-
-        if isinstance(seed, int):
-            random.seed(seed)
-
-        sections = self.get_sections_to_add_spines(regions)
         for sec in sections:
-            name = sec.name()
             if area_density:
                 area = sec.L*np.pi*sec.diam
                 spine_number = int(np.round(area * spine_density))
             else:
                 spine_number = int(np.round(sec.L * spine_density))
-
-            for i in range(spine_number):
-                head = self.add_sec(name="%s_head[%d]" % (name, i),
-                                    diam=head_diam,
-                                    l=head_len, nseg=2)
-                neck = self.add_sec(name="%s_neck[%d]" % (name, i),
-                                    diam=neck_diam,
-                                    l=neck_len, nseg=1)
-                self.heads.append(head)
-                self.necks.append(neck)
-                self.connect_secs(source=head, target=neck)
-                if isinstance(seed, int):
-                    self._connect_necks_rand_uniform(neck, [sec])
-                else:
-                    self._connect_spines(neck, sec, i, spine_number)
-
+            self._add_spines_to_section(sec, spine_number, head_diam,
+                              head_len, neck_diam, neck_len)
         return self.heads, self.necks
 
-    def _get_sections_to_add_spines(self, region_list):
-        """
-        Go through all the sections and pick ones with names
-        starting with strings from region_list
-        :param region_list:
-            list of region names
-
-        :returns
-            list of sections
-        """
-        section_list = []
-        for region in regions:
-            for section in self.sec:
-                if section.name().startswith(region) \
-                   and section not in section_list:
-                    section_list.append(section)
-        return section_list
+    def _add_spines_to_section(self, section, n_spines, head_diam,
+                              head_len, neck_diam, neck_len):
+        name = section.name()
+        for i in range(n_spines):
+            head = self.add_sec(name="%s_head[%d]" % (name, i),
+                                diam=head_diam,
+                                l=head_len, nseg=2)
+            neck = self.add_sec(name="%s_neck[%d]" % (name, i),
+                                diam=neck_diam,
+                                l=neck_len, nseg=1)
+            self.heads.append(head)
+            self.necks.append(neck)
+            self.connect_secs(source=head, target=neck)
+            self.connect_secs(source=neck, target=sec, source_loc=1.0,
+                              target_loc=i/spine_number)
