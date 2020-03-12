@@ -26,8 +26,8 @@ class NetworkStatusGraph:
 
         self.correct_position = (0.1, 0.1)
 
-        self.edges = self._get_edges(weight_name)
         self.population_names = self._get_population_names()
+        self.edges = self._get_edges(weight_name)
 
     def plot(self):
         py.figure()
@@ -76,7 +76,13 @@ class NetworkStatusGraph:
             soma = c.filter_secs('soma')
             c.make_spike_detector(soma(0.5))
             split_name = c.name.split('[')
-            x_pos = int(split_name[0][-1])
+            pop_name = split_name[0]
+
+            try:
+                x_pos = int(pop_name[-1])
+            except ValueError:
+                x_pos = self.population_names.index(pop_name)
+
             y_pos = int(split_name[-1][:-1])
 
             if 'inh' in c.name:
@@ -99,7 +105,13 @@ class NetworkStatusGraph:
                 continue
             elif isinstance(nc.source, Seg) and isinstance(nc.target, PointProcess):
                 split_target = nc.source.parent.parent.name.split('[')
-                x_trg = int(split_target[0][-1])
+                pop_name = split_target[0]
+
+                try:
+                    x_trg = int(pop_name[-1])
+                except ValueError:
+                    x_trg = self.population_names.index(pop_name)
+
                 y_trg = int(split_target[-1][:-1])
 
                 weight = None

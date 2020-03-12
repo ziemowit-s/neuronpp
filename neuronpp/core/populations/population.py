@@ -46,10 +46,14 @@ class Population:
         :return:
             list of list of synapses
         """
+        cell_num = len(self.cells)
+        if cell_num == 0:
+            raise LookupError("Population %s has no cells, cannot make connections. Add cells first." % self.name)
+
         result = []
         # The first group of ifs
         if source is None:
-            source = [None for _ in range(len(self.cells))]
+            source = [None for _ in range(cell_num)]
 
         elif isinstance(source, int):
             source = [None for _ in range(source)]
