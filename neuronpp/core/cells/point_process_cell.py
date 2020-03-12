@@ -80,10 +80,10 @@ class PointProcessCell(SectionCell):
         return pp
 
     def _append_pp(self, hoc_point_process, mod_name, segment, tag=None):
-        sec_name = "%s(%s)" % (segment.parent.name, segment.hoc.x)
+        seg_name = "%s(%s)" % (segment.parent.name, segment.hoc.x)
         current_mod_name = "%s_%s" % (mod_name, segment.parent.name)
 
-        result_name = "%s[%s]" % (sec_name, self._pp_num[current_mod_name])
+        result_name = "%s[%s][%s]" % (mod_name, seg_name, self._pp_num[current_mod_name])
         self._pp_num[current_mod_name] += 1
 
         if tag:

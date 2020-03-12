@@ -65,7 +65,7 @@ class SynapticCell(NetConCell):
         pp = self.add_point_process(mod_name=mod_name, seg=seg, tag=tag, **synaptic_params)
         nn = self.add_netcon(source=source, netcon_weight=netcon_weight, point_process=pp, delay=delay, threshold=threshold)
 
-        syn_name = str(self._syn_num[mod_name])
+        syn_name = "%s[%s]" % (pp.name, self._syn_num[mod_name])
         syn = Synapse(source, point_process=pp, netcon=nn, name=syn_name, tag=tag)
         self.syns.append(syn)
         self._syn_num[mod_name] += 1
