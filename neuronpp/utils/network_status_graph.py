@@ -71,7 +71,8 @@ class NetworkStatusGraph:
         result = []
         for c in self.cells:
             soma = c.filter_secs('soma')
-            c.make_spike_detector(soma(0.5))
+            if c._spike_detector is None:
+                c.make_spike_detector(soma(0.5))
             split_name = c.name.split('[')
             pop_name = split_name[0]
 
