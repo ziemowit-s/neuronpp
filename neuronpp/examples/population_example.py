@@ -3,7 +3,7 @@ import os
 from neuronpp.cells.cell import Cell
 from neuronpp.core.cells.netstim_cell import NetStimCell
 from neuronpp.core.populations.population import Population
-from neuronpp.utils.fire_plot import FirePlot
+from neuronpp.utils.hitmap_graph import HitmapGraph
 from neuronpp.utils.network_status_graph import NetworkStatusGraph
 from neuronpp.utils.utils import show_connectivity_graph
 
