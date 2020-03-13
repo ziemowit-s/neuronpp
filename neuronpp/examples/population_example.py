@@ -58,13 +58,10 @@ if __name__ == '__main__':
     graph = NetworkStatusGraph(cells=pop1.cells + pop2.cells + pop3.cells)
     graph.plot()
 
-    fp = FirePlot(cells=pop1.cells, cols_num=2)
-
     # Run
     sim = RunSim(init_v=-70, warmup=20)
     for i in range(1000):
         sim.run(runtime=1)
-        #pop1.plot(animate=True)
-        #pop2.plot(animate=True)
-        #pop3.plot(animate=True)
-        fp.plot()
+        pop1.plot(animate=True)
+        pop2.plot(animate=True)
+        pop3.plot(animate=True)
