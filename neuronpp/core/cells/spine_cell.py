@@ -141,7 +141,6 @@ class SpineCell(SectionCell):
             spine positions
         :return:
             list of added spine heads
-
         """
 
         soma = self.filter_secs("soma")
@@ -180,9 +179,11 @@ class SpineCell(SectionCell):
         :area_densisty:
             if False spine_density is treated as linear spine density [um]
             if True  spine_density is treated as area density [um2]
+        :seed: None
+            seed for the random number generator used for picking out
+            spine positions
         :return:
             list of added spine heads
-
         """
 
         secs = self.filter_secs(obj_filter=lambda o: o.name.startswith(region))
@@ -221,12 +222,14 @@ class SpineCell(SectionCell):
         :area_densisty:
             if False spine_density is treated as linear spine density [um]
             if True  spine_density is treated as area density [um2]
+        :seed: None
+            seed for the random number generator used for picking out
+            spine positions
         :return:
             list of added spine heads
 
         TODO: add spines with a distribution of head dimensions and
               neck dimensions
-        TODO: add distribution of locations along the dendrite
         """
         try:
             spine_dimensions = SPINE_DIMENSIONS[spine_type]
@@ -238,19 +241,51 @@ class SpineCell(SectionCell):
         neck_diam = kwargs.pop("neck_diam", spine_dimesions["neck_diam"])
         neck_len = kwargs.pop("neck_len", spine_dimesions["neck_len"])
         area_density = kwargs.pop("area_density", False)
+        seed = kwargs.pop("seed", None)
+        if seed is not None:
+            np.random.seed(seed)
         for sec in sections:
             if area_density:
                 area = sec.L*np.pi*sec.diam
                 spine_number = int(np.round(area * spine_density))
             else:
                 spine_number = int(np.round(sec.L * spine_density))
+            
             self._add_spines_to_section(sec, spine_number, head_diam,
-                              head_len, neck_diam, neck_len)
+                                        head_len, neck_diam, neck_len,
+                                        u_random=seed)
         return self.heads, self.necks
 
     def _add_spines_to_section(self, section, n_spines, head_diam,
-                              head_len, neck_diam, neck_len):
+                               head_len, neck_diam, neck_len,
+                               u_random=None):
+        """
+        Add spines to a section of a dedrite. There are two possibilities:
+        1) spines are added uniformly every n_spines/section_length,
+        2) spines positions on the dendrite's section are drawn
+        from the uniform distribution.
+        
+        :param section:
+           section
+        :param n_spines:
+           number of spines
+        :param head_diam:
+           diameter of the spine head
+        :param head_len:
+           length of the spine_head
+        :param neck_diam:
+           diameter of the neck
+        :param neck_len:
+           length of the neck
+        :param u_random:
+           if int draw spine position from the uniform distribution
+        """
         name = section.name()
+        if isinstance(u_random, int):
+            target_locations = np.random.uniform(0., 1., spine_number)
+        else:
+            target_locations = np.arange(0., 1., spine_number)
+
         for i in range(n_spines):
             head = self.add_sec(name="%s_head[%d]" % (name, i),
                                 diam=head_diam,
@@ -262,4 +297,4 @@ class SpineCell(SectionCell):
             self.necks.append(neck)
             self.connect_secs(source=head, target=neck)
             self.connect_secs(source=neck, target=sec, source_loc=1.0,
-                              target_loc=i/spine_number)
+                              target_loc=target_locations[i])
