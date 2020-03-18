@@ -7,8 +7,9 @@ import matplotlib.pyplot as plt
 from neuronpp.core.cells.netcon_cell import NetConCell
 
 
-class HeatmapGraph:
-    def __init__(self, cells: List[NetConCell], shape=None, sec="soma", loc=0.5):
+class SpikesHeatmapGraph:
+    def __init__(self, name, cells: List[NetConCell], shape=None, sec="soma", loc=0.5):
+        self.name = name
         if shape is None:
             shape = [len(cells), 1]
         if len(shape) == 1:
@@ -21,36 +22,28 @@ class HeatmapGraph:
 
         self.last_t = 0
 
-        for c in self.cells:
+        print("Heatmap %s - number -> cell_name mapping:" % self.name)
+        for i, c in enumerate(self.cells):
+            print("%s:" % i, c.name)
             if c._spike_detector is None:
                 c.make_spike_detector(c.filter_secs(sec)(loc))
 
         self.fig, self.ax = plt.subplots()
+        self.ax.set_title(self.name)
         self.fig.canvas.draw()
         self.fig.show()
 
-    def plot(self, with_names=False):
-        names = []
-        data = self._get_zero_size()
+    def plot(self):
+        data = []
         for i, c in enumerate(self.cells):
-            if with_names:
-                try:
-                    cell_num = c.name.split("[")[-1].replace(']', '')
-                    names.append(cell_num)
-                except Exception:
-                    raise ValueError("Currently hitmap names assume that each cell ends with: '[NUM]' which is a unique number of the cell "
-                                     "within cells you are plotting on the heatmap, but provided cell name was: %s" % c.name)
             spikes = [ms for ms in c.get_spikes() if ms > self.last_t]
-            data[i] = len(spikes)
+            data.append(len(spikes))
 
-        data = data.reshape(self.shape).T
+        nums = [i for i in range(len(data))]
+        nums = np.array(nums).reshape(self.shape).T
+        data = np.array(data).reshape(self.shape).T
 
-        if with_names:
-            names = np.array(names).reshape(self.shape).T
-        else:
-            names = None
-
-        sb.heatmap(data, annot=names, fmt='', cmap=plt.cm.Blues, xticklabels=False, yticklabels=False, cbar=False, ax=self.ax)
+        sb.heatmap(data, annot=nums, fmt='', cmap=plt.cm.Blues, xticklabels=False, yticklabels=False, cbar=False, ax=self.ax)
         self.fig.canvas.blit(self.ax.bbox)
         self.fig.canvas.flush_events()
 

@@ -3,7 +3,7 @@ import os
 from neuronpp.cells.cell import Cell
 from neuronpp.core.cells.netstim_cell import NetStimCell
 from neuronpp.core.populations.population import Population
-from neuronpp.utils.heatmap_graph import HeatmapGraph
+from neuronpp.utils.spikes_heatmap_graph import SpikesHeatmapGraph
 from neuronpp.utils.network_status_graph import NetworkStatusGraph
 from neuronpp.utils.utils import show_connectivity_graph
 
