@@ -60,18 +60,53 @@ class SectionCell(CoreCell):
                     setattr(mech, name, val)
         return self
 
-    def add_sec(self, name: str, diam=None, l=None, nseg=1):
+
+    @staticmethod
+    def _set_pas(section, **kwargs):
+
+        Rm = kwargs.pop("Rm", None)
+        E_leak = kwargs.pop("E_leak", None)
+        g_pas = kwargs.pop("g_leak", None)
+        section.hoc.insert('pas')
+
+        #Set any non-default parameters
+        if E_leak is not None:
+            section.hoc.e_pas = E_leak
+        if Rm is not None:
+            section.hoc.g_pas = 1/Rm
+        elif g_pas in not None:
+            section.hoc.g_pas = g_pas
+
+
+    def add_sec(self, name: str, diam=None, l=None, rm=None, g_pas=None,
+                E_leak=None, ra=None, cm=None, nseg=None, add_leak=True):
         """
         :param name:
         :param diam:
         :param l:
         :param nseg:
+        :param cm:
+        :param rm:
+        :param ra:
         :return:
         """
         hoc_sec = h.Section(name=name, cell=self)
-        hoc_sec.L = l
-        hoc_sec.diam = diam
-        hoc_sec.nseg = nseg
+        if l is not None:
+            hoc_sec.L = l
+        if diam is not None:
+            hoc_sec.diam = diam
+        if nseg is not None:
+            hoc_sec.nseg = nseg
+        if cm is not None:
+            hoc_sec.cm = cm
+        if ra is not None:
+            section.hoc.Ra = Ra
+
+        if add_leak is True:
+            if rm is not None:
+                self._set_pas(hoc_sec, E_leak=E_leak, Rm=rm)
+            else:
+                self._set_pas(hoc_sec, E_leak=E_leak, g_leak=g_pas)
 
         if len(self.filter_secs(name)) > 0:
             raise LookupError("The name '%s' is already taken by another section of the cell: '%s' of type: '%s'."
