@@ -1,11 +1,9 @@
-from nrn import Segment, Section
 from collections import defaultdict
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from neuron import h
-import matplotlib.pyplot as plt
-
 from neuronpp.core.hocwrappers.seg import Seg
 
 
@@ -39,7 +37,8 @@ class Record:
                 try:
                     s = getattr(elem.hoc, "_ref_%s" % var)
                 except AttributeError:
-                    raise AttributeError("there is no attribute of %s. Maybe you forgot to append loc param for sections?" % var)
+                    raise AttributeError(
+                        "there is no attribute of %s. Maybe you forgot to append loc param for sections?" % var)
 
                 rec = h.Vector().record(s)
                 self.recs[var].append((name, rec))
@@ -84,16 +83,19 @@ class Record:
             for i, (name, rec) in enumerate(section_recs):
                 rec_np = rec.as_numpy()
                 if np.max(np.isnan(rec_np)):
-                    raise ValueError("Vector recorded for variable: '%s' and segment: '%s' contains nan values." % (var_name, name))
+                    raise ValueError(
+                        "Vector recorded for variable: '%s' and segment: '%s' contains nan values." % (var_name, name))
 
                 if position is not "merge":
-                    ax = self._get_subplot(fig=fig, var_name=var_name, position=position, row_len=len(section_recs), index=i + 1)
+                    ax = self._get_subplot(fig=fig, var_name=var_name, position=position, row_len=len(section_recs),
+                                           index=i + 1)
                 ax.set_title("Variable: %s" % var_name)
                 ax.plot(self.t, rec, label=name)
                 ax.set(xlabel='t (ms)', ylabel=var_name)
                 ax.legend()
 
-    def _plot_animate(self, steps=10000, y_lim=None, position=None):
+    def _plot_animate(self, steps=10000, y_lim=None, position=None, true_class=None, pred_class=None, stepsize=None,
+                      dt=None):
         """
         Call each time you want to redraw plot.
 
@@ -125,13 +127,14 @@ class Record:
                     if position == 'merge':
                         ax = fig.add_subplot(1, 1, 1)
                     else:
-                        ax = self._get_subplot(fig=fig, var_name=var_name, position=position, row_len=len(section_recs), index=i + 1)
+                        ax = self._get_subplot(fig=fig, var_name=var_name, position=position, row_len=len(section_recs),
+                                               index=i + 1)
 
                     if y_lim:
                         ax.set_ylim(y_lim[0], y_lim[1])
                     line, = ax.plot([], lw=1)
-                    ax.set_title("Variable: %s" % var_name)
-                    ax.set_ylabel(var_name)
+                    # ax.set_title("Variable: %s" % var_name)
+                    ax.set_ylabel("{}_{}".format(var_name, i))
                     ax.set_xlabel("t (ms)")
                     ax.legend()
 
@@ -143,16 +146,43 @@ class Record:
 
                 ax.set_xlim(t.min(), t.max())
                 if y_lim is None:
-                    ax.set_ylim(r.min()-(np.abs(r.min()*0.05)), r.max()+(np.abs(r.max()*0.05)))
+                    ax.set_ylim(r.min() - (np.abs(r.min() * 0.05)), r.max() + (np.abs(r.max() * 0.05)))
 
                 # update data
                 line.set_data(t, r)
+                # info draw triangles for true and predicted classes
+                true_x, true_y, pred_x, pred_y = self._class_tcks(label=i, true_class=true_class, pred_class=pred_class,
+                                                                  t=t, stepsize=stepsize, dt=dt)
+                ax.scatter(true_x, true_y, c="orange", marker="^", alpha=0.95)
+                ax.scatter(pred_x, pred_y, c="magenta", marker="v", alpha=0.95)
 
+            # info join plots by removing labels and ticks from subplots that are not on the edge
+            for key in self.axs:
+                for ax in self.axs[key]:
+                    ax[0].label_outer()
+            fig.subplots_adjust(left=0.09, bottom=0.075, right=0.99, top=0.98, wspace=None, hspace=0.00)
             fig.canvas.draw()
             fig.canvas.flush_events()
 
         if create_fig:
             plt.show(block=False)
+
+    def _class_tcks(self, label, true_class, pred_class, t, stepsize, dt):
+        n = len(true_class)
+        x = t[::int(2 * stepsize / dt)][-n:]
+        true_x = []
+        true_y = []
+        pred_x = []
+        pred_y = []
+        for k in range(n):
+            # get the true classes for the current label
+            if true_class[k] == label:
+                true_x.append(x[k])
+                true_y.append(-69)
+            if pred_class[k] == label:
+                pred_x.append(x[k])
+                pred_y.append(30)
+        return true_x, true_y, pred_x, pred_y
 
     def to_csv(self, filename):
         cols = ['time']
