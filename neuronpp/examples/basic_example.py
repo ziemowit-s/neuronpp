@@ -15,7 +15,6 @@ path = os.path.dirname(os.path.abspath(__file__))
 morpho_path = os.path.join(path, "..",
                            "commons/morphologies/asc/cell2.asc")
 cell.load_morpho(filepath=morpho_path)
-cell.insert("pas")
 cell.insert("hh")
 
 # Create stim and synapses
