@@ -152,7 +152,7 @@ class Record:
                 line.set_data(t, r)
                 # info draw triangles for true and predicted classes
                 true_x, true_y, pred_x, pred_y = self._class_tcks(label=i, true_class=true_class, pred_class=pred_class,
-                                                                  t=t, stepsize=stepsize, dt=dt)
+                                                                  t=t, r=r, stepsize=stepsize, dt=dt)
                 ax.scatter(true_x, true_y, c="orange", marker="^", alpha=0.95)
                 ax.scatter(pred_x, pred_y, c="magenta", marker="v", alpha=0.95)
 
@@ -167,21 +167,19 @@ class Record:
         if create_fig:
             plt.show(block=False)
 
-    def _class_tcks(self, label, true_class, pred_class, t, stepsize, dt):
+    def _class_tcks(self, label, true_class, pred_class, t, r, stepsize, dt):
         n = len(true_class)
         x = t[::int(2 * stepsize / dt)][-n:]
         true_x = []
-        true_y = []
         pred_x = []
-        pred_y = []
         for k in range(n):
             # get the true classes for the current label
             if true_class[k] == label:
                 true_x.append(x[k])
-                true_y.append(-69)
             if pred_class[k] == label:
                 pred_x.append(x[k])
-                pred_y.append(30)
+        true_y = [min(r) + 2] * len(true_x)
+        pred_y = [max(r) - 2] * len(pred_x)
         return true_x, true_y, pred_x, pred_y
 
     def to_csv(self, filename):
