@@ -40,8 +40,8 @@ class SpikesHeatmapGraph:
             data.append(len(spikes))
 
         nums = [i for i in range(len(data))]
-        nums = np.array(nums).reshape(self.shape).T
-        data = np.array(data).reshape(self.shape).T
+        nums = np.array(nums).reshape(self.shape)
+        data = np.array(data).reshape(self.shape)
 
         sb.heatmap(data, annot=nums, fmt='', cmap=plt.cm.Blues, xticklabels=False, yticklabels=False, cbar=False, ax=self.ax)
         self.fig.canvas.blit(self.ax.bbox)
