@@ -1,6 +1,6 @@
 from os import path
 from neuron import h
-
+from neuron import h as nrn
 from neuronpp.core.cells.core_cell import CoreCell
 from neuronpp.core.hocwrappers.sec import Sec
 
@@ -67,13 +67,17 @@ class SectionCell(CoreCell):
         E_leak = kwargs.pop("E_leak", None)
         g_pas = kwargs.pop("g_leak", None)
 
+        if isinstance(section, Sec):
+            new_section = section.hoc
+        else:
+            new_section = section
         #Set any non-default parameters
         if E_leak is not None:
-            section.hoc.e_pas = E_leak
+            new_section.e_pas = E_leak
         if Rm is not None:
-            section.hoc.g_pas = 1/Rm
+            new_section.g_pas = 1/Rm
         elif g_pas is not None:
-            section.hoc.g_pas = g_pas
+            new_section.g_pas = g_pas
 
 
     def add_sec(self, name: str, diam=None, l=None, rm=None, g_leak=None,
@@ -98,13 +102,13 @@ class SectionCell(CoreCell):
         if cm is not None:
             hoc_sec.cm = cm
         if ra is not None:
-            section.hoc.Ra = Ra
+            hoc_sec.Ra = Ra
         if rm is not None:
             g_pas = 1/rm
         
 
         if add_leak is True or g_leak is not None or E_leak is not None:
-            section.hoc.insert('pas')
+            hoc_sec.insert('pas')
             self.set_leak(hoc_sec, E_leak=E_leak, g_pas=g_leak)
 
         if len(self.filter_secs(name)) > 0:
