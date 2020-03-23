@@ -61,7 +61,7 @@ class SectionCell(CoreCell):
         return self
 
 
-    def set_leak(self, section, **kwargs):
+    def set_leak(self, section, Rm=None, g_leak=None, E_leak=None):
 
         Rm = kwargs.pop("Rm", None)
         E_leak = kwargs.pop("E_leak", None)
@@ -104,12 +104,11 @@ class SectionCell(CoreCell):
         if ra is not None:
             hoc_sec.Ra = Ra
         if rm is not None:
-            g_pas = 1/rm
-        
-
+            g_leak = 1/rm
+ 
         if add_leak is True or g_leak is not None or E_leak is not None:
             hoc_sec.insert('pas')
-            self.set_leak(hoc_sec, E_leak=E_leak, g_pas=g_leak)
+            self.set_leak(hoc_sec, E_leak=E_leak, g_leak=g_leak)
 
         if len(self.filter_secs(name,  as_list=True)) > 0:
             raise LookupError("The name '%s' is already taken by another section of the cell: '%s' of type: '%s'."
