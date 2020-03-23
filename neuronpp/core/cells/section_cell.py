@@ -111,7 +111,7 @@ class SectionCell(CoreCell):
             hoc_sec.insert('pas')
             self.set_leak(hoc_sec, E_leak=E_leak, g_pas=g_leak)
 
-        if len(self.filter_secs(name)) > 0:
+        if len(self.filter_secs(name,  as_list=True)) > 0:
             raise LookupError("The name '%s' is already taken by another section of the cell: '%s' of type: '%s'."
                               % (name, self.name, self.__class__.__name__))
         sec = Sec(hoc_sec, parent=self, name=name)
