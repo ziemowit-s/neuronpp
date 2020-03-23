@@ -72,7 +72,7 @@ class SectionCell(CoreCell):
             section.hoc.e_pas = E_leak
         if Rm is not None:
             section.hoc.g_pas = 1/Rm
-        elif g_pas in not None:
+        elif g_pas is not None:
             section.hoc.g_pas = g_pas
 
 
