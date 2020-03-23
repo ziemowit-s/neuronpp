@@ -12,6 +12,7 @@ if __name__ == '__main__':
                             "commons/mods/sigma3syn")
     cell = Cell("cell", compile_paths=filepath)
     soma = cell.add_sec("soma", diam=20, l=20, nseg=10)
+    cell.insert('pas')
     cell.insert('hh')
 
     w = 0.003  # LTP

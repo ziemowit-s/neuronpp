@@ -77,7 +77,7 @@ class SectionCell(CoreCell):
 
 
     def add_sec(self, name: str, diam=None, l=None, rm=None, g_leak=None,
-                E_leak=None, ra=None, cm=None, nseg=None, add_leak=True):
+                E_leak=None, ra=None, cm=None, nseg=None, add_leak=False):
         """
         :param name:
         :param diam:
