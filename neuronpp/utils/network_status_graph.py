@@ -39,8 +39,6 @@ class NetworkStatusGraph:
                                           self.y_list[cell_num], s=300,
                                           color=self.colors[cell_num], alpha=0.5))
             for target in edge:
-                if target[0][0] == 2 and target[0][1] == 1 and target[1][1] == 5:
-                    pass
                 line, = ax2.plot(target[0], target[1], lw=target[2], color='grey')
                 self.lines.append(line)
         n = 0
