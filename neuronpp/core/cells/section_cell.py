@@ -1,6 +1,5 @@
 from os import path
 from neuron import h
-from neuron import h as nrn
 from neuronpp.core.cells.core_cell import CoreCell
 from neuronpp.core.hocwrappers.sec import Sec
 
