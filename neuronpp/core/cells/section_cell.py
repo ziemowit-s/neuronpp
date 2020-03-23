@@ -63,21 +63,21 @@ class SectionCell(CoreCell):
 
     def set_leak(self, section, Rm=None, g_leak=None, E_leak=None):
 
-        Rm = kwargs.pop("Rm", None)
-        E_leak = kwargs.pop("E_leak", None)
-        g_pas = kwargs.pop("g_leak", None)
-
-        if isinstance(section, Sec):
-            new_section = section.hoc
+        if isinstance(section, str):
+            section_list = self.filter_secs(name=section, as_list=True)
+        elif isinstance(section, Sec):
+            section_list = [section]
         else:
-            new_section = section
+            section_list = [Sec(section, parent=self, name=section.name)]
+
         #Set any non-default parameters
-        if E_leak is not None:
-            new_section.e_pas = E_leak
-        if Rm is not None:
-            new_section.g_pas = 1/Rm
-        elif g_pas is not None:
-            new_section.g_pas = g_pas
+        for n_sec in section_list:
+            if E_leak is not None:
+                n_sec.hoc.e_pas = E_leak
+            if Rm is not None:
+                n_sec.hoc.g_pas = 1/Rm
+            if g_leak is not None:
+                n_sec.hoc.g_pas = g_leak
 
 
     def add_sec(self, name: str, diam=None, l=None, rm=None, g_leak=None,
