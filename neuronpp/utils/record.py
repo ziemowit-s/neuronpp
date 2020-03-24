@@ -95,7 +95,7 @@ class Record:
                 ax.legend()
 
     def _plot_animate(self, steps=10000, y_lim=None, position=None, true_class=None, pred_class=None, stepsize=None,
-                      dt=None):
+                      dt=None, show_true_predicted=True, true_labels=None):
         """
         Call each time you want to redraw plot.
 
@@ -118,7 +118,7 @@ class Record:
             fig = self.figs[var_name]
             if fig is None:
                 create_fig = True
-                fig = plt.figure()
+                fig = plt.figure(figsize=(15, 5))
                 fig.canvas.draw()
                 self.figs[var_name] = fig
 
@@ -136,7 +136,6 @@ class Record:
                     # ax.set_title("Variable: %s" % var_name)
                     ax.set_ylabel("{}_{}".format(var_name, i))
                     ax.set_xlabel("t (ms)")
-                    ax.legend()
 
                     self.axs[var_name].append((ax, line))
 
@@ -146,28 +145,46 @@ class Record:
 
                 ax.set_xlim(t.min(), t.max())
                 if y_lim is None:
-                    ax.set_ylim(r.min() - (np.abs(r.min() * 0.05)), r.max() + (np.abs(r.max() * 0.05)))
+                    y_limits = (r.min() - (np.abs(r.min() * 0.05)), r.max() + (np.abs(r.max() * 0.05)))
+                    ax.set_ylim(y_limits)
 
                 # update data
                 line.set_data(t, r)
-                # info draw triangles for true and predicted classes
-                true_x, true_y, pred_x, pred_y = self._class_tcks(label=i, true_class=true_class, pred_class=pred_class,
-                                                                  t=t, r=r, stepsize=stepsize, dt=dt)
-                ax.scatter(true_x, true_y, c="orange", marker="^", alpha=0.95)
-                ax.scatter(pred_x, pred_y, c="magenta", marker="v", alpha=0.95)
+                if show_true_predicted:
+                    # info draw triangles for true and predicted classes
+                    # todo pass true labels from the, not the iterator value
+                    if true_labels is not None:
+                        true_x, pred_x = self._true_predicted_class_marks(label=true_labels[i], true_class=true_class,
+                                                                          pred_class=pred_class, t=t, r=r,
+                                                                          stepsize=stepsize, dt=dt)
+                    else:
+                        raise ValueError("True_labels parameter need to be given if show_true_prediction is True")
+                    if y_lim is None:
+                        true_y = [y_limits[0] + np.abs(y_limits[0]) * 0.09] * len(true_x)
+                        pred_y = [y_limits[1] - np.abs(y_limits[1] * 0.11)] * len(pred_x)
+                    else:
+                        true_y = [y_lim[0]] * len(true_x)
+                        pred_y = [y_lim[1]] * len(pred_x)
+                    ax.scatter(true_x, true_y, c="orange", marker="^", alpha=0.95, label="true")
+                    ax.scatter(pred_x, pred_y, c="magenta", marker="v", alpha=0.95, label="predicted")
+                    if create_fig and i == 0:
+                        # draw legend only the first time and only on the uppermost graph
+                        ax.legend()
 
             # info join plots by removing labels and ticks from subplots that are not on the edge
-            for key in self.axs:
-                for ax in self.axs[key]:
-                    ax[0].label_outer()
-            fig.subplots_adjust(left=0.09, bottom=0.075, right=0.99, top=0.98, wspace=None, hspace=0.00)
+            if create_fig:
+                for key in self.axs:
+                    for ax in self.axs[key]:
+                        ax[0].label_outer()
+                fig.subplots_adjust(left=0.09, bottom=0.075, right=0.99, top=0.98, wspace=None, hspace=0.00)
             fig.canvas.draw()
             fig.canvas.flush_events()
 
         if create_fig:
             plt.show(block=False)
 
-    def _class_tcks(self, label, true_class, pred_class, t, r, stepsize, dt):
+    # todo lejbel szud bi imported from de oridzinal fankszion
+    def _true_predicted_class_marks(self, label, true_class, pred_class, t, r, stepsize, dt):
         n = len(true_class)
         x = t[::int(2 * stepsize / dt)][-n:]
         true_x = []
@@ -178,9 +195,7 @@ class Record:
                 true_x.append(x[k])
             if pred_class[k] == label:
                 pred_x.append(x[k])
-        true_y = [min(r) + 2] * len(true_x)
-        pred_y = [max(r) - 2] * len(pred_x)
-        return true_x, true_y, pred_x, pred_y
+        return true_x, pred_x
 
     def to_csv(self, filename):
         cols = ['time']
