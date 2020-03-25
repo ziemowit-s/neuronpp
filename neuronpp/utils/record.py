@@ -118,7 +118,7 @@ class Record:
             fig = self.figs[var_name]
             if fig is None:
                 create_fig = True
-                fig = plt.figure(figsize=(15, 5))
+                fig = plt.figure(figsize=(16, 5))
                 fig.canvas.draw()
                 self.figs[var_name] = fig
 
