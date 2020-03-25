@@ -146,9 +146,7 @@ class SpineCell(SectionCell):
             spine positions
         :return:
             list of added spine heads
-
         """
-
         soma = self.filter_secs("soma")
         secs = self.filter_secs(obj_filter=lambda o: h.distance(soma(0.0),
                                                                 o(0.0)) > distance_range[0] and  h.distance(soma(0.0), o(1.0)) < distance_range[1] )
@@ -235,7 +233,7 @@ class SpineCell(SectionCell):
         """
         try:
             spine_dimensions = SPINE_DIMENSIONS[spine_type]
-        except KeyError
+        except KeyError:
             spine_dimensions = SPINE_DIMENSIONS["generic"]
 
         head_diam = kwargs.pop("head_diam", spine_dimesions["head_diam"])
