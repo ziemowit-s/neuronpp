@@ -39,17 +39,22 @@ class SpineCell(SectionCell):
 
         if seed:
             random.seed(seed)
+
+        heads = []
+        necks = []
         for _ in range(spine_number):
             i = self._next_index
             head = self.add_sec(name="head[%s]" % i, diam=1, l=1, nseg=head_nseg)
             neck = self.add_sec(name="neck[%s]" % i, diam=0.5, l=0.5, nseg=neck_nseg)
-            self.heads.append(head)
-            self.necks.append(neck)
+            heads.append(head)
+            necks.append(neck)
             self.connect_secs(source=head, target=neck)
             self._connect_necks_rand_uniform(neck, secs)
             self._next_index += 1
-
-        return self.heads, self.necks
+        
+        self.heads.extend(heads)
+        self.necks.extend(necks)
+        return heads, necks
 
     @staticmethod
     def _connect_necks_rand_uniform(neck: Sec, sections):

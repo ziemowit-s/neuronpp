@@ -211,8 +211,8 @@ NET_RECEIVE(weight (uS)) {
         }
 
     } else { : Ex2Syn stim
-        A = A + weight*factor
-        B = B + weight*factor
+        A = A + w*weight*factor
+        B = B + w*weight*factor
 
         if (ach_w > 0) {
             ach = ach_w
