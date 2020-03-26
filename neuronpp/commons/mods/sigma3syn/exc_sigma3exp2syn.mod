@@ -93,7 +93,7 @@ BREAKPOINT {
 	g = B - A
 	i = g*(v - e)
 
-	w = w + learning_w
+	w = w + learning_w * w
 
 	if (w > 5) {
 	    w = 5

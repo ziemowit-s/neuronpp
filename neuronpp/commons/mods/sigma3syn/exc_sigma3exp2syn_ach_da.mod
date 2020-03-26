@@ -159,7 +159,7 @@ BREAKPOINT {
 	i = g*(v - e)
 
     modulatory_w = (- ach * ((last_max_da_w-da)/last_max_da_w) + da)/1000
-    w = w + learning_w + modulatory_w
+    w = w + learning_w * w + modulatory_w * w
 
 	if (w > 5) {
 	    w = 5
