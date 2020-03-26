@@ -60,7 +60,7 @@ class SectionCell(CoreCell):
         return self
 
 
-    def set_leak(self, section, Rm=None, g_leak=None, E_leak=None):
+    def set_leak(self, section, Rm=None, g_leak=None, E_rest=None):
 
         if isinstance(section, str):
             section_list = self.filter_secs(name=section, as_list=True)
@@ -71,8 +71,8 @@ class SectionCell(CoreCell):
 
         #Set any non-default parameters
         for n_sec in section_list:
-            if E_leak is not None:
-                n_sec.hoc.e_pas = E_leak
+            if E_rest is not None:
+                n_sec.hoc.e_pas = E_rest
             if Rm is not None:
                 n_sec.hoc.g_pas = 1/Rm
             if g_leak is not None:
@@ -80,7 +80,7 @@ class SectionCell(CoreCell):
 
 
     def add_sec(self, name: str, diam=None, l=None, rm=None, g_leak=None,
-                E_leak=None, ra=None, cm=None, nseg=None, add_leak=False):
+                E_rest=None, ra=None, cm=None, nseg=None, add_leak=False):
         """
         :param name:
         :param diam:
@@ -105,9 +105,9 @@ class SectionCell(CoreCell):
         if rm is not None:
             g_leak = 1/rm
  
-        if add_leak is True or g_leak is not None or E_leak is not None:
+        if add_leak is True or g_leak is not None or E_rest is not None:
             hoc_sec.insert('pas')
-            self.set_leak(hoc_sec, E_leak=E_leak, g_leak=g_leak)
+            self.set_leak(hoc_sec, E_rest=E_rest, g_leak=g_leak)
 
         if len(self.filter_secs(name,  as_list=True)) > 0:
             raise LookupError("The name '%s' is already taken by another section of the cell: '%s' of type: '%s'."

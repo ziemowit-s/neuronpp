@@ -106,7 +106,7 @@ class SpineCell(SectionCell):
                 break
 
 
-    def add_spines_at(self, distance_range, spine_density,
+    def add_spines_at(self, dist_range, spine_density,
                                          spine_type, **kwargs):
         """
         Add spines with specified linear density (per 1 um) to a part
@@ -116,7 +116,7 @@ class SpineCell(SectionCell):
         in kwargs.
 
 
-        :param distance_range: tuple or list 
+        :param dist_range: tuple or list 
             tuple containing begining and end of the distance range
             where spines will be added
         :param spine_density:
@@ -136,6 +136,14 @@ class SpineCell(SectionCell):
             Spine neck diameter
         :neck_len:
             Length of the spine neck
+        :g_leak:
+            leak conductance
+        :E_leak:
+            leak reversal potential:
+        :r_m:
+            membrane resistivity
+        :r_a:
+            axial resistivity
         :seed: None
             seed for the random number generator used for picking out
             spine positions
@@ -144,7 +152,9 @@ class SpineCell(SectionCell):
         """
         soma = self.filter_secs("soma")
         secs = self.filter_secs(obj_filter=lambda o: h.distance(soma(0.0),
-                                                                o(0.0)) > distance_range[0] and  h.distance(soma(0.0), o(1.0)) < distance_range[1] )
+                                                                o(0.0)) > dist_range[0]\
+                                and  h.distance(soma(0.0),
+                                                o(1.0)) < dist_range[1] )
         self._add_spines_to_sections(secs, spine_density, spine_type, **kwargs)
 
     def add_spines_to_regions(self, region, spine_density, spine_type,
@@ -175,6 +185,14 @@ class SpineCell(SectionCell):
             Spine neck diameter
         :neck_len:
             Length of the spine neck
+        :g_leak:
+            leak conductance
+        :E_leak:
+            leak reversal potential:
+        :r_m:
+            membrane resistivity
+        :r_a:
+            axial resistivity
         :area_densisty:
             if False spine_density is treated as linear spine density [um]
             if True  spine_density is treated as area density [um2]
@@ -216,6 +234,14 @@ class SpineCell(SectionCell):
             Spine neck diameter
         :neck_len:
             Length of the spine neck
+        :g_leak:
+            leak conductance
+        :E_leak:
+            leak reversal potential:
+        :r_m:
+            membrane resistivity
+        :r_a:
+            axial resistivity
         :area_densisty:
             if False spine_density is treated as linear spine density [um]
             if True  spine_density is treated as area density [um2]
@@ -235,6 +261,7 @@ class SpineCell(SectionCell):
         head_len = kwargs.pop("head_len", spine_dimesions["head_len"])
         neck_diam = kwargs.pop("neck_diam", spine_dimesions["neck_diam"])
         neck_len = kwargs.pop("neck_len", spine_dimesions["neck_len"])
+        spine_E_rest =  kwargs.pop("E_rest", None) # if None, E_rest of the compartment  
         area_density = kwargs.pop("area_density", False)
         for sec in sections:
             if area_density:
