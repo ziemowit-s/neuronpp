@@ -108,6 +108,12 @@ class Record:
             * position=(3,3) -> if you have 9 neurons and want to display 'v' on 3x3 matrix
             * position='merge' -> it will display all figures on the same graph.
             * position=None -> Default, each neuron has separated  axis (row) on the figure.
+        :param true_class: list of true class labels in this window
+        :param pred_class: list of predicted class labels in window
+        :param stepsize: agent readout time step
+        :param dt: agent integration time step
+        :param show_true_predicted: whther to print true/predicted class' marks on the plot
+        :param true_labels: list of true labels for the consecutive plots
         :return:
         """
         create_fig = False
@@ -152,7 +158,6 @@ class Record:
                 line.set_data(t, r)
                 if show_true_predicted:
                     # info draw triangles for true and predicted classes
-                    # todo pass true labels from the, not the iterator value
                     if true_labels is not None:
                         true_x, pred_x = self._true_predicted_class_marks(label=true_labels[i], true_class=true_class,
                                                                           pred_class=pred_class, t=t, r=r,
@@ -183,8 +188,17 @@ class Record:
         if create_fig:
             plt.show(block=False)
 
-    # todo lejbel szud bi imported from de oridzinal fankszion
-    def _true_predicted_class_marks(self, label, true_class, pred_class, t, r, stepsize, dt):
+    def _true_predicted_class_marks(self, label, true_class, pred_class, t, stepsize, dt):
+        """
+        find and return lists of time steps for true and predicted labels
+        :param label: the label id (an int)
+        :param true_class: list of true classes for the whole time region
+        :param pred_class: list of predicted labels (class ids) for the whole time region
+        :param t: the region time steps
+        :param stepsize: original agent stepsize; class selections are 2 * stepsize / dt
+        :param dt: integration step
+        :return: lists of marks for true_x: true classes, pred_x: predicted classes
+        """
         n = len(true_class)
         x = t[::int(2 * stepsize / dt)][-n:]
         true_x = []
