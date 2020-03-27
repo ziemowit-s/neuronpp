@@ -122,8 +122,8 @@ def show_connectivity_graph(cells, result_folder=None, file_name="conectivity_gr
         os.makedirs(result_folder, exist_ok=True)
     g.show(save_path)
     print("Saved cell graph into: %s" % save_path)
-    
-    
+
+
 def key_release_listener(on_press_func):
     def final_func(key):
         if key is not None and hasattr(key, 'char'):

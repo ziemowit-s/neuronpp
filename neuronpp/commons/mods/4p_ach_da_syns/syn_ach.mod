@@ -16,7 +16,6 @@
   }
 
   INITIAL {
-      w = 0
       last_max_w = 1e-9 : must be nonzero for 4p synapse
       flag_D = -1
   }

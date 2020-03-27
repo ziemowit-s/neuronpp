@@ -106,8 +106,7 @@ class SpineCell(SectionCell):
                 break
 
 
-    def add_spines_at(self, distance_range, spine_density,
-                                         spine_type, **kwargs):
+    def add_spines_at(self, dist_range, spine_density,
         """
         Add spines with specified linear density (per 1 um) to a part
         of dendritic range specified as distance from the soma. Spines can have
@@ -116,7 +115,7 @@ class SpineCell(SectionCell):
         in kwargs.
 
 
-        :param distance_range: tuple or list 
+        :param dist_range: tuple or list 
             tuple containing begining and end of the distance range
             where spines will be added
         :param spine_density:
@@ -136,16 +135,30 @@ class SpineCell(SectionCell):
             Spine neck diameter
         :neck_len:
             Length of the spine neck
+        :g_leak:
+            leak conductance
+        :E_leak:
+            leak reversal potential:
+        :r_m:
+            membrane resistivity
+        :r_a:
+            axial resistivity
         :seed: None
             seed for the random number generator used for picking out
             spine positions
         :return:
             list of added spine heads
         """
-
         soma = self.filter_secs("soma")
         secs = self.filter_secs(obj_filter=lambda o: h.distance(soma(0.0),
                                                                 o(0.0)) > distance_range[0] and  h.distance(soma(0.0), o(1.0)) < distance_range[1] )
+=======
+        soma = self.filter_secs("soma")
+        secs = self.filter_secs(obj_filter=lambda o: h.distance(soma(0.0),
+                                                                o(0.0)) > dist_range[0]\
+                                and  h.distance(soma(0.0),
+                                                o(1.0)) < dist_range[1] )
+>>>>>>> 694e8484218b1eeb1311ac6a0d87cc443f078ac9
         self._add_spines_to_sections(secs, spine_density, spine_type, **kwargs)
 
     def add_spines_to_regions(self, region, spine_density, spine_type,
@@ -184,6 +197,20 @@ class SpineCell(SectionCell):
             spine positions
         :return:
             list of added spine heads
+        :g_leak:
+            leak conductance
+        :E_leak:
+            leak reversal potential:
+        :r_m:
+            membrane resistivity
+        :r_a:
+            axial resistivity
+        :area_densisty:
+            if False spine_density is treated as linear spine density [um]
+            if True  spine_density is treated as area density [um2]
+        :return:
+            list of added spine heads
+
         """
 
         secs = self.filter_secs(obj_filter=lambda o: o.name.startswith(region))
@@ -225,6 +252,17 @@ class SpineCell(SectionCell):
         :seed: None
             seed for the random number generator used for picking out
             spine positions
+        :g_leak:
+            leak conductance
+        :E_leak:
+            leak reversal potential:
+        :r_m:
+            membrane resistivity
+        :r_a:
+            axial resistivity
+        :area_densisty:
+            if False spine_density is treated as linear spine density [um]
+            if True  spine_density is treated as area density [um2]
         :return:
             list of added spine heads
 
@@ -233,7 +271,7 @@ class SpineCell(SectionCell):
         """
         try:
             spine_dimensions = SPINE_DIMENSIONS[spine_type]
-        except KeyError
+        except KeyError:
             spine_dimensions = SPINE_DIMENSIONS["generic"]
 
         head_diam = kwargs.pop("head_diam", spine_dimesions["head_diam"])
@@ -250,7 +288,6 @@ class SpineCell(SectionCell):
                 spine_number = int(np.round(area * spine_density))
             else:
                 spine_number = int(np.round(sec.L * spine_density))
-            
             self._add_spines_to_section(sec, spine_number, head_diam,
                                         head_len, neck_diam, neck_len,
                                         u_random=seed)
@@ -286,6 +323,13 @@ class SpineCell(SectionCell):
         else:
             target_locations = np.arange(0., 1., spine_number)
 
+            self._add_spines_to_section(sec, spine_number, head_diam,
+                              head_len, neck_diam, neck_len)
+        return self.heads, self.necks
+
+    def _add_spines_to_section(self, section, n_spines, head_diam,
+                              head_len, neck_diam, neck_len):
+        name = section.name()
         for i in range(n_spines):
             head = self.add_sec(name="%s_head[%d]" % (name, i),
                                 diam=head_diam,
