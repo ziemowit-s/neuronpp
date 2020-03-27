@@ -296,6 +296,14 @@ class SpineCell(SectionCell):
             else:
                 spine_number = int(np.round(sec.L * spine_density))
 
+            #if spine density is low (less than 1 per comp)
+            # use random number to determine whether to add a spine
+            if not spine_number:
+                rand = random.random()
+                if rand > spineDensity*comp.length:
+                    spine_number = 1
+                else:
+                    continue
             E_leak, g_pas, ra, cm = self._electric_properties(sec,
                                                               spine_E_leak,
                                                               spine_g_pas,
