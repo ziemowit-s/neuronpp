@@ -318,8 +318,8 @@ class SpineCell(SectionCell):
         else:
             target_locations = np.arange(0., 1., spine_number)
 
-            self._add_spines_to_section(sec, spine_number, head_diam,
-                              head_len, neck_diam, neck_len)
+        self._add_spines_to_section(sec, spine_number, head_diam,
+                                    head_len, neck_diam, neck_len)
         return self.heads, self.necks
 
     def _add_spines_to_section(self, section, n_spines, head_diam,
