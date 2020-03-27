@@ -392,3 +392,7 @@ class SpineCell(SectionCell):
         else:
             cm = spine_cm
         return E_leak, g_pas, ra, cm
+
+    def compensate(self, tot_spine_surface):
+        pass
+        #compensate for gbars and passive properties
