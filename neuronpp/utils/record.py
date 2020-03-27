@@ -15,6 +15,9 @@ class Record:
         :param variables:
             str or list_of_str of variable names to track
         """
+        if h.t > 0:
+            raise ConnectionRefusedError("Record cannot be created after simulation have been initiated. "
+                                         "You need to specify Record before creation of SimRun object.")
         if not isinstance(elements, (list, set, tuple)):
             elements = [elements]
 
