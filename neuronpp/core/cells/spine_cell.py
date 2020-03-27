@@ -106,7 +106,7 @@ class SpineCell(SectionCell):
                 break
 
 
-    def add_spines_at(self, dist_range, spine_density,
+    def add_spines_at(self, dist_range, spine_density, spine_type, **kwargs):
         """
         Add spines with specified linear density (per 1 um) to a part
         of dendritic range specified as distance from the soma. Spines can have
@@ -149,7 +149,6 @@ class SpineCell(SectionCell):
         :return:
             list of added spine heads
         """
-        soma = self.filter_secs("soma")
         soma = self.filter_secs("soma")
         secs = self.filter_secs(obj_filter=lambda o: h.distance(soma(0.0),
                                                                 o(0.0)) > dist_range[0]\
