@@ -154,7 +154,7 @@ class SpineCell(SectionCell):
                                                                 o(0.0)) > dist_range[0]\
                                 and  h.distance(soma(0.0),
                                                 o(1.0)) < dist_range[1] )
-        self._add_spines_to_sections(secs, spine_density, spine_type, **kwargs)
+        self._add_spines_to_section_list(secs, spine_density, spine_type, **kwargs)
 
     def add_spines_to_regions(self, region, spine_density, spine_type,
                                **kwargs):
@@ -209,12 +209,12 @@ class SpineCell(SectionCell):
         """
 
         secs = self.filter_secs(obj_filter=lambda o: o.name.startswith(region))
-        self.add_spines_to_sections(secs, spine_density, spine_type, **kwargs)
+        self.add_spines_to_section_list(secs, spine_density, spine_type, **kwargs)
 
 
 
-    def add_spines_to_sections(self, sections, spine_density, spine_type,
-                               **kwargs):
+    def add_spines_section_list(self, sections, spine_density, spine_type,
+                                **kwargs):
         """
         Add spines with specified linear density (per 1 um) to specified
         secions (compartments). Spines can have
