@@ -1,13 +1,14 @@
 from collections import defaultdict, namedtuple
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from neuron import h
-import matplotlib.pyplot as plt
-
 from neuronpp.core.hocwrappers.seg import Seg
 
-MarkerParams = namedtuple("MarkerParams", "agent_stepsize dt input_cell_num output_cell_num true_labels true_class pred_class")
+MarkerParams = namedtuple("MarkerParams",
+                          "agent_stepsize dt input_cell_num output_cell_num true_labels true_class pred_class")
+
 
 class Record:
     def __init__(self, elements, variables='v'):
@@ -211,10 +212,10 @@ class Record:
         :return:
         """
         if marker_params.output_labels is not None:
-            true_x, pred_x = self._get_labels_timesteps(label=label,
-                                                    true_class=true_class,
-                                                  pred_class=pred_class, t=t,
-                                                  run_params=marker_params)
+            true_x, pred_x = self._get_labels_timestamps(label=label,
+                                                         true_class=true_class,
+                                                         pred_class=pred_class, t=t,
+                                                         marker_params=marker_params)
         else:
             raise ValueError("True_labels parameter need to be given if show_true_prediction is True")
         true_y = [y_limits[0] + np.abs(y_limits[0]) * 0.09] * len(true_x)
@@ -223,7 +224,7 @@ class Record:
         ax.scatter(pred_x, pred_y, c="magenta", marker="v", alpha=0.95, label="predicted")
 
     @staticmethod
-    def _get_labels_timestaps(label, true_class, pred_class, t, marker_params):
+    def _get_labels_timestamps(label, true_class, pred_class, t, marker_params):
         """
         find and return lists of time steps for true and predicted labels
         :param label: the label id (an int)
