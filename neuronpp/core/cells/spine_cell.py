@@ -113,7 +113,7 @@ class SpineCell(SectionCell):
 
     def add_spines_at(self, dist_range, spine_density,
                                          spine_type, **kwargs):
-    """
+        """
         Add spines with specified linear density (per 1 um) to a part
         of dendritic range specified as distance from the soma. Spines can have
         a predifined type (stubby, thin, mushroom) or, alternatively, their
@@ -208,21 +208,12 @@ class SpineCell(SectionCell):
         """
 
         secs = self.filter_secs(obj_filter=lambda o: o.name.startswith(region))
-<<<<<<< HEAD
-        self.add_spines_to_sections(secs, spine_density, spine_type, **kwargs)
-
-
-
-    def add_spines_to_sections(self, sections, spine_density, spine_type,
-                               **kwargs):
-=======
         self.add_spines_to_section_list(secs, spine_density, spine_type, **kwargs)
 
 
 
     def add_spines_section_list(self, sections, spine_density, spine_type,
                                 **kwargs):
->>>>>>> 1e34e75ffebd3be2c02a8a96635f566d0e83f7b2
         """
         Add spines with specified linear density (per 1 um) to specified
         secions (compartments). Spines can have
