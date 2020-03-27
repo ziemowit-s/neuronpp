@@ -98,8 +98,7 @@ class Record:
                 ax.legend()
 
     def _plot_animate(self, steps=10000, y_lim=None, position=None, true_class=None, pred_class=None,
-                      run_params=None):
-        # stepsize=None,; dt=None, show_true_predicted=True, true_labels=None):
+                      show_true_predicted=False, run_params=None):
         """
         Call each time you want to redraw plot.
 
@@ -114,15 +113,18 @@ class Record:
             * position=None -> Default, each neuron has separated  axis (row) on the figure.
         :param true_class: list of true class labels in this window
         :param pred_class: list of predicted class labels in window
-        :param run_class: a namedtuple containing
+        :param run_params: a namedtuple containing
             :param agent_stepsize: agent readout time step
             :param dt: agent integration time step
             :param input_cell_num: number of input cells
             :param output_cell_num: number of output cells
-            :param true_labels: list of true labels for the consecutive plots
-            :param show_true_predicted: whther to print true/predicted class' marks on the plot
+            :param output_labels: list of true labels for the consecutive plots
+        :param show_true_predicted: whether to print true/predicted class' marks on the plot
         :return:
         """
+        if show_true_predicted and run_params is None:
+            raise ValueError(
+                "Running parameters run_params need to be passed if true/predicted markers are to be shown")
         create_fig = False
         for var_name, section_recs in self.recs.items():
             if var_name not in self.figs:
@@ -135,8 +137,10 @@ class Record:
                 fig.canvas.draw()
                 self.figs[var_name] = fig
 
-            if len(run_params.output_labels) != len(section_recs):
-                raise ValueError("Number of labels given is not equal to actual number of sections in current plot")
+            if show_true_predicted:
+                if len(run_params.output_labels) != len(section_recs):
+                    raise ValueError(
+                        "show_predicted is true but the number of labels given is not equal to actual number of sections in current plot")
             for i, (name, rec) in enumerate(section_recs):
                 if create_fig:
                     if position == 'merge':
@@ -160,28 +164,20 @@ class Record:
 
                 ax.set_xlim(t.min(), t.max())
                 if y_lim is None:
-                    y_limits = (r.min() - (np.abs(r.min() * 0.05)), r.max() + (np.abs(r.max() * 0.05)))
-                    ax.set_ylim(y_limits)
+                    # compute per-plot OY limits if global are not given
+                    this_plot_y_limits = (r.min() - (np.abs(r.min() * 0.05)), r.max() + (np.abs(r.max() * 0.05)))
+                    ax.set_ylim(this_plot_y_limits)
+                else:
+                    this_plot_y_limits = y_lim
 
                 # update data
                 line.set_data(t, r)
-                if run_params.show_true_predicted:
+                # ---------------------------------------------
+                if show_true_predicted:
                     # info draw triangles for true and predicted classes
-                    if run_params.output_labels is not None:
-                        true_x, pred_x = self._true_predicted_class_marks(label=run_params.output_labels[i],
-                                                                          true_class=true_class,
-                                                                          pred_class=pred_class, t=t,
-                                                                          run_params=run_params)
-                    else:
-                        raise ValueError("True_labels parameter need to be given if show_true_prediction is True")
-                    if y_lim is None:
-                        true_y = [y_limits[0] + np.abs(y_limits[0]) * 0.09] * len(true_x)
-                        pred_y = [y_limits[1] - np.abs(y_limits[1] * 0.11)] * len(pred_x)
-                    else:
-                        true_y = [y_lim[0]] * len(true_x)
-                        pred_y = [y_lim[1]] * len(pred_x)
-                    ax.scatter(true_x, true_y, c="orange", marker="^", alpha=0.95, label="true")
-                    ax.scatter(pred_x, pred_y, c="magenta", marker="v", alpha=0.95, label="predicted")
+                    self._show_true_predicted_marks(ax=ax, label=run_params.output_labels[i], true_class=true_class,
+                                                    pred_class=pred_class,
+                                                    t=t, y_limits=this_plot_y_limits, run_params=run_params)
                     if create_fig and i == 0:
                         # draw legend only the first time and only on the uppermost graph
                         ax.legend()
@@ -197,6 +193,33 @@ class Record:
 
         if create_fig:
             plt.show(block=False)
+
+    def _show_true_predicted_marks(self, ax, label, true_class, pred_class, t, y_limits, run_params):
+        """
+        draw triangles for true and predicted classes
+        :param ax: the canvas
+        :param true_class: list of true class labels in this window
+        :param pred_class: list of predicted class labels in window
+        :param y_limits: this canvas OY limits for y axis. Default is (-80, 50)
+        :param run_params: a namedtuple containing
+            :param agent_stepsize: agent readout time step
+            :param dt: agent integration time step
+            :param input_cell_num: number of input cells
+            :param output_cell_num: number of output cells
+            :param output_labels: list of true labels for the consecutive plots
+        :return:
+        """
+        if run_params.output_labels is not None:
+            true_x, pred_x = self._true_predicted_class_marks(label=label,
+                                                              true_class=true_class,
+                                                              pred_class=pred_class, t=t,
+                                                              run_params=run_params)
+        else:
+            raise ValueError("True_labels parameter need to be given if show_true_prediction is True")
+        true_y = [y_limits[0] + np.abs(y_limits[0]) * 0.09] * len(true_x)
+        pred_y = [y_limits[1] - np.abs(y_limits[1] * 0.12)] * len(pred_x)
+        ax.scatter(true_x, true_y, c="orange", marker="^", alpha=0.95, label="true")
+        ax.scatter(pred_x, pred_y, c="magenta", marker="v", alpha=0.95, label="predicted")
 
     def _true_predicted_class_marks(self, label, true_class, pred_class, t, run_params):
         """
