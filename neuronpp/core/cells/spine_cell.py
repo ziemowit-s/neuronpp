@@ -1,6 +1,6 @@
 import random
 import numpy as np
-from random import randint
+import random
 
 from neuron import h
 
@@ -93,7 +93,7 @@ class SpineCell(SectionCell):
         added = dict([(s.hoc.name(), []) for s in sections])
 
         i = 0
-        r = randint(0, max_l)
+        r = random.randint(0, max_l)
         for s in sections:
             s = s.hoc
             i += s.L
