@@ -135,6 +135,8 @@ class Record:
                 fig.canvas.draw()
                 self.figs[var_name] = fig
 
+            if len(run_params.output_labels) != len(section_recs):
+                raise ValueError("Number of labels given is not equal to actual number of sections in current plot")
             for i, (name, rec) in enumerate(section_recs):
                 if create_fig:
                     if position == 'merge':
@@ -165,8 +167,8 @@ class Record:
                 line.set_data(t, r)
                 if run_params.show_true_predicted:
                     # info draw triangles for true and predicted classes
-                    if run_params.true_labels is not None:
-                        true_x, pred_x = self._true_predicted_class_marks(label=run_params.true_label[i],
+                    if run_params.output_labels is not None:
+                        true_x, pred_x = self._true_predicted_class_marks(label=run_params.output_labels[i],
                                                                           true_class=true_class,
                                                                           pred_class=pred_class, t=t,
                                                                           run_params=run_params)
