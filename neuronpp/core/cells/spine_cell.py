@@ -1,6 +1,6 @@
 import random
 import numpy as np
-from random import randint
+import random
 
 from neuron import h
 
@@ -98,7 +98,7 @@ class SpineCell(SectionCell):
         added = dict([(s.hoc.name(), []) for s in sections])
 
         i = 0
-        r = randint(0, max_l)
+        r = random.randint(0, max_l)
         for s in sections:
             s = s.hoc
             i += s.L
@@ -113,7 +113,7 @@ class SpineCell(SectionCell):
 
     def add_spines_at(self, dist_range, spine_density,
                                          spine_type, **kwargs):
-        """
+    """
         Add spines with specified linear density (per 1 um) to a part
         of dendritic range specified as distance from the soma. Spines can have
         a predifined type (stubby, thin, mushroom) or, alternatively, their
@@ -160,7 +160,8 @@ class SpineCell(SectionCell):
                                                                 o(0.0)) > dist_range[0]\
                                 and  h.distance(soma(0.0),
                                                 o(1.0)) < dist_range[1] )
-        self._add_spines_to_sections(secs, spine_density, spine_type, **kwargs)
+        self._add_spines_to_section_list(secs, spine_density, spine_type, **kwargs)
+
 
     def add_spines_to_regions(self, region, spine_density, spine_type,
                                **kwargs):
@@ -207,12 +208,21 @@ class SpineCell(SectionCell):
         """
 
         secs = self.filter_secs(obj_filter=lambda o: o.name.startswith(region))
+<<<<<<< HEAD
         self.add_spines_to_sections(secs, spine_density, spine_type, **kwargs)
 
 
 
     def add_spines_to_sections(self, sections, spine_density, spine_type,
                                **kwargs):
+=======
+        self.add_spines_to_section_list(secs, spine_density, spine_type, **kwargs)
+
+
+
+    def add_spines_section_list(self, sections, spine_density, spine_type,
+                                **kwargs):
+>>>>>>> 1e34e75ffebd3be2c02a8a96635f566d0e83f7b2
         """
         Add spines with specified linear density (per 1 um) to specified
         secions (compartments). Spines can have
@@ -239,14 +249,24 @@ class SpineCell(SectionCell):
             Spine neck diameter
         :neck_len:
             Length of the spine neck
+        :area_densisty:
+            if False spine_density is treated as linear spine density [um]
+            if True  spine_density is treated as area density [um2]
+        :seed: None
+            seed for the random number generator used for picking out
+            spine positions
         :g_leak:
-            leak conductance
+            leak conductance. By default g_leak of the parent section
+            will be used.
         :E_leak:
-            leak reversal potential:
+            leak reversal potential. By default leak reversal potential
+            of the parent section will be used.
         :r_m:
-            membrane resistivity
+            membrane resistivity. By default 1/leak conductance of the
+            parent section will be used.
         :r_a:
-            axial resistivity
+            axial resistivity. By default axial resistivity of the parent
+            section will be used.
         :area_densisty:
             if False spine_density is treated as linear spine density [um]
             if True  spine_density is treated as area density [um2]
@@ -255,7 +275,6 @@ class SpineCell(SectionCell):
 
         TODO: add spines with a distribution of head dimensions and
               neck dimensions
-        TODO: add distribution of locations along the dendrite
         """
         try:
             spine_dimensions = SPINE_DIMENSIONS[spine_type]
@@ -266,30 +285,124 @@ class SpineCell(SectionCell):
         head_len = kwargs.pop("head_len", spine_dimesions["head_len"])
         neck_diam = kwargs.pop("neck_diam", spine_dimesions["neck_diam"])
         neck_len = kwargs.pop("neck_len", spine_dimesions["neck_len"])
-        spine_E_rest =  kwargs.pop("E_rest", None) # if None, E_rest of the compartment  
+        #If Falde
+        spine_E_leak = kwargs("spine_E_leak", None)
+        spine_g_pas = kwargs("spine_g_pas", None)
+        spine_rm = kwargs("spine_rm", None)
+        spine_ra = kwargs("spine_ra", None)
+        spine_cm = kwargs("spine_cm", None)
+        if r_m is not False:
+            spine_g_pas = 1/spine_rm
         area_density = kwargs.pop("area_density", False)
+        seed = kwargs.pop("seed", None)
+        if seed is not None:
+            np.random.seed(seed)
+
         for sec in sections:
             if area_density:
                 area = sec.L*np.pi*sec.diam
                 spine_number = int(np.round(area * spine_density))
             else:
                 spine_number = int(np.round(sec.L * spine_density))
+
+            #if spine density is low (less than 1 per comp)
+            # use random number to determine whether to add a spine
+            if not spine_number:
+                rand = random.random()
+                if rand > spineDensity*comp.length:
+                    spine_number = 1
+                else:
+                    continue
+            E_leak, g_pas, ra, cm = self._electric_properties(sec,
+                                                              spine_E_leak,
+                                                              spine_g_pas,
+                                                              spine_ra,
+                                                              spine_cm)
             self._add_spines_to_section(sec, spine_number, head_diam,
-                              head_len, neck_diam, neck_len)
+                                        head_len, neck_diam, neck_len,
+                                        E_leak, g_pas, ra, cm,
+                                        u_random=seed)
         return self.heads, self.necks
 
     def _add_spines_to_section(self, section, n_spines, head_diam,
-                              head_len, neck_diam, neck_len):
+                               head_len, neck_diam, neck_len, E_leak,
+                               g_pas, ra, cm, u_random=None):
+        """
+        Add spines to a section of a dedrite. There are two possibilities:
+        1) spines are added uniformly every n_spines/section_length,
+        2) spines positions on the dendrite's section are drawn
+        from the uniform distribution.
+        
+        :param section:
+           section
+        :param n_spines:
+           number of spines
+        :param head_diam:
+           diameter of the spine head
+        :param head_len:
+           length of the spine_head
+        :param neck_diam:
+           diameter of the neck
+        :param neck_len:
+           length of the neck
+        :param u_random:
+           if int draw spine position from the uniform distribution
+        """
+        name = section.name()
+        if isinstance(u_random, int):
+            target_locations = np.random.uniform(0., 1., spine_number)
+        else:
+            target_locations = np.arange(0., 1., spine_number)
+
+        self._add_spines_to_section(sec, spine_number, head_diam,
+                                    head_len, neck_diam, neck_len,
+                                    E_leak, g_pas, ra, cm)
+        return self.heads, self.necks
+
+    def _add_spines_to_section(self, section, n_spines, head_diam,
+                               head_len, neck_diam, neck_len,
+                               E_leak, g_pas, ra, cm):
         name = section.name()
         for i in range(n_spines):
             head = self.add_sec(name="%s_head[%d]" % (name, i),
-                                diam=head_diam,
-                                l=head_len, nseg=2)
+                                diam=head_diam, l=head_len, nseg=2,
+                                E_rest=E_leak, ra=ra, cm=cm,
+                                g_leak=g_pas)
             neck = self.add_sec(name="%s_neck[%d]" % (name, i),
-                                diam=neck_diam,
-                                l=neck_len, nseg=1)
+                                diam=neck_diam, l=neck_len, nseg=1,
+                                E_rest=E_leak, ra=ra, cm=cm,
+                                g_leak=g_pas)
             self.heads.append(head)
             self.necks.append(neck)
             self.connect_secs(source=head, target=neck)
             self.connect_secs(source=neck, target=sec, source_loc=1.0,
-                              target_loc=i/spine_number)
+                              target_loc=target_locations[i])
+
+
+    @staticmethod
+    def _electric_properties(section, spine_E_leak, spine_g_pas, spine_ra,
+                             spine_cm):
+        if not isinstance(section, Sec):
+            section = Sec(section)
+        if spine_E_leak is None:
+            E_leak = section.hoc.e_pas
+        else:
+            E_leak = spine_E_leak
+        if spine_g_pas in None:
+            g_pas = section.hoc.g_pas
+        else:
+            g_pas = spine_g_pas
+        if spine_ra is None:
+            ra = section.hoc.Ra
+        else:
+            ra = spine_ra
+        if spine_cm is None:
+            cm = section.hoc.cm
+        else:
+            cm = spine_cm
+        return E_leak, g_pas, ra, cm
+
+    def compensate(self, tot_spine_surface):
+        pass
+        #compensate for gbars and passive properties
+
