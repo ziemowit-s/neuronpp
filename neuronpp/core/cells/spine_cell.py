@@ -248,13 +248,17 @@ class SpineCell(SectionCell):
             seed for the random number generator used for picking out
             spine positions
         :g_leak:
-            leak conductance
+            leak conductance. By default g_leak of the parent section
+            will be used.
         :E_leak:
-            leak reversal potential:
+            leak reversal potential. By default leak reversal potential
+            of the parent section will be used.
         :r_m:
-            membrane resistivity
+            membrane resistivity. By default 1/leak conductance of the
+            parent section will be used.
         :r_a:
-            axial resistivity
+            axial resistivity. By default axial resistivity of the parent
+            section will be used.
         :area_densisty:
             if False spine_density is treated as linear spine density [um]
             if True  spine_density is treated as area density [um2]
@@ -273,6 +277,14 @@ class SpineCell(SectionCell):
         head_len = kwargs.pop("head_len", spine_dimesions["head_len"])
         neck_diam = kwargs.pop("neck_diam", spine_dimesions["neck_diam"])
         neck_len = kwargs.pop("neck_len", spine_dimesions["neck_len"])
+        #If Falde
+        spine_E_leak = kwargs("spine_E_leak", None)
+        spine_g_pas = kwargs("spine_g_pas", None)
+        spine_rm = kwargs("spine_rm", None)
+        spine_ra = kwargs("spine_ra", None)
+        spine_cm = kwargs("spine_cm", None)
+        if r_m is not False:
+            spine_g_pas = 1/spine_rm
         area_density = kwargs.pop("area_density", False)
         seed = kwargs.pop("seed", None)
         if seed is not None:
@@ -283,14 +295,21 @@ class SpineCell(SectionCell):
                 spine_number = int(np.round(area * spine_density))
             else:
                 spine_number = int(np.round(sec.L * spine_density))
+
+            E_leak, g_pas, ra, cm = self._electric_properties(sec,
+                                                              spine_E_leak,
+                                                              spine_g_pas,
+                                                              spine_ra,
+                                                              spine_cm)
             self._add_spines_to_section(sec, spine_number, head_diam,
                                         head_len, neck_diam, neck_len,
+                                        E_leak, g_pas, ra, cm,
                                         u_random=seed)
         return self.heads, self.necks
 
     def _add_spines_to_section(self, section, n_spines, head_diam,
-                               head_len, neck_diam, neck_len,
-                               u_random=None):
+                               head_len, neck_diam, neck_len, E_leak,
+                               g_pas, ra, cm, u_random=None):
         """
         Add spines to a section of a dedrite. There are two possibilities:
         1) spines are added uniformly every n_spines/section_length,
@@ -319,21 +338,49 @@ class SpineCell(SectionCell):
             target_locations = np.arange(0., 1., spine_number)
 
         self._add_spines_to_section(sec, spine_number, head_diam,
-                                    head_len, neck_diam, neck_len)
+                                    head_len, neck_diam, neck_len,
+                                    E_leak, g_pas, ra, cm)
         return self.heads, self.necks
 
     def _add_spines_to_section(self, section, n_spines, head_diam,
-                              head_len, neck_diam, neck_len):
+                               head_len, neck_diam, neck_len,
+                               E_leak, g_pas, ra, cm):
         name = section.name()
         for i in range(n_spines):
             head = self.add_sec(name="%s_head[%d]" % (name, i),
-                                diam=head_diam,
-                                l=head_len, nseg=2)
+                                diam=head_diam, l=head_len, nseg=2,
+                                E_rest=E_leak, ra=ra, cm=cm,
+                                g_leak=g_pas)
             neck = self.add_sec(name="%s_neck[%d]" % (name, i),
-                                diam=neck_diam,
-                                l=neck_len, nseg=1)
+                                diam=neck_diam, l=neck_len, nseg=1,
+                                E_rest=E_leak, ra=ra, cm=cm,
+                                g_leak=g_pas)
             self.heads.append(head)
             self.necks.append(neck)
             self.connect_secs(source=head, target=neck)
             self.connect_secs(source=neck, target=sec, source_loc=1.0,
                               target_loc=target_locations[i])
+
+
+    @staticmethod
+    def _electric_properties(section, spine_E_leak, spine_g_pas, spine_ra,
+                             spine_cm):
+        if not isinstance(section, Sec):
+            section = Sec(section)
+        if spine_E_leak is None:
+            E_leak = section.hoc.e_pas
+        else:
+            E_leak = spine_E_leak
+        if spine_g_pas in None:
+            g_pas = section.hoc.g_pas
+        else:
+            g_pas = spine_g_pas
+        if spine_ra is None:
+            ra = section.hoc.Ra
+        else:
+            ra = spine_ra
+        if spine_cm is None:
+            cm = section.hoc.cm
+        else:
+            cm = spine_cm
+        return E_leak, g_pas, ra, cm
