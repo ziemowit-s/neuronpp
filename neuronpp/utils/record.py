@@ -94,8 +94,9 @@ class Record:
                 ax.set(xlabel='t (ms)', ylabel=var_name)
                 ax.legend()
 
-    def _plot_animate(self, steps=10000, y_lim=None, position=None, true_class=None, pred_class=None, stepsize=None,
-                      dt=None, show_true_predicted=True, true_labels=None):
+    def _plot_animate(self, steps=10000, y_lim=None, position=None, true_class=None, pred_class=None,
+                      run_params=None):
+        # stepsize=None,; dt=None, show_true_predicted=True, true_labels=None):
         """
         Call each time you want to redraw plot.
 
@@ -110,10 +111,13 @@ class Record:
             * position=None -> Default, each neuron has separated  axis (row) on the figure.
         :param true_class: list of true class labels in this window
         :param pred_class: list of predicted class labels in window
-        :param stepsize: agent readout time step
-        :param dt: agent integration time step
-        :param show_true_predicted: whther to print true/predicted class' marks on the plot
-        :param true_labels: list of true labels for the consecutive plots
+        :param run_class: a namedtuple containing
+            :param agent_stepsize: agent readout time step
+            :param dt: agent integration time step
+            :param input_cell_num: number of input cells
+            :param output_cell_num: number of output cells
+            :param true_labels: list of true labels for the consecutive plots
+            :param show_true_predicted: whther to print true/predicted class' marks on the plot
         :return:
         """
         create_fig = False
@@ -156,12 +160,13 @@ class Record:
 
                 # update data
                 line.set_data(t, r)
-                if show_true_predicted:
+                if run_params.show_true_predicted:
                     # info draw triangles for true and predicted classes
-                    if true_labels is not None:
-                        true_x, pred_x = self._true_predicted_class_marks(label=true_labels[i], true_class=true_class,
-                                                                          pred_class=pred_class, t=t, r=r,
-                                                                          stepsize=stepsize, dt=dt)
+                    if run_params.true_labels is not None:
+                        true_x, pred_x = self._true_predicted_class_marks(label=run_params.true_label[i],
+                                                                          true_class=true_class,
+                                                                          pred_class=pred_class, t=t,
+                                                                          run_params=run_params)
                     else:
                         raise ValueError("True_labels parameter need to be given if show_true_prediction is True")
                     if y_lim is None:
@@ -188,7 +193,7 @@ class Record:
         if create_fig:
             plt.show(block=False)
 
-    def _true_predicted_class_marks(self, label, true_class, pred_class, t, stepsize, dt):
+    def _true_predicted_class_marks(self, label, true_class, pred_class, t, run_params):
         """
         find and return lists of time steps for true and predicted labels
         :param label: the label id (an int)
@@ -200,9 +205,10 @@ class Record:
         :return: lists of marks for true_x: true classes, pred_x: predicted classes
         """
         n = len(true_class)
-        x = t[::int(2 * stepsize / dt)][-n:]
+        x = t[::int(2 * run_params.agent_stepsize / run_params.dt)][-n:]
         true_x = []
         pred_x = []
+        # todo change lists into numpy arrays for speed
         for k in range(n):
             # get the true classes for the current label
             if true_class[k] == label:
