@@ -150,15 +150,11 @@ class SpineCell(SectionCell):
             list of added spine heads
         """
         soma = self.filter_secs("soma")
-        secs = self.filter_secs(obj_filter=lambda o: h.distance(soma(0.0),
-                                                                o(0.0)) > distance_range[0] and  h.distance(soma(0.0), o(1.0)) < distance_range[1] )
-=======
         soma = self.filter_secs("soma")
         secs = self.filter_secs(obj_filter=lambda o: h.distance(soma(0.0),
                                                                 o(0.0)) > dist_range[0]\
                                 and  h.distance(soma(0.0),
                                                 o(1.0)) < dist_range[1] )
->>>>>>> 694e8484218b1eeb1311ac6a0d87cc443f078ac9
         self._add_spines_to_sections(secs, spine_density, spine_type, **kwargs)
 
     def add_spines_to_regions(self, region, spine_density, spine_type,
