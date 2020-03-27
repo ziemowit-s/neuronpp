@@ -26,6 +26,7 @@ class NetworkStatusGraph:
 
         self.correct_position = (0.1, 0.1)
 
+        self.population_sizes = dict()
         self.population_names = self._get_population_names()
         self.edges = self._get_edges(weight_name)
 
@@ -69,6 +70,10 @@ class NetworkStatusGraph:
 
     def _get_edges(self, weight_name):
         result = []
+        # compute the number of cells in each layer
+        for c in self.cells:
+            pop_name = c.name.split('[')[0]
+            self.population_sizes[pop_name] = self.population_sizes.get(pop_name, 0) + 1
         for c in self.cells:
             soma = c.filter_secs('soma')
             if c._spike_detector is None:
@@ -81,11 +86,13 @@ class NetworkStatusGraph:
             except ValueError:
                 x_pos = self.population_names.index(pop_name)
 
-            y_pos = int(split_name[-1][:-1])
+            # shift down the layer by half its size to vertically center graph
+            y_pos = int(split_name[-1][:-1]) - self.population_sizes[pop_name] // 2
 
             if 'inh' in c.name:
                 self.colors.append('red')
-                y_pos -= 5
+                # todo center vertically by half width of the hid layer
+                y_pos -= 6
             elif 'hid' in c.name:
                 self.colors.append('blue')
             else:
@@ -110,7 +117,8 @@ class NetworkStatusGraph:
                 except ValueError:
                     x_trg = self.population_names.index(pop_name)
 
-                y_trg = int(split_target[-1][:-1])
+                # center veritically
+                y_trg = int(split_target[-1][:-1]) - self.population_sizes[pop_name] // 2
 
                 weight = None
                 if self.plot_constant_connections and hasattr(nc.target.hoc, weight_name):
@@ -125,7 +133,8 @@ class NetworkStatusGraph:
         for nc in c.ncs:
             if "SpikeDetector" in nc.name:
                 continue
-            elif isinstance(nc.source, Seg) and isinstance(nc.target, PointProcess) and hasattr(nc.target.hoc, weight_name):
+            elif isinstance(nc.source, Seg) and isinstance(nc.target, PointProcess) and hasattr(nc.target.hoc,
+                                                                                                weight_name):
                 weight = getattr(nc.target.hoc, weight_name)
                 targets.append(weight)
         return targets
