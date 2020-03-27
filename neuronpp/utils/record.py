@@ -6,8 +6,8 @@ import pandas as pd
 from neuron import h
 from neuronpp.core.hocwrappers.seg import Seg
 
-MarkerParams = namedtuple("MarkerParams",
-                          "agent_stepsize dt input_cell_num output_cell_num true_labels true_class pred_class")
+MarkerParams = namedtuple("Simulation_params",
+                          "agent_class agent_stepsize dt input_cell_num output_cell_num output_labels")
 
 
 class Record:
