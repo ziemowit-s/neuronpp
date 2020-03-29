@@ -160,7 +160,8 @@ class SpineCell(SectionCell):
                                                                 o(0.0)) > dist_range[0]\
                                 and  h.distance(soma(0.0),
                                                 o(1.0)) < dist_range[1] )
-        self._add_spines_to_section_list(secs, spine_density, spine_type, **kwargs)
+        self._add_spines_to_section_list(secs, spine_density, spine_type,
+                                         **kwargs)
 
 
     def add_spines_to_regions(self, region, spine_density, spine_type,
@@ -208,7 +209,8 @@ class SpineCell(SectionCell):
         """
 
         secs = self.filter_secs(obj_filter=lambda o: o.name.startswith(region))
-        self.add_spines_to_section_list(secs, spine_density, spine_type, **kwargs)
+        self.add_spines_to_section_list(secs, spine_density, spine_type,
+                                        **kwargs)
 
 
 
@@ -282,6 +284,7 @@ class SpineCell(SectionCell):
         spine_rm = kwargs("spine_rm", None)
         spine_ra = kwargs("spine_ra", None)
         spine_cm = kwargs("spine_cm", None)
+        add_leak = kwargs("add_leak", True)
         if r_m is not False:
             spine_g_pas = 1/spine_rm
         area_density = kwargs.pop("area_density", False)
@@ -309,15 +312,16 @@ class SpineCell(SectionCell):
                                                               spine_g_pas,
                                                               spine_ra,
                                                               spine_cm)
-            self._add_spines_to_section(sec, spine_number, head_diam,
-                                        head_len, neck_diam, neck_len,
-                                        E_leak, g_pas, ra, cm,
-                                        u_random=seed)
+            self._add_spines_to_section(sec, spine_number, head_diam, head_len,
+                                        neck_diam, neck_len, E_leak, g_pas,
+                                        ra, cm, u_random=seed,
+                                        add_leak=add_leak)
         return self.heads, self.necks
 
     def _add_spines_to_section(self, section, n_spines, head_diam,
                                head_len, neck_diam, neck_len, E_leak,
-                               g_pas, ra, cm, u_random=None):
+                               g_pas, ra, cm, u_random=None,
+                               add_leak=True):
         """
         Add spines to a section of a dedrite. There are two possibilities:
         1) spines are added uniformly every n_spines/section_length,
@@ -347,22 +351,25 @@ class SpineCell(SectionCell):
 
         self._add_spines_to_section(sec, spine_number, head_diam,
                                     head_len, neck_diam, neck_len,
-                                    E_leak, g_pas, ra, cm)
+                                    E_leak, g_pas, ra, cm,
+                                    add_leak=add_leak)
         return self.heads, self.necks
 
-    def _add_spines_to_section(self, section, n_spines, head_diam,
+    def _add_spines_to_section(self, section, target_location, head_diam,
                                head_len, neck_diam, neck_len,
-                               E_leak, g_pas, ra, cm):
-        name = section.name()
-        for i in range(n_spines):
+                               E_leak, g_pas, ra, cm, add_leak=True):
+        name = section.name
+        if not isinstance(target_location, list):
+            target_location = [target_location]
+        for i, location in enumerate(target_location):
             head = self.add_sec(name="%s_head[%d]" % (name, i),
                                 diam=head_diam, l=head_len, nseg=2,
                                 E_rest=E_leak, ra=ra, cm=cm,
-                                g_leak=g_pas)
+                                g_leak=g_pas, add_leak=add_leak)
             neck = self.add_sec(name="%s_neck[%d]" % (name, i),
                                 diam=neck_diam, l=neck_len, nseg=1,
                                 E_rest=E_leak, ra=ra, cm=cm,
-                                g_leak=g_pas)
+                                g_leak=g_pas, add_leak=add_leak)
             self.heads.append(head)
             self.necks.append(neck)
             self.connect_secs(source=head, target=neck)
