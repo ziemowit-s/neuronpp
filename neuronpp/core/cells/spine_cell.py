@@ -366,8 +366,8 @@ class SpineCell(SectionCell):
             self.heads.append(head)
             self.necks.append(neck)
             self.connect_secs(source=head, target=neck)
-            self.connect_secs(source=neck, target=sec, source_loc=1.0,
-                              target_loc=target_locations[i])
+            self.connect_secs(source=neck, target=section, source_loc=location,
+                              target_loc=0.0)
 
 
     @staticmethod
