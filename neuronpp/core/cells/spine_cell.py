@@ -401,7 +401,33 @@ class SpineCell(SectionCell):
             cm = spine_cm
         return E_leak, g_pas, ra, cm
 
-    def compensate(self, tot_spine_surface):
-        pass
-        #compensate for gbars and passive properties
+    def _find_all_sections_with_spines(self):
+        #find all spines
+        all_necks = self.filter_sec("neck")
+        #find all sections with spines
+        all_dends = set()
+        for neck in all_necks:
+            parent = h.SectionRef(sec=neck.hoc).parent
+            all_dends.add(parent)
 
+        #find mechanisms
+        all_mechs_dict = {}
+        for dend in all_dends:
+            mechanisms = dend.psection()['density_mechs']
+            if len(mechanisms):
+                all_mechs_dict[dend.name] = []
+                for mech in mechanisms:
+                    all_mechs_dict[dend.name].append(mech)
+
+        return all_mechs_dict
+
+    def compensate(self):
+        #1 znaleźć wszystkie kolce
+        #2 znaleźć wszystkich rodziców kolców
+        #3 dla każdego rodzica znaleźć wszystkie możliwe mechanizmy
+        #zapewne w "density mechanism".
+        #Policzyć spine surface wszystkich kolców na danym dendrycie, które mają
+        #dany mechanizm
+        #Obniżyć dla każdego dendrytu g_bars i g_pas, cm o stosunek, który jest
+        #w kolcu, czyli pomnożyć przez (Adend-Aspine)/Adend
+        all_mechanisms = self._find_all_sections_with_spines()
