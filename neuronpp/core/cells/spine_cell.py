@@ -372,7 +372,8 @@ class SpineCell(SectionCell):
                                 g_leak=g_pas, add_leak=add_leak)
             self.heads.append(head)
             self.necks.append(neck)
-            self.connect_secs(source=head, target=neck)
+            self.connect_secs(source=head, target=neck, source_loc=1.0,
+                              target_loc=0.0)
             self.connect_secs(source=neck, target=section, source_loc=location,
                               target_loc=0.0)
 
