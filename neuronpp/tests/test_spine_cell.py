@@ -28,6 +28,14 @@ class TestCellAddSpineToSectionDefault(unittest.TestCase):
                                      -80, 1/30000, 100, 2)
         cls.head3 = cell3.filter_secs("head")
         cls.neck3 = cell3.filter_secs("neck")
+
+        cell4 = SpineCell(name="cell4")
+        cls.soma4 = cell4.add_sec("soma", add_leak=True)
+        cell4._add_spines_to_section(cls.soma4, [0.1, 0.2, 0.4, 0.8],
+                                     .5, .5, 0.4, 0.4,
+                                     -80, 1/40000, 100, 2)
+        cls.head4 = cell4.filter_secs("head")
+        cls.neck4 = cell4.filter_secs("neck")
         
         
     def test_head_diam(self):
@@ -151,6 +159,48 @@ class TestCellAddSpineToSectionDefault(unittest.TestCase):
 
     def test3_neck_cm(self):
         self.assertEqual(self.neck3.hoc.cm, 2)
+
+    def test4_no_of_heads(self):
+        self.assertEqual(len(self.head4), 4)
+
+    def test4_no_of_necks(self):
+        self.assertEqual(len(self.neck4), 4)
+
+    def test4_head_parents_0(self):
+        head = self.head4[0]
+        head_parent = h.SectionRef(sec=head.hoc).parent.name()
+        self.assertEqual(head_parent, self.neck4[0].hoc.name())
+
+    def test4_head_parents_1(self):
+        head = self.head4[1]
+        head_parent = h.SectionRef(sec=head.hoc).parent.name()
+        self.assertEqual(head_parent, self.neck4[1].hoc.name())
+
+    def test4_head_parents_2(self):
+        head = self.head4[2]
+        head_parent = h.SectionRef(sec=head.hoc).parent.name()
+        self.assertEqual(head_parent, self.neck4[2].hoc.name())
+
+    def test4_head_parents_3(self):
+        head = self.head4[3]
+        head_parent = h.SectionRef(sec=head.hoc).parent.name()
+        self.assertEqual(head_parent, self.neck4[3].hoc.name())
+
+    def test4_neck_parents_0(self):
+        neck_parent = h.SectionRef(sec=self.neck4[0].hoc).parent.name()
+        self.assertEqual(neck_parent, self.soma4.hoc.name())
+
+    def test4_neck_parents_1(self):
+        neck_parent = h.SectionRef(sec=self.neck4[1].hoc).parent.name()
+        self.assertEqual(neck_parent, self.soma4.hoc.name())
+
+    def test4_neck_parents_2(self):
+        neck_parent = h.SectionRef(sec=self.neck4[2].hoc).parent.name()
+        self.assertEqual(neck_parent, self.soma4.hoc.name())
+
+    def test4_neck_parents_3(self):
+        neck_parent = h.SectionRef(sec=self.neck4[3].hoc).parent.name()
+        self.assertEqual(neck_parent, self.soma4.hoc.name())
 
 if __name__ == '__main__':
     unittest.main()
