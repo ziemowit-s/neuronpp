@@ -383,22 +383,27 @@ class SpineCell(SectionCell):
                              spine_cm):
         if not isinstance(section, Sec):
             section = Sec(section)
+
         if spine_E_leak is None:
             E_leak = section.hoc.e_pas
         else:
             E_leak = spine_E_leak
-        if spine_g_pas in None:
+
+        if spine_g_pas is None:
             g_pas = section.hoc.g_pas
         else:
             g_pas = spine_g_pas
+
         if spine_ra is None:
             ra = section.hoc.Ra
         else:
             ra = spine_ra
+
         if spine_cm is None:
             cm = section.hoc.cm
         else:
             cm = spine_cm
+
         return E_leak, g_pas, ra, cm
 
     def _find_all_sections_with_spines(self):

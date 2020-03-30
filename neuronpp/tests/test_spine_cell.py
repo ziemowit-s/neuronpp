@@ -222,5 +222,47 @@ class TestCellAddSpineToSectionDefault(unittest.TestCase):
         neck_parent_loc = float(par.split("(")[1].split(")")[0])
         self.assertEqual(neck_parent_loc, 0.8)
 
+
+class TestParentSectionElectric(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cell = SpineCell(name="cell")
+        cls.soma = cell.add_sec("soma", g_leak=1/30000, E_rest=-76,
+                                ra=40, cm=1.1, add_leak=True)
+        cls.e_leak1, cls.g_pas1, cls.ra1, cls.cm1 = cell._electric_properties(cls.soma,
+                                                                              None, None,
+                                                                              None, None)
+
+        cls.e_leak2, cls.g_pas2, cls.ra2, cls.cm2 = cell._electric_properties(cls.soma,
+                                                                              -79, 1/20000,
+                                                                              50, 1.2)
+
+    def test_e_leak_soma(self):
+        self.assertEqual(self.soma.hoc.e_pas, self.e_leak1)
+
+    def test_g_pas_soma(self):
+        out = np.isclose(self.soma.hoc.g_pas, self.g_pas1)
+        self.assertTrue(out)
+
+    def test_ra_soma(self):
+        self.assertEqual(self.soma.hoc.Ra, self.ra1)
+
+    def test_cm_soma(self):
+        self.assertEqual(self.soma.hoc.cm, self.cm1)
+
+    def test_e_leak(self):
+        self.assertEqual(self.e_leak2, -79)
+
+    def test_g_pas(self):
+        out = np.isclose(self.g_pas2, 1/20000)
+        self.assertTrue(out)
+
+    def test_ra(self):
+        self.assertEqual(self.ra2, 50)
+
+    def test_cm(self):
+        self.assertEqual(self.cm2, 1.2)
+
 if __name__ == '__main__':
     unittest.main()
