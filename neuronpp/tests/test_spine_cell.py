@@ -21,6 +21,14 @@ class TestCellAddSpineToSectionDefault(unittest.TestCase):
                                      add_leak=True)
         cls.head2 = cell2.filter_secs("head")
         cls.neck2 = cell2.filter_secs("neck")
+
+        cell3 = SpineCell(name="cell3")
+        cls.soma3 = cell3.add_sec("soma", add_leak=True)
+        cell3._add_spines_to_section(cls.soma3, 0.3, .5, .5, 0.3, 0.3,
+                                     -80, 1/30000, 100, 2)
+        cls.head3 = cell3.filter_secs("head")
+        cls.neck3 = cell3.filter_secs("neck")
+        
         
     def test_head_diam(self):
         self.assertEqual(self.head.hoc.diam, 1.)
@@ -117,6 +125,32 @@ class TestCellAddSpineToSectionDefault(unittest.TestCase):
         par = str(self.head2.hoc.psection()["morphology"]["parent"])
         head_parent_loc = float(par.split("(")[1].split(")")[0])
         self.assertEqual(head_parent_loc, 1.0)
-        
+
+    def test3_head_e_pas(self):
+        self.assertEqual(self.head3.hoc.e_pas, -80)
+
+    def test3_neck_e_pas(self):
+        self.assertEqual(self.neck3.hoc.e_pas, -80)
+
+    def test3_head_g_pas(self):
+        out = np.isclose(self.head3.hoc.g_pas, 1/30000)
+        self.assertTrue(out)
+
+    def test3_neck_g_pas(self):
+        out = np.isclose(self.neck3.hoc.g_pas, 1/30000)
+        self.assertTrue(out)
+
+    def test3_head_ra(self):
+        self.assertEqual(self.head3.hoc.Ra, 100)
+
+    def test3_neck_ra(self):
+        self.assertEqual(self.neck3.hoc.Ra, 100)
+
+    def test3_head_cm(self):
+        self.assertEqual(self.head3.hoc.cm, 2)
+
+    def test3_neck_cm(self):
+        self.assertEqual(self.neck3.hoc.cm, 2)
+
 if __name__ == '__main__':
     unittest.main()
