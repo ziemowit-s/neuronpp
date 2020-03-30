@@ -202,5 +202,25 @@ class TestCellAddSpineToSectionDefault(unittest.TestCase):
         neck_parent = h.SectionRef(sec=self.neck4[3].hoc).parent.name()
         self.assertEqual(neck_parent, self.soma4.hoc.name())
 
+    def test3_neck0_parent_location(self):
+        par = str(self.neck4[0].hoc.psection()["morphology"]["parent"])
+        neck_parent_loc = float(par.split("(")[1].split(")")[0])
+        self.assertEqual(neck_parent_loc, 0.1)
+        
+    def test3_neck1_parent_location(self):
+        par = str(self.neck4[1].hoc.psection()["morphology"]["parent"])
+        neck_parent_loc = float(par.split("(")[1].split(")")[0])
+        self.assertEqual(neck_parent_loc, 0.2)
+
+    def test3_neck0_parent_location(self):
+        par = str(self.neck4[2].hoc.psection()["morphology"]["parent"])
+        neck_parent_loc = float(par.split("(")[1].split(")")[0])
+        self.assertEqual(neck_parent_loc, 0.4)
+
+    def test3_neck0_parent_location(self):
+        par = str(self.neck4[3].hoc.psection()["morphology"]["parent"])
+        neck_parent_loc = float(par.split("(")[1].split(")")[0])
+        self.assertEqual(neck_parent_loc, 0.8)
+
 if __name__ == '__main__':
     unittest.main()
