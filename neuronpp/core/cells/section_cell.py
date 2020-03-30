@@ -101,7 +101,7 @@ class SectionCell(CoreCell):
         if cm is not None:
             hoc_sec.cm = cm
         if ra is not None:
-            hoc_sec.Ra = Ra
+            hoc_sec.Ra = ra
         if rm is not None:
             g_leak = 1/rm
  
