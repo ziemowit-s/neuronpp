@@ -1,6 +1,5 @@
 import random
 import numpy as np
-import random
 
 from neuron import h
 
