@@ -5,6 +5,9 @@ from neuron import h
 
 from neuronpp.core.cells.section_cell import SectionCell
 from neuronpp.core.hocwrappers.sec import Sec
+from neuronpp.core.cells.utils import establish_electric_properties
+from neuronpp.core.cells.utils import get_spine_number
+
 ### Nomenclature and values adapted from Harris KM, Jensen FE, Tsao BE.
 ### J Neurosci 1992
 
@@ -34,6 +37,10 @@ SPINE_DIMENSIONS = {
         "neck_len": 0.5,
     }
 }
+
+
+
+
 
 class SpineCell(SectionCell):
     def __init__(self, name=None, compile_paths=None):
@@ -212,7 +219,6 @@ class SpineCell(SectionCell):
                                         **kwargs)
 
 
-
     def add_spines_section_list(self, sections, spine_density, spine_type,
                                 **kwargs):
         """
@@ -292,25 +298,12 @@ class SpineCell(SectionCell):
             np.random.seed(seed)
 
         for sec in sections:
-            if area_density:
-                area = sec.L*np.pi*sec.diam
-                spine_number = int(np.round(area * spine_density))
-            else:
-                spine_number = int(np.round(sec.L * spine_density))
-
-            #if spine density is low (less than 1 per comp)
-            # use random number to determine whether to add a spine
-            if not spine_number:
-                rand = random.random()
-                if rand > spineDensity*comp.length:
-                    spine_number = 1
-                else:
-                    continue
-            E_leak, g_pas, ra, cm = self._electric_properties(sec,
-                                                              spine_E_leak,
-                                                              spine_g_pas,
-                                                              spine_ra,
-                                                              spine_cm)
+            spine_number = get_spine_number(sec, spine_density, area_density)
+            E_leak, g_pas, ra, cm = establish_electric_properties(sec,
+                                                                  spine_E_leak,
+                                                                  spine_g_pas,
+                                                                  spine_ra,
+                                                                  spine_cm)
 
             self._add_spines_to_section_with_location(sec, spine_number,
                                                       head_diam, head_len,
@@ -381,33 +374,6 @@ class SpineCell(SectionCell):
                               target_loc=0.0)
 
 
-    @staticmethod
-    def _electric_properties(section, spine_E_leak, spine_g_pas, spine_ra,
-                             spine_cm):
-        if not isinstance(section, Sec):
-            section = Sec(section)
-
-        if spine_E_leak is None:
-            E_leak = section.hoc.e_pas
-        else:
-            E_leak = spine_E_leak
-
-        if spine_g_pas is None:
-            g_pas = section.hoc.g_pas
-        else:
-            g_pas = spine_g_pas
-
-        if spine_ra is None:
-            ra = section.hoc.Ra
-        else:
-            ra = spine_ra
-
-        if spine_cm is None:
-            cm = section.hoc.cm
-        else:
-            cm = spine_cm
-
-        return E_leak, g_pas, ra, cm
 
     def _find_all_sections_with_spines(self):
         #find all spines
