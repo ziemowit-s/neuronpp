@@ -4,7 +4,7 @@ import numpy as np
 from neuron import h
 from neuronpp.core.cells.spine_cell import SpineCell
 
-class TestCellAddSpineToSectionDefault(unittest.TestCase):
+class TestCellAddSpineToSection(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cell = SpineCell(name="cell")
@@ -29,15 +29,14 @@ class TestCellAddSpineToSectionDefault(unittest.TestCase):
         cls.head3 = cell3.filter_secs("head")
         cls.neck3 = cell3.filter_secs("neck")
 
-        cell4 = SpineCell(name="cell4")
-        cls.soma4 = cell4.add_sec("soma", add_leak=True)
-        cell4._add_spines_to_section(cls.soma4, [0.1, 0.2, 0.4, 0.8],
+        cls.cell4 = SpineCell(name="cell4")
+        cls.soma4 = cls.cell4.add_sec("soma", add_leak=True)
+        cls.cell4._add_spines_to_section(cls.soma4, [0.1, 0.2, 0.4, 0.8],
                                      .5, .5, 0.4, 0.4,
                                      -80, 1/40000, 100, 2)
-        cls.head4 = cell4.filter_secs("head")
-        cls.neck4 = cell4.filter_secs("neck")
-        
-        
+        cls.head4 = cls.cell4.filter_secs("head")
+        cls.neck4 = cls.cell4.filter_secs("neck")
+
     def test_head_diam(self):
         self.assertEqual(self.head.hoc.diam, 1.)
 
@@ -221,6 +220,12 @@ class TestCellAddSpineToSectionDefault(unittest.TestCase):
         par = str(self.neck4[3].hoc.psection()["morphology"]["parent"])
         neck_parent_loc = float(par.split("(")[1].split(")")[0])
         self.assertEqual(neck_parent_loc, 0.8)
+
+    def test_adding_heads_to_list(self):
+        self.assertEqual(self.head4, self.cell4.heads)
+
+    def test_adding_necks_to_list(self):
+        self.assertEqual(self.neck4, self.cell4.necks)
 
 
 class TestParentSectionElectric(unittest.TestCase):
