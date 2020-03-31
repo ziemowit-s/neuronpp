@@ -269,5 +269,51 @@ class TestParentSectionElectric(unittest.TestCase):
     def test_cm(self):
         self.assertEqual(self.cm2, 1.2)
 
+
+class TestAddSpinesToSectionLocation(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.cell1 = SpineCell(name="cell1")
+        cls.soma1 = cls.cell1.add_sec("soma", add_leak=True)
+        cls.cell2 = SpineCell(name="cell2")
+        cls.soma2 = cls.cell2.add_sec("soma", add_leak=True)
+        cls.n_spines = 10
+        cls.head_diam = cls.head_len = 1
+        cls.neck_diam = cls.neck_len = 0.5
+        cls.E_leak = -70
+        cls.g_pas = 1/20000
+        cls.ra = None
+        cls.cm = None
+        cls.out1 = cls.cell1._add_spines_to_section_with_location(cls.soma1,
+                                                                 cls.n_spines,
+                                                                 cls.head_diam,
+                                                                 cls.head_len,
+                                                                 cls.neck_diam,
+                                                                 cls.neck_len,
+                                                                 cls.E_leak,
+                                                                 cls.g_pas,
+                                                                 cls.ra, cls.cm,
+                                                                 u_random=None)
+        cls.out2 = cls.cell2._add_spines_to_section_with_location(cls.soma2,
+                                                                 cls.n_spines,
+                                                                 cls.head_diam,
+                                                                 cls.head_len,
+                                                                 cls.neck_diam,
+                                                                 cls.neck_len,
+                                                                 cls.E_leak,
+                                                                 cls.g_pas,
+                                                                 cls.ra,
+                                                                 cls.cm,
+                                                                 u_random=1)
+
+
+    def test_equal(self):
+        self.assertEqual(self.out1,
+                         np.linspace(0., .99, self.n_spines).tolist())
+
+    def test_random(self):
+       self.assertNotEqual(self.out2,
+                         np.linspace(0., .99, self.n_spines).tolist())
+
 if __name__ == '__main__':
     unittest.main()

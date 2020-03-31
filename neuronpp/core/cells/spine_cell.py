@@ -345,17 +345,18 @@ class SpineCell(SectionCell):
         :param u_random:
            if int draw spine position from the uniform distribution
         """
-        name = section.name()
+        if not isinstance(section, Sec):
+            section = Sec(section)
         if isinstance(u_random, int):
-            target_locations = np.random.uniform(0., 1., spine_number)
+            target_locations = np.random.uniform(0., 1., n_spines).tolist()
         else:
-            target_locations = np.arange(0., 1., spine_number)
+            target_locations = np.linspace(0., .99, n_spines).tolist()
 
-        self._add_spines_to_section(sec, spine_number, head_diam,
+        self._add_spines_to_section(section, target_locations, head_diam,
                                     head_len, neck_diam, neck_len,
                                     E_leak, g_pas, ra, cm,
                                     add_leak=add_leak)
-        return self.heads, self.necks
+        return target_locations
 
     def _add_spines_to_section(self, section, target_location, head_diam,
                                head_len, neck_diam, neck_len,
