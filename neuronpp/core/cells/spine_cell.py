@@ -312,16 +312,19 @@ class SpineCell(SectionCell):
                                                               spine_g_pas,
                                                               spine_ra,
                                                               spine_cm)
-            self._add_spines_to_section(sec, spine_number, head_diam, head_len,
-                                        neck_diam, neck_len, E_leak, g_pas,
-                                        ra, cm, u_random=seed,
-                                        add_leak=add_leak)
+
+            self._add_spines_to_section_with_location(sec, spine_number,
+                                                      head_diam, head_len,
+                                                      neck_diam, neck_len,
+                                                      E_leak, g_pas,
+                                                      ra, cm, u_random=seed,
+                                                      add_leak=add_leak)
         return self.heads, self.necks
 
-    def _add_spines_to_section(self, section, n_spines, head_diam,
-                               head_len, neck_diam, neck_len, E_leak,
-                               g_pas, ra, cm, u_random=None,
-                               add_leak=True):
+    def _add_spines_to_section_with_location(self, section, n_spines, head_diam,
+                                             head_len, neck_diam, neck_len, E_leak,
+                                             g_pas, ra, cm, u_random=None,
+                                             add_leak=True):
         """
         Add spines to a section of a dedrite. There are two possibilities:
         1) spines are added uniformly every n_spines/section_length,
