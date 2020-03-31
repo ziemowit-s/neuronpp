@@ -383,10 +383,13 @@ class SpineCell(SectionCell):
         for neck in all_necks:
             parent = h.SectionRef(sec=neck.hoc).parent
             all_dends.add(parent)
+        return all_dends
 
+    @staticmethod
+    def _find_denritic_mechanisms(self, dends):
         #find mechanisms
         all_mechs_dict = {}
-        for dend in all_dends:
+        for dend in dends:
             mechanisms = dend.psection()['density_mechs']
             if len(mechanisms):
                 all_mechs_dict[dend.name] = []
