@@ -8,14 +8,14 @@ class TestCellAddSpineToSection(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cell = SpineCell(name="cell")
-        cls.soma = cell.add_sec("soma", add_leak=True)
+        cls.soma = cell.add_sec("soma", add_leak=True, nseg=10)
         cell._add_spines_to_section(cls.soma, 0.5, 1, 1, 0.5, 0.5,
                                     None, None, None, None,
                                     add_leak=False)
         cls.head = cell.filter_secs("head")
         cls.neck = cell.filter_secs("neck")
         cell2 = SpineCell(name="cell2")
-        cls.soma2 = cell2.add_sec("soma", add_leak=True)
+        cls.soma2 = cell2.add_sec("soma", nseg=10, add_leak=True)
         cell2._add_spines_to_section(cls.soma2, 0.3, .5, .5, 0.3, 0.3,
                                      None, None, None, None,
                                      add_leak=True)

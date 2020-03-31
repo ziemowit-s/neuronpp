@@ -12,7 +12,7 @@ class TestParentSectionElectric(unittest.TestCase):
     def setUpClass(cls):
         cell =  SpineCell(name="cell")
         cls.soma = cell.add_sec("soma", g_leak=1/30000, E_rest=-76,
-                                ra=40, cm=1.1, add_leak=True)
+                                ra=40, cm=1.1, nseg=100, add_leak=True)
         cls.e_leak1, cls.g_pas1, cls.ra1, cls.cm1 = establish_electric_properties(cls.soma,
                                                                             None, None,
                                                                             None, None)
@@ -51,7 +51,7 @@ class TestGetSpineNumber(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cell = SpineCell(name="cell")
-        cls.soma = cell.add_sec("soma")
+        cls.soma = cell.add_sec("soma", nseg=10)
 
     def test_length_density(self):
         spine_density = 0.1
