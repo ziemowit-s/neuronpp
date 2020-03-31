@@ -275,6 +275,84 @@ class TestAddSpinesToSectionLocation(unittest.TestCase):
        self.assertNotEqual(self.out2,
                          np.linspace(0., .99, self.n_spines).tolist())
 
+    def test_how_many_spines(self):
+        self.assertEqual(len(self.out2), len(self.out1))
+
+    def test_how_many_spines2(self):
+        self.assertEqual(len(self.out2), len(self.cell2.heads))
+
+    def test_how_many_spines3(self):
+        self.assertEqual(len(self.out2), len(self.cell2.necks))
+
+    def test_how_many_spines4(self):
+        self.assertEqual(len(self.out1), len(self.cell1.heads))
+
+    def test_how_many_spines5(self):
+        self.assertEqual(len(self.out1), len(self.cell1.necks))
+
+    def test_heads_diam1(self):
+        diams = set([x.hoc.diam for x in self.cell1.heads])
+        self.assertEqual(diams, set([self.head_diam]))
+
+    def test_neck_diam1(self):
+        diams = set([x.hoc.diam for x in self.cell1.necks])
+        self.assertEqual(diams, set([self.neck_diam]))
+
+    def test_heads_len1(self):
+        lens = set([x.hoc.L for x in self.cell1.heads])
+        self.assertEqual(lens, set([self.head_len]))
+
+    def test_neck_len1(self):
+        lens = set([x.hoc.L for x in self.cell1.necks])
+        self.assertEqual(lens, set([self.neck_len]))
+
+    def test_neck_g_pas(self):
+        lens = set([x.hoc.g_pas for x in self.cell1.necks])
+        self.assertEqual(lens, set([self.g_pas]))
+
+    def test_neck_E_leak(self):
+        lens = set([x.hoc.e_pas for x in self.cell1.necks])
+        self.assertEqual(lens, set([self.E_leak]))
+
+    def test_neck_ra(self):
+        lens = set([x.hoc.Ra for x in self.cell1.necks])
+        self.assertEqual(lens, set([self.ra]))
+
+    def test_neck_cm(self):
+        lens = set([x.hoc.cm for x in self.cell1.necks])
+        self.assertEqual(lens, set([self.cm]))
+
+    def test_neck_g_pas(self):
+        lens = set([x.hoc.g_pas for x in self.cell1.necks])
+        self.assertEqual(lens, set([self.g_pas]))
+
+    def test_neck_E_leak(self):
+        lens = set([x.hoc.e_pas for x in self.cell1.necks])
+        self.assertEqual(lens, set([self.E_leak]))
+
+    def test_neck_ra(self):
+        lens = set([x.hoc.Ra for x in self.cell1.necks])
+        self.assertEqual(lens, set([35.4]))
+
+    def test_neck_cm(self):
+        lens = set([x.hoc.cm for x in self.cell1.necks])
+        self.assertEqual(lens, set([1]))
+
+    def test_head_g_pas(self):
+        lens = set([x.hoc.g_pas for x in self.cell1.heads])
+        self.assertEqual(lens, set([self.g_pas]))
+
+    def test_head_E_leak(self):
+        lens = set([x.hoc.e_pas for x in self.cell1.heads])
+        self.assertEqual(lens, set([self.E_leak]))
+
+    def test_head_ra(self):
+        lens = set([x.hoc.Ra for x in self.cell1.heads])
+        self.assertEqual(lens, set([35.4]))
+
+    def test_head_cm(self):
+        lens = set([x.hoc.cm for x in self.cell1.heads])
+        self.assertEqual(lens, set([1]))
 
 
 if __name__ == '__main__':
