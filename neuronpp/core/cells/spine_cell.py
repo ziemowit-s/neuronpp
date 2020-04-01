@@ -135,7 +135,7 @@ class SpineCell(SectionCell):
         :param spine_type:
             Spine type. There are four predifined types: thin, stubby,
             mushroom and other.
-        :param \**kwargs:
+        :param **kwargs:
             See below
 
         Keyword arguments:
@@ -186,7 +186,7 @@ class SpineCell(SectionCell):
         :param spine_type:
             Spine type. There are four predifined types: thin, stubby,
             mushroom and other.
-        :param \**kwargs:
+        :param **kwargs:
             See below
 
         Keyword arguments:
@@ -235,7 +235,7 @@ class SpineCell(SectionCell):
         :param spine_type:
             Spine type. There are four predifined types: thin, stubby,
             mushroom and other.
-        :param \**kwargs:
+        :param **kwargs:
             See below
 
         Keyword arguments:
