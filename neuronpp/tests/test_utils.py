@@ -49,6 +49,19 @@ class TestParentSectionElectric(unittest.TestCase):
     def test_cm(self):
         self.assertEqual(self.cm2, 1.2)
 
+    def test_e_leak_none(self):
+        self.assertEqual(self.e_leak3, None)
+
+    def test_g_leak_none(self):
+        self.assertEqual(self.g_leak3, None)
+
+    def test_ra_def(self):
+        self.assertEqual(35.4, self.ra3)
+
+    def test_cm_def(self):
+        self.assertEqual(1, self.cm3)
+
+
 class TestGetSpineNumber(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
