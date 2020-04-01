@@ -120,9 +120,13 @@ class SectionCell(CoreCell):
         """
         default: source(0.0) -> target(1.0)
 
-        If you specify 1.0 for source_loc or target_loc it will assume 0.999 loc instead. This is because NEURON do not
-        insert any mechanisms to the 1.0 end (it is dimension-less). NEURON allows to connect section to the 1.0,
-        however this raise problems while copying parameters between sections. So any 1.0 loc will be changed to 0.999
+        source.hoc.connect(target.hoc(source_loc), target_loc)
+        child.connect(parent)
+        If you specify 1.0 for source_loc or target_loc it will assume 0.999
+        loc instead. This is because NEURON do not insert any mechanisms 
+        to the 1.0 end (it is dimension-less). NEURON allows to connect
+        section to the 1.0, however this raise problems while copying
+        parameters between sections. So any 1.0 loc will be changed to 0.999
         instead.
         :param source:
         :param target:
