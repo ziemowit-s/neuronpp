@@ -46,12 +46,18 @@ def establish_electric_properties(section, spine_E_leak, spine_g_pas,
         section = Sec(section)
 
     if spine_E_leak is None:
-        E_leak = section.hoc.e_pas
+        try:
+            E_leak = section.hoc.e_pas
+        except AttributeError:
+            E_leak = None
     else:
         E_leak = spine_E_leak
 
     if spine_g_pas is None:
-        g_pas = section.hoc.g_pas
+        try:
+            g_pas = section.hoc.g_pas
+        except AttributeError:
+            g_pas = None
     else:
         g_pas = spine_g_pas
 

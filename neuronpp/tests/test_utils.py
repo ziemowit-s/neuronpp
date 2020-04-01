@@ -20,6 +20,8 @@ class TestParentSectionElectric(unittest.TestCase):
         cls.e_leak2, cls.g_pas2, cls.ra2, cls.cm2 = establish_electric_properties(cls.soma,
                                                                               -79, 1/20000,
                                                                               50, 1.2)
+        cls.dend = cell.add_sec("dend")
+        cls.e_leak3, cls.g_leak3, cls.ra3, cls.cm3 = establish_electric_properties(cls.dend, None, None, None, None)
 
     def test_e_leak_soma(self):
         self.assertEqual(self.soma.hoc.e_pas, self.e_leak1)
