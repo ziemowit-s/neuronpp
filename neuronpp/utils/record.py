@@ -1,9 +1,13 @@
 from collections import defaultdict, namedtuple
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from neuron import h
+import matplotlib.pyplot as plt
+from neuronpp.core.hocwrappers.sec import Sec
+
+from neuronpp.core.hocwrappers.point_process import PointProcess
+
 from neuronpp.core.hocwrappers.seg import Seg
 
 MarkerParams = namedtuple("Simulation_params",
@@ -37,7 +41,13 @@ class Record:
         for elem in elements:
             for var in variables:
                 if isinstance(elem, Seg):
-                    name = elem.parent.name
+                    cell_name = elem.parent.parent.name
+                    name = "%s_%s" % (cell_name, elem.name)
+                elif isinstance(elem, PointProcess):
+                    cell_name = elem.cell.name
+                    name = "%s_%s" % (cell_name, elem.name)
+                elif isinstance(elem, Sec):
+                    raise TypeError("Record element cannot be of type Sec, however you can specify Seg eg. soma(0.5) and pass as element.")
                 else:
                     name = elem.name
                 try:
@@ -117,7 +127,7 @@ class Record:
         :param true_class: list of true class labels in this window
         :param pred_class: list of predicted class labels in window
         :param show_true_predicted: whther to print true/predicted class' marks on the plot
-        :param marker_params: MarkerParams namedtuple containing
+        :param marker_params: MarkerParams namedtuple contains inner params:
             :param agent_stepsize: agent readout time step
             :param dt: agent integration time step
             :param input_cell_num: number of input cells
@@ -143,7 +153,7 @@ class Record:
             if show_true_predicted:
                 if len(marker_params.output_labels) != len(section_recs):
                     raise ValueError(
-                        "show_predicted is true but the number of labels given is not equal to actual number of sections in current plot")
+                        "show_predicted is true but the number of true labels given is not equal to actual number of elemens to plot.")
             for i, (name, rec) in enumerate(section_recs):
                 if create_fig:
                     if position == 'merge':
@@ -154,10 +164,10 @@ class Record:
 
                     if y_lim:
                         ax.set_ylim(y_lim[0], y_lim[1])
-                    line, = ax.plot([], lw=1)
-                    # ax.set_title("Variable: %s" % var_name)
-                    ax.set_ylabel("{}_{}".format(var_name, i))
+                    line, = ax.plot([], lw=1, label=name)
+                    ax.set_ylabel(var_name)
                     ax.set_xlabel("t (ms)")
+                    ax.legend()
 
                     self.axs[var_name].append((ax, line))
 
@@ -168,10 +178,10 @@ class Record:
                 ax.set_xlim(t.min(), t.max())
                 if y_lim is None:
                     # compute per-plot OY limits if global are not given
-                    this_plot_y_limits = (r.min() - (np.abs(r.min() * 0.05)), r.max() + (np.abs(r.max() * 0.05)))
-                    ax.set_ylim(this_plot_y_limits)
+                    current_y_lim = (r.min() - (np.abs(r.min() * 0.05)), r.max() + (np.abs(r.max() * 0.05)))
+                    ax.set_ylim(current_y_lim)
                 else:
-                    this_plot_y_limits = y_lim
+                    current_y_lim = y_lim
 
                 # update data
                 line.set_data(t, r)
@@ -179,16 +189,13 @@ class Record:
                     # info draw markers for true and predicted classes
                     self._show_true_predicted_marks(ax=ax, label=marker_params.output_labels[i], true_class=true_class,
                                                     pred_class=pred_class,
-                                                    t=t, y_limits=this_plot_y_limits, marker_params=marker_params)
+                                                    t=t, y_limits=current_y_lim, marker_params=marker_params)
                     if create_fig and i == 0:
                         # draw legend only the first time and only on the uppermost graph
                         ax.legend()
 
             # info join plots by removing labels and ticks from subplots that are not on the edge
             if create_fig:
-                for key in self.axs:
-                    for ax in self.axs[key]:
-                        ax[0].label_outer()
                 fig.subplots_adjust(left=0.09, bottom=0.075, right=0.99, top=0.98, wspace=None, hspace=0.00)
             fig.canvas.draw()
             fig.canvas.flush_events()
