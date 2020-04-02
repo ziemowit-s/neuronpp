@@ -8,29 +8,29 @@ class TestCellAddSpineToSection(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cell = SpineCell(name="cell")
-        cls.soma = cell.add_sec("soma", add_leak=True, nseg=10)
+        cls.soma = cell.add_sec("soma", add_pas=True, nseg=10)
         cell._add_spines_to_section(cls.soma, 0.5, 1, 1, 0.5, 0.5,
                                     None, None, None, None,
-                                    add_leak=False)
+                                    add_pas=False)
         cls.head = cell.filter_secs("head")
         cls.neck = cell.filter_secs("neck")
         cell2 = SpineCell(name="cell2")
-        cls.soma2 = cell2.add_sec("soma", nseg=10, add_leak=True)
+        cls.soma2 = cell2.add_sec("soma", nseg=10, add_pas=True)
         cell2._add_spines_to_section(cls.soma2, 0.3, .5, .5, 0.3, 0.3,
                                      None, None, None, None,
-                                     add_leak=True)
+                                     add_pas=True)
         cls.head2 = cell2.filter_secs("head")
         cls.neck2 = cell2.filter_secs("neck")
 
         cell3 = SpineCell(name="cell3")
-        cls.soma3 = cell3.add_sec("soma", add_leak=True)
+        cls.soma3 = cell3.add_sec("soma", add_pas=True)
         cell3._add_spines_to_section(cls.soma3, 0.3, .5, .5, 0.3, 0.3,
                                      -80, 1/30000, 100, 2)
         cls.head3 = cell3.filter_secs("head")
         cls.neck3 = cell3.filter_secs("neck")
 
         cls.cell4 = SpineCell(name="cell4")
-        cls.soma4 = cls.cell4.add_sec("soma", add_leak=True)
+        cls.soma4 = cls.cell4.add_sec("soma", add_pas=True)
         cls.cell4._add_spines_to_section(cls.soma4, [0.1, 0.2, 0.4, 0.8],
                                      .5, .5, 0.4, 0.4,
                                      -80, 1/40000, 100, 2)
@@ -234,13 +234,13 @@ class TestAddSpinesToSectionLocation(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.cell1 = SpineCell(name="cell1")
-        cls.soma1 = cls.cell1.add_sec("soma", add_leak=True)
+        cls.soma1 = cls.cell1.add_sec("soma", add_pas=True)
         cls.cell2 = SpineCell(name="cell2")
-        cls.soma2 = cls.cell2.add_sec("soma", add_leak=True)
+        cls.soma2 = cls.cell2.add_sec("soma", add_pas=True)
         cls.n_spines = 10
         cls.head_diam = cls.head_len = 1
         cls.neck_diam = cls.neck_len = 0.5
-        cls.E_leak = -70
+        cls.E_pas = -70
         cls.g_pas = 1/20000
         cls.ra = None
         cls.cm = None
@@ -250,7 +250,7 @@ class TestAddSpinesToSectionLocation(unittest.TestCase):
                                                                   cls.head_len,
                                                                   cls.neck_diam,
                                                                   cls.neck_len,
-                                                                  cls.E_leak,
+                                                                  cls.E_pas,
                                                                   cls.g_pas,
                                                                   cls.ra, cls.cm,
                                                                   u_random=None)
@@ -260,7 +260,7 @@ class TestAddSpinesToSectionLocation(unittest.TestCase):
                                                                   cls.head_len,
                                                                   cls.neck_diam,
                                                                   cls.neck_len,
-                                                                  cls.E_leak,
+                                                                  cls.E_pas,
                                                                   cls.g_pas,
                                                                   cls.ra,
                                                                   cls.cm,
@@ -310,9 +310,9 @@ class TestAddSpinesToSectionLocation(unittest.TestCase):
         lens = set([x.hoc.g_pas for x in self.cell1.necks])
         self.assertEqual(lens, set([self.g_pas]))
 
-    def test_neck_E_leak(self):
+    def test_neck_E_pas(self):
         lens = set([x.hoc.e_pas for x in self.cell1.necks])
-        self.assertEqual(lens, set([self.E_leak]))
+        self.assertEqual(lens, set([self.E_pas]))
 
     def test_neck_ra(self):
         lens = set([x.hoc.Ra for x in self.cell1.necks])
@@ -326,9 +326,9 @@ class TestAddSpinesToSectionLocation(unittest.TestCase):
         lens = set([x.hoc.g_pas for x in self.cell1.necks])
         self.assertEqual(lens, set([self.g_pas]))
 
-    def test_neck_E_leak(self):
+    def test_neck_E_pas(self):
         lens = set([x.hoc.e_pas for x in self.cell1.necks])
-        self.assertEqual(lens, set([self.E_leak]))
+        self.assertEqual(lens, set([self.E_pas]))
 
     def test_neck_ra(self):
         lens = set([x.hoc.Ra for x in self.cell1.necks])
@@ -342,9 +342,9 @@ class TestAddSpinesToSectionLocation(unittest.TestCase):
         lens = set([x.hoc.g_pas for x in self.cell1.heads])
         self.assertEqual(lens, set([self.g_pas]))
 
-    def test_head_E_leak(self):
+    def test_head_E_pas(self):
         lens = set([x.hoc.e_pas for x in self.cell1.heads])
-        self.assertEqual(lens, set([self.E_leak]))
+        self.assertEqual(lens, set([self.E_pas]))
 
     def test_head_ra(self):
         lens = set([x.hoc.Ra for x in self.cell1.heads])
@@ -359,21 +359,21 @@ class TestAddSpinesToSectionList(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.cell1 = SpineCell(name="cell1")
-        cls.dend1 = cls.cell1.add_sec("dend1", add_leak=True)
-        cls.dend2 = cls.cell1.add_sec("dend2", add_leak=True)
+        cls.dend1 = cls.cell1.add_sec("dend1", add_pas=True)
+        cls.dend2 = cls.cell1.add_sec("dend2", add_pas=True)
         cls.cell1.connect_secs(cls.dend2, cls.dend1)
         cls.spine_density = 2/100
         cls.n_spines = 2
         cls.head_diam = cls.head_len = 1
         cls.neck_diam = cls.neck_len = 0.5
-        cls.E_leak = -80
+        cls.E_pas = -80
         cls.g_pas = 1/20000
         cls.ra = 100
         cls.cm = 1.1
         cls.cell1.add_spines_section_list([cls.dend1, cls.dend2],
                                           cls.spine_density,
                                           spine_type="mushroom",
-                                          spine_E_leak=cls.E_leak,
+                                          spine_E_pas=cls.E_pas,
                                           spine_g_pas=cls.g_pas,
                                           spine_ra=cls.ra,
                                           spine_cm=cls.cm,
@@ -381,8 +381,8 @@ class TestAddSpinesToSectionList(unittest.TestCase):
                                           area_density=False)
 
         cls.cell2 = SpineCell(name="cell2")
-        cls.dend21 = cls.cell2.add_sec("dend1", add_leak=True)
-        cls.dend22 = cls.cell2.add_sec("dend2", add_leak=True)
+        cls.dend21 = cls.cell2.add_sec("dend1", add_pas=True)
+        cls.dend22 = cls.cell2.add_sec("dend2", add_pas=True)
         cls.cell2.connect_secs(cls.dend21, cls.dend22)
         cls.cell2.add_spines_section_list([cls.dend21, cls.dend22],
                                           cls.spine_density,
@@ -391,16 +391,16 @@ class TestAddSpinesToSectionList(unittest.TestCase):
                                           head_len=cls.head_len,
                                           neck_diam=cls.neck_diam,
                                           neck_len=cls.neck_len,
-                                          add_leak=False,
+                                          add_pas=False,
                                           u_random=None,
                                           area_density=False)
 
         cls.cell3 = SpineCell(name="cell3")
-        cls.soma3 = cls.cell3.add_sec("soma", add_leak=False)
+        cls.soma3 = cls.cell3.add_sec("soma", add_pas=False)
         cls.cell3.add_spines_section_list([cls.soma3],
                                           cls.spine_density,
                                           spine_type="weird",
-                                          add_leak=False)
+                                          add_pas=False)
 
     def test_number_of_heads(self):
         self.assertEqual(len(self.cell1.heads), 4)
@@ -453,21 +453,21 @@ class TestAddSpinesToSectionList(unittest.TestCase):
         lens = set([x.hoc.L for x in self.cell2.necks])
         self.assertEqual(lens, set([self.neck_len]))
 
-    def test_E_leak_1(self):
-        e_leaks = set([x.hoc.e_pas for x in self.cell1.necks])
-        self.assertEqual(e_leaks, set([self.E_leak]))
+    def test_E_pas_1(self):
+        e_pass = set([x.hoc.e_pas for x in self.cell1.necks])
+        self.assertEqual(e_pass, set([self.E_pas]))
 
     def test_g_pas_1(self):
-        g_leaks = set([x.hoc.g_pas for x in self.cell1.necks])
-        self.assertEqual(g_leaks, set([self.g_pas]))
+        g_pass = set([x.hoc.g_pas for x in self.cell1.necks])
+        self.assertEqual(g_pass, set([self.g_pas]))
 
-    def test_E_leak_2(self):
-        e_leaks = set([x.hoc.e_pas for x in self.cell1.heads])
-        self.assertEqual(e_leaks, set([self.E_leak]))
+    def test_E_pas_2(self):
+        e_pass = set([x.hoc.e_pas for x in self.cell1.heads])
+        self.assertEqual(e_pass, set([self.E_pas]))
 
     def test_g_pas_2(self):
-        g_leaks = set([x.hoc.g_pas for x in self.cell1.heads])
-        self.assertEqual(g_leaks, set([self.g_pas]))
+        g_pass = set([x.hoc.g_pas for x in self.cell1.heads])
+        self.assertEqual(g_pass, set([self.g_pas]))
 
     def test_ra_1(self):
         ras = set([x.hoc.Ra for x in self.cell1.necks])

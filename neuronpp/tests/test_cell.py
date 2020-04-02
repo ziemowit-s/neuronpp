@@ -8,7 +8,7 @@ class TestCellAddSectionDefault(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.cell = Cell(name="cell")
-        cls.soma = cls.cell.add_sec("soma", add_leak=True)
+        cls.soma = cls.cell.add_sec("soma", add_pas=True)
         
     def test_add_soma_L_default(self):
         self.assertEqual(self.soma.hoc.L, 100.)
@@ -33,22 +33,22 @@ class TestCellAddSectionLeak(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cell1 = Cell(name="cell1")
-        cls.soma1 = cell1.add_sec("soma", add_leak=True)
+        cls.soma1 = cell1.add_sec("soma", add_pas=True)
         cell2 = Cell(name="cell2")
-        cls.soma2 = cell2.add_sec("soma", g_leak=0.002)
+        cls.soma2 = cell2.add_sec("soma", g_pas=0.002)
         cell3 = Cell(name="cell3")
         cls.soma3 = cell3.add_sec("soma", rm=1/0.003)
         cell4 = Cell(name="cell4")
         cls.soma4 = cell4.add_sec("soma", E_rest=-80)
-        #no leak but add leak
+        #no pas but add pas
         cls.cell5 = Cell(name="cell5")
-        cls.soma5 = cls.cell5.add_sec("soma", add_leak=True)
+        cls.soma5 = cls.cell5.add_sec("soma", add_pas=True)
         cls.dend = h.Section("dend", "cell5")
         cls.dend.insert("pas")
         cell6 = Cell(name="cell6")
-        cls.soma6 = cell6.add_sec("soma", add_leak=True)
+        cls.soma6 = cell6.add_sec("soma", add_pas=True)
         cls.soma6.hoc.insert("pas")
-        cell6.set_leak("soma", Rm=1000, E_rest = -77, g_leak=0.002)
+        cell6.set_pas("soma", Rm=1000, E_rest = -77, g_pas=0.002)
 
 
     def test_cell1_g_pas(self):
@@ -76,26 +76,26 @@ class TestCellAddSectionLeak(unittest.TestCase):
         self.assertEqual(self.soma4.hoc.e_pas, -80.0)
 
     def test_cell5(self):
-        self.cell5.set_leak("soma", E_rest=-80)
+        self.cell5.set_pas("soma", E_rest=-80)
         self.assertEqual(self.soma5.hoc.e_pas, -80)
 
     def test_cell5_dend(self):
 
-        self.cell5.set_leak(self.dend, E_rest=-80)
+        self.cell5.set_pas(self.dend, E_rest=-80)
         self.assertEqual(self.dend.e_pas, -80)
 
     def test_cell5_dend_rm(self):
-        self.cell5.set_leak(self.dend, Rm=10000)
+        self.cell5.set_pas(self.dend, Rm=10000)
         self.assertEqual(self.dend.g_pas, 1/10000)
 
     def test_cell5_dend_g_pas(self):
-        self.cell5.set_leak(self.dend, g_leak=0.02)
+        self.cell5.set_pas(self.dend, g_pas=0.02)
         self.assertEqual(self.dend.g_pas, 0.02)
 
-    def test_cell6_soma_e_leak(self):
+    def test_cell6_soma_e_pas(self):
         self.assertEqual(self.soma6.hoc.g_pas, 0.002)
 
-    def test_cell6_soma_g_leak(self):
+    def test_cell6_soma_g_pas(self):
         self.assertEqual(self.soma6.hoc.e_pas, -77)
 
 
