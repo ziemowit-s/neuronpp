@@ -99,5 +99,17 @@ class TestCellAddSectionLeak(unittest.TestCase):
         self.assertEqual(self.soma6.hoc.e_pas, -77)
 
 
+class TestFiltering(unittest.TestCase):
+    def test_distance(self):
+        path = os.path.dirname(os.path.abspath(__file__))
+        filepath = os.path.join(path, "..",
+                                "commons/morphologies/asc/cell1.asc")
+        cell = Cell("cell")
+        cell.load_morpho(filepath=filepath)
+        soma = cell.filter_secs("soma")
+
+        # Filter sections by distance to the soma (return only those distance > 1000 um)
+        far_secs = cell.filter_secs(obj_filter=lambda s: h.distance(soma.hoc(0.5), s.hoc(0.5)) > 1000)
+        self.assertEqual(len(far_secs), 32)
 if __name__ == '__main__':
     unittest.main()
