@@ -136,7 +136,7 @@ class Experiment:
     @staticmethod
     def _set_source(stim, syn, weight, threshold, delay, copy_netconn_params):
         if copy_netconn_params:
-            nc = syn.netconns[-1]
+            nc = syn.netcons[-1]
             delay = nc.hoc.delay
             weight = nc.hoc.weight[0]
             threshold = nc.hoc.threshold

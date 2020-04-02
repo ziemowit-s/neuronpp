@@ -2,7 +2,7 @@ import os
 import numpy as np
 
 from neuronpp.utils.record import Record
-from neuronpp.utils.run_sim import RunSim
+from neuronpp.utils.simulation import Simulation
 from neuronpp.core.cells.netstim_cell import NetStimCell
 from neuronpp.core.cells.vecstim_cell import VecStimCell
 from neuronpp.cells.ebner2019_ach_da_cell import Ebner2019AChDACell
@@ -45,7 +45,7 @@ if __name__ == '__main__':
     rec_4psyn = Record(cell.filter_point_processes(mod_name="Syn4PAChDa", name="head[0]"), variables="w")
 
     # init and run
-    sim = RunSim(init_v=-70, warmup=WARMUP)
+    sim = Simulation(init_v=-70, warmup=WARMUP)
     sim.run(runtime=200)
 
     # Event delivery

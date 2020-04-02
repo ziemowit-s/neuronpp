@@ -2,7 +2,7 @@ import os
 import matplotlib.pyplot as plt
 
 from neuronpp.cells.cell import Cell
-from neuronpp.utils.run_sim import RunSim
+from neuronpp.utils.simulation import Simulation
 
 from neuronpp.utils.record import Record
 from neuronpp.utils.iclamp import IClamp
@@ -35,7 +35,7 @@ rec_v = Record(soma(0.5), variables="v")
 cell.make_spike_detector(soma(0.5))
 
 # run
-sim = RunSim(init_v=-65, warmup=20, init_sleep=2, with_neuron_gui=True, shape_plots=[make_shape_plot()])
+sim = Simulation(init_v=-65, warmup=20, init_sleep=2, with_neuron_gui=True, shape_plots=[make_shape_plot()])
 sim.run(runtime=200, stepsize=1, delay_between_steps=500)
 
 # plot

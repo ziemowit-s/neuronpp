@@ -1,6 +1,6 @@
 import os
 
-from neuronpp.utils.run_sim import RunSim
+from neuronpp.utils.simulation import Simulation
 from neuronpp.utils.record import Record
 from neuronpp.cells.ebner2019_cell import Ebner2019Cell
 from neuronpp.core.cells.netstim_cell import NetStimCell
@@ -31,7 +31,7 @@ if __name__ == '__main__':
     rec_v = Record(cell.filter_secs(name="head[0]")(1.0), variables="v")
 
     # init and run
-    sim = RunSim(init_v=-70, warmup=WARMUP)
+    sim = Simulation(init_v=-70, warmup=WARMUP)
     sim.run(runtime=500)
 
     # plot
