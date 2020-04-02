@@ -1,4 +1,5 @@
 data/
+compiled/
 project/tmp/
 project/inception_dir/
 .idea/
