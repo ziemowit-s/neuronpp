@@ -294,7 +294,6 @@ class SpineCell(SectionCell):
         if isinstance(spine_rm, int) or isinstance(spine_rm, float):
             spine_g_pas = 1/spine_rm
         area_density = kwargs.pop("area_density", False)
-        add_leak = kwargs.pop("add_leak", True)
         seed = kwargs.pop("seed", None)
         if seed is not None:
             np.random.seed(seed)
