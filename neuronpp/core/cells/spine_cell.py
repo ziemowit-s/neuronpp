@@ -290,7 +290,7 @@ class SpineCell(SectionCell):
         spine_rm = kwargs.pop("spine_rm", None)
         spine_ra = kwargs.pop("spine_ra", None)
         spine_cm = kwargs.pop("spine_cm", None)
-        add_pas = kwargs.pop("add_pas", True)
+        add_pas = kwargs.pop("add_pas", False)
         if isinstance(spine_rm, int) or isinstance(spine_rm, float):
             spine_g_pas = 1/spine_rm
         area_density = kwargs.pop("area_density", False)

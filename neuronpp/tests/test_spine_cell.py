@@ -378,7 +378,8 @@ class TestAddSpinesToSectionList(unittest.TestCase):
                                           spine_ra=cls.ra,
                                           spine_cm=cls.cm,
                                           u_random=None,
-                                          area_density=False)
+                                          area_density=False,
+                                          add_pas=True)
 
         cls.cell2 = SpineCell(name="cell2")
         cls.dend21 = cls.cell2.add_sec("dend1", add_pas=True)
