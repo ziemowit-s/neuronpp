@@ -118,7 +118,7 @@ class SpineCell(SectionCell):
 
 
     def add_spines_at(self, dist_range, spine_density,
-                                         spine_type, **kwargs):
+                      spine_type="generic", **kwargs):
         """
         Add spines with specified linear density (per 1 um) to a part
         of dendritic range specified as distance from the soma. Spines can have
@@ -170,8 +170,8 @@ class SpineCell(SectionCell):
                                          **kwargs)
         return secs
 
-    def add_spines_to_regions(self, region, spine_density, spine_type,
-                               **kwargs):
+    def add_spines_to_regions(self, region, spine_density,
+                              spine_type="generic", **kwargs):
         """
         Add spines with specified linear density (per 1 um) to regions with section
         names starting with string region.
