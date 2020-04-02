@@ -512,6 +512,34 @@ class TestAddSpinesToSectionList(unittest.TestCase):
             out.append("pas" in head.hoc.psection()["density_mechs"])
         self.assertEqual(set(out), set([False]))
 
+class TestDistance(unittest.TestCase):
+
+    def setUp(self):
+        self.cell = SpineCell("LongDend")
+        self.soma = self.cell.add_sec("soma")
+        diam = 5
+        lengths = np.linspace(100, 10, 10)
+        self.dends = []
+        for i, length in enumerate(lengths):
+            dend = self.cell.add_sec("dend%d" % i)
+            self.dends.append(dend)
+            if i == 0:
+                self.cell.connect_secs(dend, self.soma)
+            else:
+                self.cell.connect_secs(dend, self.dends[i-1])
+
+    def test_dist_1(self):
+        secs = self.cell.add_spines_at(100, 0.02)
+        self.assertEqual(len(secs), 9)
+
+    def test_dist_2(self):
+        secs = self.cell.add_spines_at([100], 0.02)
+        self.assertEqual(len(secs), 9)
+
+    def test_dist_3(self):
+        secs = self.cell.add_spines_at([40, 250], 0.02)
+        print(secs)
+        self.assertEqual(len(secs), 2)
 
 if __name__ == '__main__':
     unittest.main()

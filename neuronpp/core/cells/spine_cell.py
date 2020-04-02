@@ -162,12 +162,26 @@ class SpineCell(SectionCell):
             list of added spine heads
         """
         soma = self.filter_secs("soma")
-        secs = self.filter_secs(obj_filter=lambda o: h.distance(soma(0.0),
-                                                                o(0.0)) > dist_range[0]\
-                                and  h.distance(soma(0.0),
-                                                o(1.0)) < dist_range[1] )
-        self._add_spines_to_section_list(secs, spine_density, spine_type,
-                                         **kwargs)
+        secs = []
+        if isinstance(soma, list):
+            soma = soma[0]
+
+        if isinstance(dist_range, int) or isinstance(dist_range, float):
+            dist_range = [dist_range, -1]
+        if isinstance(dist_range, list) and len(dist_range) == 1:
+            dist_range.append(-1)
+
+        if isinstance(dist_range, list):
+            if dist_range[1] > 0:
+                assert dist_range[1] > dist_range[0]
+                secs = self.filter_secs(obj_filter=lambda o: h.distance(soma.hoc(0.5), o.hoc(0.0)) >= dist_range[0] and  h.distance(soma.hoc(0.5), o.hoc(1.0)) <= dist_range[1] and "soma" not in o.name, as_list=True)
+            elif dist_range[1] == -1:
+                secs = self.filter_secs(obj_filter=lambda o: h.distance(soma.hoc(0.5), o.hoc(0.0)) >= dist_range[0] and "soma" not in o.name, as_list=True)
+        if len(secs):
+            self.add_spines_section_list(secs, spine_density, spine_type, **kwargs)
+        else:
+            print("""Wrong distance chosen, couldn't find appropriate sections,
+            didn't add any spines""")
         return secs
 
     def add_spines_to_regions(self, region, spine_density,
@@ -214,8 +228,7 @@ class SpineCell(SectionCell):
         """
 
         secs = self.filter_secs(obj_filter=lambda o: o.name.startswith(region))
-        self.add_spines_to_section_list(secs, spine_density, spine_type,
-                                        **kwargs)
+        self.add_spines_section_list(secs, spine_density, spine_type, **kwargs)
 
         return secs
 
