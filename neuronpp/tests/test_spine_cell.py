@@ -366,7 +366,7 @@ class TestAddSpinesToSectionList(unittest.TestCase):
         cls.n_spines = 2
         cls.head_diam = cls.head_len = 1
         cls.neck_diam = cls.neck_len = 0.5
-        cls.E_leak = -70
+        cls.E_leak = -80
         cls.g_pas = 1/20000
         cls.ra = 100
         cls.cm = 1.1
