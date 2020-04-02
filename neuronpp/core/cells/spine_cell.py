@@ -118,7 +118,7 @@ class SpineCell(SectionCell):
 
 
     def add_spines_at(self, dist_range, spine_density,
-                                         spine_type, **kwargs):
+                      spine_type="generic", **kwargs):
         """
         Add spines with specified linear density (per 1 um) to a part
         of dendritic range specified as distance from the soma. Spines can have
@@ -147,10 +147,10 @@ class SpineCell(SectionCell):
             Spine neck diameter
         :neck_len:
             Length of the spine neck
-        :g_leak:
-            leak conductance
-        :E_leak:
-            leak reversal potential:
+        :g_pas:
+            pas conductance
+        :E_pas:
+            pas reversal potential:
         :r_m:
             membrane resistivity
         :r_a:
@@ -162,16 +162,30 @@ class SpineCell(SectionCell):
             list of added spine heads
         """
         soma = self.filter_secs("soma")
-        secs = self.filter_secs(obj_filter=lambda o: h.distance(soma(0.0),
-                                                                o(0.0)) > dist_range[0]\
-                                and  h.distance(soma(0.0),
-                                                o(1.0)) < dist_range[1] )
-        self._add_spines_to_section_list(secs, spine_density, spine_type,
-                                         **kwargs)
+        secs = []
+        if isinstance(soma, list):
+            soma = soma[0]
+
+        if isinstance(dist_range, int) or isinstance(dist_range, float):
+            dist_range = [dist_range, -1]
+        if isinstance(dist_range, list) and len(dist_range) == 1:
+            dist_range.append(-1)
+
+        if isinstance(dist_range, list):
+            if dist_range[1] > 0:
+                assert dist_range[1] > dist_range[0]
+                secs = self.filter_secs(obj_filter=lambda o: h.distance(soma.hoc(0.5), o.hoc(0.0)) >= dist_range[0] and  h.distance(soma.hoc(0.5), o.hoc(1.0)) <= dist_range[1] and "soma" not in o.name, as_list=True)
+            elif dist_range[1] == -1:
+                secs = self.filter_secs(obj_filter=lambda o: h.distance(soma.hoc(0.5), o.hoc(0.0)) >= dist_range[0] and "soma" not in o.name, as_list=True)
+        if len(secs):
+            self.add_spines_section_list(secs, spine_density, spine_type, **kwargs)
+        else:
+            print("""Wrong distance chosen, couldn't find appropriate sections,
+            didn't add any spines""")
         return secs
 
-    def add_spines_to_regions(self, region, spine_density, spine_type,
-                               **kwargs):
+    def add_spines_to_regions(self, region, spine_density,
+                              spine_type="generic", **kwargs):
         """
         Add spines with specified linear density (per 1 um) to regions with section
         names starting with string region.
@@ -198,10 +212,10 @@ class SpineCell(SectionCell):
             Spine neck diameter
         :neck_len:
             Length of the spine neck
-        :g_leak:
-            leak conductance
-        :E_leak:
-            leak reversal potential:
+        :g_pas:
+            pas conductance
+        :E_pas:
+            pas reversal potential:
         :r_m:
             membrane resistivity
         :r_a:
@@ -214,8 +228,7 @@ class SpineCell(SectionCell):
         """
 
         secs = self.filter_secs(obj_filter=lambda o: o.name.startswith(region))
-        self.add_spines_to_section_list(secs, spine_density, spine_type,
-                                        **kwargs)
+        self.add_spines_section_list(secs, spine_density, spine_type, **kwargs)
 
         return secs
 
@@ -254,14 +267,14 @@ class SpineCell(SectionCell):
         :seed: None
             seed for the random number generator used for picking out
             spine positions
-        :g_leak:
-            leak conductance. By default g_leak of the parent section
+        :g_pas:
+            pas conductance. By default g_pas of the parent section
             will be used.
-        :E_leak:
-            leak reversal potential. By default leak reversal potential
+        :E_pas:
+            pas reversal potential. By default pas reversal potential
             of the parent section will be used.
         :r_m:
-            membrane resistivity. By default 1/leak conductance of the
+            membrane resistivity. By default 1/pas conductance of the
             parent section will be used.
         :r_a:
             axial resistivity. By default axial resistivity of the parent
@@ -285,42 +298,41 @@ class SpineCell(SectionCell):
         neck_diam = kwargs.pop("neck_diam", spine_dimensions["neck_diam"])
         neck_len = kwargs.pop("neck_len", spine_dimensions["neck_len"])
         #If Falde
-        spine_E_leak = kwargs.pop("spine_E_leak", None)
+        spine_E_pas = kwargs.pop("spine_E_pas", None)
         spine_g_pas = kwargs.pop("spine_g_pas", None)
         spine_rm = kwargs.pop("spine_rm", None)
         spine_ra = kwargs.pop("spine_ra", None)
         spine_cm = kwargs.pop("spine_cm", None)
-        add_leak = kwargs.pop("add_leak", True)
+        add_pas = kwargs.pop("add_pas", False)
         if isinstance(spine_rm, int) or isinstance(spine_rm, float):
             spine_g_pas = 1/spine_rm
         area_density = kwargs.pop("area_density", False)
-        add_leak = kwargs.pop("add_leak", True)
         seed = kwargs.pop("seed", None)
         if seed is not None:
             np.random.seed(seed)
 
         for sec in sections:
             spine_number = get_spine_number(sec, spine_density, area_density)
-            E_leak, g_pas, ra, cm = establish_electric_properties(sec,
-                                                                  spine_E_leak,
+            E_pas, g_pas, ra, cm = establish_electric_properties(sec,
+                                                                  spine_E_pas,
                                                                   spine_g_pas,
                                                                   spine_ra,
                                                                   spine_cm)
-            if not add_leak:
-                E_leak = None
+            if not add_pas:
+                E_pas = None
                 g_pas = None
             self._add_spines_to_section_with_location(sec, spine_number,
                                                       head_diam, head_len,
                                                       neck_diam, neck_len,
-                                                      E_leak, g_pas,
+                                                      E_pas, g_pas,
                                                       ra, cm, u_random=seed,
-                                                      add_leak=add_leak)
+                                                      add_pas=add_pas)
 
 
     def _add_spines_to_section_with_location(self, section, n_spines, head_diam,
-                                             head_len, neck_diam, neck_len, E_leak,
+                                             head_len, neck_diam, neck_len, E_pas,
                                              g_pas, ra, cm, u_random=None,
-                                             add_leak=True):
+                                             add_pas=True):
         """
         Add spines to a section of a dedrite. There are two possibilities:
         1) spines are added uniformly every n_spines/section_length,
@@ -351,25 +363,25 @@ class SpineCell(SectionCell):
 
         self._add_spines_to_section(section, target_locations, head_diam,
                                     head_len, neck_diam, neck_len,
-                                    E_leak, g_pas, ra, cm,
-                                    add_leak=add_leak)
+                                    E_pas, g_pas, ra, cm,
+                                    add_pas=add_pas)
         return target_locations
 
     def _add_spines_to_section(self, section, target_location, head_diam,
                                head_len, neck_diam, neck_len,
-                               E_leak, g_pas, ra, cm, add_leak=True):
+                               E_pas, g_pas, ra, cm, add_pas=True):
         name = section.name
         if not isinstance(target_location, list):
             target_location = [target_location]
         for i, location in enumerate(target_location):
             head = self.add_sec(name="%s_head[%d]" % (name, i),
                                 diam=head_diam, l=head_len, nseg=2,
-                                E_rest=E_leak, ra=ra, cm=cm,
-                                g_leak=g_pas, add_leak=add_leak)
+                                E_rest=E_pas, ra=ra, cm=cm,
+                                g_pas=g_pas, add_pas=add_pas)
             neck = self.add_sec(name="%s_neck[%d]" % (name, i),
                                 diam=neck_diam, l=neck_len, nseg=1,
-                                E_rest=E_leak, ra=ra, cm=cm,
-                                g_leak=g_pas, add_leak=add_leak)
+                                E_rest=E_pas, ra=ra, cm=cm,
+                                g_pas=g_pas, add_pas=add_pas)
             self.heads.append(head)
             self.necks.append(neck)
             self.connect_secs(source=head, target=neck, source_loc=1.0,

@@ -40,18 +40,18 @@ def get_spine_number(section, density, area_density):
     return spine_number
 
 
-def establish_electric_properties(section, spine_E_leak, spine_g_pas,
+def establish_electric_properties(section, spine_E_pas, spine_g_pas,
                                   spine_ra, spine_cm):
     if not isinstance(section, Sec):
         section = Sec(section)
 
-    if spine_E_leak is None:
+    if spine_E_pas is None:
         try:
-            E_leak = section.hoc.e_pas
+            E_pas = section.hoc.e_pas
         except AttributeError:
-            E_leak = None
+            E_pas = None
     else:
-        E_leak = spine_E_leak
+        E_pas = spine_E_pas
 
     if spine_g_pas is None:
         try:
@@ -71,4 +71,4 @@ def establish_electric_properties(section, spine_E_leak, spine_g_pas,
     else:
         cm = spine_cm
 
-    return E_leak, g_pas, ra, cm
+    return E_pas, g_pas, ra, cm
