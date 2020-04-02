@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from neuronpp.cells.cell import Cell
 from neuronpp.utils.record import Record
 from neuronpp.utils.iclamp import IClamp
-from neuronpp.utils.run_sim import RunSim
+from neuronpp.utils.simulation import Simulation
 
 # Create cell
 cell = Cell(name="cell")
@@ -19,7 +19,7 @@ ic.stim(delay=30, dur=100, amp=0.9)
 rec_v = Record(soma(0.5), variables="v")
 
 # run
-sim = RunSim(init_v=-65, warmup=20)
+sim = Simulation(init_v=-65, warmup=20)
 sim.run(runtime=500)
 
 # plot

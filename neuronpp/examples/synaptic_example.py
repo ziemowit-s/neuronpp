@@ -1,6 +1,6 @@
 import os
 
-from neuronpp.utils.run_sim import RunSim
+from neuronpp.utils.simulation import Simulation
 
 from neuronpp.cells.cell import Cell
 from neuronpp.utils.record import Record
@@ -39,7 +39,7 @@ syn2 = cell.add_synapse(source=None, seg=soma(0.5), netcon_weight=0.01, mod_name
 rec_v = Record(soma(0.5), variables="v")
 
 # run
-sim = RunSim(init_v=-55, warmup=20)
+sim = Simulation(init_v=-55, warmup=20)
 
 # Making external events to the synapse
 syn2.make_event(10)

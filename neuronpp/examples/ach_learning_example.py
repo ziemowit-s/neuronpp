@@ -1,4 +1,4 @@
-from neuronpp.utils.run_sim import RunSim
+from neuronpp.utils.simulation import Simulation
 
 from neuronpp.utils.record import Record
 from neuronpp.cells.ebner2019_ach_da_cell import Ebner2019AChDACell
@@ -35,7 +35,7 @@ if __name__ == '__main__':
     rec_syn = Record(syn4p, variables="w stdp_ach ach_stdp ACh ACh_w")
     rec_soma = Record(soma(0.5), variables="v")
 
-    sim = RunSim(init_v=-80, warmup=WARMUP)
+    sim = Simulation(init_v=-80, warmup=WARMUP)
 
     event = 0
     inter = 5

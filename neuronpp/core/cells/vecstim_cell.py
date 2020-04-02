@@ -20,7 +20,7 @@ class VecStimCell(CoreCell):
             eg. (lambda expression) returns sections which name contains 'apic' or their distance > 1000 um from the soma:
           ```
            soma = cell.filter_secs("soma")
-           cell.filter_secs(obj_filter=lambda o: 'apic' in o.name or h.distance(soma(0.5), o(0.5)) > 1000)
+           cell.filter_secs(obj_filter=lambda o: 'apic' in o.name or h.distance(soma.hoc(0.5), o.hoc(0.5)) > 1000)
           ```
 
         * Single object field filter based on callable function passed to the obj_filter param.

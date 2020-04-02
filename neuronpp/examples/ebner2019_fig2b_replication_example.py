@@ -4,7 +4,7 @@ import matplotlib.pylab as plt
 
 from neuronpp.utils.iclamp import IClamp
 from neuronpp.utils.record import Record
-from neuronpp.utils.run_sim import RunSim
+from neuronpp.utils.simulation import Simulation
 from neuronpp.cells.ebner2019_cell import Ebner2019Cell
 from neuronpp.core.cells.netstim_cell import NetStimCell
 
@@ -46,7 +46,7 @@ if __name__ == '__main__':
     rec = Record([s(0.5) for s in cell.filter_secs("apic[1],apic[50]")])
 
     # Run
-    sim = RunSim(init_v=-70, warmup=WARMUP, dt=DT)
+    sim = Simulation(init_v=-70, warmup=WARMUP, dt=DT)
     total_time = REPS * interval + COOL_DOWN
     sim.run(total_time)
 

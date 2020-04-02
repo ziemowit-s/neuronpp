@@ -1,4 +1,3 @@
-from nrn import Segment, Section
 from collections import defaultdict
 
 import numpy as np
@@ -6,7 +5,9 @@ import pandas as pd
 from neuron import h
 import matplotlib.pyplot as plt
 
+from neuronpp.core.hocwrappers.sec import Sec
 from neuronpp.core.hocwrappers.seg import Seg
+from neuronpp.core.hocwrappers.point_process import PointProcess
 
 
 class Record:
@@ -17,6 +18,9 @@ class Record:
         :param variables:
             str or list_of_str of variable names to track
         """
+        if h.t > 0:
+            raise ConnectionRefusedError("Record cannot be created after simulation have been initiated. "
+                                         "You need to specify Record before creation of SimRun object.")
         if not isinstance(elements, (list, set, tuple)):
             elements = [elements]
 
@@ -33,9 +37,16 @@ class Record:
         for elem in elements:
             for var in variables:
                 if isinstance(elem, Seg):
-                    name = elem.parent.name
+                    cell_name = elem.parent.parent.name
+                    name = "%s_%s" % (cell_name, elem.name)
+                elif isinstance(elem, PointProcess):
+                    cell_name = elem.cell.name
+                    name = "%s_%s" % (cell_name, elem.name)
+                elif isinstance(elem, Sec):
+                    raise TypeError("Record element cannot be of type Sec, however you can specify Seg eg. soma(0.5) and pass as element.")
                 else:
                     name = elem.name
+
                 try:
                     s = getattr(elem.hoc, "_ref_%s" % var)
                 except AttributeError:
@@ -44,7 +55,7 @@ class Record:
                 rec = h.Vector().record(s)
                 self.recs[var].append((name, rec))
 
-        self.t = h.Vector().record(h._ref_t)
+        self.time = h.Vector().record(h._ref_t)
 
     def plot(self, animate=False, **kwargs):
         """
@@ -89,7 +100,7 @@ class Record:
                 if position is not "merge":
                     ax = self._get_subplot(fig=fig, var_name=var_name, position=position, row_len=len(section_recs), index=i + 1)
                 ax.set_title("Variable: %s" % var_name)
-                ax.plot(self.t, rec, label=name)
+                ax.plot(self.time, rec, label=name)
                 ax.set(xlabel='t (ms)', ylabel=var_name)
                 ax.legend()
 
@@ -100,7 +111,7 @@ class Record:
         :param steps:
             how many timesteps to see on the graph
         :param y_lim:
-            tuple of limits for y axis. Default is (-80, 50)
+            tuple of limits for y axis. Default is None
         :param position:
             position of all subplots ON EACH figure (each figure is created for each variable separately).
             * position=(3,3) -> if you have 9 neurons and want to display 'v' on 3x3 matrix
@@ -116,11 +127,18 @@ class Record:
             fig = self.figs[var_name]
             if fig is None:
                 create_fig = True
-                fig = plt.figure()
+                fig = plt.figure(figsize=(16.5, 5.5))
                 fig.canvas.draw()
                 self.figs[var_name] = fig
 
-            for i, (name, rec) in enumerate(section_recs):
+            records = np.array([rec.as_numpy()[-steps:] for name, rec in section_recs])
+            names = [name for name, rec in section_recs]
+            if position == "merge" and y_lim is None:
+                y_lim = records.min(), records.max()
+            current_time = self.time.as_numpy()[-steps:]
+
+            for i, name in enumerate(names):
+                rec = records[i]
                 if create_fig:
                     if position == 'merge':
                         ax = fig.add_subplot(1, 1, 1)
@@ -129,25 +147,23 @@ class Record:
 
                     if y_lim:
                         ax.set_ylim(y_lim[0], y_lim[1])
-                    line, = ax.plot([], lw=1)
-                    ax.set_title("Variable: %s" % var_name)
+                    line, = ax.plot([], lw=1, label=name)
                     ax.set_ylabel(var_name)
-                    ax.set_xlabel("t (ms)")
+                    ax.set_xlabel("time (ms)")
                     ax.legend()
 
                     self.axs[var_name].append((ax, line))
 
                 ax, line = self.axs[var_name][i]
-                t = self.t.as_numpy()[-steps:]
-                r = rec.as_numpy()[-steps:]
+                ax.set_xlim(current_time.min(), current_time.max())
 
-                ax.set_xlim(t.min(), t.max())
-                if y_lim is None:
-                    ax.set_ylim(r.min()-(np.abs(r.min()*0.05)), r.max()+(np.abs(r.max()*0.05)))
+                if y_lim is None and position != "merge":
+                    ax.set_ylim(rec.min()-(np.abs(rec.min()*0.05)), rec.max()+(np.abs(rec.max()*0.05)))
 
                 # update data
-                line.set_data(t, r)
+                line.set_data(current_time, rec)
 
+            fig.subplots_adjust(left=0.09, bottom=0.075, right=0.99, top=0.98, wspace=None, hspace=0.00)
             fig.canvas.draw()
             fig.canvas.flush_events()
 
@@ -156,7 +172,7 @@ class Record:
 
     def to_csv(self, filename):
         cols = ['time']
-        data = [self.t.as_numpy().tolist()]
+        data = [self.time.as_numpy().tolist()]
 
         for var_name, rec_data in self.recs.items():
             for sec_name, vec in rec_data:

@@ -3,11 +3,9 @@ import os
 from neuronpp.cells.cell import Cell
 from neuronpp.core.cells.netstim_cell import NetStimCell
 from neuronpp.core.populations.population import Population
-from neuronpp.utils.spikes_heatmap_graph import SpikesHeatmapGraph
-from neuronpp.utils.network_status_graph import NetworkStatusGraph
-from neuronpp.utils.utils import show_connectivity_graph
+from neuronpp.utils.graphs.network_status_graph import NetworkStatusGraph
 
-from neuronpp.utils.run_sim import RunSim
+from neuronpp.utils.simulation import Simulation
 
 path = os.path.dirname(os.path.abspath(__file__))
 
@@ -59,7 +57,7 @@ if __name__ == '__main__':
     graph.plot()
 
     # Run
-    sim = RunSim(init_v=-70, warmup=20)
+    sim = Simulation(init_v=-70, warmup=20)
     for i in range(1000):
         sim.run(runtime=1)
         pop1.plot(animate=True)
