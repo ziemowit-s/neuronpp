@@ -448,10 +448,36 @@ class TestAddSpinesToSectionList(unittest.TestCase):
         self.assertEqual(lens, set([self.neck_len]))
 
     def test_E_leak_1(self):
-        e_leaks = set([x.hoc.e_pas for x in self.cell2.necks])
+        e_leaks = set([x.hoc.e_pas for x in self.cell1.necks])
         self.assertEqual(e_leaks, set([self.E_leak]))
 
+    def test_g_pas_1(self):
+        g_leaks = set([x.hoc.g_pas for x in self.cell1.necks])
+        self.assertEqual(g_leaks, set([self.g_pas]))
 
+    def test_E_leak_2(self):
+        e_leaks = set([x.hoc.e_pas for x in self.cell1.heads])
+        self.assertEqual(e_leaks, set([self.E_leak]))
+
+    def test_g_pas_2(self):
+        g_leaks = set([x.hoc.g_pas for x in self.cell1.heads])
+        self.assertEqual(g_leaks, set([self.g_pas]))
+
+    def test_ra_1(self):
+        ras = set([x.hoc.Ra for x in self.cell1.necks])
+        self.assertEqual(ras, set([self.ra]))
+
+    def test_ra_2(self):
+        ras = set([x.hoc.Ra for x in self.cell1.heads])
+        self.assertEqual(ras, set([self.ra]))
+
+    def test_cm_1(self):
+        cms = set([x.hoc.cm for x in self.cell1.necks])
+        self.assertEqual(cms, set([self.cm]))
+
+    def test_cm_2(self):
+        cms = set([x.hoc.cm for x in self.cell1.heads])
+        self.assertEqual(cms, set([self.cm]))
 
 if __name__ == '__main__':
     unittest.main()
