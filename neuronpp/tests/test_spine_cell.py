@@ -395,6 +395,12 @@ class TestAddSpinesToSectionList(unittest.TestCase):
                                           u_random=None,
                                           area_density=False)
 
+        cls.cell3 = SpineCell(name="cell3")
+        cls.soma3 = cls.cell3.add_sec("soma", add_leak=False)
+        cls.cell3.add_spines_section_list([cls.soma3],
+                                          cls.spine_density,
+                                          spine_type="weird",
+                                          add_leak=False)
 
     def test_number_of_heads(self):
         self.assertEqual(len(self.cell1.heads), 4)
@@ -478,6 +484,33 @@ class TestAddSpinesToSectionList(unittest.TestCase):
     def test_cm_2(self):
         cms = set([x.hoc.cm for x in self.cell1.heads])
         self.assertEqual(cms, set([self.cm]))
+
+    def test_unknown_spine_head_diam(self):
+        diams = set([x.hoc.diam for x in self.cell3.heads])
+        head_diam = SPINE_DIMENSIONS["generic"]["head_diam"]
+        self.assertEqual(diams, set([head_diam]))
+
+    def test_unknown_spine_head_len(self):
+        lens = set([x.hoc.L for x in self.cell3.heads])
+        head_len = SPINE_DIMENSIONS["generic"]["head_len"]
+        self.assertEqual(lens, set([head_len]))
+
+    def test_unknown_spine_neck_diam(self):
+        diams = set([x.hoc.diam for x in self.cell3.necks])
+        neck_diam = SPINE_DIMENSIONS["generic"]["neck_diam"]
+        self.assertEqual(diams, set([neck_diam]))
+
+    def test_unknown_spine_neck_len(self):
+        lens = set([x.hoc.L for x in self.cell3.necks])
+        neck_len = SPINE_DIMENSIONS["generic"]["neck_len"]
+        self.assertEqual(lens, set([neck_len]))
+
+    def test_no_pas_1(self):
+        out = []
+        for head in self.cell3.heads:
+            out.append("pas" in head.hoc.psection()["density_mechs"])
+        self.assertEqual(set(out), set([False]))
+
 
 if __name__ == '__main__':
     unittest.main()
