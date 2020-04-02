@@ -2,7 +2,7 @@ import os
 import unittest
 import numpy as np
 from neuron import h
-from neuronpp.core.cells.spine_cell import SpineCell
+from neuronpp.core.cells.spine_cell import SpineCell, SPINE_DIMENSIONS
 
 class TestCellAddSpineToSection(unittest.TestCase):
     @classmethod
@@ -245,26 +245,26 @@ class TestAddSpinesToSectionLocation(unittest.TestCase):
         cls.ra = None
         cls.cm = None
         cls.out1 = cls.cell1._add_spines_to_section_with_location(cls.soma1,
-                                                                 cls.n_spines,
-                                                                 cls.head_diam,
-                                                                 cls.head_len,
-                                                                 cls.neck_diam,
-                                                                 cls.neck_len,
-                                                                 cls.E_leak,
-                                                                 cls.g_pas,
-                                                                 cls.ra, cls.cm,
-                                                                 u_random=None)
+                                                                  cls.n_spines,
+                                                                  cls.head_diam,
+                                                                  cls.head_len,
+                                                                  cls.neck_diam,
+                                                                  cls.neck_len,
+                                                                  cls.E_leak,
+                                                                  cls.g_pas,
+                                                                  cls.ra, cls.cm,
+                                                                  u_random=None)
         cls.out2 = cls.cell2._add_spines_to_section_with_location(cls.soma2,
-                                                                 cls.n_spines,
-                                                                 cls.head_diam,
-                                                                 cls.head_len,
-                                                                 cls.neck_diam,
-                                                                 cls.neck_len,
-                                                                 cls.E_leak,
-                                                                 cls.g_pas,
-                                                                 cls.ra,
-                                                                 cls.cm,
-                                                                 u_random=1)
+                                                                  cls.n_spines,
+                                                                  cls.head_diam,
+                                                                  cls.head_len,
+                                                                  cls.neck_diam,
+                                                                  cls.neck_len,
+                                                                  cls.E_leak,
+                                                                  cls.g_pas,
+                                                                  cls.ra,
+                                                                  cls.cm,
+                                                                  u_random=1)
 
 
     def test_equal(self):
@@ -353,6 +353,104 @@ class TestAddSpinesToSectionLocation(unittest.TestCase):
     def test_head_cm(self):
         lens = set([x.hoc.cm for x in self.cell1.heads])
         self.assertEqual(lens, set([1]))
+
+
+class TestAddSpinesToSectionList(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.cell1 = SpineCell(name="cell1")
+        cls.dend1 = cls.cell1.add_sec("dend1", add_leak=True)
+        cls.dend2 = cls.cell1.add_sec("dend2", add_leak=True)
+        cls.cell1.connect_secs(cls.dend2, cls.dend1)
+        cls.spine_density = 2/100
+        cls.n_spines = 2
+        cls.head_diam = cls.head_len = 1
+        cls.neck_diam = cls.neck_len = 0.5
+        cls.E_leak = -70
+        cls.g_pas = 1/20000
+        cls.ra = 100
+        cls.cm = 1.1
+        cls.cell1.add_spines_section_list([cls.dend1, cls.dend2],
+                                          cls.spine_density,
+                                          spine_type="mushroom",
+                                          spine_E_leak=cls.E_leak,
+                                          spine_g_pas=cls.g_pas,
+                                          spine_ra=cls.ra,
+                                          spine_cm=cls.cm,
+                                          u_random=None,
+                                          area_density=False)
+
+        cls.cell2 = SpineCell(name="cell2")
+        cls.dend21 = cls.cell2.add_sec("dend1", add_leak=True)
+        cls.dend22 = cls.cell2.add_sec("dend2", add_leak=True)
+        cls.cell2.connect_secs(cls.dend21, cls.dend22)
+        cls.cell2.add_spines_section_list([cls.dend21, cls.dend22],
+                                          cls.spine_density,
+                                          spine_type="mushroom",
+                                          head_diam=cls.head_diam,
+                                          head_len=cls.head_len,
+                                          neck_diam=cls.neck_diam,
+                                          neck_len=cls.neck_len,
+                                          add_leak=False,
+                                          u_random=None,
+                                          area_density=False)
+
+
+    def test_number_of_heads(self):
+        self.assertEqual(len(self.cell1.heads), 4)
+
+    def test_number_of_necks(self):
+        self.assertEqual(len(self.cell1.necks), 4)
+
+    def test_neck_parents(self):
+        parents = []
+        for neck in self.cell1.necks:
+            parents.append(h.SectionRef(sec=neck.hoc).parent.name())
+
+        out = [self.dend1.hoc.name(), self.dend1.hoc.name(),
+               self.dend2.hoc.name(), self.dend2.hoc.name()]
+        self.assertEqual(out, parents)
+
+    def test_head_diam1(self):
+        diams = set([x.hoc.diam for x in self.cell1.heads])
+        head_diam = SPINE_DIMENSIONS["mushroom"]["head_diam"]
+        self.assertEqual(diams, set([head_diam]))
+
+    def test_head_len1(self):
+        lens = set([x.hoc.L for x in self.cell1.heads])
+        head_len = SPINE_DIMENSIONS["mushroom"]["head_len"]
+        self.assertEqual(lens, set([head_len]))
+
+    def test_neck_diam1(self):
+        diams = set([x.hoc.diam for x in self.cell1.necks])
+        neck_diam = SPINE_DIMENSIONS["mushroom"]["neck_diam"]
+        self.assertEqual(diams, set([neck_diam]))
+
+    def test_neck_len1(self):
+        lens = set([x.hoc.L for x in self.cell1.necks])
+        neck_len = SPINE_DIMENSIONS["mushroom"]["neck_len"]
+        self.assertEqual(lens, set([neck_len]))
+
+    def test_head_diam2(self):
+        diams = set([x.hoc.diam for x in self.cell2.heads])
+        self.assertEqual(diams, set([self.head_diam]))
+
+    def test_head_len2(self):
+        lens = set([x.hoc.L for x in self.cell2.heads])
+        self.assertEqual(lens, set([self.head_len]))
+
+    def test_neck_diam2(self):
+        diams = set([x.hoc.diam for x in self.cell2.necks])
+        self.assertEqual(diams, set([self.neck_diam]))
+
+    def test_neck_len2(self):
+        lens = set([x.hoc.L for x in self.cell2.necks])
+        self.assertEqual(lens, set([self.neck_len]))
+
+    def test_E_leak_1(self):
+        e_leaks = set([x.hoc.e_pas for x in self.cell2.necks])
+        self.assertEqual(e_leaks, set([self.E_leak]))
+
 
 
 if __name__ == '__main__':

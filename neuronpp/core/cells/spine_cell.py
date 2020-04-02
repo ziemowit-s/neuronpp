@@ -12,19 +12,19 @@ from neuronpp.core.cells.utils import get_spine_number
 ### J Neurosci 1992
 
 SPINE_DIMENSIONS = {
-    "mushroom_spine":  {
+    "mushroom":  {
         "head_diam": 1.1,
         "head_len": 0.8,
         "neck_diam": 0.20,
         "neck_len": 0.43,
     },
-    "thin_spine": {
+    "thin": {
         "head_diam": 0.2,
         "head_len": 0.5,
         "neck_diam": 0.1,
         "neck_len": 0.5,
     },
-    "stubby_spine": {
+    "stubby": {
         "head_diam": 0.32,
         "head_len": 0.2,
         "neck_diam": 0.32,
@@ -168,7 +168,7 @@ class SpineCell(SectionCell):
                                                 o(1.0)) < dist_range[1] )
         self._add_spines_to_section_list(secs, spine_density, spine_type,
                                          **kwargs)
-
+        return secs
 
     def add_spines_to_regions(self, region, spine_density, spine_type,
                                **kwargs):
@@ -211,16 +211,17 @@ class SpineCell(SectionCell):
             if True  spine_density is treated as area density [um2]
         :return:
             list of added spine heads
-
         """
 
         secs = self.filter_secs(obj_filter=lambda o: o.name.startswith(region))
         self.add_spines_to_section_list(secs, spine_density, spine_type,
                                         **kwargs)
 
+        return secs
 
-    def add_spines_section_list(self, sections, spine_density, spine_type,
-                                **kwargs):
+
+    def add_spines_section_list(self, sections, spine_density,
+                                spine_type="generic", **kwargs):
         """
         Add spines with specified linear density (per 1 um) to specified
         secions (compartments). Spines can have
@@ -279,20 +280,21 @@ class SpineCell(SectionCell):
         except KeyError:
             spine_dimensions = SPINE_DIMENSIONS["generic"]
 
-        head_diam = kwargs.pop("head_diam", spine_dimesions["head_diam"])
-        head_len = kwargs.pop("head_len", spine_dimesions["head_len"])
-        neck_diam = kwargs.pop("neck_diam", spine_dimesions["neck_diam"])
-        neck_len = kwargs.pop("neck_len", spine_dimesions["neck_len"])
+        head_diam = kwargs.pop("head_diam", spine_dimensions["head_diam"])
+        head_len = kwargs.pop("head_len", spine_dimensions["head_len"])
+        neck_diam = kwargs.pop("neck_diam", spine_dimensions["neck_diam"])
+        neck_len = kwargs.pop("neck_len", spine_dimensions["neck_len"])
         #If Falde
-        spine_E_leak = kwargs("spine_E_leak", None)
-        spine_g_pas = kwargs("spine_g_pas", None)
-        spine_rm = kwargs("spine_rm", None)
-        spine_ra = kwargs("spine_ra", None)
-        spine_cm = kwargs("spine_cm", None)
-        add_leak = kwargs("add_leak", True)
-        if r_m is not False:
+        spine_E_leak = kwargs.pop("spine_E_leak", None)
+        spine_g_pas = kwargs.pop("spine_g_pas", None)
+        spine_rm = kwargs.pop("spine_rm", None)
+        spine_ra = kwargs.pop("spine_ra", None)
+        spine_cm = kwargs.pop("spine_cm", None)
+        add_leak = kwargs.pop("add_leak", True)
+        if isinstance(spine_rm, int) or isinstance(spine_rm, float):
             spine_g_pas = 1/spine_rm
         area_density = kwargs.pop("area_density", False)
+        add_leak = kwargs.pop("add_leak", True)
         seed = kwargs.pop("seed", None)
         if seed is not None:
             np.random.seed(seed)
@@ -304,14 +306,16 @@ class SpineCell(SectionCell):
                                                                   spine_g_pas,
                                                                   spine_ra,
                                                                   spine_cm)
-
+            if not add_leak:
+                E_leak = None
+                g_pas = None
             self._add_spines_to_section_with_location(sec, spine_number,
                                                       head_diam, head_len,
                                                       neck_diam, neck_len,
                                                       E_leak, g_pas,
                                                       ra, cm, u_random=seed,
                                                       add_leak=add_leak)
-        return self.heads, self.necks
+
 
     def _add_spines_to_section_with_location(self, section, n_spines, head_diam,
                                              head_len, neck_diam, neck_len, E_leak,
