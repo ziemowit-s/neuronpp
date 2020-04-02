@@ -1,6 +1,6 @@
 from neuronpp.utils.experiment import Experiment
 from neuronpp.utils.record import Record
-from neuronpp.utils.run_sim import RunSim
+from neuronpp.utils.simulation import Simulation
 from neuronpp.cells.combe2018_cell import Combe2018Cell
 
 # Create cell
@@ -18,7 +18,7 @@ v_soma_rec = Record([soma(0.5), syns[0].parent], variables='v')
 cai_head0_rec = Record(syns[0].parent, variables='cai')
 
 # Run
-sim = RunSim(init_v=-70, warmup=20, with_neuron_gui=True, constant_timestep=False)
+sim = Simulation(init_v=-70, warmup=20, with_neuron_gui=True, constant_timestep=False)
 sim.run(runtime=100, debug=True)
 
 # Plot

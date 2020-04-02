@@ -10,7 +10,7 @@ from neuron.units import ms, mV
 h.load_file('stdrun.hoc')
 
 
-class RunSim:
+class Simulation:
     def __init__(self, init_v=None, dt=0.025, warmup=1, init_sleep=0, shape_plots=(), constant_timestep=True, with_neuron_gui=False):
         """
         :param init_v:
@@ -31,21 +31,31 @@ class RunSim:
 
         if init_v is None:
             init_v = h.v_init
-        h.finitialize(init_v * mV)
+        self.init_v = init_v
         self.dt = dt
         self.shape_plots = shape_plots
         self.last_runtime = 0
+        self.init_sleep = init_sleep
+        self.warmup = warmup
 
         if not constant_timestep:
             h.CVode().active(True)
 
-        if init_sleep > 0:
-            print("sleep before run for: %s seconds" % init_sleep)
-            time.sleep(init_sleep)
+        self.reset()
 
-        if warmup > 0:
-            h.dt = warmup/10
-            h.continuerun(warmup * ms)
+    def reset(self):
+        print("Simulation initialization.")
+        h.initnrn()
+        h.frecord_init()
+        h.finitialize(self.init_v * mV)
+
+        if self.init_sleep > 0:
+            print("sleep before run for: %s seconds" % self.init_sleep)
+            time.sleep(self.init_sleep)
+
+        if self.warmup > 0:
+            h.dt = self.warmup/10
+            h.continuerun(self.warmup * ms)
         h.dt = self.dt
 
     @property

@@ -4,7 +4,7 @@ from neuronpp.core.hocwrappers.composed.synapse import Synapse
 from neuronpp.core.hocwrappers.netcon import NetCon
 from neuronpp.core.hocwrappers.seg import Seg
 from neuronpp.utils.record import Record
-from neuronpp.utils.run_sim import RunSim
+from neuronpp.utils.simulation import Simulation
 from neuronpp.utils.utils import key_release_listener
 
 
@@ -48,7 +48,7 @@ class SynapticDebugger:
 
     def warmup(self):
         if self.sim is None:
-            self.sim = RunSim(init_v=self.init_v, warmup=self.warmup_time)
+            self.sim = Simulation(init_v=self.init_v, warmup=self.warmup_time)
 
     def debug(self, i=None, name=None, stim_time=0, run_time=1):
         self.warmup()
