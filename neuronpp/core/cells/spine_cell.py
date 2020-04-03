@@ -140,6 +140,8 @@ class SpineCell(SectionCell):
             See below
 
         Keyword arguments:
+        :spine name:
+            String attached to name of every head and neck
         :head_diam:
             Spine head diameter
         :head_len:
@@ -205,6 +207,8 @@ class SpineCell(SectionCell):
             See below
 
         Keyword arguments:
+        :spine name:
+            String attached to name of every head and neck
         :head_diam:
             Spine head diameter
         :head_len:
@@ -254,6 +258,8 @@ class SpineCell(SectionCell):
             See below
 
         Keyword arguments:
+        :spine name:
+            String attached to name of every head and neck
         :head_diam:
             Spine head diameter
         :head_len:
@@ -293,7 +299,7 @@ class SpineCell(SectionCell):
             spine_dimensions = SPINE_DIMENSIONS[spine_type]
         except KeyError:
             spine_dimensions = SPINE_DIMENSIONS["generic"]
-
+        spine_name = kwargs.pop("spine_name", spine_type)
         head_diam = kwargs.pop("head_diam", spine_dimensions["head_diam"])
         head_len = kwargs.pop("head_len", spine_dimensions["head_len"])
         neck_diam = kwargs.pop("neck_diam", spine_dimensions["neck_diam"])
@@ -315,14 +321,15 @@ class SpineCell(SectionCell):
         for sec in sections:
             spine_number = get_spine_number(sec, spine_density, area_density)
             E_pas, g_pas, ra, cm = establish_electric_properties(sec,
-                                                                  spine_E_pas,
-                                                                  spine_g_pas,
-                                                                  spine_ra,
-                                                                  spine_cm)
+                                                                 spine_E_pas,
+                                                                 spine_g_pas,
+                                                                 spine_ra,
+                                                                 spine_cm)
             if not add_pas:
                 E_pas = None
                 g_pas = None
-            self._add_spines_to_section_with_location(sec, spine_number,
+            self._add_spines_to_section_with_location(sec, spine_name,
+                                                      spine_number,
                                                       head_diam, head_len,
                                                       neck_diam, neck_len,
                                                       E_pas, g_pas,
@@ -330,8 +337,10 @@ class SpineCell(SectionCell):
                                                       add_pas=add_pas)
 
 
-    def _add_spines_to_section_with_location(self, section, n_spines, head_diam,
-                                             head_len, neck_diam, neck_len, E_pas,
+    def _add_spines_to_section_with_location(self, section, spine_name,
+                                             n_spines, head_diam,
+                                             head_len, neck_diam,
+                                             neck_len, E_pas,
                                              g_pas, ra, cm, u_random=None,
                                              add_pas=True):
         """
@@ -342,6 +351,8 @@ class SpineCell(SectionCell):
         
         :param section:
            section
+        :param spine_name:
+           string attached to name of every head and neck
         :param n_spines:
            number of spines
         :param head_diam:
@@ -362,24 +373,26 @@ class SpineCell(SectionCell):
         else:
             target_locations = np.linspace(0., .99, n_spines).tolist()
 
-        self._add_spines_to_section(section, target_locations, head_diam,
+        self._add_spines_to_section(section, spine_name,
+                                    target_locations, head_diam,
                                     head_len, neck_diam, neck_len,
                                     E_pas, g_pas, ra, cm,
                                     add_pas=add_pas)
         return target_locations
 
-    def _add_spines_to_section(self, section, target_location, head_diam,
+    def _add_spines_to_section(self, section, spine_name,
+                               target_location, head_diam,
                                head_len, neck_diam, neck_len,
                                E_pas, g_pas, ra, cm, add_pas=True):
         name = section.name
         if not isinstance(target_location, list):
             target_location = [target_location]
         for i, location in enumerate(target_location):
-            head = self.add_sec(name="%s_head[%d]" % (name, i),
+            head = self.add_sec(name="%s_%s_head[%d]" % (name, spine_name, i),
                                 diam=head_diam, l=head_len, nseg=2,
                                 E_rest=E_pas, ra=ra, cm=cm,
                                 g_pas=g_pas, add_pas=add_pas)
-            neck = self.add_sec(name="%s_neck[%d]" % (name, i),
+            neck = self.add_sec(name="%s_%s_neck[%d]" % (name, spine_name, i),
                                 diam=neck_diam, l=neck_len, nseg=1,
                                 E_rest=E_pas, ra=ra, cm=cm,
                                 g_pas=g_pas, add_pas=add_pas)

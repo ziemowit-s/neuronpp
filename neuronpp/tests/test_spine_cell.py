@@ -9,14 +9,14 @@ class TestCellAddSpineToSection(unittest.TestCase):
     def setUpClass(cls):
         cell = SpineCell(name="cell")
         cls.soma = cell.add_sec("soma", add_pas=True, nseg=10)
-        cell._add_spines_to_section(cls.soma, 0.5, 1, 1, 0.5, 0.5,
+        cell._add_spines_to_section(cls.soma, "new", 0.5, 1, 1, 0.5, 0.5,
                                     None, None, None, None,
                                     add_pas=False)
         cls.head = cell.filter_secs("head")
         cls.neck = cell.filter_secs("neck")
         cell2 = SpineCell(name="cell2")
         cls.soma2 = cell2.add_sec("soma", nseg=10, add_pas=True)
-        cell2._add_spines_to_section(cls.soma2, 0.3, .5, .5, 0.3, 0.3,
+        cell2._add_spines_to_section(cls.soma2, "new", 0.3, .5, .5, 0.3, 0.3,
                                      None, None, None, None,
                                      add_pas=True)
         cls.head2 = cell2.filter_secs("head")
@@ -24,16 +24,17 @@ class TestCellAddSpineToSection(unittest.TestCase):
 
         cell3 = SpineCell(name="cell3")
         cls.soma3 = cell3.add_sec("soma", add_pas=True)
-        cell3._add_spines_to_section(cls.soma3, 0.3, .5, .5, 0.3, 0.3,
+        cell3._add_spines_to_section(cls.soma3, "new", 0.3, .5, .5, 0.3, 0.3,
                                      -80, 1/30000, 100, 2)
         cls.head3 = cell3.filter_secs("head")
         cls.neck3 = cell3.filter_secs("neck")
 
         cls.cell4 = SpineCell(name="cell4")
         cls.soma4 = cls.cell4.add_sec("soma", add_pas=True)
-        cls.cell4._add_spines_to_section(cls.soma4, [0.1, 0.2, 0.4, 0.8],
-                                     .5, .5, 0.4, 0.4,
-                                     -80, 1/40000, 100, 2)
+        cls.cell4._add_spines_to_section(cls.soma4, "new",
+                                         [0.1, 0.2, 0.4, 0.8],
+                                         .5, .5, 0.4, 0.4,
+                                         -80, 1/40000, 100, 2)
         cls.head4 = cls.cell4.filter_secs("head")
         cls.neck4 = cls.cell4.filter_secs("neck")
 
@@ -245,6 +246,7 @@ class TestAddSpinesToSectionLocation(unittest.TestCase):
         cls.ra = None
         cls.cm = None
         cls.out1 = cls.cell1._add_spines_to_section_with_location(cls.soma1,
+                                                                  "new",
                                                                   cls.n_spines,
                                                                   cls.head_diam,
                                                                   cls.head_len,
@@ -255,6 +257,7 @@ class TestAddSpinesToSectionLocation(unittest.TestCase):
                                                                   cls.ra, cls.cm,
                                                                   u_random=None)
         cls.out2 = cls.cell2._add_spines_to_section_with_location(cls.soma2,
+                                                                  "new",
                                                                   cls.n_spines,
                                                                   cls.head_diam,
                                                                   cls.head_len,
@@ -353,6 +356,14 @@ class TestAddSpinesToSectionLocation(unittest.TestCase):
     def test_head_cm(self):
         lens = set([x.hoc.cm for x in self.cell1.heads])
         self.assertEqual(lens, set([1]))
+
+    def test_head_name(self):
+        outs = set(["new" in x.hoc.name() for x in self.cell1.heads])
+        self.assertEqual(outs, set([True]))
+
+    def test_neck_name(self):
+        outs = set(["new" in x.hoc.name() for x in self.cell1.necks])
+        self.assertEqual(outs, set([True]))
 
 
 class TestAddSpinesToSectionList(unittest.TestCase):
@@ -511,6 +522,23 @@ class TestAddSpinesToSectionList(unittest.TestCase):
         for head in self.cell3.heads:
             out.append("pas" in head.hoc.psection()["density_mechs"])
         self.assertEqual(set(out), set([False]))
+  
+    def test_head_name(self):
+        outs = set(["mushroom" in x.hoc.name() for x in self.cell1.heads])
+        self.assertEqual(outs, set([True]))
+
+    def test_neck_name(self):
+        outs = set(["mushroom" in x.hoc.name() for x in self.cell1.necks])
+        self.assertEqual(outs, set([True]))
+
+    def test_head_name(self):
+        outs = set(["weird" in x.hoc.name() for x in self.cell3.heads])
+        self.assertEqual(outs, set([True]))
+
+    def test_neck_name(self):
+        outs = set(["weird" in x.hoc.name() for x in self.cell3.necks])
+        self.assertEqual(outs, set([True]))
+
 
 class TestDistance(unittest.TestCase):
 
