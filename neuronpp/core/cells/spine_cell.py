@@ -7,6 +7,7 @@ from neuronpp.core.cells.section_cell import SectionCell
 from neuronpp.core.hocwrappers.sec import Sec
 from neuronpp.core.cells.utils import establish_electric_properties
 from neuronpp.core.cells.utils import get_spine_number
+from neuronpp.core.cells.utils import get_area
 
 ### Nomenclature and values adapted from Harris KM, Jensen FE, Tsao BE.
 ### J Neurosci 1992
@@ -391,36 +392,46 @@ class SpineCell(SectionCell):
 
 
 
-    def _find_all_sections_with_spines(self):
-        #find all spines
-        all_necks = self.filter_sec("neck")
-        #find all sections with spines
-        all_dends = set()
-        for neck in all_necks:
-            parent = h.SectionRef(sec=neck.hoc).parent
-            all_dends.add(parent)
-        return all_dends
+    def find_sections_with_mech(self, mech_name, spine_names=["head", "neck"]):
+        mech_dend_loc = {}
+        all_spines = []
+        for name in spine_names:
+            all_spines.extend(self.filter_secs(name, as_list=True))
 
-    @staticmethod
-    def _find_denritic_mechanisms(self, dends):
-        #find mechanisms
-        all_mechs_dict = {}
-        for dend in dends:
-            mechanisms = dend.psection()['density_mechs']
-            if len(mechanisms):
-                all_mechs_dict[dend.name] = []
-                for mech in mechanisms:
-                    all_mechs_dict[dend.name].append(mech)
+        for spine in all_spines:
+            mechanisms = spine.hoc.psection()["density_mechs"]
+            if mech in mechanisms.keys():
+                parent = Sec(h.SectionRef(sec=neck.hoc).parent)
+                if mech in parent.hoc.psection()["density_mechs"]:
+                    if parent not in mech_dend_loc:
+                        mech_dend_loc[parent] = [spine]
+                    else:
+                        mech_dend_loc[parent].append(spine)
+        return mech_dend_loc
 
-        return all_mechs_dict
+    def compensate(self, mechs_with_gbar_name, cm_adjustment=True):
+        """mechs_with_gbar_name needs to be a double list
+        """
+        assert len(mechs_with_gbar_name) == 2
+        assert isinstance(mechs_with_gbar_name[0], list)
+        assert isinstance(mechs_with_gbar_name[1], list)
+        assert len(mechs_with_gbar_name[1]) == len(mechs_with_gbar_name[0])
 
-    def compensate(self):
-        #1 znaleźć wszystkie kolce
-        #2 znaleźć wszystkich rodziców kolców
-        #3 dla każdego rodzica znaleźć wszystkie możliwe mechanizmy
-        #zapewne w "density mechanism".
-        #Policzyć spine surface wszystkich kolców na danym dendrycie, które mają
-        #dany mechanizm
-        #Obniżyć dla każdego dendrytu g_bars i g_pas, cm o stosunek, który jest
-        #w kolcu, czyli pomnożyć przez (Adend-Aspine)/Adend
-        all_mechanisms = self._find_all_sections_with_spines()
+        for mech, gbar in mechs_with_gbar_name:
+            mech_loc = self.find_sections_with_mech(mech)
+            for dend in mech_loc.keys():
+                gbar_val = dend.hoc.psection()["density_mechs"][mech][gbar]
+                area_dend = dend.hoc.L*dend.hoc.diam*np.pi
+                spine_list = mech_loc[dend]
+                cum_spine_area = get_area(spine_list)
+                new_val = gbar_val*(area_dend-cum_spine_area)/area_dend
+                mech_obj = getattr(dend, mech)
+                setattr(mech_obj, gbar, new_val)
+                print("Setting %s %s in %s to %f" % (dend.hoc.name(),
+                                                     mech, gbar, new_val))
+
+        if cm_adjustment:
+            #get all spines
+            #get all dendrites
+            #for each dendrite adjust by cumulative spine area
+            pass
