@@ -232,7 +232,8 @@ class SpineCell(SectionCell):
             list of added spine heads
         """
 
-        secs = self.filter_secs(obj_filter=lambda o: o.name.startswith(region))
+        secs = self.filter_secs(obj_filter=lambda o: o.name.startswith(region),
+                                as_list=True)
         self.add_spines_section_list(secs, spine_density, spine_type, **kwargs)
 
         return secs

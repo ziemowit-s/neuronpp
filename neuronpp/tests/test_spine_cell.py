@@ -569,5 +569,34 @@ class TestDistance(unittest.TestCase):
         print(secs)
         self.assertEqual(len(secs), 2)
 
+class TestRegions(unittest.TestCase):
+
+    def setUp(self):
+        self.cell = SpineCell("LongDend")
+        self.soma = self.cell.add_sec("soma")
+        diam = 5
+        lengths = np.linspace(100, 10, 10)
+        self.dends = []
+        for i, length in enumerate(lengths):
+            dend = self.cell.add_sec("dend%d" % i)
+            self.dends.append(dend)
+            if i == 0:
+                self.cell.connect_secs(dend, self.soma)
+            else:
+                self.cell.connect_secs(dend, self.dends[i-1])
+
+        self.secs = self.cell.add_spines_to_regions("soma", 0.02)
+
+    def test_region_1(self):
+        self.assertEqual(len(self.secs), 1)
+
+    def test_region_2(self):
+        self.assertEqual(self.soma.hoc.name(), self.secs[0].hoc.name())
+
+    def test_dist_2(self):
+        secs = self.cell.add_spines_to_regions("dend", 0.02)
+        self.assertEqual(len(secs), 10)
+
+
 if __name__ == '__main__':
     unittest.main()
