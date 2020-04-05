@@ -158,6 +158,8 @@ class SpineCell(SectionCell):
             membrane resistivity
         :r_a:
             axial resistivity
+        :add_pas:
+            add passive mechanism
         :seed: None
             seed for the random number generator used for picking out
             spine positions
@@ -225,6 +227,8 @@ class SpineCell(SectionCell):
             membrane resistivity
         :r_a:
             axial resistivity
+        :add_pas:
+            add passive mechanism
         :area_densisty:
             if False spine_density is treated as linear spine density [um]
             if True  spine_density is treated as area density [um2]
@@ -290,6 +294,8 @@ class SpineCell(SectionCell):
         :area_densisty:
             if False spine_density is treated as linear spine density [um]
             if True  spine_density is treated as area density [um2]
+        :add_pas:
+            add passive mechanism
         :return:
             list of added spine heads
 
@@ -364,6 +370,8 @@ class SpineCell(SectionCell):
            diameter of the neck
         :param neck_len:
            length of the neck
+        :param add_pas:
+           add passive mechanism
         :param u_random:
            if int draw spine position from the uniform distribution
         """
