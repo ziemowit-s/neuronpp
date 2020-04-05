@@ -419,44 +419,72 @@ class SpineCell(SectionCell):
             all_spines.extend(self.filter_secs(name, as_list=True))
 
         for spine in all_spines:
+            spine_name = spine.name.split(".")[-1]
             if mech_name is None or mech_name in spine.hoc.psection()["density_mechs"]:
-                new_parent = Sec(h.SectionRef(sec=spine.hoc).parent)
-                if "neck" in new_parent.name:
-                    new_parent = Sec(h.SectionRef(sec=new_parent.hoc).parent)
-                if mech_name is None or mech_name in new_parent.hoc.psection()["density_mechs"]:
-                    if new_parent not in mech_dend_loc:
-                        mech_dend_loc[new_parent] = []
-                    mech_dend_loc[new_parent].append(spine)
+                new_parent = h.SectionRef(sec=spine.hoc).parent
+                if "neck" in new_parent.name():
+                    new_parent = h.SectionRef(sec=new_parent).parent
+
+                if mech_name is None or mech_name in new_parent.psection()["density_mechs"]:
+                    parent_name = new_parent.name().split('.')[-1]
+                    if parent_name not in mech_dend_loc:
+                        mech_dend_loc[parent_name] = []
+                    mech_dend_loc[parent_name].append(spine_name)
         return mech_dend_loc
 
-    def compensate(self, mechs_with_gbar_name, cm_adjustment=True,
-                   spine_names=["neck", "head"]):
-        """mechs_with_gbar_name needs to be a double list
-        """
-        assert len(mechs_with_gbar_name) == 2
-        assert isinstance(mechs_with_gbar_name[0], list)
-        assert isinstance(mechs_with_gbar_name[1], list)
-        assert len(mechs_with_gbar_name[1]) == len(mechs_with_gbar_name[0])
+    def _get_dend_and_comp(self, dend_name):
+        dend = self.filter_secs(obj_filter=lambda o: o.name==dend_name)
+        area_dend = dend.hoc.L*dend.hoc.diam*np.pi
+        return dend, area_dend
 
-        for mech, gbar in mechs_with_gbar_name:
-            mech_loc = self.find_sections_with_mech(mech, spine_names)
-            for dend in mech_loc.keys():
-                gbar_val = dend.hoc.psection()["density_mechs"][mech][gbar]
-                area_dend = dend.hoc.L*dend.hoc.diam*np.pi
-                spine_list = mech_loc[dend]
-                cum_spine_area = get_area(spine_list)
-                new_val = gbar_val*(area_dend-cum_spine_area)/area_dend
-                mech_obj = getattr(dend, mech)
-                setattr(mech_obj, gbar, new_val)
-                print("Setting %s %s in %s to %f" % (dend.hoc.name(),
-                                                     mech, gbar, new_val))
+    def _get_spine_factor(self, spine_names, mech_name, gbar=None):
+        factor = 0
+        for spine_name in spine_names:
+            spine = self.filter_secs(obj_filter=lambda o: o.name==spine_name)
+            if spine:
+                area = spine.hoc.L*spine.hoc.diam*np.pi
+                nseg = spine.hoc.nseg
+                for seg in spine.hoc:
+                    if gbar is not None:
+                        mech = getattr(seg, mech_name)
+                        gbar_val = getattr(mech, gbar)
+                    else:
+                        gbar_val = getattr(seg, mech_name)
+                    factor += gbar_val*area/nseg
+        return factor
+
+    def compensate(self, cm_adjustment=True,
+                   spine_names=["neck", "head"], **mechs_with_gbar_name):
+        """
+        Compensate for a chosen channel/density mechanism
+        :param cm_adjustment:
+             if True cm of the section with spines will be lowered
+             to account for membrane area of added spines
+        :param spine_name:
+             list of strings commonly found in spine names
+        :param mechs_with_gbar_name:
+             specify mechanisms and their respective gbars, e.g.
+             pas="g_pas"
+        """
+        for mech_name, gbar in mechs_with_gbar_name.items():
+            mech_loc = self.find_sections_with_mech(mech_name, spine_names)
+            for dend_name in mech_loc.keys():
+                dend, Ad = self._get_dend_and_comp(dend_name)
+                spine_factor = self._get_spine_factor(mech_loc[dend_name],
+                                                      mech_name, gbar=gbar)
+                nseg = dend.hoc.nseg
+                for seg in dend.hoc:
+                    mech = getattr(seg, mech_name)
+                    gbar_val = getattr(mech, gbar)
+                    new_val = (gbar_val*Ad - spine_factor)/(gbar_val*Ad)
+                    setattr(mech, gbar, new_val)
 
         if cm_adjustment:
-            dends_and_spines = self.find_sections_with_mech(None, spine_names)
-            for dend in dends_and_spines:
+            all_spines = self.find_sections_with_mech(None, spine_names)
+            for dend_name in all_spines:
+                dend, Ad = self._get_dend_and_comp(dend_name)
+                spine_factor = self._get_spine_factor(all_spines[dend_name],
+                                                      "cm")
                 cm_val = dend.hoc.cm
-                area_dend = dend.hoc.L*dend.hoc.diam*np.pi
-                spine_list = dends_and_spines[dend]
-                new_val = cm_val*(area_dend-cum_spine_area)/area_dend
+                new_val = (cm_val*Ad-spine_factor)/(cm_val*Ad)
                 dend.hoc.cm = new_val
-                print("Setting %s cm to %f" % (dend.hoc.name(), new_val))
