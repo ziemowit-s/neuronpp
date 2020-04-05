@@ -597,6 +597,36 @@ class TestRegions(unittest.TestCase):
         secs = self.cell.add_spines_to_regions("dend", 0.02)
         self.assertEqual(len(secs), 10)
 
-
+class TestFindingSectionsWithMechs(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        path = os.path.dirname(os.path.abspath(__file__))
+        f_path = os.path.join(path, "..", "commons/mods/combe2018")
+        cls.cell = SpineCell("cell",
+                             compile_paths=f_path)
+        cls.soma = cls.cell.add_sec("soma", add_pas=True, nseg=10)
+        cls.soma.hoc.insert("hh")
+        diam = 5
+        lengths = np.linspace(100, 10, 10)
+        cls.dends = []
+        for i, length in enumerate(lengths):
+            dend = cls.cell.add_sec("dend%d" % i, add_pas=True,
+                                    nseg=int(length/10))
+            cls.dends.append(dend)
+            if i == 0:
+                cls.cell.connect_secs(dend, cls.soma)
+            else:
+                cls.cell.connect_secs(dend, cls.dends[i-1])
+        cls.cell.insert("calH", "dend", params={"gcalbar": 0.0002})
+        cls.cell.insert("kca", "dend", params={"gbar": 0.00075})
+        cls.cell.add_spines_to_regions("dend", 0.02, "thin", add_pas=True)
+        cls.cell.insert("calH", "head", params={"gcalbar": 0.0001})
+        cls.find_calH = cls.find_sections_with_mech("calH", ["neck",
+                                                             "head"])
+            
+    def test(self):
+        print(self.find_calH.keys())
+        
+            
 if __name__ == '__main__':
     unittest.main()

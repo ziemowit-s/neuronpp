@@ -412,26 +412,25 @@ class SpineCell(SectionCell):
             self.connect_secs(source=neck, target=section, source_loc=location,
                               target_loc=0.0)
 
-
-
-    def find_sections_with_mech(self, mech_name, spine_names=["head", "neck"]):
+    def find_sections_with_mech(self, mech_name, spine_names):
         mech_dend_loc = {}
         all_spines = []
         for name in spine_names:
             all_spines.extend(self.filter_secs(name, as_list=True))
 
         for spine in all_spines:
-            mechanisms = spine.hoc.psection()["density_mechs"]
-            if mech in mechanisms.keys():
-                parent = Sec(h.SectionRef(sec=neck.hoc).parent)
-                if mech in parent.hoc.psection()["density_mechs"]:
-                    if parent not in mech_dend_loc:
-                        mech_dend_loc[parent] = [spine]
-                    else:
-                        mech_dend_loc[parent].append(spine)
+            if mech_name is None or mech_name in spine.hoc.psection()["density_mechs"]:
+                new_parent = Sec(h.SectionRef(sec=spine.hoc).parent)
+                if "neck" in new_parent.name:
+                    new_parent = Sec(h.SectionRef(sec=new_parent.hoc).parent)
+                if mech_name is None or mech_name in new_parent.hoc.psection()["density_mechs"]:
+                    if new_parent not in mech_dend_loc:
+                        mech_dend_loc[new_parent] = []
+                    mech_dend_loc[new_parent].append(spine)
         return mech_dend_loc
 
-    def compensate(self, mechs_with_gbar_name, cm_adjustment=True):
+    def compensate(self, mechs_with_gbar_name, cm_adjustment=True,
+                   spine_names=["neck", "head"]):
         """mechs_with_gbar_name needs to be a double list
         """
         assert len(mechs_with_gbar_name) == 2
@@ -440,7 +439,7 @@ class SpineCell(SectionCell):
         assert len(mechs_with_gbar_name[1]) == len(mechs_with_gbar_name[0])
 
         for mech, gbar in mechs_with_gbar_name:
-            mech_loc = self.find_sections_with_mech(mech)
+            mech_loc = self.find_sections_with_mech(mech, spine_names)
             for dend in mech_loc.keys():
                 gbar_val = dend.hoc.psection()["density_mechs"][mech][gbar]
                 area_dend = dend.hoc.L*dend.hoc.diam*np.pi
@@ -453,7 +452,11 @@ class SpineCell(SectionCell):
                                                      mech, gbar, new_val))
 
         if cm_adjustment:
-            #get all spines
-            #get all dendrites
-            #for each dendrite adjust by cumulative spine area
-            pass
+            dends_and_spines = self.find_sections_with_mech(None, spine_names)
+            for dend in dends_and_spines:
+                cm_val = dend.hoc.cm
+                area_dend = dend.hoc.L*dend.hoc.diam*np.pi
+                spine_list = dends_and_spines[dend]
+                new_val = cm_val*(area_dend-cum_spine_area)/area_dend
+                dend.hoc.cm = new_val
+                print("Setting %s cm to %f" % (dend.hoc.name(), new_val))
