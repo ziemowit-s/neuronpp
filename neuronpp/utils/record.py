@@ -37,11 +37,9 @@ class Record:
         for elem in elements:
             for var in variables:
                 if isinstance(elem, Seg):
-                    cell_name = elem.parent.parent.name
-                    name = "%s_%s" % (cell_name, elem.name)
+                    name = "%s_%s" % (elem.parent.cell.name, elem.name)
                 elif isinstance(elem, PointProcess):
-                    cell_name = elem.cell.name
-                    name = "%s_%s" % (cell_name, elem.name)
+                    name = "%s_%s" % (elem.cell.name, elem.name)
                 elif isinstance(elem, Sec):
                     raise TypeError("Record element cannot be of type Sec, however you can specify Seg eg. soma(0.5) and pass as element.")
                 else:

@@ -1,3 +1,4 @@
+import time
 from collections import defaultdict
 
 from neuronpp.core.hocwrappers.composed.synapse import Synapse
@@ -9,7 +10,14 @@ from neuronpp.utils.utils import key_release_listener
 
 
 class SynapticDebugger:
-    def __init__(self, init_v=-70, warmup=0):
+    def __init__(self, init_v=-70, warmup=0, delay_between_steps=0):
+        """
+
+        :param init_v:
+        :param warmup:
+        :param delay_between_steps:
+            in ms
+        """
         self.syns = defaultdict(list)
         self.secs = []
 
@@ -18,12 +26,13 @@ class SynapticDebugger:
 
         self.init_v = init_v
         self.warmup_time = warmup
+        self.delay_between_steps = delay_between_steps / 1000
         self.sim = None
 
-    def add_syn(self, syn: Synapse, syn_variables="w", key_press=None, plot=True):
+    def add_syn(self, syn: Synapse, syn_variables=None, key_press=None, plot=True):
         if not isinstance(syn, Synapse):
             raise TypeError("Param 'syn' must be of type Synapse, but provided '%s'" % syn.__class__)
-        if plot:
+        if plot and syn_variables:
             rec = Record(elements=syn, variables=syn_variables)
             self.syn_recs.append(rec)
 
@@ -92,6 +101,8 @@ class SynapticDebugger:
 
         for _ in range(run_time):
             self.sim.run(1)
+            if self.delay_between_steps > 0:
+                time.sleep(self.delay_between_steps)
             self._make_plots(plot_steps)
 
     def debug_interactive(self, index=None, plot_steps=10000, interval=1):
