@@ -21,9 +21,7 @@ def get_vecstim(ping_array):
     return stim, vec
 
 
-def get_spine_number(section, density, area_density):
-    if not isinstance(section, Sec):
-        section = Sec(section)
+def get_spine_number(section:Sec, density, area_density):
     if area_density:
         area = section.hoc.L*np.pi*section.hoc.diam
         spine_number = int(np.round(area * density))
@@ -40,10 +38,8 @@ def get_spine_number(section, density, area_density):
     return spine_number
 
 
-def establish_electric_properties(section, spine_E_pas, spine_g_pas,
+def establish_electric_properties(section: Sec, spine_E_pas, spine_g_pas,
                                   spine_ra, spine_cm):
-    if not isinstance(section, Sec):
-        section = Sec(section)
 
     if spine_E_pas is None:
         try:
