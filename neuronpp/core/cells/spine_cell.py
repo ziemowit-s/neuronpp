@@ -7,7 +7,6 @@ from neuronpp.core.cells.section_cell import SectionCell
 from neuronpp.core.hocwrappers.sec import Sec
 from neuronpp.core.cells.utils import establish_electric_properties
 from neuronpp.core.cells.utils import get_spine_number
-from neuronpp.core.cells.utils import get_area
 
 ### Nomenclature and values adapted from Harris KM, Jensen FE, Tsao BE.
 ### J Neurosci 1992

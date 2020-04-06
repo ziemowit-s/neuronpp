@@ -72,11 +72,3 @@ def establish_electric_properties(section, spine_E_pas, spine_g_pas,
         cm = spine_cm
 
     return E_pas, g_pas, ra, cm
-
-def get_area(sec_list: list):
-    area = 0
-    for sec in sec_list:
-        sec_area = np.pi*sec.hoc.L*sec.hoc.diam
-        area += sec_area
-
-    return area
