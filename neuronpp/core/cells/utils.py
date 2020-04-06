@@ -32,7 +32,7 @@ def get_spine_number(section:Sec, density, area_density):
     # use random number to determine whether to add a spine
     if not spine_number:
         rand = np.random.uniform()
-        if rand > density*section.hoc.L:
+        if rand > spine_number:
             return 1
         return 0
     return spine_number
