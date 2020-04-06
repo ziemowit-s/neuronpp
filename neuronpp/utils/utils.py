@@ -87,7 +87,7 @@ def show_connectivity_graph(cells, result_folder=None, file_name="conectivity_gr
             if "SpikeDetector" in nc.name:
                 continue
             elif isinstance(nc.source, Seg):
-                nc_node = nc.source.parent.parent.name
+                nc_node = nc.source.parent.cell.name
                 node_color = cell_color
             elif nc.source is None:
                 nc_node = "External Stim"

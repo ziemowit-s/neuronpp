@@ -102,7 +102,7 @@ class NetworkStatusGraph:
             if "SpikeDetector" in nc.name:
                 continue
             elif isinstance(nc.source, Seg) and isinstance(nc.target, PointProcess):
-                split_target = nc.source.parent.parent.name.split('[')
+                split_target = nc.source.parent.cell.name.split('[')
                 pop_name = split_target[0]
 
                 try:

@@ -59,7 +59,6 @@ class SectionCell(CoreCell):
                     setattr(mech, name, val)
         return self
 
-
     def set_leak(self, section, Rm=None, g_leak=None, E_leak=None):
 
         if isinstance(section, str):
@@ -67,17 +66,16 @@ class SectionCell(CoreCell):
         elif isinstance(section, Sec):
             section_list = [section]
         else:
-            section_list = [Sec(section, parent=self, name=section.name)]
+            section_list = [Sec(section, cell=self, name=section.name)]
 
-        #Set any non-default parameters
+        # Set any non-default parameters
         for n_sec in section_list:
             if E_leak is not None:
                 n_sec.hoc.e_pas = E_leak
             if Rm is not None:
-                n_sec.hoc.g_pas = 1/Rm
+                n_sec.hoc.g_pas = 1 / Rm
             if g_leak is not None:
                 n_sec.hoc.g_pas = g_leak
-
 
     def add_sec(self, name: str, diam=None, l=None, rm=None, g_leak=None,
                 E_leak=None, ra=None, cm=None, nseg=None, add_leak=False):
@@ -103,16 +101,16 @@ class SectionCell(CoreCell):
         if ra is not None:
             hoc_sec.Ra = Ra
         if rm is not None:
-            g_leak = 1/rm
- 
+            g_leak = 1 / rm
+
         if add_leak is True or g_leak is not None or E_leak is not None:
             hoc_sec.insert('pas')
             self.set_leak(hoc_sec, E_leak=E_leak, g_leak=g_leak)
 
-        if len(self.filter_secs(name,  as_list=True)) > 0:
+        if len(self.filter_secs(name, as_list=True)) > 0:
             raise LookupError("The name '%s' is already taken by another section of the cell: '%s' of type: '%s'."
                               % (name, self.name, self.__class__.__name__))
-        sec = Sec(hoc_sec, parent=self, name=name)
+        sec = Sec(hoc_sec, cell=self, name=name)
         self.secs.append(sec)
         return sec
 
@@ -183,7 +181,7 @@ class SectionCell(CoreCell):
             if len(self.filter_secs(name)) > 0:
                 raise LookupError("The name '%s' is already taken by another section of the cell: '%s' of type: '%s'."
                                   % (name, self.name, self.__class__.__name__))
-            sec = Sec(hoc_sec, parent=self, name=name)
+            sec = Sec(hoc_sec, cell=self, name=name)
             self.secs.append(sec)
 
         del self.all
@@ -259,4 +257,3 @@ class SectionCell(CoreCell):
     def _get_first_segment(sec: Sec):
         for s in sec.hoc:
             return s
-
