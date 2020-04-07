@@ -66,10 +66,10 @@ class TestCellAddSpineToSection(unittest.TestCase):
 
     def test_neck_parent(self):
         parent = self.neck.parent
-        self.assertEqual(parent.name, self.soma.hoc.name())
+        self.assertEqual(parent, self.soma)
 
     def test_head_parent(self):
-        self.assertEqual(self.head.parent, self.neck.hoc.name())
+        self.assertEqual(self.head.parent, self.neck)
 
     def test_neck_parent_location(self):
         par = str(self.neck.hoc.psection()["morphology"]["parent"])
@@ -116,10 +116,10 @@ class TestCellAddSpineToSection(unittest.TestCase):
         self.assertEqual(self.head2.hoc.cm, 1.)
 
     def test2_neck_parent(self):
-        self.assertEqual(self.neck2.parent.name, self.soma2.hoc.name())
+        self.assertEqual(self.neck2.parent, self.soma2)
 
     def test2_head_parent(self):
-        self.assertEqual(self.head.parent.name, self.neck2.hoc.name())
+        self.assertEqual(self.head.parent, self.neck2)
 
     def test2_neck_parent_location(self):
         par = str(self.neck2.hoc.psection()["morphology"]["parent"])
@@ -165,35 +165,35 @@ class TestCellAddSpineToSection(unittest.TestCase):
 
     def test4_head_parents_0(self):
         head = self.head4[0]
-        self.assertEqual(head.parent.name, self.neck4[0].hoc.name())
+        self.assertEqual(head.parent, self.neck4[0])
 
     def test4_head_parents_1(self):
         head = self.head4[1]
-        self.assertEqual(head.parent.name, self.neck4[1].hoc.name())
+        self.assertEqual(head.parent, self.neck4[1])
 
     def test4_head_parents_2(self):
         head = self.head4[2]
-        self.assertEqual(head.parent.name, self.neck4[2].hoc.name())
+        self.assertEqual(head.parent, self.neck4[2])
 
     def test4_head_parents_3(self):
         head = self.head4[3]
-        self.assertEqual(head.parent.name, self.neck4[3].hoc.name())
+        self.assertEqual(head.parent, self.neck4[3])
 
     def test4_neck_parents_0(self):
         neck = self.neck4[0]
-        self.assertEqual(neck.parent.name, self.soma4.hoc.name())
+        self.assertEqual(neck.parent, self.soma4)
 
     def test4_neck_parents_1(self):
         neck = self.neck4[1]
-        self.assertEqual(neck.parent.name, self.soma4.hoc.name())
+        self.assertEqual(neck.parent, self.soma4)
 
     def test4_neck_parents_2(self):
         neck = self.neck4[2]
-        self.assertEqual(neck.parent.name, self.soma4.hoc.name())
+        self.assertEqual(neck.parent, self.soma4)
 
     def test4_neck_parents_3(self):
         neck = self.neck4[3]
-        self.assertEqual(neck.parent.name, self.soma4.hoc.name())
+        self.assertEqual(neck.parent, self.soma4)
 
     def test3_neck0_parent_location(self):
         par = str(self.neck4[0].hoc.psection()["morphology"]["parent"])
@@ -416,10 +416,10 @@ class TestAddSpinesToSectionList(unittest.TestCase):
     def test_neck_parents(self):
         parents = []
         for neck in self.cell1.necks:
-            parents.append(h.SectionRef(sec=neck.hoc).parent.name())
+            parents.append(neck.parent)
 
-        out = [self.dend1.hoc.name(), self.dend1.hoc.name(),
-               self.dend2.hoc.name(), self.dend2.hoc.name()]
+        out = [self.dend1, self.dend1,
+               self.dend2, self.dend2]
         self.assertEqual(out, parents)
 
     def test_head_diam1(self):
