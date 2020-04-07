@@ -1,3 +1,4 @@
+from numpy import pi
 import nrn
 
 from neuronpp.core.hocwrappers.seg import Seg
@@ -18,6 +19,10 @@ class Sec(HocWrapper):
             return Sec(hoc_sec, cell=self.cell, name=hoc_sec.name())
         else:
             return None
+
+    @property
+    def area(self):
+        return pi*self.hoc.L*self.hoc.diam
 
     def __call__(self, loc):
         hoc_seg = self.hoc(loc)
