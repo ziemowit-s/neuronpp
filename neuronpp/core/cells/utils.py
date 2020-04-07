@@ -21,12 +21,12 @@ def get_vecstim(ping_array):
     return stim, vec
 
 
-def get_spine_number(section:Sec, density, area_density):
+def get_spine_number(section:Sec, density, area_density=False):
     """
     Calculate expected number of spines based on section dimensions and
     spine density. This function works for both linear density and surface
     density. To specify whether linear or surface density is passed use
-    are_density switch.
+    are_density switch. As a default linear density is used.
 
     if calculated spine_number is lower than 1, Monte Carlo is used
     to establish whether a spine will be added to section.
@@ -35,9 +35,9 @@ def get_spine_number(section:Sec, density, area_density):
         Sec
     :param density:
         linear or surface dendsity
-    :area_density:
+    :area_density: 
         if True density is treated as surface density. Otherwise density
-        is linear density
+        is linear density.
     :return spine_number:
         integer
     """
