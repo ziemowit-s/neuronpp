@@ -5,9 +5,9 @@ from neuron import h
 
 from neuronpp.core.cells.section_cell import SectionCell
 from neuronpp.core.hocwrappers.sec import Sec
+from neuronpp.core.hocwrappers.spine import Spine
 from neuronpp.core.cells.utils import establish_electric_properties
 from neuronpp.core.cells.utils import get_spine_number
-from neuronpp.core.cells.utils import get_area
 
 ### Nomenclature and values adapted from Harris KM, Jensen FE, Tsao BE.
 ### J Neurosci 1992
@@ -46,6 +46,7 @@ SPINE_DIMENSIONS = {
 class SpineCell(SectionCell):
     def __init__(self, name=None, compile_paths=None):
         SectionCell.__init__(self, name, compile_paths=compile_paths)
+        self.spines = []
         self.heads = []
         self.necks = []
         self._next_index = 0
@@ -78,20 +79,23 @@ class SpineCell(SectionCell):
         if seed:
             random.seed(seed)
 
+        spines = []
         heads = []
         necks = []
         for _ in range(spine_number):
             i = self._next_index
             head = self.add_sec(name="head[%s]" % i, diam=1, l=1, nseg=head_nseg)
             neck = self.add_sec(name="neck[%s]" % i, diam=0.5, l=0.5, nseg=neck_nseg)
+            spine = Spine(head, neck, self)
+            spine.append(spine)
             heads.append(head)
             necks.append(neck)
-            self.connect_secs(source=head, target=neck)
             self._connect_necks_rand_uniform(neck, secs)
             self._next_index += 1
         
-        self.heads.extend(heads)
-        self.necks.extend(necks)
+        self.spines.extend(spines)
+        self.heads.extend(head)
+        self.necks.extent(neck)
         return heads, necks
 
     @staticmethod
@@ -236,9 +240,9 @@ class SpineCell(SectionCell):
             list of added spine heads
         """
 
-        secs = self.filter_secs(obj_filter=lambda o: o.name.startswith(region),
-                                as_list=True)
-        self.add_spines_section_list(secs, spine_density, spine_type, **kwargs)
+        secs = self.filter_secs(region, as_list=True)
+        self.add_spines_section_list(secs, spine_density, spine_type,
+                                     **kwargs)
 
         return secs
 
@@ -407,54 +411,49 @@ class SpineCell(SectionCell):
                                 g_pas=g_pas, add_pas=add_pas)
             self.heads.append(head)
             self.necks.append(neck)
-            self.connect_secs(source=head, target=neck, source_loc=1.0,
-                              target_loc=0.0)
+            spine = Spine(head, neck, self, "%s_spine_%s[%d]" % (name,
+                                                                 spine_name,
+                                                                 i))
+            self.spines.append(spine)
             self.connect_secs(source=neck, target=section, source_loc=location,
                               target_loc=0.0)
 
-    def find_sections_with_mech(self, mech_name, spine_names):
+    def find_sections_with_mech(self, mech_name):
         mech_dend_loc = {}
-        all_spines = []
-        for name in spine_names:
-            all_spines.extend(self.filter_secs(name, as_list=True))
+        all_spines = self.spines
 
         for spine in all_spines:
             spine_name = spine.name.split(".")[-1]
-            if mech_name is None or mech_name in spine.hoc.psection()["density_mechs"]:
-                new_parent = h.SectionRef(sec=spine.hoc).parent
-                if "neck" in new_parent.name():
-                    new_parent = h.SectionRef(sec=new_parent).parent
+            spine_mechs = set(list(spine.neck.hoc.psection()["density_mechs"])+\
+                               list(spine.head.hoc.psection()["density_mechs"]))
 
-                if mech_name is None or mech_name in new_parent.psection()["density_mechs"]:
-                    parent_name = new_parent.name().split('.')[-1]
-                    if parent_name not in mech_dend_loc:
-                        mech_dend_loc[parent_name] = []
-                    mech_dend_loc[parent_name].append(spine_name)
+            if mech_name is None or mech_name in spine_mechs:
+                parent_mechs = spine.parent.hoc.psection()["density_mechs"]
+                if mech_name is None or mech_name in parent_mechs:
+                    if spine.parent not in mech_dend_loc:
+                        mech_dend_loc[spine.parent] = []
+                    mech_dend_loc[spine.parent].append(spine)
         return mech_dend_loc
 
-    def _get_dend_and_comp(self, dend_name):
-        dend = self.filter_secs(obj_filter=lambda o: o.name==dend_name)
-        area_dend = dend.hoc.L*dend.hoc.diam*np.pi
-        return dend, area_dend
-
-    def _get_spine_factor(self, spine_names, mech_name, gbar=None):
+    def _get_spine_factor(self, spines, mech_name, gbar=None):
         factor = 0
-        for spine_name in spine_names:
-            spine = self.filter_secs(obj_filter=lambda o: o.name==spine_name)
-            if spine:
-                area = spine.hoc.L*spine.hoc.diam*np.pi
-                nseg = spine.hoc.nseg
-                for seg in spine.hoc:
+        for spine in spines:
+            for sec in spine.sections:
+                sec_mech = sec.hoc.psection()["density_mechs"]
+                nseg = sec.hoc.nseg
+                for seg in sec.hoc:
                     if gbar is not None:
-                        mech = getattr(seg, mech_name)
-                        gbar_val = getattr(mech, gbar)
+                        try:
+                            mech = getattr(seg, mech_name)
+                            gbar_val = getattr(mech, gbar)
+                        except AttributeError:
+                            continue
                     else:
                         gbar_val = getattr(seg, mech_name)
-                    factor += gbar_val*area/nseg
+                    factor += gbar_val*sec.area/nseg
         return factor
 
-    def compensate(self, cm_adjustment=True,
-                   spine_names=["neck", "head"], **mechs_with_gbar_name):
+    def compensate(self, cm_adjustment=False, **mechs_with_gbar_name):
         """
         Compensate for a chosen channel/density mechanism
         :param cm_adjustment:
@@ -467,12 +466,11 @@ class SpineCell(SectionCell):
              pas="g_pas"
         """
         for mech_name, gbar in mechs_with_gbar_name.items():
-            mech_loc = self.find_sections_with_mech(mech_name, spine_names)
-            for dend_name in mech_loc.keys():
-                dend, Ad = self._get_dend_and_comp(dend_name)
-                spine_factor = self._get_spine_factor(mech_loc[dend_name],
+            mech_loc = self.find_sections_with_mech(mech_name)
+            for dend in mech_loc.keys():
+                Ad = dend.area
+                spine_factor = self._get_spine_factor(mech_loc[dend],
                                                       mech_name, gbar=gbar)
-                nseg = dend.hoc.nseg
                 for seg in dend.hoc:
                     mech = getattr(seg, mech_name)
                     gbar_val = getattr(mech, gbar)
@@ -480,10 +478,10 @@ class SpineCell(SectionCell):
                     setattr(mech, gbar, new_val)
 
         if cm_adjustment:
-            all_spines = self.find_sections_with_mech(None, spine_names)
-            for dend_name in all_spines:
-                dend, Ad = self._get_dend_and_comp(dend_name)
-                spine_factor = self._get_spine_factor(all_spines[dend_name],
+            all_spines = self.find_sections_with_mech(None)
+            for dend in all_spines:
+                Ad = dend.area
+                spine_factor = self._get_spine_factor(all_spines[dend],
                                                       "cm")
                 cm_val = dend.hoc.cm
                 new_val = (cm_val*Ad-spine_factor)/(cm_val*Ad)

@@ -104,6 +104,6 @@ class CoreHocCell(PointProcessCell):
         if len(self.filter_secs(sec_name)) > 0:
             raise LookupError("The name '%s' is already taken by another section of the cell: '%s' of type: '%s'."
                               % (sec_name, self.name, self.__class__.__name__))
-        sec = Sec(hoc_sec_obj, parent=self, name=sec_name)
+        sec = Sec(hoc_sec_obj, cell=self, name=sec_name)
         self.secs.append(sec)
         return sec

@@ -60,6 +60,7 @@ class SectionCell(CoreCell):
         return self
 
 
+
     def set_pas(self, section, Rm=None, g_pas=None, E_rest=None):
 
         if isinstance(section, str):
@@ -67,9 +68,9 @@ class SectionCell(CoreCell):
         elif isinstance(section, Sec):
             section_list = [section]
         else:
-            section_list = [Sec(section, parent=self, name=section.name)]
+            section_list = [Sec(section, cell=self, name=section.name)]
 
-        #Set any non-default parameters
+        # Set any non-default parameters
         for n_sec in section_list:
             if E_rest is not None:
                 n_sec.hoc.e_pas = E_rest
@@ -109,10 +110,10 @@ class SectionCell(CoreCell):
             hoc_sec.insert('pas')
             self.set_pas(hoc_sec, E_rest=E_rest, g_pas=g_pas)
 
-        if len(self.filter_secs(name,  as_list=True)) > 0:
+        if len(self.filter_secs(name, as_list=True)) > 0:
             raise LookupError("The name '%s' is already taken by another section of the cell: '%s' of type: '%s'."
                               % (name, self.name, self.__class__.__name__))
-        sec = Sec(hoc_sec, parent=self, name=name)
+        sec = Sec(hoc_sec, cell=self, name=name)
         self.secs.append(sec)
         return sec
 
@@ -187,7 +188,7 @@ class SectionCell(CoreCell):
             if len(self.filter_secs(name)) > 0:
                 raise LookupError("The name '%s' is already taken by another section of the cell: '%s' of type: '%s'."
                                   % (name, self.name, self.__class__.__name__))
-            sec = Sec(hoc_sec, parent=self, name=name)
+            sec = Sec(hoc_sec, cell=self, name=name)
             self.secs.append(sec)
 
         del self.all
@@ -263,4 +264,3 @@ class SectionCell(CoreCell):
     def _get_first_segment(sec: Sec):
         for s in sec.hoc:
             return s
-
