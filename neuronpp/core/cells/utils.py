@@ -21,7 +21,7 @@ def get_vecstim(ping_array):
     return stim, vec
 
 
-def get_spine_number(section:Sec, density, area_density=False):
+def get_spine_number(section: Sec, density, area_density=False):
     """
     Calculate expected number of spines based on section dimensions and
     spine density. This function works for both linear density and surface
