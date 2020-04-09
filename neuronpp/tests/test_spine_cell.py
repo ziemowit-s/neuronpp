@@ -555,7 +555,8 @@ class TestFindingSectionsWithMechs(unittest.TestCase):
                 cls.cell.connect_secs(dend, cls.dends[i-1])
         cls.cell.insert("calH", "dend", gcalbar=0.0002)
         cls.cell.insert("kca", "dend", gbar=0.00075)
-        cls.cell.add_spines_to_regions("dend", 0.02, "thin", add_pas=True)
+        regions = cls.cell.filter_sec("dend", as_list=True)
+        cls.cell.add_spines_to_section_list(regions, 0.02, "thin", add_pas=True)
         cls.cell.insert("calH", "head", gcalbar= 0.0001)
         cls.find_calH = cls.cell.find_sections_with_mech("calH")
         cls.find_kca = cls.cell.find_sections_with_mech("kca")
@@ -599,7 +600,9 @@ class TestSpineFactor(unittest.TestCase):
                 cls.cell.connect_secs(dend, cls.soma)
             else:
                 cls.cell.connect_secs(dend, cls.dends[i-1])
-        cls.cell.add_spines_to_regions("dend", 0.02, "thin", add_pas=True)
+        regions = cls.cell.filter_sec("dend", as_list=True)
+        cls.cell.add_spines_to_section_list(regions, 0.02,
+                                            "thin", add_pas=True)
         cls.cell.insert("calH", "head", gcalbar= 0.0001)
         cls.out_calH = cls.cell._get_spine_factor(cls.cell.spines[:2],
                                                   "calH", "gcalbar")
@@ -642,7 +645,9 @@ class TestCompensateForMechanism(unittest.TestCase):
         cls.gkca = 0.00075
         cls.cell.insert("calH", "dend", gcalbar=cls.gbar_dend)
         cls.cell.insert("kca", "dend", gbar=cls.gkca)
-        cls.cell.add_spines_to_regions("dend", 0.02, "thin", add_pas=True, spine_cm=10)
+        regions = cls.cell.filter_sec("dend", as_list=True)
+        cls.cell.add_spines_to_section_list(regions, 0.02, "thin",
+                                            add_pas=True, spine_cm=10)
         cls.cell.insert("calH", "head", gcalbar=cls.gbar_spine)
         cls.cell.compensate(cm_adjustment=False, calH="gcalbar")
         cls.cell.compensate(cm_adjustment=False, kca="gbar")
