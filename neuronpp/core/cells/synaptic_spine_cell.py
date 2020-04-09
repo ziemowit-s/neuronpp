@@ -25,11 +25,11 @@ class SynapticSpineCell(SpineCell, ComplexSynapticCell):
         :param synaptic_params:
         :return:
         """
-        heads, _ = self.make_spines(spine_number=number, secs=secs, head_nseg=head_nseg, neck_nseg=neck_nseg)
+        spines = self.make_spines(spine_number=number, secs=secs, head_nseg=head_nseg, neck_nseg=neck_nseg)
 
         # loc=1.0 put synase on the top of the spine's head
         syns = []
-        for h in heads:
+        for h in self.heads:
             h_segment = h(1.0)
             syn = self.add_synapse(source=source, seg=h_segment, mod_name=mod_name, netcon_weight=netcon_weight, delay=delay, tag=tag, **synaptic_params)
             syns.append(syn)

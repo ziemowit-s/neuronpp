@@ -96,7 +96,7 @@ class SpineCell(SectionCell):
         self.spines.extend(spines)
         self.heads.extend(head)
         self.necks.extent(neck)
-        return heads, necks
+        return spines
 
     @staticmethod
     def _connect_necks_rand_uniform(neck: Sec, sections):
