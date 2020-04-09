@@ -144,7 +144,7 @@ class SpineCell(SectionCell):
             See below
 
         Keyword arguments:
-        :spine name:
+        :spine_name:
             String attached to name of every head and neck
         :head_diam:
             Spine head diameter
@@ -213,7 +213,7 @@ class SpineCell(SectionCell):
             See below
 
         Keyword arguments:
-        :spine name:
+        :spine_name:
             String attached to name of every head and neck
         :head_diam:
             Spine head diameter
@@ -267,7 +267,7 @@ class SpineCell(SectionCell):
             See below
 
         Keyword arguments:
-        :spine name:
+        :spine_name:
             String attached to name of every head and neck
         :head_diam:
             Spine head diameter
@@ -459,8 +459,6 @@ class SpineCell(SectionCell):
         :param cm_adjustment:
              if True cm of the section with spines will be lowered
              to account for membrane area of added spines
-        :param spine_name:
-             list of strings commonly found in spine names
         :param mechs_with_gbar_name:
              specify mechanisms and their respective gbars, e.g.
              pas="g_pas"
