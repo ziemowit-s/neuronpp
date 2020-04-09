@@ -271,7 +271,13 @@ class SpineCell(SectionCell):
                     mech_dend_loc[spine.parent].append(spine)
         return mech_dend_loc
 
-    def _get_spine_factor(self, spines, mech_name, gbar=None):
+    def _get_spine_factor(self, spines: List, mech_name: str, gbar: str):
+        """
+        Find sum(gbar*Area_spine) for mech_name in spines. If gbar is None
+        sum(spine_cm*Area_spine) will be returned
+        This factor will further be used in lowering gbar in
+        the dendrite the spine are attached to.
+        """
         factor = 0
         for spine in spines:
             for sec in spine.sections:
@@ -316,7 +322,6 @@ class SpineCell(SectionCell):
             for dend in all_spines:
                 Ad = dend.area
                 spine_factor = self._get_spine_factor(all_spines[dend],
-                                                      "cm")
+                                                      "cm", None)
                 cm_val = dend.hoc.cm
-                new_val = (cm_val*Ad-spine_factor)/(cm_val*Ad)
                 dend.hoc.cm = new_val
