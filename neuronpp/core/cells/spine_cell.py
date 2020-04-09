@@ -302,21 +302,21 @@ class SpineCell(SectionCell):
         for mech_name, gbar in mechs_with_gbar_name.items():
             mech_loc = self.find_sections_with_mech(mech_name)
             for dend in mech_loc.keys():
-                Ad = dend.area
+                A_d = dend.area
                 spine_factor = self._get_spine_factor(mech_loc[dend],
                                                       mech_name, gbar=gbar)
                 for seg in dend.hoc:
                     mech = getattr(seg, mech_name)
                     gbar_val = getattr(mech, gbar)
-                    new_val = (gbar_val*Ad - spine_factor)/(gbar_val*Ad)
+                    new_val = (gbar_val*A_d - spine_factor)/(gbar_val*A_d)
                     setattr(mech, gbar, new_val)
 
         if cm_adjustment:
             all_spines = self.find_sections_with_mech(None)
             for dend in all_spines:
-                Ad = dend.area
+                A_d = dend.area
                 spine_factor = self._get_spine_factor(all_spines[dend],
                                                       "cm")
                 cm_val = dend.hoc.cm
-                new_val = (cm_val*Ad-spine_factor)/(cm_val*Ad)
+                new_val = (cm_val*A_d-spine_factor)/(cm_val*A_d)
                 dend.hoc.cm = new_val
