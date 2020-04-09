@@ -474,7 +474,8 @@ class TestSpineFactor(unittest.TestCase):
         cls.cell.insert("calH", cls.cell.heads, gcalbar= 0.0001)
         cls.out_calH = cls.cell._get_spine_factor(cls.cell.spines[:2],
                                                   "calH", "gcalbar")
-        cls.out_cm = cls.cell._get_spine_factor(cls.cell.spines[:2], "cm")
+        cls.out_cm = cls.cell._get_spine_factor(cls.cell.spines[:2], "cm",
+                                                None)
 
     def test_cm(self):
         out = 0

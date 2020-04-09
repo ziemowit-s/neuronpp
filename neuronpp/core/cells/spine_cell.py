@@ -336,7 +336,7 @@ class SpineCell(SectionCell):
             for dend in all_spines:
                 A_d = dend.area
                 spine_factor = self._get_spine_factor(all_spines[dend],
-                                                      "cm")
+                                                      "cm", None)
                 cm_val = dend.hoc.cm
                 new_val = (cm_val*A_d-spine_factor)/(cm_val*A_d)
                 dend.hoc.cm = new_val
