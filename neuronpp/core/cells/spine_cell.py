@@ -87,7 +87,7 @@ class SpineCell(SectionCell):
             head = self.add_sec(name="head[%s]" % i, diam=1, l=1, nseg=head_nseg)
             neck = self.add_sec(name="neck[%s]" % i, diam=0.5, l=0.5, nseg=neck_nseg)
             spine = Spine(head, neck, self)
-            spine.append(spine)
+            spines.append(spine)
             heads.append(head)
             necks.append(neck)
             self._connect_necks_rand_uniform(neck, secs)
