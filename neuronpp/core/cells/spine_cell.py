@@ -297,13 +297,27 @@ class SpineCell(SectionCell):
 
     def compensate(self, cm_adjustment=False, **mechs_with_gbar_name):
         """
-        Compensate for a chosen channel/density mechanism
+        Compensate for a chosen channel/density mechanism after adding spines.
+        Adding spines means adding additional membrane area, increasing
+        conductance and capacitance of the section and thus changing its
+        electric properties. Adding ion channels to spines will also change
+        overall channel conductance of the neuron. If you want to add spines
+        and try to preserve neuron behavior (so you don't have to retune
+        your model) you might try to compensate for that additional membrane
+        area and added mechanisms.
+
+        This function finds dendrites with spines, which both have mechanisms
+        specified in mechs_with_gbar_names, and lowers conductances (gbars)
+        by a
+        (Area_dendrite*dendritic_conductance-sum(spine_conductance*Area_spine)/
+        Area_dendrite*dendritic_conductance
+
         :param cm_adjustment:
              if True cm of the section with spines will be lowered
              to account for membrane area of added spines
         :param mechs_with_gbar_name:
-             specify mechanisms and their respective gbars, e.g.
-             pas="g_pas"
+             specify mechanisms and their respective conductance names
+             (gbars), e.g. pas="g_pas"
         """
         for mech_name, gbar in mechs_with_gbar_name.items():
             mech_loc = self.find_sections_with_mech(mech_name)
