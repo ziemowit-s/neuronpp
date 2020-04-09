@@ -33,5 +33,5 @@ class SynapticSpineCell(SpineCell, ComplexSynapticCell):
             h_segment = h(1.0)
             syn = self.add_synapse(source=source, seg=h_segment, mod_name=mod_name, netcon_weight=netcon_weight, delay=delay, tag=tag, **synaptic_params)
             syns.append(syn)
-
+        heads = [spine.sections[0] for spine in spines]
         return syns, heads
