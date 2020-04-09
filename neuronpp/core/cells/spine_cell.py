@@ -1,4 +1,5 @@
 import random
+from typing import List
 import numpy as np
 
 from neuron import h
@@ -121,16 +122,14 @@ class SpineCell(SectionCell):
                 added[s.name()].append(loc)
                 break
 
-
-
-    def add_spines_section_list(self, sections, spine_density,
-                                spine_type="generic", **kwargs):
+    def add_spines_to_section_list(self, sections: List, spine_density,
+                                   spine_type="generic", **spine_params):
         """
         Add spines with specified linear density (per 1 um) to specified
         secions (compartments). Spines can have
         a predifined type (stubby, thin, mushroom) or, alternatively, their
         dimentions (head_diam, head_len, neck_diam, neck_len) can be specified
-        in kwargs.
+        in spine_params.
 
         :param regions:
             Section that will have spines
@@ -139,7 +138,7 @@ class SpineCell(SectionCell):
         :param spine_type:
             Spine type. There are four predifined types: thin, stubby,
             mushroom and other.
-        :param **kwargs:
+        :param **spine_params:
             See below
 
         Keyword arguments:
@@ -186,25 +185,25 @@ class SpineCell(SectionCell):
             spine_dimensions = SPINE_DIMENSIONS[spine_type]
         except KeyError:
             spine_dimensions = SPINE_DIMENSIONS["generic"]
-        spine_name = kwargs.pop("spine_name", spine_type)
-        head_diam = kwargs.pop("head_diam", spine_dimensions["head_diam"])
-        head_len = kwargs.pop("head_len", spine_dimensions["head_len"])
-        neck_diam = kwargs.pop("neck_diam", spine_dimensions["neck_diam"])
-        neck_len = kwargs.pop("neck_len", spine_dimensions["neck_len"])
+        spine_name = spine_params.pop("spine_name", spine_type)
+        head_diam = spine_params.pop("head_diam", spine_dimensions["head_diam"])
+        head_len = spine_params.pop("head_len", spine_dimensions["head_len"])
+        neck_diam = spine_params.pop("neck_diam", spine_dimensions["neck_diam"])
+        neck_len = spine_params.pop("neck_len", spine_dimensions["neck_len"])
         #If Falde
-        spine_E_pas = kwargs.pop("spine_E_pas", None)
-        spine_g_pas = kwargs.pop("spine_g_pas", None)
-        spine_rm = kwargs.pop("spine_rm", None)
-        spine_ra = kwargs.pop("spine_ra", None)
-        spine_cm = kwargs.pop("spine_cm", None)
-        add_pas = kwargs.pop("add_pas", False)
+        spine_E_pas = spine_params.pop("spine_E_pas", None)
+        spine_g_pas = spine_params.pop("spine_g_pas", None)
+        spine_rm = spine_params.pop("spine_rm", None)
+        spine_ra = spine_params.pop("spine_ra", None)
+        spine_cm = spine_params.pop("spine_cm", None)
+        add_pas = spine_params.pop("add_pas", False)
         if isinstance(spine_rm, int) or isinstance(spine_rm, float):
             spine_g_pas = 1/spine_rm
-        area_density = kwargs.pop("area_density", False)
-        seed = kwargs.pop("seed", None)
+        area_density = spine_params.pop("area_density", False)
+        seed = spine_params.pop("seed", None)
         if seed is not None:
             np.random.seed(seed)
-
+        all_target_locations = []
         for sec in sections:
             spine_number = get_spine_number(sec, spine_density, area_density)
             E_pas, g_pas, ra, cm = establish_electric_properties(sec,
@@ -215,60 +214,19 @@ class SpineCell(SectionCell):
             if not add_pas:
                 E_pas = None
                 g_pas = None
-            self._add_spines_to_section_with_location(sec, spine_name,
-                                                      spine_number,
-                                                      head_diam, head_len,
-                                                      neck_diam, neck_len,
-                                                      E_pas, g_pas,
-                                                      ra, cm, u_random=seed,
-                                                      add_pas=add_pas)
+            if isinstance(u_random, int):
+                target_locations = np.random.uniform(0., 1., n_spines).tolist()
+            else:
+                target_locations = np.linspace(0., .99, n_spines).tolist()
 
+            self._add_spines_to_section(sec, spine_name, target_locations,
+                                        head_diam, head_len, neck_diam,
+                                        neck_len, E_pas, g_pas, ra, cm,
+                                        add_pas=add_pas)
+            all_target_locations.append(target_locations)
+        return all_target_locations
 
-    def _add_spines_to_section_with_location(self, section, spine_name,
-                                             n_spines, head_diam,
-                                             head_len, neck_diam,
-                                             neck_len, E_pas,
-                                             g_pas, ra, cm, u_random=None,
-                                             add_pas=True):
-        """
-        Add spines to a section of a dedrite. There are two possibilities:
-        1) spines are added uniformly every n_spines/section_length,
-        2) spines positions on the dendrite's section are drawn
-        from the uniform distribution.
         
-        :param section:
-           section
-        :param spine_name:
-           string attached to name of every head and neck
-        :param n_spines:
-           number of spines
-        :param head_diam:
-           diameter of the spine head
-        :param head_len:
-           length of the spine_head
-        :param neck_diam:
-           diameter of the neck
-        :param neck_len:
-           length of the neck
-        :param add_pas:
-           add passive mechanism
-        :param u_random:
-           if int draw spine position from the uniform distribution
-        """
-        if not isinstance(section, Sec):
-            section = Sec(section)
-        if isinstance(u_random, int):
-            target_locations = np.random.uniform(0., 1., n_spines).tolist()
-        else:
-            target_locations = np.linspace(0., .99, n_spines).tolist()
-
-        self._add_spines_to_section(section, spine_name,
-                                    target_locations, head_diam,
-                                    head_len, neck_diam, neck_len,
-                                    E_pas, g_pas, ra, cm,
-                                    add_pas=add_pas)
-        return target_locations
-
     def _add_spines_to_section(self, section: Sec, spine_name,
                                target_location, head_diam,
                                head_len, neck_diam, neck_len,

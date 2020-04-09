@@ -19,7 +19,6 @@ class TestCellAddSpineToSection(unittest.TestCase):
         cell2._add_spines_to_section(cls.soma2, "new", 0.3, .5, .5, 0.3, 0.3,
                                      None, None, None, None,
                                      add_pas=True)
-        print(len(cell2.heads))
         cls.head2 = cell2.heads[0]
         cls.neck2 = cell2.necks[0]
 
@@ -223,143 +222,6 @@ class TestCellAddSpineToSection(unittest.TestCase):
         self.assertEqual(self.neck4, self.cell4.necks)
 
 
-
-
-class TestAddSpinesToSectionLocation(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.cell1 = SpineCell(name="cell1")
-        cls.soma1 = cls.cell1.add_sec("soma", add_pas=True)
-        cls.cell2 = SpineCell(name="cell2")
-        cls.soma2 = cls.cell2.add_sec("soma", add_pas=True)
-        cls.n_spines = 10
-        cls.head_diam = cls.head_len = 1
-        cls.neck_diam = cls.neck_len = 0.5
-        cls.E_pas = -70
-        cls.g_pas = 1/20000
-        cls.ra = None
-        cls.cm = None
-        cls.out1 = cls.cell1._add_spines_to_section_with_location(cls.soma1,
-                                                                  "new",
-                                                                  cls.n_spines,
-                                                                  cls.head_diam,
-                                                                  cls.head_len,
-                                                                  cls.neck_diam,
-                                                                  cls.neck_len,
-                                                                  cls.E_pas,
-                                                                  cls.g_pas,
-                                                                  cls.ra, cls.cm,
-                                                                  u_random=None)
-        cls.out2 = cls.cell2._add_spines_to_section_with_location(cls.soma2,
-                                                                  "new",
-                                                                  cls.n_spines,
-                                                                  cls.head_diam,
-                                                                  cls.head_len,
-                                                                  cls.neck_diam,
-                                                                  cls.neck_len,
-                                                                  cls.E_pas,
-                                                                  cls.g_pas,
-                                                                  cls.ra,
-                                                                  cls.cm,
-                                                                  u_random=1)
-
-
-    def test_equal(self):
-        self.assertEqual(self.out1,
-                         np.linspace(0., .99, self.n_spines).tolist())
-
-    def test_random(self):
-       self.assertNotEqual(self.out2,
-                         np.linspace(0., .99, self.n_spines).tolist())
-
-    def test_how_many_spines(self):
-        self.assertEqual(len(self.out2), len(self.out1))
-
-    def test_how_many_spines2(self):
-        self.assertEqual(len(self.out2), len(self.cell2.heads))
-
-    def test_how_many_spines3(self):
-        self.assertEqual(len(self.out2), len(self.cell2.necks))
-
-    def test_how_many_spines4(self):
-        self.assertEqual(len(self.out1), len(self.cell1.heads))
-
-    def test_how_many_spines5(self):
-        self.assertEqual(len(self.out1), len(self.cell1.necks))
-
-    def test_heads_diam1(self):
-        diams = set([x.hoc.diam for x in self.cell1.heads])
-        self.assertEqual(diams, set([self.head_diam]))
-
-    def test_neck_diam1(self):
-        diams = set([x.hoc.diam for x in self.cell1.necks])
-        self.assertEqual(diams, set([self.neck_diam]))
-
-    def test_heads_len1(self):
-        lens = set([x.hoc.L for x in self.cell1.heads])
-        self.assertEqual(lens, set([self.head_len]))
-
-    def test_neck_len1(self):
-        lens = set([x.hoc.L for x in self.cell1.necks])
-        self.assertEqual(lens, set([self.neck_len]))
-
-    def test_neck_g_pas(self):
-        lens = set([x.hoc.g_pas for x in self.cell1.necks])
-        self.assertEqual(lens, set([self.g_pas]))
-
-    def test_neck_E_pas(self):
-        lens = set([x.hoc.e_pas for x in self.cell1.necks])
-        self.assertEqual(lens, set([self.E_pas]))
-
-    def test_neck_ra(self):
-        lens = set([x.hoc.Ra for x in self.cell1.necks])
-        self.assertEqual(lens, set([self.ra]))
-
-    def test_neck_cm(self):
-        lens = set([x.hoc.cm for x in self.cell1.necks])
-        self.assertEqual(lens, set([self.cm]))
-
-    def test_neck_g_pas(self):
-        lens = set([x.hoc.g_pas for x in self.cell1.necks])
-        self.assertEqual(lens, set([self.g_pas]))
-
-    def test_neck_E_pas(self):
-        lens = set([x.hoc.e_pas for x in self.cell1.necks])
-        self.assertEqual(lens, set([self.E_pas]))
-
-    def test_neck_ra(self):
-        lens = set([x.hoc.Ra for x in self.cell1.necks])
-        self.assertEqual(lens, set([35.4]))
-
-    def test_neck_cm(self):
-        lens = set([x.hoc.cm for x in self.cell1.necks])
-        self.assertEqual(lens, set([1]))
-
-    def test_head_g_pas(self):
-        lens = set([x.hoc.g_pas for x in self.cell1.heads])
-        self.assertEqual(lens, set([self.g_pas]))
-
-    def test_head_E_pas(self):
-        lens = set([x.hoc.e_pas for x in self.cell1.heads])
-        self.assertEqual(lens, set([self.E_pas]))
-
-    def test_head_ra(self):
-        lens = set([x.hoc.Ra for x in self.cell1.heads])
-        self.assertEqual(lens, set([35.4]))
-
-    def test_head_cm(self):
-        lens = set([x.hoc.cm for x in self.cell1.heads])
-        self.assertEqual(lens, set([1]))
-
-    def test_head_name(self):
-        outs = set(["new" in x.hoc.name() for x in self.cell1.heads])
-        self.assertEqual(outs, set([True]))
-
-    def test_neck_name(self):
-        outs = set(["new" in x.hoc.name() for x in self.cell1.necks])
-        self.assertEqual(outs, set([True]))
-
-
 class TestAddSpinesToSectionList(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -375,35 +237,34 @@ class TestAddSpinesToSectionList(unittest.TestCase):
         cls.g_pas = 1/20000
         cls.ra = 100
         cls.cm = 1.1
-        cls.cell1.add_spines_section_list([cls.dend1, cls.dend2],
-                                          cls.spine_density,
-                                          spine_type="mushroom",
-                                          spine_E_pas=cls.E_pas,
-                                          spine_g_pas=cls.g_pas,
-                                          spine_ra=cls.ra,
-                                          spine_cm=cls.cm,
-                                          u_random=None,
-                                          area_density=False,
-                                          add_pas=True)
+        cls.out_1 = cls.cell1.add_spines_to_section_list([cls.dend1, cls.dend2],
+                                                         cls.spine_density,
+                                                         spine_type="mushroom",
+                                                         spine_E_pas=cls.E_pas,
+                                                         spine_g_pas=cls.g_pas,
+                                                         spine_ra=cls.ra,
+                                                         spine_cm=cls.cm,
+                                                         u_random=None,
+                                                         area_density=False,
+                                                         add_pas=True)
 
         cls.cell2 = SpineCell(name="cell2")
         cls.dend21 = cls.cell2.add_sec("dend1", add_pas=True)
         cls.dend22 = cls.cell2.add_sec("dend2", add_pas=True)
         cls.cell2.connect_secs(cls.dend21, cls.dend22)
-        cls.cell2.add_spines_section_list([cls.dend21, cls.dend22],
-                                          cls.spine_density,
-                                          spine_type="mushroom",
-                                          head_diam=cls.head_diam,
-                                          head_len=cls.head_len,
-                                          neck_diam=cls.neck_diam,
-                                          neck_len=cls.neck_len,
-                                          add_pas=False,
-                                          u_random=None,
-                                          area_density=False)
-
+        cls.out_2 = cls.cell2.add_spines_to_section_list([cls.dend21, cls.dend22],
+                                                         cls.spine_density,
+                                                         spine_type="mushroom",
+                                                         head_diam=cls.head_diam,
+                                                         head_len=cls.head_len,
+                                                         neck_diam=cls.neck_diam,
+                                                         neck_len=cls.neck_len,
+                                                         add_pas=False,
+                                                         u_random=1,
+                                                         area_density=False)
         cls.cell3 = SpineCell(name="cell3")
         cls.soma3 = cls.cell3.add_sec("soma", add_pas=False)
-        cls.cell3.add_spines_section_list([cls.soma3],
+        cls.cell3.add_spines_to_section_list([cls.soma3],
                                           cls.spine_density,
                                           spine_type="weird",
                                           add_pas=False)
@@ -533,6 +394,12 @@ class TestAddSpinesToSectionList(unittest.TestCase):
         outs = set(["weird" in x.hoc.name() for x in self.cell3.necks])
         self.assertEqual(outs, set([True]))
 
+    def test_equal(self):
+         self.assertEqual(self.out_1, [np.linspace(0., .99, 2).tolist(),
+                                       np.linspace(0., .99, 2).tolist()])
+    def test_random(self):
+        self.assertNotEqual(self.out_2[0],
+                            np.linspace(0., .99, 2).tolist())
 
 class TestFindingSectionsWithMechs(unittest.TestCase):
     @classmethod
@@ -556,7 +423,7 @@ class TestFindingSectionsWithMechs(unittest.TestCase):
                 cls.cell.connect_secs(dend, cls.dends[i-1])
         cls.cell.insert("calH", "dend", gcalbar=0.0002)
         cls.cell.insert("kca", "dend", gbar=0.00075)
-        regions = cls.cell.filter_sec("dend", as_list=True)
+        regions = cls.cell.filter("dend", as_list=True)
         cls.cell.add_spines_to_section_list(regions, 0.02, "thin", add_pas=True)
         cls.cell.insert("calH", "head", gcalbar= 0.0001)
         cls.find_calH = cls.cell.find_sections_with_mech("calH")
@@ -564,14 +431,14 @@ class TestFindingSectionsWithMechs(unittest.TestCase):
         cls.find_all = cls.cell.find_sections_with_mech(None)
 
     def test_if_all_parents_accounted_for(self):
-        dends = self.cell.filter_secs(obj_filter=lambda o: "dend" in o.name and "head" not in o.name and "neck" not in o.name)
+        dends = self.cell.filter(obj_filter=lambda o: "dend" in o.name and "head" not in o.name and "neck" not in o.name)
         self.assertEqual(len(dends), len(self.find_calH))
 
     def test_no_found_secs(self):
         self.assertEqual({}, self.find_kca)
 
     def test_all_dends_with_spines(self):
-        dends = self.cell.filter_secs(obj_filter=lambda o: "dend" in o.name and "head" not in o.name and "neck" not in o.name)
+        dends = self.cell.filter(obj_filter=lambda o: "dend" in o.name and "head" not in o.name and "neck" not in o.name)
         self.assertEqual(len(self.find_all), len(dends))
 
     def test_all_dends_len(self):
@@ -601,7 +468,7 @@ class TestSpineFactor(unittest.TestCase):
                 cls.cell.connect_secs(dend, cls.soma)
             else:
                 cls.cell.connect_secs(dend, cls.dends[i-1])
-        regions = cls.cell.filter_sec("dend", as_list=True)
+        regions = cls.cell.filter("dend", as_list=True)
         cls.cell.add_spines_to_section_list(regions, 0.02,
                                             "thin", add_pas=True)
         cls.cell.insert("calH", "head", gcalbar= 0.0001)
@@ -646,7 +513,7 @@ class TestCompensateForMechanism(unittest.TestCase):
         cls.gkca = 0.00075
         cls.cell.insert("calH", "dend", gcalbar=cls.gbar_dend)
         cls.cell.insert("kca", "dend", gbar=cls.gkca)
-        regions = cls.cell.filter_sec("dend", as_list=True)
+        regions = cls.cell.filter("dend", as_list=True)
         cls.cell.add_spines_to_section_list(regions, 0.02, "thin",
                                             add_pas=True, spine_cm=10)
         cls.cell.insert("calH", "head", gcalbar=cls.gbar_spine)
