@@ -405,7 +405,7 @@ class TestFindingSectionsWithMechs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         path = os.path.dirname(os.path.abspath(__file__))
-        f_path = os.path.join(path, "..", "commons/mods/combe2018")
+        f_path = os.path.join(path,"..","commons/mods/combe2018")
         cls.cell = SpineCell("cell",
                              compile_paths=f_path)
         cls.soma = cls.cell.add_sec("soma", add_pas=True, nseg=10)
@@ -452,7 +452,7 @@ class TestSpineFactor(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         path = os.path.dirname(os.path.abspath(__file__))
-        f_path = os.path.join(path, "..", "commons/mods/combe2018")
+        f_path = os.path.join(path,"..","commons/mods/combe2018")
         cls.cell = SpineCell("cell",
                              compile_paths=f_path)
         cls.soma = cls.cell.add_sec("soma", add_pas=True, nseg=10)
