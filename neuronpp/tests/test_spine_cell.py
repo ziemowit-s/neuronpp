@@ -12,22 +12,23 @@ class TestCellAddSpineToSection(unittest.TestCase):
         cell._add_spines_to_section(cls.soma, "new", 0.5, 1, 1, 0.5, 0.5,
                                     None, None, None, None,
                                     add_pas=False)
-        cls.head = cell.filter_secs("head")
-        cls.neck = cell.filter_secs("neck")
+        cls.head = cell.heads[0]
+        cls.neck = cell.necks[0]
         cell2 = SpineCell(name="cell2")
         cls.soma2 = cell2.add_sec("soma", nseg=10, add_pas=True)
         cell2._add_spines_to_section(cls.soma2, "new", 0.3, .5, .5, 0.3, 0.3,
                                      None, None, None, None,
                                      add_pas=True)
-        cls.head2 = cell2.filter_secs("head")
-        cls.neck2 = cell2.filter_secs("neck")
+        print(len(cell2.heads))
+        cls.head2 = cell2.heads[0]
+        cls.neck2 = cell2.necks[0]
 
         cell3 = SpineCell(name="cell3")
         cls.soma3 = cell3.add_sec("soma", add_pas=True)
         cell3._add_spines_to_section(cls.soma3, "new", 0.3, .5, .5, 0.3, 0.3,
                                      -80, 1/30000, 100, 2)
-        cls.head3 = cell3.filter_secs("head")
-        cls.neck3 = cell3.filter_secs("neck")
+        cls.head3 = cell3.heads[0]
+        cls.neck3 = cell3.necks[0]
 
         cls.cell4 = SpineCell(name="cell4")
         cls.soma4 = cls.cell4.add_sec("soma", add_pas=True)
@@ -35,8 +36,8 @@ class TestCellAddSpineToSection(unittest.TestCase):
                                          [0.1, 0.2, 0.4, 0.8],
                                          .5, .5, 0.4, 0.4,
                                          -80, 1/40000, 100, 2)
-        cls.head4 = cls.cell4.filter_secs("head")
-        cls.neck4 = cls.cell4.filter_secs("neck")
+        cls.head4 = cls.cell4.heads
+        cls.neck4 = cls.cell4.necks
 
     def test_head_diam(self):
         self.assertEqual(self.head.hoc.diam, 1.)

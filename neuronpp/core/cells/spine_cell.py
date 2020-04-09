@@ -121,14 +121,16 @@ class SpineCell(SectionCell):
                 added[s.name()].append(loc)
                 break
 
-    def add_spines_to_section_list(self, sections: List, spine_density,
-                                   spine_type="generic", **spine_params):
+
+
+    def add_spines_section_list(self, sections, spine_density,
+                                spine_type="generic", **kwargs):
         """
         Add spines with specified linear density (per 1 um) to specified
         secions (compartments). Spines can have
         a predifined type (stubby, thin, mushroom) or, alternatively, their
         dimentions (head_diam, head_len, neck_diam, neck_len) can be specified
-        in spine_params.
+        in kwargs.
 
         :param regions:
             Section that will have spines
@@ -137,7 +139,7 @@ class SpineCell(SectionCell):
         :param spine_type:
             Spine type. There are four predifined types: thin, stubby,
             mushroom and other.
-        :param **spine_params:
+        :param **kwargs:
             See below
 
         Keyword arguments:
@@ -184,22 +186,22 @@ class SpineCell(SectionCell):
             spine_dimensions = SPINE_DIMENSIONS[spine_type]
         except KeyError:
             spine_dimensions = SPINE_DIMENSIONS["generic"]
-        spine_name = spine_params.pop("spine_name", spine_type)
-        head_diam = spine_params.pop("head_diam", spine_dimensions["head_diam"])
-        head_len = spine_params.pop("head_len", spine_dimensions["head_len"])
-        neck_diam = spine_params.pop("neck_diam", spine_dimensions["neck_diam"])
-        neck_len = spine_params.pop("neck_len", spine_dimensions["neck_len"])
+        spine_name = kwargs.pop("spine_name", spine_type)
+        head_diam = kwargs.pop("head_diam", spine_dimensions["head_diam"])
+        head_len = kwargs.pop("head_len", spine_dimensions["head_len"])
+        neck_diam = kwargs.pop("neck_diam", spine_dimensions["neck_diam"])
+        neck_len = kwargs.pop("neck_len", spine_dimensions["neck_len"])
         #If Falde
-        spine_E_pas = spine_params.pop("spine_E_pas", None)
-        spine_g_pas = spine_params.pop("spine_g_pas", None)
-        spine_rm = spine_params.pop("spine_rm", None)
-        spine_ra = spine_params.pop("spine_ra", None)
-        spine_cm = spine_params.pop("spine_cm", None)
-        add_pas = spine_params.pop("add_pas", False)
+        spine_E_pas = kwargs.pop("spine_E_pas", None)
+        spine_g_pas = kwargs.pop("spine_g_pas", None)
+        spine_rm = kwargs.pop("spine_rm", None)
+        spine_ra = kwargs.pop("spine_ra", None)
+        spine_cm = kwargs.pop("spine_cm", None)
+        add_pas = kwargs.pop("add_pas", False)
         if isinstance(spine_rm, int) or isinstance(spine_rm, float):
             spine_g_pas = 1/spine_rm
-        area_density = spine_params.pop("area_density", False)
-        seed = spine_params.pop("seed", None)
+        area_density = kwargs.pop("area_density", False)
+        seed = kwargs.pop("seed", None)
         if seed is not None:
             np.random.seed(seed)
 
