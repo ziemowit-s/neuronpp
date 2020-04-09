@@ -200,7 +200,7 @@ class SpineCell(SectionCell):
         if isinstance(spine_rm, int) or isinstance(spine_rm, float):
             spine_g_pas = 1/spine_rm
         area_density = spine_params.pop("area_density", False)
-        seed = spine_params.pop("seed", None)
+        seed = spine_params.pop("u_random", None)
         if seed is not None:
             np.random.seed(seed)
         all_target_locations = []
@@ -214,10 +214,12 @@ class SpineCell(SectionCell):
             if not add_pas:
                 E_pas = None
                 g_pas = None
-            if isinstance(u_random, int):
-                target_locations = np.random.uniform(0., 1., n_spines).tolist()
+            if isinstance(seed, int):
+                target_locations = np.random.uniform(0., 1.,
+                                                     spine_number).tolist()
             else:
-                target_locations = np.linspace(0., .99, n_spines).tolist()
+                target_locations = np.linspace(0., .99,
+                                               spine_number).tolist()
 
             self._add_spines_to_section(sec, spine_name, target_locations,
                                         head_diam, head_len, neck_diam,

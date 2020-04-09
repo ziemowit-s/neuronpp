@@ -423,7 +423,7 @@ class TestFindingSectionsWithMechs(unittest.TestCase):
                 cls.cell.connect_secs(dend, cls.dends[i-1])
         cls.cell.insert("calH", "dend", gcalbar=0.0002)
         cls.cell.insert("kca", "dend", gbar=0.00075)
-        regions = cls.cell.filter("dend", as_list=True)
+        regions = cls.cell.filter_secs("dend", as_list=True)
         cls.cell.add_spines_to_section_list(regions, 0.02, "thin", add_pas=True)
         cls.cell.insert("calH", "head", gcalbar= 0.0001)
         cls.find_calH = cls.cell.find_sections_with_mech("calH")
@@ -431,14 +431,14 @@ class TestFindingSectionsWithMechs(unittest.TestCase):
         cls.find_all = cls.cell.find_sections_with_mech(None)
 
     def test_if_all_parents_accounted_for(self):
-        dends = self.cell.filter(obj_filter=lambda o: "dend" in o.name and "head" not in o.name and "neck" not in o.name)
+        dends = self.cell.filter_secs(obj_filter=lambda o: "dend" in o.name and "head" not in o.name and "neck" not in o.name)
         self.assertEqual(len(dends), len(self.find_calH))
 
     def test_no_found_secs(self):
         self.assertEqual({}, self.find_kca)
 
     def test_all_dends_with_spines(self):
-        dends = self.cell.filter(obj_filter=lambda o: "dend" in o.name and "head" not in o.name and "neck" not in o.name)
+        dends = self.cell.filter_secs(obj_filter=lambda o: "dend" in o.name and "head" not in o.name and "neck" not in o.name)
         self.assertEqual(len(self.find_all), len(dends))
 
     def test_all_dends_len(self):
@@ -468,10 +468,10 @@ class TestSpineFactor(unittest.TestCase):
                 cls.cell.connect_secs(dend, cls.soma)
             else:
                 cls.cell.connect_secs(dend, cls.dends[i-1])
-        regions = cls.cell.filter("dend", as_list=True)
+        regions = cls.cell.filter_secs("dend", as_list=True)
         cls.cell.add_spines_to_section_list(regions, 0.02,
                                             "thin", add_pas=True)
-        cls.cell.insert("calH", "head", gcalbar= 0.0001)
+        cls.cell.insert("calH", cls.cell.heads, gcalbar= 0.0001)
         cls.out_calH = cls.cell._get_spine_factor(cls.cell.spines[:2],
                                                   "calH", "gcalbar")
         cls.out_cm = cls.cell._get_spine_factor(cls.cell.spines[:2], "cm")
@@ -513,7 +513,7 @@ class TestCompensateForMechanism(unittest.TestCase):
         cls.gkca = 0.00075
         cls.cell.insert("calH", "dend", gcalbar=cls.gbar_dend)
         cls.cell.insert("kca", "dend", gbar=cls.gkca)
-        regions = cls.cell.filter("dend", as_list=True)
+        regions = cls.cell.filter_secs("dend", as_list=True)
         cls.cell.add_spines_to_section_list(regions, 0.02, "thin",
                                             add_pas=True, spine_cm=10)
         cls.cell.insert("calH", "head", gcalbar=cls.gbar_spine)
