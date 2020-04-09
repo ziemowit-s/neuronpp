@@ -269,7 +269,7 @@ class SpineCell(SectionCell):
                                     add_pas=add_pas)
         return target_locations
 
-    def _add_spines_to_section(self, section, spine_name,
+    def _add_spines_to_section(self, section: Sec, spine_name,
                                target_location, head_diam,
                                head_len, neck_diam, neck_len,
                                E_pas, g_pas, ra, cm, add_pas=True):
