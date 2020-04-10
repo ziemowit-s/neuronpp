@@ -6,7 +6,7 @@ from neuronpp.core.cells.core_hoc_cell import CoreHocCell
  f_path = os.path.join(path, "..", "commons/mods/combe2018")
 
 class Combe2018Cell(Cell, CoreHocCell):
-    def __init__(self, name=None, model_folder=model_path, spine_number=0,
+    def __init__(self, name=None, model_folder=f_path, spine_number=0,
                  spine_secs_names="apic",
                  spine_seed: int = None):
         """
