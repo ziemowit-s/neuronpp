@@ -155,19 +155,19 @@ class SpineCell(SectionCell):
         :area_densisty:
             if False spine_density is treated as linear spine density [um]
             if True  spine_density is treated as area density [um2]
-        :seed: None
+        :u_random: None
             seed for the random number generator used for picking out
             spine positions
-        :g_pas:
+        :spine_g_pas:
             pas conductance. By default g_pas of the parent section
             will be used.
-        :E_pas:
+        :spine_E_pas:
             pas reversal potential. By default pas reversal potential
             of the parent section will be used.
-        :r_m:
+        :spine_rm:
             membrane resistivity. By default 1/pas conductance of the
             parent section will be used.
-        :r_a:
+        :spine_ra:
             axial resistivity. By default axial resistivity of the parent
             section will be used.
         :area_densisty:
