@@ -4,6 +4,7 @@ import numpy as np
 from neuron import h
 from neuronpp.core.cells.spine_cell import SpineCell, SPINE_DIMENSIONS
 
+
 class TestCellAddSpineToSection(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -199,7 +200,7 @@ class TestCellAddSpineToSection(unittest.TestCase):
         par = str(self.neck4[0].hoc.psection()["morphology"]["parent"])
         neck_parent_loc = float(par.split("(")[1].split(")")[0])
         self.assertEqual(neck_parent_loc, 0.1)
-        
+
     def test3_neck1_parent_location(self):
         par = str(self.neck4[1].hoc.psection()["morphology"]["parent"])
         neck_parent_loc = float(par.split("(")[1].split(")")[0])
@@ -237,7 +238,8 @@ class TestAddSpinesToSectionList(unittest.TestCase):
         cls.g_pas = 1/20000
         cls.ra = 100
         cls.cm = 1.1
-        cls.out_1 = cls.cell1.add_spines_to_section_list([cls.dend1, cls.dend2],
+        cls.out_1 = cls.cell1.add_spines_to_section_list([cls.dend1,
+                                                          cls.dend2],
                                                          cls.spine_density,
                                                          spine_type="mushroom",
                                                          spine_E_pas=cls.E_pas,
@@ -252,7 +254,8 @@ class TestAddSpinesToSectionList(unittest.TestCase):
         cls.dend21 = cls.cell2.add_sec("dend1", add_pas=True)
         cls.dend22 = cls.cell2.add_sec("dend2", add_pas=True)
         cls.cell2.connect_secs(cls.dend21, cls.dend22)
-        cls.out_2 = cls.cell2.add_spines_to_section_list([cls.dend21, cls.dend22],
+        cls.out_2 = cls.cell2.add_spines_to_section_list([cls.dend21,
+                                                          cls.dend22],
                                                          cls.spine_density,
                                                          spine_type="mushroom",
                                                          head_diam=cls.head_diam,
@@ -377,7 +380,7 @@ class TestAddSpinesToSectionList(unittest.TestCase):
         for head in self.cell3.heads:
             out.append("pas" in head.hoc.psection()["density_mechs"])
         self.assertEqual(set(out), set([False]))
-  
+
     def test_head_name(self):
         outs = set(["mushroom" in x.hoc.name() for x in self.cell1.heads])
         self.assertEqual(outs, set([True]))
@@ -395,19 +398,19 @@ class TestAddSpinesToSectionList(unittest.TestCase):
         self.assertEqual(outs, set([True]))
 
     def test_equal(self):
-         self.assertEqual(self.out_1, [np.linspace(0., .99, 2).tolist(),
-                                       np.linspace(0., .99, 2).tolist()])
+        self.assertEqual(self.out_1, [np.linspace(0., .99, 2).tolist(),
+                                      np.linspace(0., .99, 2).tolist()])
     def test_random(self):
         self.assertNotEqual(self.out_2[0],
                             np.linspace(0., .99, 2).tolist())
+
 
 class TestFindingSectionsWithMechs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         path = os.path.dirname(os.path.abspath(__file__))
-        f_path = os.path.join(path,"..","commons/mods/combe2018")
-        cls.cell = SpineCell("cell",
-                             compile_paths=f_path)
+        f_path = os.path.join(path, "..", "commons/mods/combe2018")
+        cls.cell = SpineCell("cell", compile_paths=f_path)
         cls.soma = cls.cell.add_sec("soma", add_pas=True, nseg=10)
         cls.soma.hoc.insert("hh")
         diam = 5
@@ -431,14 +434,20 @@ class TestFindingSectionsWithMechs(unittest.TestCase):
         cls.find_all = cls.cell.find_sections_with_mech(None)
 
     def test_if_all_parents_accounted_for(self):
-        dends = self.cell.filter_secs(obj_filter=lambda o: "dend" in o.name and "head" not in o.name and "neck" not in o.name)
+        dends = self.cell.filter_secs(obj_filter=lambda o:\
+                                      "dend" in o.name and\
+                                      "head" not in o.name and\
+                                      "neck" not in o.name)
         self.assertEqual(len(dends), len(self.find_calH))
 
     def test_no_found_secs(self):
         self.assertEqual({}, self.find_kca)
 
     def test_all_dends_with_spines(self):
-        dends = self.cell.filter_secs(obj_filter=lambda o: "dend" in o.name and "head" not in o.name and "neck" not in o.name)
+        dends = self.cell.filter_secs(obj_filter=lambda o:\
+                                      "dend" in o.name and\
+                                      "head" not in o.name and\
+                                      "neck" not in o.name)
         self.assertEqual(len(self.find_all), len(dends))
 
     def test_all_dends_len(self):
@@ -452,9 +461,8 @@ class TestSpineFactor(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         path = os.path.dirname(os.path.abspath(__file__))
-        f_path = os.path.join(path,"..","commons/mods/combe2018")
-        cls.cell = SpineCell("cell",
-                             compile_paths=f_path)
+        f_path = os.path.join(path, "..", "commons/mods/combe2018")
+        cls.cell = SpineCell("cell", compile_paths=f_path)
         cls.soma = cls.cell.add_sec("soma", add_pas=True, nseg=10)
         cls.diam = 5
         cls.lengths = np.linspace(100, 50, 5)

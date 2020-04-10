@@ -35,7 +35,7 @@ def get_spine_number(section: Sec, density, area_density=False):
         Sec
     :param density:
         linear or surface dendsity
-    :area_density: 
+    :area_density:
         if True density is treated as surface density. Otherwise density
         is linear density.
     :return spine_number:
@@ -47,7 +47,7 @@ def get_spine_number(section: Sec, density, area_density=False):
     else:
         spine_number = int(np.round(section.hoc.L * density))
 
-    #if spine density is low (less than 1 per comp)
+    # if spine density is low (less than 1 per comp)
     # use random number to determine whether to add a spine
     if not spine_number:
         rand = np.random.uniform()

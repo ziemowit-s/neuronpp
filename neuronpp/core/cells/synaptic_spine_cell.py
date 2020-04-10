@@ -7,8 +7,10 @@ class SynapticSpineCell(SpineCell, ComplexSynapticCell):
         ComplexSynapticCell.__init__(self, name, compile_paths=compile_paths)
         SpineCell.__init__(self, name)
 
-    def add_synapses_with_spine(self, source, mod_name: str, secs, netcon_weight=1,
-                                number=1, delay=0, head_nseg=2, neck_nseg=2, tag: str = None, **synaptic_params):
+    def add_synapses_with_spine(self, source, mod_name: str, secs,
+                                netcon_weight=1, number=1, delay=0,
+                                head_nseg=2, neck_nseg=2, tag: str = None,
+                                **synaptic_params):
         """
 
         :param source:
