@@ -59,7 +59,9 @@ class SectionCell(CoreCell):
                     setattr(mech, name, val)
         return self
 
-    def set_leak(self, section, Rm=None, g_leak=None, E_leak=None):
+
+
+    def set_pas(self, section, Rm=None, g_pas=None, E_rest=None):
 
         if isinstance(section, str):
             section_list = self.filter_secs(name=section, as_list=True)
@@ -70,15 +72,16 @@ class SectionCell(CoreCell):
 
         # Set any non-default parameters
         for n_sec in section_list:
-            if E_leak is not None:
-                n_sec.hoc.e_pas = E_leak
+            if E_rest is not None:
+                n_sec.hoc.e_pas = E_rest
             if Rm is not None:
-                n_sec.hoc.g_pas = 1 / Rm
-            if g_leak is not None:
-                n_sec.hoc.g_pas = g_leak
+                n_sec.hoc.g_pas = 1/Rm
+            if g_pas is not None:
+                n_sec.hoc.g_pas = g_pas
 
-    def add_sec(self, name: str, diam=None, l=None, rm=None, g_leak=None,
-                E_leak=None, ra=None, cm=None, nseg=None, add_leak=False):
+
+    def add_sec(self, name: str, diam=None, l=None, rm=None, g_pas=None,
+                E_rest=None, ra=None, cm=None, nseg=None, add_pas=False):
         """
         :param name:
         :param diam:
@@ -99,13 +102,13 @@ class SectionCell(CoreCell):
         if cm is not None:
             hoc_sec.cm = cm
         if ra is not None:
-            hoc_sec.Ra = Ra
+            hoc_sec.Ra = ra
         if rm is not None:
-            g_leak = 1 / rm
-
-        if add_leak is True or g_leak is not None or E_leak is not None:
+            g_pas = 1/rm
+ 
+        if add_pas is True or g_pas is not None or E_rest is not None:
             hoc_sec.insert('pas')
-            self.set_leak(hoc_sec, E_leak=E_leak, g_leak=g_leak)
+            self.set_pas(hoc_sec, E_rest=E_rest, g_pas=g_pas)
 
         if len(self.filter_secs(name, as_list=True)) > 0:
             raise LookupError("The name '%s' is already taken by another section of the cell: '%s' of type: '%s'."
@@ -118,9 +121,13 @@ class SectionCell(CoreCell):
         """
         default: source(0.0) -> target(1.0)
 
-        If you specify 1.0 for source_loc or target_loc it will assume 0.999 loc instead. This is because NEURON do not
-        insert any mechanisms to the 1.0 end (it is dimension-less). NEURON allows to connect section to the 1.0,
-        however this raise problems while copying parameters between sections. So any 1.0 loc will be changed to 0.999
+        source.hoc.connect(target.hoc(source_loc), target_loc)
+        child.connect(parent)
+        If you specify 1.0 for source_loc or target_loc it will assume 0.999
+        loc instead. This is because NEURON do not insert any mechanisms 
+        to the 1.0 end (it is dimension-less). NEURON allows to connect
+        section to the 1.0, however this raise problems while copying
+        parameters between sections. So any 1.0 loc will be changed to 0.999
         instead.
         :param source:
         :param target:

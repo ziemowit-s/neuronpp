@@ -2,13 +2,11 @@ import os
 
 from neuronpp.cells.cell import Cell
 from neuronpp.core.cells.core_hoc_cell import CoreHocCell
-
 path = os.path.dirname(os.path.abspath(__file__))
-model_path = os.path.join(path, "..",
-                          "commons/hocmodels/combe2018")
+f_path = os.path.join(path, "..", "commons/mods/combe2018")
 
 class Combe2018Cell(Cell, CoreHocCell):
-    def __init__(self, name=None, model_folder=model_path, spine_number=0,
+    def __init__(self, name=None, model_folder=f_path, spine_number=0,
                  spine_secs_names="apic",
                  spine_seed: int = None):
         """
@@ -41,18 +39,18 @@ class Combe2018Cell(Cell, CoreHocCell):
         self.combe_syns = []
         if spine_number > 0:
 
-            heads, necks = self.make_spines(secs=secs, spine_number=spine_number, head_nseg=10, neck_nseg=10, seed=spine_seed)
+            spines = self.make_spines(secs=secs, spine_number=spine_number, head_nseg=10, neck_nseg=10, seed=spine_seed)
 
             # Copy mechanisms from parent sec of the neck and from the nec to the head
-            self.copy_mechanisms(secs_to=necks, sec_from='parent')
-            self.copy_mechanisms(secs_to=heads, sec_from='parent')
+            self.copy_mechanisms(secs_to=self.necks, sec_from='parent')
+            self.copy_mechanisms(secs_to=self.heads, sec_from='parent')
 
             ampa_syns = []
             nmda_syns = []
 
             # Create AMPA synapses
             ampa_weight = 1.2 * 0.00156
-            for h in heads:
+            for h in self.heads:
                 syn = self.add_synapse(source=None, seg=h(1.0), mod_name="Exp2Syn", netcon_weight=ampa_weight)
                 syn.point_process.hoc.e = 0
                 syn.point_process.hoc.tau1 = .5
@@ -61,7 +59,7 @@ class Combe2018Cell(Cell, CoreHocCell):
 
             # Create NMDA synapses
             nmda_weight = 1.2 * 0.000882
-            for h in heads:
+            for h in self.heads:
                 syn = self.add_synapse(source=None, seg=h(1.0), mod_name="nmdanet", netcon_weight=nmda_weight)
                 syn.point_process.hoc.Alpha = 0.35
                 syn.point_process.hoc.Beta = 0.035
