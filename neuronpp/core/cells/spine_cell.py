@@ -142,7 +142,7 @@ class SpineCell(SectionCell):
             See below
 
         Keyword arguments:
-        :spine_name:
+        :spine_tag:
             String attached to name of every head and neck
         :head_diam:
             Spine head diameter
@@ -185,7 +185,7 @@ class SpineCell(SectionCell):
             spine_dimensions = SPINE_DIMENSIONS[spine_type]
         except KeyError:
             spine_dimensions = SPINE_DIMENSIONS["generic"]
-        spine_name = spine_params.pop("spine_name", spine_type)
+        spine_tag = spine_params.pop("spine_tag", spine_type)
         head_diam = spine_params.pop("head_diam", spine_dimensions["head_diam"])
         head_len = spine_params.pop("head_len", spine_dimensions["head_len"])
         neck_diam = spine_params.pop("neck_diam", spine_dimensions["neck_diam"])
@@ -221,7 +221,7 @@ class SpineCell(SectionCell):
                 target_locations = np.linspace(0., .99,
                                                spine_number).tolist()
 
-            self._add_spines_to_section(sec, spine_name, target_locations,
+            self._add_spines_to_section(sec, spine_tag, target_locations,
                                         head_diam, head_len, neck_diam,
                                         neck_len, E_pas, g_pas, ra, cm,
                                         add_pas=add_pas)
@@ -229,7 +229,7 @@ class SpineCell(SectionCell):
         return all_target_locations
 
         
-    def _add_spines_to_section(self, section: Sec, spine_name,
+    def _add_spines_to_section(self, section: Sec, spine_tag,
                                target_location, head_diam,
                                head_len, neck_diam, neck_len,
                                E_pas, g_pas, ra, cm, add_pas=True):
@@ -237,18 +237,18 @@ class SpineCell(SectionCell):
         if not isinstance(target_location, list):
             target_location = [target_location]
         for i, location in enumerate(target_location):
-            head = self.add_sec(name="%s_%s_head[%d]" % (name, spine_name, i),
+            head = self.add_sec(name="%s_%s_head[%d]" % (name, spine_tag, i),
                                 diam=head_diam, l=head_len, nseg=2,
                                 E_rest=E_pas, ra=ra, cm=cm,
                                 g_pas=g_pas, add_pas=add_pas)
-            neck = self.add_sec(name="%s_%s_neck[%d]" % (name, spine_name, i),
+            neck = self.add_sec(name="%s_%s_neck[%d]" % (name, spine_tag, i),
                                 diam=neck_diam, l=neck_len, nseg=1,
                                 E_rest=E_pas, ra=ra, cm=cm,
                                 g_pas=g_pas, add_pas=add_pas)
             self.heads.append(head)
             self.necks.append(neck)
             spine = Spine(head, neck, self, "%s_spine_%s[%d]" % (name,
-                                                                 spine_name,
+                                                                 spine_tag,
                                                                  i))
             self.spines.append(spine)
             self.connect_secs(source=neck, target=section, source_loc=location,
