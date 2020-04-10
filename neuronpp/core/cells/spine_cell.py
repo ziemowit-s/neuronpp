@@ -122,7 +122,7 @@ class SpineCell(SectionCell):
                 added[s.name()].append(loc)
                 break
 
-    def add_spines_to_section_list(self, sections: List, spine_density,
+    def add_spines_to_section_list(self, sections: List[Sec], spine_density,
                                    spine_type="generic", **spine_params):
         """
         Add spines with specified linear density (per 1 um) to specified
@@ -271,7 +271,7 @@ class SpineCell(SectionCell):
                     mech_dend_loc[spine.parent].append(spine)
         return mech_dend_loc
 
-    def _get_spine_factor(self, spines: List, mech_name: str, gbar: str):
+    def _get_spine_factor(self, spines: List[Spine], mech_name: str, gbar: str):
         """
         Find sum(gbar*Area_spine) for mech_name in spines. If gbar is None
         sum(spine_cm*Area_spine) will be returned
