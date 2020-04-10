@@ -429,9 +429,9 @@ class TestFindingSectionsWithMechs(unittest.TestCase):
         regions = cls.cell.filter_secs("dend", as_list=True)
         cls.cell.add_spines_to_section_list(regions, 0.02, "thin", add_pas=True)
         cls.cell.insert("calH", "head", gcalbar= 0.0001)
-        cls.find_calH = cls.cell.find_sections_with_mech("calH")
-        cls.find_kca = cls.cell.find_sections_with_mech("kca")
-        cls.find_all = cls.cell.find_sections_with_mech(None)
+        cls.find_calH = cls.cell.get_spines_by_section_with_mech("calH")
+        cls.find_kca = cls.cell.get_spines_by_section_with_mech("kca")
+        cls.find_all = cls.cell.get_spines_by_section_with_mech(None)
 
     def test_if_all_parents_accounted_for(self):
         dends = self.cell.filter_secs(obj_filter=lambda o:\

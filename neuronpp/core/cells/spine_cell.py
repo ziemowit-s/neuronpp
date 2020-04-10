@@ -254,7 +254,7 @@ class SpineCell(SectionCell):
             self.connect_secs(source=neck, target=section, source_loc=location,
                               target_loc=0.0)
 
-    def find_sections_with_mech(self, mech_name):
+    def get_spines_by_section_with_mech(self, mech_name):
         mech_dend_loc = {}
         all_spines = self.spines
 
@@ -319,7 +319,7 @@ class SpineCell(SectionCell):
              (gbars), e.g. pas="g_pas"
         """
         for mech_name, gbar in mechs_with_gbar_name.items():
-            mech_loc = self.find_sections_with_mech(mech_name)
+            mech_loc = self.get_spines_by_section_with_mech(mech_name)
             for dend in mech_loc.keys():
                 A_d = dend.area
                 spine_factor = self._get_spine_factor(mech_loc[dend],
@@ -331,7 +331,7 @@ class SpineCell(SectionCell):
                     setattr(mech, gbar, new_val)
 
         if cm_adjustment:
-            all_spines = self.find_sections_with_mech(None)
+            all_spines = self.get_spines_by_section_with_mech(None)
             for dend in all_spines:
                 A_d = dend.area
                 spine_factor = self._get_spine_factor(all_spines[dend],
