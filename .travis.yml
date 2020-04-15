@@ -33,7 +33,6 @@ addons:
 python:
   - "3.6"      # current default Python on Travis CI
   - "3.7"
-  - "3.8"
 install:
   - pip install -r requirements.txt
   - git clone --branch 7.7.2 https://github.com/neuronsimulator/nrn
