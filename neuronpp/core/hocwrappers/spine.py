@@ -1,12 +1,12 @@
 import nrn
 
 from neuronpp.core.hocwrappers.sec import Sec
-from neuronpp.core.cells.core_cell import CoreCell
+from neuronpp.core.cells.section_cell import SectionCell
 from neuronpp.core.hocwrappers.hoc_wrapper import HocWrapper
 
 
 class Spine:
-    def __init__(self, head: Sec, neck: Sec, cell: CoreCell, name):
+    def __init__(self, head: Sec, neck: Sec, cell: SectionCell, name):
         self.cell = cell
         cell.connect_secs(source=head, target=neck)
         self.hoc_objs = [neck.hoc, head.hoc]

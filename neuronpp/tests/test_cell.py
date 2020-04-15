@@ -64,7 +64,7 @@ class TestCellAddSectionLeak(unittest.TestCase):
         cell4 = Cell(name="cell4")
 
         cls.soma4 = cell4.add_sec("soma", E_rest=-80)
-        #no pas but add pas
+        # no pas but add pas
         cls.cell5 = Cell(name="cell5")
         cls.soma5 = cls.cell5.add_sec("soma", add_pas=True)
         cls.dend = h.Section("dend", "cell5")
@@ -72,8 +72,7 @@ class TestCellAddSectionLeak(unittest.TestCase):
         cell6 = Cell(name="cell6")
         cls.soma6 = cell6.add_sec("soma", add_pas=True)
         cls.soma6.hoc.insert("pas")
-        cell6.set_pas("soma", Rm=1000, E_rest = -77, g_pas=0.002)
-
+        cell6.set_pas("soma", Rm=1000, E_rest=-77, g_pas=0.002)
 
     def test_cell1_g_pas(self):
         self.assertEqual(self.soma1.hoc.g_pas, 0.001)
