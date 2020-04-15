@@ -6,10 +6,6 @@ git:
 addons:
   apt:
     packages:
-      python-numpy
-      addons:
-  apt:
-    packages:
     # - python-numpy 
     # - python-scipy 
     # - python-matplotlib 
@@ -44,7 +40,7 @@ install:
   - cd nrn  
   - ./build.sh
   - export NEURON_HOME=~/neuron
-  - ./configure --without-x --with-nrnpython=python3 --prefix=$NEURON_HOME --without-paranrn --without-iv ; fi  # --prefix='/home/jovyan/work/nrn/'
+  - ./configure --without-x --with-nrnpython=python3 --prefix=$NEURON_HOME --without-paranrn --without-iv 
   - make --silent -j4
   - make --silent install -j4
   - cd src/nrnpython
@@ -52,4 +48,5 @@ install:
   - export PATH=$PATH:$NEURON_HOME/x86_64/bin
   - export PYTHONPATH=$PYTHONPATH:$TRAVIS_BUILD_DIR:$NEURON_HOME/lib/python/
 script:
+  - cd $TRAVIS_BUILD_DIR
   - python -m pytest
