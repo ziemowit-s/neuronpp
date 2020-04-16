@@ -30,14 +30,14 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Install NEURON dependencies
-      run: sudo apt install python-tk python-sympy python-tables locales wget gcc g++ build-essential libncurses-dev libpython-dev cython libx11-dev git flex automake libtool libxext-dev libncurses-dev make 
+      run: sudo apt install python-tk python-sympy python-tables locales wget gcc g++ build-essential libncurses-dev libpython-dev cython libx11-dev git flex automake libtool libxext-dev libncurses-dev make python3-matplotlib python3-seaborn python3-numpy python3-scipy python3-pandas
       
    # Runs a set of commands using the runners shell
       
     - name: Install neuron 
       run: |
         cd ..
-	echo $NEURON_HOME
+	echo $HOME $NEURON_HOME
         git clone --branch 7.7.2 https://github.com/neuronsimulator/nrn
         cd nrn
         ./build.sh
@@ -50,7 +50,7 @@ jobs:
         NEURON_HOME: $HOME/NEURON_HOME
 
     - name: Install neuronpp dependencies
-      run: pip install -r requirements.txt
+      run: pip3 install pynput
  
     - name: Test
       run:  |
