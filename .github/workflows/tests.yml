@@ -48,8 +48,6 @@ jobs:
         make --silent install -j4
         cd src/nrnpython
         python setup.py install
-        export PATH=$PATH:$NEURON_HOME/x86_64/bin
-        export PYTHONPATH=$PYTHONPATH:$GITHUB_WORKSPACE:$NEURON_HOME/lib/python/ 
       env:
         NEURON_HOME: $HOME/NEURON_HOME
     - name: Test
