@@ -36,7 +36,7 @@ install:
   - git clone --branch 7.7.2 https://github.com/neuronsimulator/nrn
   - cd nrn
   - ./build.sh
-  - export NEURON_HOME=$TRAVIS_BUILD_DIR/neuron
+  - export NEURON_HOME=$HOME/neuron
   - ./configure --without-x --with-nrnpython=python3 --prefix=$NEURON_HOME --without-paranrn --without-iv
   - make --silent -j4
   - make --silent install -j4
