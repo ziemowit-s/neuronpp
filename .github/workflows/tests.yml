@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [3.5, 3.6, 3.7, 3.8]
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -30,15 +30,14 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Install NEURON dependencies
-      run: sudo apt install python-tk python-sympy python-tables locales wget gcc g++ build-essential libncurses-dev libpython-dev cython libx11-dev git flex automake libtool libxext-dev libncurses-dev make 
+      run: sudo apt install python-tk python-sympy python-tables locales wget gcc g++ build-essential libncurses-dev libpython-dev cython libx11-dev git flex automake libtool libxext-dev libncurses-dev make python3-matplotlib python3-seaborn python3-numpy python3-scipy python3-pandas
       
-    - name: Install neuronpp dependencies
-      run: pip install -r requirements.txt
-    # Runs a set of commands using the runners shell
+   # Runs a set of commands using the runners shell
       
     - name: Install neuron 
       run: |
         cd ..
+	echo $HOME $NEURON_HOME
         git clone --branch 7.7.2 https://github.com/neuronsimulator/nrn
         cd nrn
         ./build.sh
@@ -47,15 +46,18 @@ jobs:
         make --silent install -j4
         cd src/nrnpython
         python setup.py install
-        export PATH=$PATH:$NEURON_HOME/x86_64/bin
-        export PYTHONPATH=$PYTHONPATH:$GITHUB_WORKSPACE:$NEURON_HOME/lib/python/ 
       env:
-        NEURON_HOME: $GITHUB_WORKSPACE/NEURON_HOME
+        NEURON_HOME: $HOME/NEURON_HOME
+
+    - name: Install neuronpp dependencies
+      run: pip3 install pynput
+ 
     - name: Test
       run:  |
+        cd ..
         set-env name=PATH::$NEURON_HOME/x86_64/bin
         set-env name=PYTHONPATH::$GITHUB_WORKSPACE:$NEURON_HOME/lib/python/
         python -m pytest
       env:
-        NEURON_HOME: $GITHUB_WORKSPACE/NEURON_HOME
+        NEURON_HOME: $HOME/NEURON_HOME
      
