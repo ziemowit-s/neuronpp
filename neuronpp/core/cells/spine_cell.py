@@ -2,19 +2,17 @@ import random
 from typing import List
 import numpy as np
 
-from neuron import h
-
 from neuronpp.core.cells.section_cell import SectionCell
 from neuronpp.core.hocwrappers.sec import Sec
 from neuronpp.core.hocwrappers.spine import Spine
 from neuronpp.core.cells.utils import establish_electric_properties
 from neuronpp.core.cells.utils import get_spine_number
 
-### Nomenclature and values adapted from Harris KM, Jensen FE, Tsao BE.
-### J Neurosci 1992
+# Nomenclature and values adapted from Harris KM, Jensen FE, Tsao BE.
+# J Neurosci 1992
 
 SPINE_DIMENSIONS = {
-    "mushroom":  {
+    "mushroom": {
         "head_diam": 1.1,
         "head_len": 0.8,
         "neck_diam": 0.20,
@@ -31,17 +29,14 @@ SPINE_DIMENSIONS = {
         "head_len": 0.2,
         "neck_diam": 0.32,
         "neck_len": 0.2,
-        },
-    "generic":  {
+    },
+    "generic": {
         "head_diam": 1.,
         "head_len": 1,
         "neck_diam": 0.5,
         "neck_len": 0.5,
     }
 }
-
-
-
 
 
 class SpineCell(SectionCell):
@@ -93,7 +88,7 @@ class SpineCell(SectionCell):
             necks.append(neck)
             self._connect_necks_rand_uniform(neck, secs)
             self._next_index += 1
-        
+
         self.spines.extend(spines)
         self.heads.extend(heads)
         self.necks.extend(necks)
@@ -190,7 +185,7 @@ class SpineCell(SectionCell):
         head_len = spine_params.pop("head_len", spine_dimensions["head_len"])
         neck_diam = spine_params.pop("neck_diam", spine_dimensions["neck_diam"])
         neck_len = spine_params.pop("neck_len", spine_dimensions["neck_len"])
-        #If Falde
+        # If Falde
         spine_E_pas = spine_params.pop("spine_E_pas", None)
         spine_g_pas = spine_params.pop("spine_g_pas", None)
         spine_rm = spine_params.pop("spine_rm", None)
@@ -198,7 +193,7 @@ class SpineCell(SectionCell):
         spine_cm = spine_params.pop("spine_cm", None)
         add_pas = spine_params.pop("add_pas", False)
         if isinstance(spine_rm, int) or isinstance(spine_rm, float):
-            spine_g_pas = 1/spine_rm
+            spine_g_pas = 1 / spine_rm
         area_density = spine_params.pop("area_density", False)
         seed = spine_params.pop("u_random", None)
         if seed is not None:
@@ -228,7 +223,6 @@ class SpineCell(SectionCell):
             all_target_locations.append(target_locations)
         return all_target_locations
 
-        
     def _add_spines_to_section(self, section: Sec, spine_tag,
                                target_location, head_diam,
                                head_len, neck_diam, neck_len,
@@ -259,8 +253,8 @@ class SpineCell(SectionCell):
         all_spines = self.spines
 
         for spine in all_spines:
-            spine_mechs = set(list(spine.neck.hoc.psection()["density_mechs"])+\
-                               list(spine.head.hoc.psection()["density_mechs"]))
+            spine_mechs = set(list(spine.neck.hoc.psection()["density_mechs"]) + \
+                              list(spine.head.hoc.psection()["density_mechs"]))
 
             if mech_name is None or mech_name in spine_mechs:
                 parent_mechs = spine.parent.hoc.psection()["density_mechs"]
@@ -291,7 +285,7 @@ class SpineCell(SectionCell):
                             continue
                     else:
                         gbar_val = getattr(seg, mech_name)
-                    factor += gbar_val*sec.area/nseg
+                    factor += gbar_val * sec.area / nseg
         return factor
 
     def compensate(self, cm_adjustment=False, **mechs_with_gbar_name):
@@ -327,7 +321,7 @@ class SpineCell(SectionCell):
                 for seg in dend.hoc:
                     mech = getattr(seg, mech_name)
                     gbar_val = getattr(mech, gbar)
-                    new_val = (gbar_val*A_d - spine_factor)/(gbar_val*A_d)
+                    new_val = (gbar_val * A_d - spine_factor) / (gbar_val * A_d)
                     setattr(mech, gbar, new_val)
 
         if cm_adjustment:
@@ -337,5 +331,5 @@ class SpineCell(SectionCell):
                 spine_factor = self._get_spine_factor(all_spines[dend],
                                                       "cm", None)
                 cm_val = dend.hoc.cm
-                new_val = (cm_val*A_d-spine_factor)/(cm_val*A_d)
+                new_val = (cm_val * A_d - spine_factor) / (cm_val * A_d)
                 dend.hoc.cm = new_val
