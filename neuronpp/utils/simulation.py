@@ -4,7 +4,7 @@ from neuron import h
 
 try:
     from neuron.hoc import HocObject
-except:
+except ImportError:
     from neuron.hoc36 import HocObject
 from neuron.units import ms, mV
 
@@ -130,7 +130,7 @@ class Simulation:
         except AttributeError as e:
             if isinstance(e.args[0], str) and e.args[0].lower() == 'pointer is null':
                 raise AttributeError(
-                    "Field %s in Point Process %s (in section %s) is a POINTER which value is NULL. "
-                    "You need to set the pointer before init and run simulation.\n"
-                    "For more information about setting up pointers check h.setpointer() function in the "
-                    "NEURON official documentation: http://neuron.yale.edu" % (name, p, sec))
+                    "Field %s in Point Process %s (in section %s) is a POINTER which value is "
+                    "NULL. You need to set the pointer before init and run simulation.\n"
+                    "For more information about setting up pointers check h.setpointer() function "
+                    "in the NEURON official documentation: http://neuron.yale.edu" % (name, p, sec))
