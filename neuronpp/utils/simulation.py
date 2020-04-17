@@ -1,9 +1,10 @@
 import time
 import numpy as np
 from neuron import h
-try: 
+
+try:
     from neuron.hoc import HocObject
-except: 
+except ImportError:
     from neuron.hoc36 import HocObject
 from neuron.units import ms, mV
 
@@ -11,7 +12,8 @@ h.load_file('stdrun.hoc')
 
 
 class Simulation:
-    def __init__(self, init_v=None, dt=0.025, warmup=1, init_sleep=0, shape_plots=(), constant_timestep=True, with_neuron_gui=False):
+    def __init__(self, init_v=None, dt=0.025, warmup=1, init_sleep=0, shape_plots=(),
+                 constant_timestep=True, with_neuron_gui=False):
         """
         :param init_v:
             initial value in mV for the neuron function finitialize().
@@ -45,6 +47,7 @@ class Simulation:
 
     def reset(self):
         print("Simulation initialization.")
+        self._check_point_process_pointers()
         h.initnrn()
         h.frecord_init()
         h.finitialize(self.init_v * mV)
@@ -54,7 +57,7 @@ class Simulation:
             time.sleep(self.init_sleep)
 
         if self.warmup > 0:
-            h.dt = self.warmup/10
+            h.dt = self.warmup / 10
             h.continuerun(self.warmup * ms)
         h.dt = self.dt
 
@@ -115,3 +118,27 @@ class Simulation:
         # flush shape and console log
         for ps in self.shape_plots:
             ps.fastflush()
+
+    @classmethod
+    def _check_point_process_pointers(cls):
+        for pp in cls.get_all_point_processes():
+            for name in pp.__dict__:
+
+                try:
+                    getattr(pp, name)
+                except AttributeError as e:
+                    if e.args[0].lower() == 'pointer is null':
+
+                        raise AttributeError("RANGE Variable: %s in Point_Process: %s is a NULL "
+                                             "POINTER. Set the POINTER before simulation init.\n"
+                                             "Located in the section: %s.\n"
+                                             "For more information about MOD POINTERs setup check "
+                                             "h.setpointer() in NEURON's documentation." %
+                                             (name, pp, pp.get_segment().sec))
+
+    @classmethod
+    def get_all_point_processes(cls):
+        for sec in h.allsec():
+            for pp in sec.psection()['point_processes'].values():
+                for p in pp:
+                    yield p
