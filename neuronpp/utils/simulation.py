@@ -45,6 +45,7 @@ class Simulation:
 
     def reset(self):
         print("Simulation initialization.")
+        self._check_point_process_pointers()
         h.initnrn()
         h.frecord_init()
         h.finitialize(self.init_v * mV)
@@ -115,3 +116,18 @@ class Simulation:
         # flush shape and console log
         for ps in self.shape_plots:
             ps.fastflush()
+
+    @staticmethod
+    def _check_point_process_pointers():
+        try:
+            for sec in h.allsec():
+                for pp in sec.psection()['point_processes'].values():
+                    for p in pp:
+                        for name in p.__dict__:
+                            getattr(p, name)
+        except AttributeError as e:
+            if isinstance(e.args[0], str) and e.args[0].lower() == 'pointer is null':
+                raise AttributeError("Field %s in Point Process %s (in section %s) is a POINTER which value is NULL. "
+                                     "You need to set the pointer before init and run simulation.\n"
+                                     "For more information about setting up pointers check h.setpointer() function in the "
+                                     "NEURON official documentation: http://neuron.yale.edu" % (name, p, sec))

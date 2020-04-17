@@ -31,9 +31,9 @@ class SynapticSpineCell(SpineCell, ComplexSynapticCell):
 
         # loc=1.0 put synase on the top of the spine's head
         syns = []
-        for h in self.heads:
-            h_segment = h(1.0)
-            syn = self.add_synapse(source=source, seg=h_segment, mod_name=mod_name, netcon_weight=netcon_weight, delay=delay, tag=tag, **synaptic_params)
+        for s in spines:
+            syn = self.add_synapse(source=source, seg=s.head(1.0), mod_name=mod_name,
+                                   netcon_weight=netcon_weight, delay=delay, tag=tag, **synaptic_params)
             syns.append(syn)
         heads = [spine.sections[0] for spine in spines]
         return syns, heads
