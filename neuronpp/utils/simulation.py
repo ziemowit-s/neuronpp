@@ -127,7 +127,7 @@ class Simulation:
                 try:
                     getattr(pp, name)
                 except AttributeError as e:
-                    if isinstance(e.args[0], str) and e.args[0].lower() == 'pointer is null':
+                    if e.args[0].lower() == 'pointer is null':
 
                         raise AttributeError("RANGE Variable: %s in Point_Process: %s is a NULL "
                                              "POINTER. Set the POINTER before simulation init.\n"
