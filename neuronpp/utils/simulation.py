@@ -1,9 +1,10 @@
 import time
 import numpy as np
 from neuron import h
-try: 
+
+try:
     from neuron.hoc import HocObject
-except: 
+except:
     from neuron.hoc36 import HocObject
 from neuron.units import ms, mV
 
@@ -11,7 +12,8 @@ h.load_file('stdrun.hoc')
 
 
 class Simulation:
-    def __init__(self, init_v=None, dt=0.025, warmup=1, init_sleep=0, shape_plots=(), constant_timestep=True, with_neuron_gui=False):
+    def __init__(self, init_v=None, dt=0.025, warmup=1, init_sleep=0, shape_plots=(),
+                 constant_timestep=True, with_neuron_gui=False):
         """
         :param init_v:
             initial value in mV for the neuron function finitialize().
@@ -55,7 +57,7 @@ class Simulation:
             time.sleep(self.init_sleep)
 
         if self.warmup > 0:
-            h.dt = self.warmup/10
+            h.dt = self.warmup / 10
             h.continuerun(self.warmup * ms)
         h.dt = self.dt
 
@@ -127,7 +129,8 @@ class Simulation:
                             getattr(p, name)
         except AttributeError as e:
             if isinstance(e.args[0], str) and e.args[0].lower() == 'pointer is null':
-                raise AttributeError("Field %s in Point Process %s (in section %s) is a POINTER which value is NULL. "
-                                     "You need to set the pointer before init and run simulation.\n"
-                                     "For more information about setting up pointers check h.setpointer() function in the "
-                                     "NEURON official documentation: http://neuron.yale.edu" % (name, p, sec))
+                raise AttributeError(
+                    "Field %s in Point Process %s (in section %s) is a POINTER which value is NULL. "
+                    "You need to set the pointer before init and run simulation.\n"
+                    "For more information about setting up pointers check h.setpointer() function in the "
+                    "NEURON official documentation: http://neuron.yale.edu" % (name, p, sec))

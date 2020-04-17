@@ -434,9 +434,9 @@ class TestFindingSectionsWithMechs(unittest.TestCase):
         cls.find_all = cls.cell.get_spines_by_section_with_mech(None)
 
     def test_if_all_parents_accounted_for(self):
-        dends = self.cell.filter_secs(obj_filter=lambda o: \
-            "dend" in o.name and \
-            "head" not in o.name and \
+        dends = self.cell.filter_secs(obj_filter=lambda o:
+            "dend" in o.name and
+            "head" not in o.name and
             "neck" not in o.name)
         self.assertEqual(len(dends), len(self.find_calH))
 
@@ -444,9 +444,9 @@ class TestFindingSectionsWithMechs(unittest.TestCase):
         self.assertEqual({}, self.find_kca)
 
     def test_all_dends_with_spines(self):
-        dends = self.cell.filter_secs(obj_filter=lambda o: \
-            "dend" in o.name and \
-            "head" not in o.name and \
+        dends = self.cell.filter_secs(obj_filter=lambda o:
+            "dend" in o.name and
+            "head" not in o.name and
             "neck" not in o.name)
         self.assertEqual(len(self.find_all), len(dends))
 

@@ -8,7 +8,6 @@ from neuronpp.cells.cell import Cell
 class TestCellAddSectionDefault(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-
         cls.cell = Cell(name="cell")
         cls.cell_name = "my_simple_cell"
         cls.cell = Cell(name=cls.cell_name)
@@ -108,7 +107,7 @@ class TestCellAddSectionLeak(unittest.TestCase):
 
     def test_cell5_dend_rm(self):
         self.cell5.set_pas(self.dend, Rm=10000)
-        self.assertEqual(self.dend.g_pas, 1/10000)
+        self.assertEqual(self.dend.g_pas, 1 / 10000)
 
     def test_cell5_dend_g_pas(self):
         self.cell5.set_pas(self.dend, g_pas=0.02)
@@ -131,7 +130,8 @@ class TestFiltering(unittest.TestCase):
         soma = cell.filter_secs("soma")
 
         # Filter sections by distance to the soma (return only those distance > 1000 um)
-        far_secs = cell.filter_secs(obj_filter=lambda s: h.distance(soma.hoc(0.5), s.hoc(0.5)) > 1000)
+        far_secs = cell.filter_secs(
+            obj_filter=lambda s: h.distance(soma.hoc(0.5), s.hoc(0.5)) > 1000)
         self.assertEqual(len(far_secs), 32)
 
 

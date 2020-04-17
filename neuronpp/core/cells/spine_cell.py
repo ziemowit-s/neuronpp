@@ -253,7 +253,7 @@ class SpineCell(SectionCell):
         all_spines = self.spines
 
         for spine in all_spines:
-            spine_mechs = set(list(spine.neck.hoc.psection()["density_mechs"]) + \
+            spine_mechs = set(list(spine.neck.hoc.psection()["density_mechs"]) +
                               list(spine.head.hoc.psection()["density_mechs"]))
 
             if mech_name is None or mech_name in spine_mechs:
