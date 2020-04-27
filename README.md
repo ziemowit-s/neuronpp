@@ -202,14 +202,14 @@ The main cell object `Cell` contains all filter methods inside.
    ```python
    cell = Cell(name="cell")
    dendrites = cell.filter_secs(name="dend")
-   cell.make_spines(spine_number=10, head_nseg=10, neck_nseg=10, secs=dendrites)
+   cell.add_random_spines(spine_number=10, head_nseg=10, neck_nseg=10, secs=dendrites)
    ```
 
   * add many synapses with spines (1 synapse/spine) in a single function to provided sections:
    ```python
     cell = Cell(name="cell")
     dendrites = cell.filter_secs(name="dend")
-    syns = cell.add_synapses_with_spine(source=None, secs=dendrites, mod="ExpSyn",
+    syns = cell.add_random_synapses_with_spine(source=None, secs=dendrites, mod="ExpSyn",
                                         netcon_weight=0.01, delay=1, number=10)
    ```
   
@@ -325,7 +325,7 @@ The main cell object `Cell` contains all filter methods inside.
 
     def syn_definition(self, cell, source, weight=1, **kwargs) -> list:
         secs = cell.filter_secs("dend")
-        syns, heads = cell.add_synapses_with_spine(source=source, secs=secs, mod_name="Exp2Syn",
+        syns, heads = cell.add_random_synapses_with_spine(source=source, secs=secs, mod_name="Exp2Syn",
                                                    netcon_weight=weight)
         return syns
 

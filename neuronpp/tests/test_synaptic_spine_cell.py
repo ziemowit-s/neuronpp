@@ -13,15 +13,15 @@ class TestAddSynapsesWithSpine(unittest.TestCase):
         cls.syns = []
         cls.heads = []
 
-        syns, heads = cls.cell.add_synapses_with_spine(source=None, secs=soma, mod_name="Exp2Syn")
+        syns, heads = cls.cell.add_random_synapses_with_spine(source=None, secs=soma, mod_name="Exp2Syn")
         cls.syns.extend(syns)
         cls.heads.extend(heads)
 
-        syns, heads = cls.cell.add_synapses_with_spine(source=None, secs=apic1, mod_name="Exp2Syn")
+        syns, heads = cls.cell.add_random_synapses_with_spine(source=None, secs=apic1, mod_name="Exp2Syn")
         cls.syns.extend(syns)
         cls.heads.extend(heads)
 
-        syns, heads = cls.cell.add_synapses_with_spine(source=None, secs=apic2, mod_name="Exp2Syn")
+        syns, heads = cls.cell.add_random_synapses_with_spine(source=None, secs=apic2, mod_name="Exp2Syn")
         cls.syns.extend(syns)
         cls.heads.extend(heads)
         cls.apic2_syn, cls.apic2_head = syns, heads

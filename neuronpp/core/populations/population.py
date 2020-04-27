@@ -1,10 +1,60 @@
 import abc
+from random import random, gauss
+from typing import List, Union
+
 import numpy as np
 
 from neuronpp.cells.cell import Cell
+from neuronpp.core.hocwrappers.netstim import NetStim
+from neuronpp.core.hocwrappers.seg import Seg
+from neuronpp.core.hocwrappers.vecstim import VecStim
 from neuronpp.utils.record import Record
 from neuronpp.core.hocwrappers.sec import Sec
 from neuronpp.core.cells.core_cell import CoreCell
+
+
+class Dist:
+    pass
+
+
+class AllDist(Dist):
+    pass
+
+
+class OneDist(Dist):
+    pass
+
+
+class UniformDist(Dist):
+    def __init__(self, dmin=0, dmax=1):
+        self.min = dmin
+        self.max = dmax
+
+
+class NormalDist(Dist):
+    def __init__(self, mean, std):
+        self.mean = mean
+        self.std = std
+
+
+class Proba(Dist):
+    def __init__(self, expected=0.5):
+        self.expected = expected
+
+
+class UniformProba(Proba, UniformDist):
+    def __init__(self, expected=0.5):
+        Proba.__init__(self, expected=expected)
+        UniformDist.__init__(self, dmin=0, dmax=1)
+
+        
+class NormalProba(Proba, NormalDist):
+    def __init__(self, expected=0.5, mean=0.5, std=0.1):
+        Proba.__init__(self, expected=expected)
+        NormalDist.__init__(self, mean=mean, std=std)
+
+ALL_DIST = AllDist()
+ONE_DIST = OneDist()
 
 
 class Population:
@@ -26,83 +76,90 @@ class Population:
 
         return result
 
-    def add_mechs(self, single_cell_mechs):
-        for cell in self.cells:
-            single_cell_mechs(cell)
-
-    def connect(self, source, source_sec_name="soma", source_loc=0.5, rule="all", **kwargs):
+    def connect(self, source: List[Union[Seg, VecStim, NetStim]], target: List[Seg],
+                mod_name, conn_dist: Dist, syn_num_per_source=1, tag=None,
+                with_spine=False, netcon_weight=1, delay=0, threshold=10,
+                conn_proba: Proba = UniformProba(expected=1), **kwargs):
         """
-        :param source:
-            None for empty sources, int for empty source int-times, NetStim/VecStim, Cell/s, CoreCell/s
-            or other Population for connections.
-            If it is Cell/s, CoreCell/s or Population consider to change 'source_sec_name' and 'source_loc' params.
-        :param source_sec_name:
-            Default None. If source is None, VecStim/NetStim or int - it will not be used.
-        :param source_loc:
-            Default None. If source is None, VecStim/NetStim or int - it will not be used.
-        :param rule:
-            'all' - all-to-all connections
-            'one' - one-to-one connections
+        :param conn_dist:
         :return:
             list of list of synapses
         """
         cell_num = len(self.cells)
         if cell_num == 0:
-            raise LookupError("Population %s has no cells, cannot make connections. Add cells first." % self.name)
+            raise LookupError(
+                "Population %s has no cells, cannot make connections. Add cells first." % self.name)
 
         result = []
-        # The first group of ifs
         if source is None:
             source = [None for _ in range(cell_num)]
-
-        elif isinstance(source, int):
-            source = [None for _ in range(source)]
-
-        elif isinstance(source, Population):
-            source = source.cells
-
-        elif not isinstance(source, (list, set, np.ndarray)):
+        if not isinstance(source, list):
             source = [source]
+        if not isinstance(target, list):
+            target = [target]
 
-        # The second group of ifs
-        if isinstance(source[0], Sec):
-            source = [s(source_loc) for s in source]
-
-        elif isinstance(source[0], CoreCell):
-            if (source_sec_name is None or source_loc is None):
-                raise ValueError("If source is type of Cell, CoreCell or Population you must provide "
-                                 "'source_sec_name' and 'source_loc' params.")
-
-            new_source = []
-            for cell in source:
-                r = cell.filter_secs(source_sec_name, as_list=True)
-                if len(r) > 1:
-                    raise LookupError("If source is a group of cells, each cell can have only single source section, but the cell: "
-                                      "%s has %s for filter name: %s" % (cell.__class__, len(r), source_sec_name))
-                new_source.append(r[0](source_loc))
-            source = new_source
-            del new_source
-
-        # The third group of ifs
-        if rule == 'all':
+        if isinstance(conn_dist, AllDist):
             for s in source:
-                for cell in self.cells:
-                    syns = self.syn_definition(cell=cell, source=s, **kwargs)
-                    result.append(syns)
+                for t in target:
+                    if not self._is_connect(conn_proba):
+                        continue
+                    syn = self._add_syn(source=s, target=t, mod_name=mod_name,
+                                        netcon_weight=netcon_weight,
+                                        delay=delay, threshold=threshold,
+                                        syn_num_per_source=syn_num_per_source, tag=tag,
+                                        with_spine=with_spine, **kwargs)
+                    result.append(syn)
 
-        elif rule == 'one':
-            if len(source) != len(self.cells):
-                raise LookupError("for rule 'one' len of sources and population cells must be the same, "
-                                  "but it was %s and %s respectively." % (len(source), len(self.cells)))
+        elif isinstance(conn_dist, OneDist):
+            if len(source) != len(target):
+                raise LookupError(
+                    "for rule 'one' len of sources and population cells must be the same, "
+                    "but it was %s and %s respectively." % (len(source), len(self.cells)))
 
-            for s, cell in zip(source, self.cells):
-                syns = self.syn_definition(cell=cell, source=s, **kwargs)
-                result.append(syns)
+            for s, t in zip(source, target):
+                if not self._is_connect(conn_proba):
+                    continue
+                syn = self._add_syn(source=s, target=t, mod_name=mod_name,
+                                    netcon_weight=netcon_weight,
+                                    delay=delay, threshold=threshold,
+                                    syn_num_per_source=syn_num_per_source, tag=tag,
+                                    with_spine=False, **kwargs)
+                result.append(syn)
+        elif isinstance(conn_dist, UniformDist):
+            pass
+        elif isinstance(conn_dist, NormalDist):
+            pass
         else:
-            raise TypeError("The only allowed rules are 'all' or 'one', but provided rule '%s'" % rule)
+            raise TypeError("Wrong type of conn_dist")
 
         self.syns.extend(result)
         return result
+
+    # TODO Kazdy parametr moze podlegac losowaniu z rozkladu
+    # TODO syn_num_per_source
+    def _add_syn(self, source: (Seg, VecStim, NetStim), target: Seg, mod_name, netcon_weight,
+                 delay, threshold, syn_num_per_source, tag, with_spine, **kwargs) -> list:
+        cell = target.parent.cell
+
+        if with_spine:
+            spines = cell.add_spines(segs=target, head_nseg=2, neck_nseg=2)
+            target = spines[0].head
+
+        syn = cell.add_synapse(source=source, seg=target, mod_name=mod_name, delay=delay,
+                               netcon_weight=netcon_weight,
+                               threshold=threshold, tag=tag, **kwargs)
+        return syn
+
+    @staticmethod
+    def _is_connect(conn_proba):
+        if isinstance(conn_proba, UniformProba):
+            result = np.random.uniform(size=1)[0]
+        elif isinstance(conn_proba, NormalProba):
+            result = np.random.normal(loc=conn_proba.mean, scale=conn_proba.std)
+        else:
+            raise TypeError("Not allowed conn_proba.")
+
+        return conn_proba.expected > result
 
     def record(self, sec_name="soma", loc=0.5, variable='v'):
         d = [cell.filter_secs(sec_name, as_list=True)[0](loc) for cell in self.cells]
@@ -131,10 +188,10 @@ class Population:
             r.plot(animate=animate, **kwargs)
 
     @abc.abstractmethod
-    def syn_definition(self, cell: Cell, source, **kwargs) -> list:
+    def syn_definition(self, source: (Seg, VecStim, NetStim), target: Seg, **kwargs) -> list:
         """
         Must return syns list.
-        :param cell:
+        :param target:
         :param source:
             Can be only: hocwrappers.NetStim, hocwrappers.VecStim, hocwrappers.Seg or None
         :return:

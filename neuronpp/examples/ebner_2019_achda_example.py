@@ -30,8 +30,8 @@ if __name__ == '__main__':
     stim2 = vs_cell.make_vecstim(np.array([WARMUP+50]))
 
     # make synapses with spines
-    syns_4p, heads = cell.add_synapses_with_spine(source=None, secs=cell.secs, number=100, netcon_weight=WEIGHT,
-                                                  mod_name="Syn4PAChDa", delay=1, **cell.params_4p_syn)
+    syns_4p, heads = cell.add_random_synapses_with_spine(source=None, secs=cell.secs, number=100, netcon_weight=WEIGHT,
+                                                         mod_name="Syn4PAChDa", delay=1, **cell.params_4p_syn)
     for s, h in zip(syns_4p, heads):
         syn_ach = cell.add_synapse(source=stim1, mod_name="SynACh", seg=h(1.0), netcon_weight=0.1, delay=1)
         syn_da = cell.add_synapse(source=stim2, mod_name="SynDa", seg=h(1.0), netcon_weight=0.1, delay=1)

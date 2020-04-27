@@ -4,6 +4,7 @@ import numpy as np
 
 from neuronpp.core.cells.section_cell import SectionCell
 from neuronpp.core.hocwrappers.sec import Sec
+from neuronpp.core.hocwrappers.seg import Seg
 from neuronpp.core.hocwrappers.spine import Spine
 from neuronpp.core.cells.utils import establish_electric_properties
 from neuronpp.core.cells.utils import get_spine_number
@@ -47,7 +48,43 @@ class SpineCell(SectionCell):
         self.necks = []
         self._next_index = 0
 
-    def make_spines(self, spine_number, secs=None, head_nseg=2, neck_nseg=2, seed: int = None):
+    def add_spines(self, segs: List[Seg]=None, head_nseg=2, neck_nseg=2):
+        """
+        Currently the only supported spine distribution is random_uniform
+
+        Single spine is 2 x cylinder:
+          * head: L=1um diam=1um
+          * neck: L=0.5um diam=0.5um
+
+        :param segs:
+        :param head_nseg
+        :param neck_nseg
+        :return:
+            list of added spine heads
+        """
+        if not isinstance(segs, list):
+            segs = [segs]
+
+        spines = []
+        heads = []
+        necks = []
+        for s in segs:
+            i = self._next_index
+            head = self.add_sec(name="head[%s]" % i, diam=1, l=1, nseg=head_nseg)
+            neck = self.add_sec(name="neck[%s]" % i, diam=0.5, l=0.5, nseg=neck_nseg)
+            spine = Spine(head, neck, self, "spine")
+            spines.append(spine)
+            heads.append(head)
+            necks.append(neck)
+            neck.hoc.connect(s, 0.0)
+            self._next_index += 1
+
+        self.spines.extend(spines)
+        self.heads.extend(heads)
+        self.necks.extend(necks)
+        return spines
+
+    def add_random_spines(self, spine_number, secs=None, head_nseg=2, neck_nseg=2, seed: int = None):
         """
         Currently the only supported spine distribution is random_uniform
 
@@ -67,10 +104,6 @@ class SpineCell(SectionCell):
         """
         if not isinstance(secs, list):
             secs = [secs]
-        # Hack to prevent a loop between sections while adding necks
-        # neck is added to self.secs, so if param secs is the same list it will append to the list each head and neck
-        # after each iteration of the loop. To prevent this we need to copy secs list
-        secs = [s for s in secs]
 
         if seed:
             random.seed(seed)

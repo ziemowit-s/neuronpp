@@ -39,7 +39,7 @@ class Combe2018Cell(Cell, CoreHocCell):
         self.combe_syns = []
         if spine_number > 0:
 
-            spines = self.make_spines(secs=secs, spine_number=spine_number, head_nseg=10, neck_nseg=10, seed=spine_seed)
+            spines = self.add_random_spines(secs=secs, spine_number=spine_number, head_nseg=10, neck_nseg=10, seed=spine_seed)
 
             # Copy mechanisms from parent sec of the neck and from the nec to the head
             self.copy_mechanisms(secs_to=self.necks, sec_from='parent')

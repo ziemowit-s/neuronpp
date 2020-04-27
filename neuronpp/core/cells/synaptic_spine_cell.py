@@ -7,12 +7,37 @@ class SynapticSpineCell(SpineCell, ComplexSynapticCell):
         ComplexSynapticCell.__init__(self, name, compile_paths=compile_paths)
         SpineCell.__init__(self, name)
 
-    def add_synapses_with_spine(self, source, mod_name: str, secs,
-                                netcon_weight=1, number=1, delay=0,
+    def add_synapses_with_spine(self, source, mod_name: str, segs,
+                                netcon_weight=1, delay=0,
                                 head_nseg=2, neck_nseg=2, tag: str = None,
                                 **synaptic_params):
         """
 
+        :param source:
+            Can be only: hocwrappers.NetStim, hocwrappers.VecStim, hocwrappers.Seg or None. If it
+             is Sec also loc param need to be defined. If None it will create NetConn with no
+             source, which can be use as external event source
+        :param netcon_weight:
+        :param tag:
+        :param mod_name:
+        :param delay:
+        :param segs:
+        :param head_nseg:
+        :param neck_nseg:
+        :param synaptic_params:
+        :return:
+        """
+        spines = self.add_spines(segs=segs, head_nseg=head_nseg, neck_nseg=neck_nseg)
+
+        syns, heads = self._add_synapses(spines, source, mod_name, netcon_weight, delay, tag,
+                                         synaptic_params)
+        return syns, heads
+
+    def add_random_synapses_with_spine(self, source, mod_name: str, secs,
+                                       netcon_weight=1, number=1, delay=0,
+                                       head_nseg=2, neck_nseg=2, tag: str = None,
+                                       **synaptic_params):
+        """
         :param source:
             Can be only: hocwrappers.NetStim, hocwrappers.VecStim, hocwrappers.Seg or None. If it
              is Sec also loc param need to be defined. If None it will create NetConn with no
@@ -28,9 +53,15 @@ class SynapticSpineCell(SpineCell, ComplexSynapticCell):
         :param synaptic_params:
         :return:
         """
-        spines = self.make_spines(spine_number=number, secs=secs, head_nseg=head_nseg,
-                                  neck_nseg=neck_nseg)
+        spines = self.add_random_spines(spine_number=number, secs=secs, head_nseg=head_nseg,
+                                        neck_nseg=neck_nseg)
 
+        syns, heads = self._add_synapses(spines, source, mod_name, netcon_weight, delay, tag,
+                                         synaptic_params)
+        return syns, heads
+
+    def _add_synapses(self, spines, source, mod_name: str, netcon_weight, delay, tag,
+                      synaptic_params):
         # loc=1.0 put synase on the top of the spine's head
         syns = []
         for s in spines:
