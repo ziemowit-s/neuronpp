@@ -1,7 +1,8 @@
 from os import path
 from neuron import h
-from neuronpp.core.cells.core_cell import CoreCell
+
 from neuronpp.core.hocwrappers.sec import Sec
+from neuronpp.core.cells.core_cell import CoreCell
 
 h.load_file('stdlib.hoc')
 h.load_file('import3d.hoc')
@@ -59,10 +60,8 @@ class SectionCell(CoreCell):
                     setattr(mech, name, val)
         return self
 
-
-
     def set_pas(self, section, Rm=None, g_pas=None, E_rest=None):
-
+        self._set_dist(values=locals().values())
         if isinstance(section, str):
             section_list = self.filter_secs(name=section, as_list=True)
         elif isinstance(section, Sec):
@@ -75,10 +74,9 @@ class SectionCell(CoreCell):
             if E_rest is not None:
                 n_sec.hoc.e_pas = E_rest
             if Rm is not None:
-                n_sec.hoc.g_pas = 1/Rm
+                n_sec.hoc.g_pas = 1 / Rm
             if g_pas is not None:
                 n_sec.hoc.g_pas = g_pas
-
 
     def add_sec(self, name: str, diam=None, l=None, rm=None, g_pas=None,
                 E_rest=None, ra=None, cm=None, nseg=None, add_pas=False):
@@ -104,15 +102,16 @@ class SectionCell(CoreCell):
         if ra is not None:
             hoc_sec.Ra = ra
         if rm is not None:
-            g_pas = 1/rm
- 
+            g_pas = 1 / rm
+
         if add_pas is True or g_pas is not None or E_rest is not None:
             hoc_sec.insert('pas')
             self.set_pas(hoc_sec, E_rest=E_rest, g_pas=g_pas)
 
         if len(self.filter_secs(name, as_list=True)) > 0:
-            raise LookupError("The name '%s' is already taken by another section of the cell: '%s' of type: '%s'."
-                              % (name, self.name, self.__class__.__name__))
+            raise LookupError(
+                "The name '%s' is already taken by another section of the cell: '%s' of type: '%s'."
+                % (name, self.name, self.__class__.__name__))
         sec = Sec(hoc_sec, cell=self, name=name)
         self.secs.append(sec)
         return sec
@@ -186,8 +185,9 @@ class SectionCell(CoreCell):
         for hoc_sec in self.all:
             name = hoc_sec.name().split('.')[-1]  # eg. name="dend[19]"
             if len(self.filter_secs(name)) > 0:
-                raise LookupError("The name '%s' is already taken by another section of the cell: '%s' of type: '%s'."
-                                  % (name, self.name, self.__class__.__name__))
+                raise LookupError(
+                    "The name '%s' is already taken by another section of the cell: '%s' of type: '%s'."
+                    % (name, self.name, self.__class__.__name__))
             sec = Sec(hoc_sec, cell=self, name=name)
             self.secs.append(sec)
 

@@ -1,5 +1,4 @@
 import abc
-from random import random, gauss
 from typing import List, Union
 
 import numpy as np
@@ -9,49 +8,8 @@ from neuronpp.core.hocwrappers.netstim import NetStim
 from neuronpp.core.hocwrappers.seg import Seg
 from neuronpp.core.hocwrappers.vecstim import VecStim
 from neuronpp.utils.record import Record
-from neuronpp.core.hocwrappers.sec import Sec
-from neuronpp.core.cells.core_cell import CoreCell
-
-
-class Dist:
-    pass
-
-
-class AllDist(Dist):
-    pass
-
-
-class OneDist(Dist):
-    pass
-
-
-class UniformDist(Dist):
-    def __init__(self, dmin=0, dmax=1):
-        self.min = dmin
-        self.max = dmax
-
-
-class NormalDist(Dist):
-    def __init__(self, mean, std):
-        self.mean = mean
-        self.std = std
-
-
-class Proba(Dist):
-    def __init__(self, expected=0.5):
-        self.expected = expected
-
-
-class UniformProba(Proba, UniformDist):
-    def __init__(self, expected=0.5):
-        Proba.__init__(self, expected=expected)
-        UniformDist.__init__(self, dmin=0, dmax=1)
-
-        
-class NormalProba(Proba, NormalDist):
-    def __init__(self, expected=0.5, mean=0.5, std=0.1):
-        Proba.__init__(self, expected=expected)
-        NormalDist.__init__(self, mean=mean, std=std)
+from neuronpp.core.distributions.distribution import AllDist, OneDist, Dist, Proba, UniformProba, \
+    UniformDist, NormalDist, NormalProba
 
 ALL_DIST = AllDist()
 ONE_DIST = OneDist()
@@ -105,8 +63,7 @@ class Population:
                         continue
                     syn = self._add_syn(source=s, target=t, mod_name=mod_name,
                                         netcon_weight=netcon_weight,
-                                        delay=delay, threshold=threshold,
-                                        syn_num_per_source=syn_num_per_source, tag=tag,
+                                        delay=delay, threshold=threshold, tag=tag,
                                         with_spine=with_spine, **kwargs)
                     result.append(syn)
 
@@ -121,8 +78,7 @@ class Population:
                     continue
                 syn = self._add_syn(source=s, target=t, mod_name=mod_name,
                                     netcon_weight=netcon_weight,
-                                    delay=delay, threshold=threshold,
-                                    syn_num_per_source=syn_num_per_source, tag=tag,
+                                    delay=delay, threshold=threshold, tag=tag,
                                     with_spine=False, **kwargs)
                 result.append(syn)
         elif isinstance(conn_dist, UniformDist):
@@ -138,7 +94,7 @@ class Population:
     # TODO Kazdy parametr moze podlegac losowaniu z rozkladu
     # TODO syn_num_per_source
     def _add_syn(self, source: (Seg, VecStim, NetStim), target: Seg, mod_name, netcon_weight,
-                 delay, threshold, syn_num_per_source, tag, with_spine, **kwargs) -> list:
+                 delay, threshold, tag, with_spine, **kwargs) -> list:
         cell = target.parent.cell
 
         if with_spine:

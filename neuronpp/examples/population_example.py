@@ -2,6 +2,7 @@ import os
 
 from neuronpp.cells.cell import Cell
 from neuronpp.core.cells.netstim_cell import NetStimCell
+from neuronpp.core.distributions.distribution import NormalDist
 from neuronpp.core.populations.population import Population, ALL_DIST, UniformProba, NormalProba
 from neuronpp.utils.graphs.network_status_graph import NetworkStatusGraph
 
@@ -31,7 +32,7 @@ if __name__ == '__main__':
     pop1.connect(source=stim,
                  target=[c.filter_secs("dend")(0.5) for c in pop1.cells],
                  mod_name="Exp2Syn",  conn_proba=conn_proba,
-                 conn_dist=ALL_DIST, netcon_weight=0.01)
+                 conn_dist=ALL_DIST, netcon_weight=NormalDist(mean=0.01, std=0.02))
     pop1.record()
 
     # Create population 2

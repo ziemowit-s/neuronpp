@@ -1,6 +1,6 @@
 import re
+import numpy as np
 
-from neuronpp.core.cells.filters.filter_function import FilterFunction
 from neuronpp.utils.compile_mod import compile_and_load_mods
 
 
@@ -108,6 +108,31 @@ class CoreCell:
         if len(filtered) == 1 and as_list is False:
             filtered = filtered[0]
         return filtered
+
+    def _set_local_dist(self, values: dict):
+        for k, v in values.items():
+            values[k] = self._get_value(values[k])
+        return values
+
+    @staticmethod
+    def _get_value(value):
+        """
+        Get value as regular it is or as distribution defined as Dist implementation.
+        :param value:
+        :return:
+            the same value or value derived from provided distribution
+        """
+        if isinstance(value, Dist):
+            if isinstance(value, UniformDist):
+                result = np.random.uniform(size=1)[0]
+            elif isinstance(value, NormalDist):
+                result = np.random.normal(loc=value.mean, scale=value.std)
+            else:
+                raise TypeError("Not allowed value type for Dist: %s" % value)
+        else:
+            result = value
+
+        return result
 
     @staticmethod
     def _prepare_patterns(kwargs):
