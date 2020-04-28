@@ -2,6 +2,7 @@ from neuron import h
 from collections import defaultdict
 
 from neuronpp.core.cells.section_cell import SectionCell
+from neuronpp.core.distributions.decorators import distparams
 from neuronpp.core.hocwrappers.point_process import PointProcess
 from neuronpp.core.hocwrappers.seg import Seg
 
@@ -46,6 +47,7 @@ class PointProcessCell(SectionCell):
         return self.filter(searchable=self.pps, obj_filter=obj_filter, mod_name=mod_name, name=name, parent=parent,
                            **kwargs)
 
+    @distparams
     def add_point_process(self, mod_name: str, seg, tag: str = None, **point_process_params):
         """
         :param mod_name:

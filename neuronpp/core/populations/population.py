@@ -35,9 +35,9 @@ class Population:
         return result
 
     def connect(self, source: List[Union[Seg, VecStim, NetStim]], target: List[Seg],
-                mod_name, conn_dist: Dist, syn_num_per_source=1, tag=None,
+                mod_name, syn_num_per_source=1, tag=None,
                 with_spine=False, netcon_weight=1, delay=0, threshold=10,
-                conn_proba: Proba = UniformProba(expected=1), **kwargs):
+                conn_dist: Dist = ALL_DIST, conn_proba: Proba = 1, **kwargs):
         """
         :param conn_dist:
         :return:
@@ -56,7 +56,7 @@ class Population:
         if not isinstance(target, list):
             target = [target]
 
-        if isinstance(conn_dist, AllDist):
+        if isinstance(conn_dist, AllDist) or conn_dist == 'all':
             for s in source:
                 for t in target:
                     if not self._is_connect(conn_proba):
@@ -67,7 +67,7 @@ class Population:
                                         with_spine=with_spine, **kwargs)
                     result.append(syn)
 
-        elif isinstance(conn_dist, OneDist):
+        elif isinstance(conn_dist, OneDist) or conn_dist == 'one':
             if len(source) != len(target):
                 raise LookupError(
                     "for rule 'one' len of sources and population cells must be the same, "
@@ -108,6 +108,17 @@ class Population:
 
     @staticmethod
     def _is_connect(conn_proba):
+        """
+        Determin if make connection between single tuple of (source and target) based on conn_proba
+
+        :param conn_proba:
+        :return:
+        """
+        if conn_proba == 1:
+            return True
+        elif isinstance(conn_proba, (float, int)):
+            conn_proba = UniformProba(expected=conn_proba)
+
         if isinstance(conn_proba, UniformProba):
             result = np.random.uniform(size=1)[0]
         elif isinstance(conn_proba, NormalProba):

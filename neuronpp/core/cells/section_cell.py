@@ -1,6 +1,7 @@
 from os import path
 from neuron import h
 
+from neuronpp.core.distributions.decorators import distparams
 from neuronpp.core.hocwrappers.sec import Sec
 from neuronpp.core.cells.core_cell import CoreCell
 
@@ -60,6 +61,7 @@ class SectionCell(CoreCell):
                     setattr(mech, name, val)
         return self
 
+    @distparams
     def set_pas(self, section, Rm=None, g_pas=None, E_rest=None):
         self._set_dist(values=locals().values())
         if isinstance(section, str):
@@ -78,6 +80,7 @@ class SectionCell(CoreCell):
             if g_pas is not None:
                 n_sec.hoc.g_pas = g_pas
 
+    @distparams
     def add_sec(self, name: str, diam=None, l=None, rm=None, g_pas=None,
                 E_rest=None, ra=None, cm=None, nseg=None, add_pas=False):
         """
@@ -116,6 +119,7 @@ class SectionCell(CoreCell):
         self.secs.append(sec)
         return sec
 
+    @distparams
     def connect_secs(self, source, target, source_loc=1.0, target_loc=0.0):
         """
         default: source(0.0) -> target(1.0)
@@ -193,6 +197,7 @@ class SectionCell(CoreCell):
 
         del self.all
 
+    @distparams
     def set_cell_position(self, x, y, z):
         h.define_shape()
         for sec in self.secs:
@@ -203,6 +208,7 @@ class SectionCell(CoreCell):
                                z - sec.z3d(i),
                                sec.diam3d(i))
 
+    @distparams
     def rotate_cell_z(self, theta):
         h.define_shape()
         """Rotate the cell about the Z axis."""

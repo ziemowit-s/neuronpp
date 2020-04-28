@@ -1,5 +1,6 @@
 from neuronpp.core.cells.spine_cell import SpineCell
 from neuronpp.core.cells.complex_synaptic_cell import ComplexSynapticCell
+from neuronpp.core.distributions.decorators import distparams
 
 
 class SynapticSpineCell(SpineCell, ComplexSynapticCell):
@@ -7,6 +8,7 @@ class SynapticSpineCell(SpineCell, ComplexSynapticCell):
         ComplexSynapticCell.__init__(self, name, compile_paths=compile_paths)
         SpineCell.__init__(self, name)
 
+    @distparams
     def add_synapses_with_spine(self, source, mod_name: str, segs,
                                 netcon_weight=1, delay=0,
                                 head_nseg=2, neck_nseg=2, tag: str = None,
@@ -33,6 +35,7 @@ class SynapticSpineCell(SpineCell, ComplexSynapticCell):
                                          synaptic_params)
         return syns, heads
 
+    @distparams
     def add_random_synapses_with_spine(self, source, mod_name: str, secs,
                                        netcon_weight=1, number=1, delay=0,
                                        head_nseg=2, neck_nseg=2, tag: str = None,

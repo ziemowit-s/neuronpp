@@ -1,5 +1,6 @@
 from neuron import h
 
+from neuronpp.core.distributions.decorators import distparams
 from neuronpp.core.hocwrappers.netcon import NetCon
 from neuronpp.core.hocwrappers.point_process import PointProcess
 from neuronpp.core.hocwrappers.seg import Seg
@@ -46,6 +47,7 @@ class NetConCell(PointProcessCell):
         """
         return self.filter(searchable=self.ncs, obj_filter=obj_filter, mod_name=mod_name, name=name, **kwargs)
 
+    @distparams
     def add_netcon(self, source, point_process, netcon_weight=1, delay=0, threshold=10):
         """
         :param source:

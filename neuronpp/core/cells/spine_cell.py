@@ -3,6 +3,7 @@ from typing import List
 import numpy as np
 
 from neuronpp.core.cells.section_cell import SectionCell
+from neuronpp.core.distributions.decorators import distparams
 from neuronpp.core.hocwrappers.sec import Sec
 from neuronpp.core.hocwrappers.seg import Seg
 from neuronpp.core.hocwrappers.spine import Spine
@@ -48,6 +49,7 @@ class SpineCell(SectionCell):
         self.necks = []
         self._next_index = 0
 
+    @distparams
     def add_spines(self, segs: List[Seg]=None, head_nseg=2, neck_nseg=2):
         """
         Currently the only supported spine distribution is random_uniform
@@ -84,6 +86,7 @@ class SpineCell(SectionCell):
         self.necks.extend(necks)
         return spines
 
+    @distparams
     def add_random_spines(self, spine_number, secs=None, head_nseg=2, neck_nseg=2, seed: int = None):
         """
         Currently the only supported spine distribution is random_uniform
@@ -150,6 +153,7 @@ class SpineCell(SectionCell):
                 added[s.name()].append(loc)
                 break
 
+    @distparams
     def add_spines_to_section_list(self, sections: List[Sec], spine_density,
                                    spine_type="generic", **spine_params):
         """
@@ -297,7 +301,8 @@ class SpineCell(SectionCell):
                     mech_dend_loc[spine.parent].append(spine)
         return mech_dend_loc
 
-    def _get_spine_factor(self, spines: List[Spine], mech_name: str, gbar: str):
+    @staticmethod
+    def _get_spine_factor(spines: List[Spine], mech_name: str, gbar: str):
         """
         Find sum(gbar*Area_spine) for mech_name in spines. If gbar is None
         sum(spine_cm*Area_spine) will be returned
@@ -321,6 +326,7 @@ class SpineCell(SectionCell):
                     factor += gbar_val * sec.area / nseg
         return factor
 
+    @distparams
     def compensate(self, cm_adjustment=False, **mechs_with_gbar_name):
         """
         Compensate for a chosen channel/density mechanism after adding spines.

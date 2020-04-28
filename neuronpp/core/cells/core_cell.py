@@ -66,7 +66,6 @@ class CoreCell:
         for obj in searchable:
             pat_found = 0
 
-            # If FilterFunction object with filter() function pass
             if obj_filter and obj_filter(obj):
                 pat_found += 1
 
@@ -101,7 +100,8 @@ class CoreCell:
                         if pat.search(value) is not None:
                             pat_found += 1
 
-            # functional AND for all patterns: If all patterns match - add object to the filtered list
+            # functional AND for all patterns: If all patterns match
+            # add object to the filtered list
             if pat_found == pat_len:
                 filtered.append(obj)
 
@@ -109,33 +109,13 @@ class CoreCell:
             filtered = filtered[0]
         return filtered
 
-    def _set_local_dist(self, values: dict):
-        for k, v in values.items():
-            values[k] = self._get_value(values[k])
-        return values
-
-    @staticmethod
-    def _get_value(value):
-        """
-        Get value as regular it is or as distribution defined as Dist implementation.
-        :param value:
-        :return:
-            the same value or value derived from provided distribution
-        """
-        if isinstance(value, Dist):
-            if isinstance(value, UniformDist):
-                result = np.random.uniform(size=1)[0]
-            elif isinstance(value, NormalDist):
-                result = np.random.normal(loc=value.mean, scale=value.std)
-            else:
-                raise TypeError("Not allowed value type for Dist: %s" % value)
-        else:
-            result = value
-
-        return result
-
     @staticmethod
     def _prepare_patterns(kwargs):
+        """
+        Used for filtering
+        :param kwargs:
+        :return:
+        """
         result = []
         for attr_name, v in kwargs.items():
 
