@@ -3,7 +3,7 @@ import os
 from neuronpp.cells.cell import Cell
 from neuronpp.core.cells.netstim_cell import NetStimCell
 from neuronpp.core.distributions.distribution import NormalDist
-from neuronpp.core.populations.population import Population, ALL_DIST, UniformProba, NormalProba
+from neuronpp.core.populations.population import Population, NormalProba, NetconParams, ConnParams
 from neuronpp.utils.graphs.network_status_graph import NetworkStatusGraph
 
 from neuronpp.utils.simulation import Simulation
@@ -26,13 +26,16 @@ if __name__ == '__main__':
     stim = NetStimCell("stim").make_netstim(start=21, number=100, interval=2)
 
     # Create population 1
-    conn_proba = NormalProba(expected=0.5, mean=0.5, std=0.1)
+    conn_dist = NormalProba(expected=0.5, mean=0.5, std=0.1)
+    weight_dist = NormalDist(mean=0.01, std=0.02)
+
     pop1 = ExcitatoryPopulation("pop_0")
     pop1.create(4)
     pop1.connect(source=stim,
                  target=[c.filter_secs("dend")(0.5) for c in pop1.cells],
-                 mod_name="Exp2Syn",  conn_proba=conn_proba,
-                 conn_dist=ALL_DIST, netcon_weight=NormalDist(mean=0.01, std=0.02))
+                 mod_name="Exp2Syn",
+                 netcon_params=NetconParams(weight=weight_dist),
+                 conn_params=ConnParams(proba=conn_dist))
     pop1.record()
 
     # Create population 2
@@ -40,8 +43,9 @@ if __name__ == '__main__':
     pop2.create(4)
     pop2.connect(source=[c.filter_secs("soma")(0.5) for c in pop1.cells],
                  target=[c.filter_secs("dend")(0.5) for c in pop2.cells],
-                 mod_name="Exp2Syn",  conn_proba=conn_proba,
-                 conn_dist=ALL_DIST, netcon_weight=0.01)
+                 mod_name="Exp2Syn",
+                 netcon_params=NetconParams(weight=weight_dist),
+                 conn_params=ConnParams(proba=conn_dist))
     pop2.record()
 
     # Create population 3
@@ -49,8 +53,9 @@ if __name__ == '__main__':
     pop3.create(4)
     pop3.connect(source=[c.filter_secs("soma")(0.5) for c in pop2.cells],
                  target=[c.filter_secs("dend")(0.5) for c in pop3.cells],
-                 mod_name="Exp2Syn",  conn_proba=conn_proba,
-                 conn_dist=ALL_DIST, netcon_weight=0.01)
+                 mod_name="Exp2Syn",
+                 netcon_params=NetconParams(weight=weight_dist),
+                 conn_params=ConnParams(proba=conn_dist))
     pop3.record()
 
     # Creates inhibitory connections between pop2->pop3

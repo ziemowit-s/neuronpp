@@ -10,7 +10,7 @@ class HocWrapper:
         self.name = name
 
     def __repr__(self):
-        return "{}+{}+{}".format(self.parent, self.__class__.__name__, self.name)
+        return "{}[{}]".format(self.__class__.__name__, self.name)
 
     def __hash__(self):
         return self.hoc.__hash__()

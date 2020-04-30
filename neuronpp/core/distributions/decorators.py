@@ -5,7 +5,7 @@ from typing import List
 from neuronpp.core.distributions.distribution import Dist, UniformDist, NormalDist, TruncatedNormal
 
 
-def distparams(_func=None, *, exlude: List[str] = None):
+def distparams(_func=None, *, exlude: List[str] = None, include: List[str] = None):
     """
     Check numerical parameters if contains Dist object:
       * If so it will take the value from the appropriate distribution and pass it to the function.
@@ -22,29 +22,44 @@ def distparams(_func=None, *, exlude: List[str] = None):
     :param _func:
         function which was decorated
     :param exlude:
+        Works only if include is not specified. Otherwise ommited.
         a list of excluded params from check if they are a Dist implementation.
+    :param include:
+        if not specify it will take all params except "exclude".
+        if specified - it will only take those params. Exclude won't apply here
     :return:
         the same value as the function decorated
     """
     def _distparams(func):
         @functools.wraps(func)
         def _wrapper_distparams(*args, **kwargs):
+
+            if exlude and not isinstance(exlude, list):
+                raise ValueError("Parameter 'exclude' in @distparam decorator must be list or None")
+            if include and not isinstance(include, list):
+                raise ValueError("Parameter 'include' in @distparam decorator must be list or None")
+
             for key, value in kwargs.items():
-                if exlude and key in exlude:
+                if include and key in include:
+                    pass
+                elif not include and exlude and key in exlude:
                     continue
-                if not isinstance(value, Dist):
-                    continue
+                if isinstance(value, Dist):
 
-                if isinstance(value, UniformDist):
-                    result = np.random.uniform(size=1)[0]
-                elif isinstance(value, NormalDist):
-                    result = np.random.normal(loc=value.mean, scale=value.std)
-                    if isinstance(value, TruncatedNormal):
-                        result = np.abs(result)
-                else:
-                    raise TypeError("Not allowed value type for Dist: %s" % value)
+                    if isinstance(value, UniformDist):
+                        result = np.random.uniform(size=1)[0]
+                    elif isinstance(value, NormalDist):
+                        result = np.random.normal(loc=value.mean, scale=value.std)
 
-                kwargs[key] = result
+                        if isinstance(value, TruncatedNormal):
+                            result = np.abs(result)
+                    else:
+                        raise TypeError("Not allowed value type for Dist: %s" % value)
+
+                    if "int" in value.dtype.lower():
+                        result = round(result)
+
+                    kwargs[key] = result
 
             return func(*args, **kwargs)
 

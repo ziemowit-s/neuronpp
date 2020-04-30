@@ -8,11 +8,30 @@ from neuronpp.core.hocwrappers.netstim import NetStim
 from neuronpp.core.hocwrappers.seg import Seg
 from neuronpp.core.hocwrappers.vecstim import VecStim
 from neuronpp.utils.record import Record
-from neuronpp.core.distributions.distribution import AllDist, OneDist, Dist, Proba, UniformProba, \
-    UniformDist, NormalDist, NormalProba
+from neuronpp.core.distributions.distribution import Dist, UniformProba, \
+    NormalProba
 
-ALL_DIST = AllDist()
-ONE_DIST = OneDist()
+
+class ConnParams:
+    def __init__(self, rule: str = "all", proba: Union[float, Dist] = 1.0,
+                 syn_num_per_source: Union[int, Dist] = 1):
+        self.rule = rule
+        self.proba = proba
+        self.syn_num_per_source = syn_num_per_source
+
+
+class NetconParams:
+    def __init__(self, weight: Union[float, Dist] = 1.0, delay: Union[float, Dist] = 1,
+                 threshold: Union[float, Dist] = 10):
+        self.weight = weight
+        self.delay = delay
+        self.threshold = threshold
+
+
+class SpineParams:
+    def __init__(self, head_nseg: Union[int, Dist] = 2, neck_nseg: Union[int, Dist] = 2):
+        self.head_nseg = head_nseg
+        self.neck_nseg = neck_nseg
 
 
 class Population:
@@ -35,14 +54,60 @@ class Population:
         return result
 
     def connect(self, source: List[Union[Seg, VecStim, NetStim]], target: List[Seg],
-                mod_name, syn_num_per_source=1, tag=None,
-                with_spine=False, netcon_weight=1, delay=0, threshold=10,
-                conn_dist: Dist = ALL_DIST, conn_proba: Proba = 1, **kwargs):
+                mod_name, tag=None,
+                netcon_params: NetconParams = None, conn_params: ConnParams = None,
+                spine_params: SpineParams = None, **point_process_params):
         """
-        :param conn_dist:
+        :param source
+        :param target
+        :param mod_name
+        :param tag
+
+        :param netcon_params:
+            object of type NetconParams
+            :param weight:
+                default is 1.0
+            :param delay:
+                default is 1
+                delay in ms
+            :param threshold:
+                default is 10
+                threshold in mV
+                
+        :param conn_params:
+            object of type ConnParams:
+            :param rule:
+                default is 'all'
+                'all' - all-to-all connections
+                'one' - one-to-one connections
+            :param proba:
+                default us 1.0
+                can be a single number from 0 to 1 defining probability of connection.
+                In this case it will assume UniformProba
+    
+                It can also be an instance of Dist class which defines specific distribution with
+                an expected value
+            :param syn_num_per_source:
+                default is 1
+                number of synapse per single source object
+
+        :param spine_params:
+            object of type SpineParams:
+                :param head_nseg:
+                    number of segments for head of the spine
+                :param neck_nseg:
+                    number of segments for neck of the spine
+
         :return:
             list of list of synapses
         """
+        if netcon_params is None:
+            netcon_params = NetconParams()
+        if conn_params is None:
+            conn_params = ConnParams()
+        if spine_params is None:
+            spine_params = SpineParams()
+
         cell_num = len(self.cells)
         if cell_num == 0:
             raise LookupError(
@@ -56,62 +121,60 @@ class Population:
         if not isinstance(target, list):
             target = [target]
 
-        if isinstance(conn_dist, AllDist) or conn_dist == 'all':
+        if conn_params.rule == 'all':
             for s in source:
                 for t in target:
-                    if not self._is_connect(conn_proba):
+                    if not self._is_connect(conn_params.proba):
                         continue
-                    syn = self._add_syn(source=s, target=t, mod_name=mod_name,
-                                        netcon_weight=netcon_weight,
-                                        delay=delay, threshold=threshold, tag=tag,
-                                        with_spine=with_spine, **kwargs)
+                    syn = self._add_syn(s, t, mod_name,
+                                        netcon_params, spine_params, tag, **point_process_params)
                     result.append(syn)
 
-        elif isinstance(conn_dist, OneDist) or conn_dist == 'one':
+        elif conn_params.rule == 'one':
             if len(source) != len(target):
                 raise LookupError(
                     "for rule 'one' len of sources and population cells must be the same, "
                     "but it was %s and %s respectively." % (len(source), len(self.cells)))
 
             for s, t in zip(source, target):
-                if not self._is_connect(conn_proba):
+                if not self._is_connect(conn_params.proba):
                     continue
-                syn = self._add_syn(source=s, target=t, mod_name=mod_name,
-                                    netcon_weight=netcon_weight,
-                                    delay=delay, threshold=threshold, tag=tag,
-                                    with_spine=False, **kwargs)
+                syn = self._add_syn(s, t, mod_name,
+                                    netcon_params, spine_params, tag, **point_process_params)
                 result.append(syn)
-        elif isinstance(conn_dist, UniformDist):
-            pass
-        elif isinstance(conn_dist, NormalDist):
-            pass
         else:
             raise TypeError("Wrong type of conn_dist")
 
         self.syns.extend(result)
         return result
 
-    # TODO Kazdy parametr moze podlegac losowaniu z rozkladu
     # TODO syn_num_per_source
-    def _add_syn(self, source: (Seg, VecStim, NetStim), target: Seg, mod_name, netcon_weight,
-                 delay, threshold, tag, with_spine, **kwargs) -> list:
+    @staticmethod
+    def _add_syn(source: Union[Seg, VecStim, NetStim], target: Seg, mod_name,
+                 netcon_params, spine_params, tag, **kwargs) -> list:
         cell = target.parent.cell
 
-        if with_spine:
-            spines = cell.add_spines(segs=target, head_nseg=2, neck_nseg=2)
-            target = spines[0].head
+        if spine_params:
+            spine = cell.add_spines(segs=target, head_nseg=spine_params.head_nseg,
+                                    neck_nseg=spine_params.neck_nseg)[0]
+            target = spine.head(1.0)
 
-        syn = cell.add_synapse(source=source, seg=target, mod_name=mod_name, delay=delay,
-                               netcon_weight=netcon_weight,
-                               threshold=threshold, tag=tag, **kwargs)
+        syn = cell.add_synapse(source=source, seg=target, mod_name=mod_name,
+                               delay=netcon_params.delay, netcon_weight=netcon_params.weight,
+                               threshold=netcon_params.threshold, tag=tag, **kwargs)
         return syn
 
     @staticmethod
-    def _is_connect(conn_proba):
+    def _is_connect(conn_proba: Union[float, int, Dist]):
         """
         Determin if make connection between single tuple of (source and target) based on conn_proba
 
         :param conn_proba:
+            can be a single number from 0 to 1 defining probability of connection.
+            In this case it will assume UniformProba
+
+            It can also be an instance of Dist class which defines specific distribution with
+            an expected value
         :return:
         """
         if conn_proba == 1:
@@ -153,18 +216,6 @@ class Population:
         """
         for r in self.recs.values():
             r.plot(animate=animate, **kwargs)
-
-    @abc.abstractmethod
-    def syn_definition(self, source: (Seg, VecStim, NetStim), target: Seg, **kwargs) -> list:
-        """
-        Must return syns list.
-        :param target:
-        :param source:
-            Can be only: hocwrappers.NetStim, hocwrappers.VecStim, hocwrappers.Seg or None
-        :return:
-            Must return a list of synapses.
-        """
-        raise NotImplementedError()
 
     @abc.abstractmethod
     def cell_definition(self, **kwargs) -> Cell:
