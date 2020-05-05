@@ -4,7 +4,7 @@ from neuron import h
 from neuronpp.cells.cell import Cell
 path = os.path.dirname(os.path.abspath(__file__))
 f_path = os.path.join(path, "..", "commons/mods/combe2018")
-
+maximum_segment_length = 75
 
 class Combe2018Cell(Cell):
     def make_axon(self):
@@ -8243,3 +8243,31 @@ class Combe2018Cell(Cell):
         Cell.__init__(self, name=name, compile_paths=compile_paths)
 
         self.make_morphology()
+        # adjust segment_number
+        for sec in self.secs:
+            sec.hoc.nseg = 1+int(sec.hoc.L/maximum_segment_length)
+
+        Rm_trunk     = 36900 # Non-oblique dendritic specific membrane resistance.
+        Rm_non_trunk = 36900 # Apical oblique specific membrane resistance
+        Rm_basal     = 46000 # Basal specific membrane resistance
+        Rm_tip       = 36900 # Tip specific membrane resistance
+        Rm_soma      = 20000 # Somatic specific membrane resistance
+        Rm_axon      = 28000 # Axonal specific membrane resistance
+
+        Ra_basal     = 150 # Basal specific axial resistance
+        Ra_trunk     = 150 # Somatic specific axial resistance
+        Ra_non_trunk = 150 # Somatic specific axial resistance
+        Ra_soma      = 150 # Somatic specific axial resistance
+        Ra_tip       = 150 # Apical tip specific axial resistance
+        Ra_axon      = 50  # Axonal specific axial resistance
+
+        Cm_default   = 1          # Default specific capacitance
+        Cm_axon      = Cm_default # Axonal specific capacitance
+        Cm_soma      = 1          # Somatic specific capacitance
+        Cm_soma      = 1.5        # Somatic specific capacitance
+        Cm_trunk     = 1.192      # Trunk specific capacitance
+        Cm_trunk     = 1.5        # Trunk specific capacitance
+        Cm_non_trunk = 1.192      # Oblique specific capacitance
+        Cm_non_trunk = 1.5        # Oblique specific capacitance
+        Cm_basal     = 1.144      # Basal specific capacitance
+        Cm_tip       = 1.192      # Apical tip specific capacitance
