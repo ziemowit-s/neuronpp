@@ -2,7 +2,6 @@ import os
 from neuron import h
 
 from neuronpp.cells.cell import Cell
-from neuronpp.cells.cell import Cell
 path = os.path.dirname(os.path.abspath(__file__))
 f_path = os.path.join(path, "..", "commons/mods/combe2018")
 
@@ -180,7 +179,7 @@ class Combe2018Cell(Cell):
         h.pt3dadd(188.8, -25, 77.1, 2, sec=self.trunk[9].hoc)
         h.pt3dadd(190.1, -25.1, 78, 2, sec=self.trunk[9].hoc)
 
-        h.pt3dclear(self.trunk[10].hoc)
+        h.pt3dclear(sec=self.trunk[10].hoc)
         h.pt3dadd(190.1, -25.1, 78, 2, self.trunk[10].hoc)
         h.pt3dadd(191, -25.3, 78.8, 2, self.trunk[10].hoc)
         h.pt3dadd(192.5, -25.8, 80.3, 2, self.trunk[10].hoc)
@@ -188,7 +187,7 @@ class Combe2018Cell(Cell):
         h.pt3dadd(195.6, -26, 83.2, 2, self.trunk[10].hoc)
         h.pt3dadd(196.5, -26.3, 84, 2, self.trunk[10].hoc)
 
-        h.pt3dclear(self.trunk[11].hoc)
+        h.pt3dclear(sec=self.trunk[11].hoc)
         h.pt3dadd(196.5, -26.3, 84, 2, self.trunk[11].hoc)
         h.pt3dadd(197.4, -26.4, 84.8, 2, self.trunk[11].hoc)
         h.pt3dadd(198.2, -26.5, 85.5, 2, self.trunk[11].hoc)
@@ -198,14 +197,14 @@ class Combe2018Cell(Cell):
         h.pt3dadd(201.9, -27.3, 88.8, 2, self.trunk[11].hoc)
         h.pt3dadd(203.7, -27.2, 90, 2, self.trunk[11].hoc)
 
-        h.pt3dclear(self.trunk[12].hoc)
+        h.pt3dclear(sec=self.trunk[12].hoc)
         h.pt3dadd(203.7, -27.2, 90, 2, self.trunk[12].hoc)
         h.pt3dadd(204.8, -27.2, 90.4, 2, self.trunk[12].hoc)
         h.pt3dadd(205.9, -27.7, 90.3, 2, self.trunk[12].hoc)
         h.pt3dadd(207, -27.4, 90.1, 2, self.trunk[12].hoc)
         h.pt3dadd(208.6, -27.5, 90, 2, self.trunk[12].hoc)
 
-        h.pt3dclear(self.trunk[13].hoc)
+        h.pt3dclear(sec=self.trunk[13].hoc)
         h.pt3dadd(208.6, -27.5, 90, 2, self.trunk[13].hoc)
         h.pt3dadd(209.6, -27.4, 90.2, 2, self.trunk[13].hoc)
         h.pt3dadd(210.7, -27.8, 90.5, 2, self.trunk[13].hoc)
@@ -222,7 +221,7 @@ class Combe2018Cell(Cell):
         h.pt3dadd(224.5, -28.5, 95.7, 1.2, self.trunk[13].hoc)
         h.pt3dadd(225.8, -28.5, 96, 1.2, self.trunk[13].hoc)
 
-        h.pt3dclear(self.trunk[14].hoc)
+        h.pt3dclear(sec=self.trunk[14].hoc)
         h.pt3dadd(225.8, -28.5, 96, 1.2, self.trunk[14].hoc)
         h.pt3dadd(226.6, -28.6, 96, 1.2, self.trunk[14].hoc)
         h.pt3dadd(227.5, -29.1, 95.7, 1.2, self.trunk[14].hoc)
@@ -235,7 +234,7 @@ class Combe2018Cell(Cell):
         h.pt3dadd(235.7, -31.2, 90, 1.2, self.trunk[14].hoc)
         h.pt3dadd(236.6, -31.5, 90, 1.2, self.trunk[14].hoc)
 
-        h.pt3dclear(self.trunk[15].hoc)
+        h.pt3dclear(sec=self.trunk[15].hoc)
         h.pt3dadd(236.6, -31.5, 90, 1.2, self.trunk[15].hoc)
         h.pt3dadd(237.4, -31.1, 90.2, 1.2, self.trunk[15].hoc)
         h.pt3dadd(238.3, -30.7, 90.5, 1.2, self.trunk[15].hoc)
@@ -248,7 +247,7 @@ class Combe2018Cell(Cell):
         h.pt3dadd(246, -32, 95.1, 1.2, self.trunk[15].hoc)
         h.pt3dadd(247.2, -31.9, 96, 1.2, self.trunk[15].hoc)
 
-        h.pt3dclear(self.trunk[16].hoc)
+        h.pt3dclear(sec=self.trunk[16].hoc)
         h.pt3dadd(247.2, -31.9, 96, 1.2, self.trunk[16].hoc)
         h.pt3dadd(248.2, -32.1, 96.8, 1.2, self.trunk[16].hoc)
         h.pt3dadd(249.3, -31.8, 97.8, 1.2, self.trunk[16].hoc)
@@ -282,7 +281,7 @@ class Combe2018Cell(Cell):
         h.pt3dadd(288.6, -35, 143.1, 1.2, self.trunk[16].hoc)
         h.pt3dadd(289.5, -34.9, 144, 1.2, self.trunk[16].hoc)
 
-        h.pt3dclear(self.trunk[17].hoc)
+        h.pt3dclear(sec=self.trunk[17].hoc)
         h.pt3dadd(289.5, -34.9, 144, 1.2, self.trunk[17].hoc)
         h.pt3dadd(290.4, -35.2, 144.9, 1.2, self.trunk[17].hoc)
         h.pt3dadd(291.5, -35.2, 145.8, 1.2, self.trunk[17].hoc)
@@ -8180,7 +8179,7 @@ class Combe2018Cell(Cell):
             self.connect_secs(self.apic[i], self.apic[i-1])
         self.connect_secs(self.apic[40], self.apic[38])
         self.connect_secs(self.apic[41], self.apic[37])
-        self.connect_secs(self.dend[0], self.soma[0])
+        self.connect_secs(self.dend[0], self.soma)
         for i in range(1, 4):
             self.connect_secs(self.dend[i], self.dend[i-1])
         self.connect_secs(self.dend[4], self.dend[2])
@@ -8201,7 +8200,7 @@ class Combe2018Cell(Cell):
         self.connect_secs(self.dend[20], self.dend[12])
         for i in [21, 22]:
             self.connect_secs(self.dend[i], self.dend[20])
-        self.connect_secs(self.dend[23], soma[0])
+        self.connect_secs(self.dend[23], self.soma)
         for i in range(24, 27):
             self.connect_secs(self.dend[i], self.dend[i-1])
         self.connect_secs(self.dend[27], self.dend[25])
@@ -8218,7 +8217,7 @@ class Combe2018Cell(Cell):
         self.connect_secs(self.dend[39], self.dend[37])
         self.connect_secs(self.dend[40], self.dend[36])
         self.connect_secs(self.dend[41], self.dend[35])
-        self.connect_secs(self.dend[42], soma[0], source_loc=0, target_loc=0)
+        self.connect_secs(self.dend[42], self.soma, source_loc=0, target_loc=0)
         for i in [43, 44]:
             self.connect_secs(self.dend[i], self.dend[i-1])
         self.connect_secs(self.dend[45], self.dend[43])
