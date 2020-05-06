@@ -14,25 +14,25 @@ from neuronpp.cells.morphology_points import points_dend, points_dend_continued
 class Combe2018Cell(Cell):
     def make_axon(self):
         # axon
-        h.pt3dclear(sec=self.axon.hoc)
+        self.axon.hoc.pt3dclear()
         for points in axon_points:
             h.pt3dadd(*points, sec=self.axon.hoc)
 
     def make_soma(self):
-        h.pt3dclear(sec=self.soma.hoc)
+        self.soma.hoc.pt3dclear()
         h.pt3dadd(10, 0, 30, 20, sec=self.soma.hoc)
         h.pt3dadd(21.5, 0.4, 30, 2.1, sec=self.soma.hoc)
 
     def make_trunk(self):
         for i, sec in enumerate(self.trunk):
-            h.pt3dclear(sec=sec.hoc)
+            sec.hoc.pt3dclear()
             for points in trunk_points[i]:
                 h.pt3dadd(*points, sec=sec.hoc)
 
     def make_apic(self):
         len_1 = len(points_apic)
         for i, sec in enumerate(self.apic):
-            h.pt3dclear(sec=sec.hoc)
+            sec.hoc.pt3dclear()
             if i < len_1:
                 for points in points_apic[i]:
                     h.pt3dadd(*points, sec=sec.hoc)
@@ -44,7 +44,7 @@ class Combe2018Cell(Cell):
     def make_dend(self):
         len_1 = len(points_dend)
         for i, sec in enumerate(self.dend):
-            h.pt3dclear(sec=sec.hoc)
+            sec.hoc.pt3dclear()
             if i < len_1:
                 for points in points_dend[i]:
                     h.pt3dadd(*points, sec=sec.hoc)
@@ -210,3 +210,5 @@ class Combe2018Cell(Cell):
             sec.hoc.nseg = 1+int(sec.hoc.L/maximum_segment_length)
 
         self.add_channels_soma()
+        ObliqueTrunkSection = self.trunk[17]
+        BasalTrunkSection   = self.trunk[7]
