@@ -1,14 +1,13 @@
 from collections import defaultdict
 
 from neuronpp.core.cells.synaptic_cell import SynapticCell
-from neuronpp.core.decorators import build
+from neuronpp.core.decorators import template
 from neuronpp.core.hocwrappers.composed.complex_synapse import ComplexSynapse
 
 
 class ComplexSynapticCell(SynapticCell):
-    def __init__(self, name=None, compile_paths=None, build_on_the_fly=True):
-        SynapticCell.__init__(self, name, compile_paths=compile_paths,
-                              build_on_the_fly=build_on_the_fly)
+    def __init__(self, name=None, compile_paths=None):
+        SynapticCell.__init__(self, name, compile_paths=compile_paths)
         self.complex_syns = []
         self._complex_syn_num = defaultdict(int)
 
@@ -50,7 +49,7 @@ class ComplexSynapticCell(SynapticCell):
         return self.filter(self.complex_syns, obj_filter=obj_filter, mod_name=mod_name, name=name,
                            parent=parent, tag=tag, **kwargs)
 
-    @build
+    @template
     def group_complex_synapses(self, tag=None, *synapses):
         """
 

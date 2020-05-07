@@ -1,6 +1,6 @@
 from neuron import h
 
-from neuronpp.core.decorators import distparams, build
+from neuronpp.core.decorators import distparams, template
 from neuronpp.core.hocwrappers.netcon import NetCon
 from neuronpp.core.hocwrappers.point_process import PointProcess
 from neuronpp.core.hocwrappers.seg import Seg
@@ -13,9 +13,8 @@ from neuronpp.core.cells.point_process_cell import PointProcessCell
 
 
 class NetConCell(PointProcessCell):
-    def __init__(self, name=None, compile_paths=None, build_on_the_fly=True):
-        PointProcessCell.__init__(self, name, compile_paths=compile_paths,
-                                  build_on_the_fly=build_on_the_fly)
+    def __init__(self, name=None, compile_paths=None):
+        PointProcessCell.__init__(self, name, compile_paths=compile_paths)
         self.ncs = []
         self._spike_detector = None
         self._nc_num = defaultdict(int)
@@ -48,7 +47,7 @@ class NetConCell(PointProcessCell):
         """
         return self.filter(searchable=self.ncs, obj_filter=obj_filter, mod_name=mod_name, name=name, **kwargs)
 
-    @build
+    @template
     @distparams
     def add_netcon(self, source, point_process, netcon_weight=1, delay=0, threshold=10):
         """
@@ -79,7 +78,7 @@ class NetConCell(PointProcessCell):
         self._nc_num[name] += 1
         return conn
 
-    @build
+    @template
     def make_spike_detector(self, segment):
         """
         :param segment:
@@ -107,7 +106,7 @@ class NetConCell(PointProcessCell):
         spikes = self._spike_detector[1].as_numpy()
         return spikes
 
-    @build
+    @template
     def plot_spikes(self):
         spikes = self.get_spikes()
         fig, ax = plt.subplots(1)

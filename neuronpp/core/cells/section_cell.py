@@ -1,7 +1,7 @@
 from os import path
 from neuron import h
 
-from neuronpp.core.decorators import distparams, build
+from neuronpp.core.decorators import distparams, template
 from neuronpp.core.hocwrappers.sec import Sec
 from neuronpp.core.cells.core_cell import CoreCell
 
@@ -10,13 +10,12 @@ h.load_file('import3d.hoc')
 
 
 class SectionCell(CoreCell):
-    def __init__(self, name=None, compile_paths=None, build_on_the_fly=True):
+    def __init__(self, name=None, compile_paths=None):
         """
         :param name:
             Name of the cell
         """
-        CoreCell.__init__(self, name, compile_paths=compile_paths,
-                          build_on_the_fly=build_on_the_fly)
+        CoreCell.__init__(self, name, compile_paths=compile_paths)
         # if Cell (named core_cell) have been built before on the stack of super() objects
         if not hasattr(self, '_core_cell_builded'):
             self.secs = []
@@ -48,7 +47,7 @@ class SectionCell(CoreCell):
         """
         return self.filter(searchable=self.secs, obj_filter=obj_filter, name=name, **kwargs)
 
-    @build
+    @template
     def insert(self, mechanism_name: str, sec=None, **params):
         if isinstance(sec, Sec):
             sec = [sec]
@@ -63,7 +62,7 @@ class SectionCell(CoreCell):
                     setattr(mech, name, val)
         return self
 
-    @build
+    @template
     @distparams
     def set_pas(self, section, Rm=None, g_pas=None, E_rest=None):
         if isinstance(section, str):
@@ -82,7 +81,7 @@ class SectionCell(CoreCell):
             if g_pas is not None:
                 n_sec.hoc.g_pas = g_pas
 
-    @build
+    @template
     @distparams
     def add_sec(self, name: str, diam=None, l=None, rm=None, g_pas=None,
                 E_rest=None, ra=None, cm=None, nseg=None, add_pas=False):
@@ -122,7 +121,7 @@ class SectionCell(CoreCell):
         self.secs.append(sec)
         return sec
 
-    @build
+    @template
     @distparams
     def connect_secs(self, source, target, source_loc=1.0, target_loc=0.0):
         """
@@ -167,7 +166,7 @@ class SectionCell(CoreCell):
 
         source.hoc.connect(target.hoc(source_loc), target_loc)
 
-    @build
+    @template
     def load_morpho(self, filepath):
         """
         :param filepath:
@@ -202,7 +201,7 @@ class SectionCell(CoreCell):
 
         del self.all
 
-    @build
+    @template
     @distparams
     def set_cell_position(self, x, y, z):
         h.define_shape()
@@ -214,7 +213,7 @@ class SectionCell(CoreCell):
                                z - sec.z3d(i),
                                sec.diam3d(i))
 
-    @build
+    @template
     @distparams
     def rotate_cell_z(self, theta):
         h.define_shape()
@@ -229,7 +228,7 @@ class SectionCell(CoreCell):
                 yprime = x * s + y * c
                 sec.pt3dchange(i, xprime, yprime, sec.z3d(i), sec.diam3d(i))
 
-    @build
+    @template
     def copy_mechanisms(self, secs_to, sec_from='parent'):
         """
         Copy mechanisms from the sec_from to all sections specified in the secs_to param.

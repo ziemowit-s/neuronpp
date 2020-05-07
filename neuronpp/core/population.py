@@ -7,6 +7,7 @@ from neuronpp.core.cells.core_cell import CoreCell
 from neuronpp.core.hocwrappers.netstim import NetStim
 from neuronpp.core.hocwrappers.seg import Seg
 from neuronpp.core.hocwrappers.vecstim import VecStim
+from neuronpp.core.template import Template
 from neuronpp.utils.record import Record
 from neuronpp.core.distributions import Dist, UniformProba, NormalProba
 
@@ -41,29 +42,26 @@ class Population:
         self.syns = []
         self.recs = {}
 
-    def add_cells(self, template: CoreCell, num: int):
+    def add_cells(self, template: Union[Template, CoreCell], num: int):
         """
+        Add cells base on provided template cell.
+        The template cell must have build_on_the_fly param set to False.
+
         :param template:
+            must be of type Template and CoreCell
+            template cell which will be createn num-times.
+            template cell must have build_on_the_fly param set to False.
         :param num:
-        :return:
-            created list of cells
+            number of cells to create
         """
-        if template._build_on_the_fly:
-            raise AttributeError("Param build_on_the_fly must be set to False for "
-                                 "cell passed as a template to the Population.")
+        if not isinstance(template, Template) or not isinstance(template, CoreCell):
+            raise AttributeError("Param template must be of type Template and CoreCell.")
 
-        result = []
         for i in range(num):
-            cell = deepcopy(template)
-            results = cell.build()
-
-            cell.name = "%s[%s][%s]" % (self.name, template.name, self.cell_counter)
+            cell, results = template.build_template()
+            cell.name = "%s[%s][%s]" % (self.name, cell.name, self.cell_counter)
             self.cell_counter += 1
-
             self.cells.append(cell)
-            result.append(results)
-
-        return result
 
     def connect(self, source: List[Union[Seg, VecStim, NetStim]], target: List[Seg],
                 mod_name, tag=None,
@@ -162,6 +160,32 @@ class Population:
         self.syns.extend(result)
         return result
 
+    def record(self, sec_name="soma", loc=0.5, variable='v'):
+        d = [cell.filter_secs(sec_name, as_list=True)[0](loc) for cell in self.cells]
+        rec = Record(d, variables=variable)
+        self.recs[variable] = rec
+
+    def plot(self, animate=False, **kwargs):
+        """
+        Plots each recorded variable for each neurons in the population.
+
+        If animate=True it will live update graphs. Other params are for live update purpose.
+
+        :param animate:
+            If True it will live update graphs.
+        :param steps:
+            how many timesteps to see on the graph
+        :param y_lim:
+            tuple of limits for y axis. Default is (-80, 50)
+        :param position:
+            position of all subplots ON EACH figure (each figure is created for each variable separately).
+            * position=(3,3) -> if you have 9 neurons and want to display 'v' on 3x3 matrix
+            * position='merge' -> it will display all figures on the same graph.
+            * position=None -> Default, each neuron has separated  axis (row) on the figure.
+        """
+        for r in self.recs.values():
+            r.plot(animate=animate, **kwargs)
+
     @staticmethod
     def _add_syn(source: Union[Seg, VecStim, NetStim], target: Seg, mod_name,
                  netcon_params, spine_params, tag, **kwargs) -> list:
@@ -203,29 +227,3 @@ class Population:
             raise TypeError("Not allowed conn_proba.")
 
         return conn_proba.expected > result
-
-    def record(self, sec_name="soma", loc=0.5, variable='v'):
-        d = [cell.filter_secs(sec_name, as_list=True)[0](loc) for cell in self.cells]
-        rec = Record(d, variables=variable)
-        self.recs[variable] = rec
-
-    def plot(self, animate=False, **kwargs):
-        """
-        Plots each recorded variable for each neurons in the population.
-
-        If animate=True it will live update graphs. Other params are for live update purpose.
-
-        :param animate:
-            If True it will live update graphs.
-        :param steps:
-            how many timesteps to see on the graph
-        :param y_lim:
-            tuple of limits for y axis. Default is (-80, 50)
-        :param position:
-            position of all subplots ON EACH figure (each figure is created for each variable separately).
-            * position=(3,3) -> if you have 9 neurons and want to display 'v' on 3x3 matrix
-            * position='merge' -> it will display all figures on the same graph.
-            * position=None -> Default, each neuron has separated  axis (row) on the figure.
-        """
-        for r in self.recs.values():
-            r.plot(animate=animate, **kwargs)

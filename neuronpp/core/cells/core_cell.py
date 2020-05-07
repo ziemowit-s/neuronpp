@@ -1,21 +1,19 @@
 import re
 
-from neuronpp.core.buildable import Buildable
 from neuronpp.utils.compile_mod import compile_and_load_mods
 
 
-class CoreCell(Buildable):
+class CoreCell:
 
     path_compiled = False
 
-    def __init__(self, name=None, compile_paths=None, build_on_the_fly=True):
+    def __init__(self, name=None, compile_paths=None):
         """
         :param name:
             Name of the cell
         :param compile_paths:
             paths to folders containing mods. Can be list or string separated by spaces.
         """
-        Buildable.__init__(self, build_on_the_fly=build_on_the_fly)
         if compile_paths:
             compile_and_load_mods(compile_paths)
 

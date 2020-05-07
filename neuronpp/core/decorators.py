@@ -2,23 +2,30 @@ import functools
 import numpy as np
 from typing import List
 
-from neuronpp.core.buildable import Buildable
+from neuronpp.core.template import Template
 from neuronpp.core.distributions import Dist, UniformDist, NormalDist, TruncatedNormal
 
 
-def build(func):
-    @functools.wraps(func)
-    def _wrapper_build(*args, **kwargs):
-        obj = args[0]
-        if not isinstance(obj, Buildable):
-            raise TypeError("Decorator @build can be use only with Buildable object.")
+def template(_func):
+    """
 
-        if not obj._build_on_the_fly:
-            obj._builds.append((func, args[1:], kwargs))
-            return
+    :param _func:
+        function which have been decorated
+    :return:
+        if object which calls the function has build_on_the_fly set to True:
+            returns the same value as the function decorated
         else:
-            return func(*args, **kwargs)
-    return _wrapper_build
+            returns None, because building and all returning values will be get
+            by calling build() on the parent object.
+    """
+    @functools.wraps(_func)
+    def _wrapper_template(*args, **kwargs):
+        obj = args[0]
+        if isinstance(obj, Template):
+            obj._func_calls.append((_func, args[1:], kwargs))
+        else:
+            return _func(*args, **kwargs)
+    return _wrapper_template
 
 
 def distparams(_func=None, *, exlude: List[str] = None, include: List[str] = None):
@@ -36,7 +43,7 @@ def distparams(_func=None, *, exlude: List[str] = None, include: List[str] = Non
     It may only affect numerical types of params (int, float). The other types cannot be affected.
     
     :param _func:
-        function which was decorated
+        function which have been decorated
     :param exlude:
         Works only if include is not specified. Otherwise ommited.
         a list of excluded params from check if they are a Dist implementation.

@@ -4,27 +4,26 @@ from neuron import h
 from neuronpp.core.cells.point_process_cell import PointProcessCell
 from nrn import Section
 
-from neuronpp.core.decorators import build
+from neuronpp.core.decorators import template
 from neuronpp.core.hocwrappers.sec import Sec
 from neuronpp.core.cells.section_cell import SectionCell
 from neuronpp.core.hocwrappers.seg import Seg
 
 
 class CoreHocCell(PointProcessCell):
-    def __init__(self, name, compile_paths=None, build_on_the_fly=True):
-        SectionCell.__init__(self, name, compile_paths=compile_paths,
-                             build_on_the_fly=build_on_the_fly)
+    def __init__(self, name, compile_paths=None):
+        SectionCell.__init__(self, name, compile_paths=compile_paths)
         self._hoc_loaded = False
 
-    @build
-    def load_hoc(self, hoc_file, cell_template_name: str = None, reinitialize=True):
+    @template
+    def load_hoc(self, hoc_file, hoc_template_name: str = None, reinitialize=True):
         """
         This method allows to load a single cell to your model. It is experimental function so may not work stable.
         It is useful when loading a hoc file with a single cell declaration.
         It is currently intented to use it only once per object, otherwise may produce errors
         :param hoc_file:
             paths to hoc file
-        :param cell_template_name:
+        :param hoc_template_name:
             the name of the cell template. Default is None meaning that all sections are defined in the plain h.* object
         :param reinitialize:
             reinitialize NEURON after HOC import. Some HOC files perform computation, to avoid problems with
@@ -41,17 +40,17 @@ class CoreHocCell(PointProcessCell):
             h.finitialize()
 
         obj = h
-        if cell_template_name:
-            if not hasattr(h, cell_template_name):
-                raise AttributeError("Hoc main object 'h' has no template of '%s'." % cell_template_name)
+        if hoc_template_name:
+            if not hasattr(h, hoc_template_name):
+                raise AttributeError("Hoc main object 'h' has no template of '%s'." % hoc_template_name)
 
-            obj = getattr(h, cell_template_name)
+            obj = getattr(h, hoc_template_name)
 
             if len(obj) == 0:
-                raise LookupError("Hoc main object 'h' has no template '%s' created, hovewer it was defined." % cell_template_name)
+                raise LookupError("Hoc main object 'h' has no template '%s' created, hovewer it was defined." % hoc_template_name)
             if len(obj) > 1:
                 raise LookupError("Hoc main object 'h' has %s objects of template '%s', hovewer currently this mechanisms support "
-                                  "a only single template object creation in Hoc." % (len(obj), cell_template_name))
+                                  "a only single template object creation in Hoc." % (len(obj), hoc_template_name))
             obj = obj[0]
 
         result = self._add_new_sections(obj)

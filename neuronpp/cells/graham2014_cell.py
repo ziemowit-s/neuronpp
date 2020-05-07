@@ -15,5 +15,5 @@ class Graham2014Cell(Cell, CoreHocCell):
         CoreHocCell.__init__(self, name)
 
         main_file = os.path.join(model_folder, "run_PC.hoc")
-        self.load_hoc(main_file, cell_template_name="PyramidalCell")
+        self.load_hoc(main_file, hoc_template_name="PyramidalCell")
 
