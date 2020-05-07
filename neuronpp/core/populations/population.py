@@ -1,15 +1,14 @@
-import abc
+from copy import deepcopy
 from typing import List, Union
 
 import numpy as np
 
-from neuronpp.cells.cell import Cell
+from neuronpp.core.cells.core_cell import CoreCell
 from neuronpp.core.hocwrappers.netstim import NetStim
 from neuronpp.core.hocwrappers.seg import Seg
 from neuronpp.core.hocwrappers.vecstim import VecStim
 from neuronpp.utils.record import Record
-from neuronpp.core.distributions.distribution import Dist, UniformProba, \
-    NormalProba
+from neuronpp.core.distributions import Dist, UniformProba, NormalProba
 
 
 class ConnParams:
@@ -42,14 +41,27 @@ class Population:
         self.syns = []
         self.recs = {}
 
-    def create(self, cell_num, **kwargs):
+    def add_cells(self, template: CoreCell, num: int):
+        """
+        :param template:
+        :param num:
+        :return:
+            created list of cells
+        """
+        if template._build_on_the_fly:
+            raise AttributeError("Param build_on_the_fly must be set to False for "
+                                 "cell passed as a template to the Population.")
+
         result = []
-        for i in range(cell_num):
-            cell = self.cell_definition(**kwargs)
-            cell.name = "%s[%s][%s]" % (self.name, cell.name, self.cell_counter)
+        for i in range(num):
+            cell = deepcopy(template)
+            results = cell.build()
+
+            cell.name = "%s[%s][%s]" % (self.name, template.name, self.cell_counter)
             self.cell_counter += 1
+
             self.cells.append(cell)
-            result.append(cell)
+            result.append(results)
 
         return result
 
@@ -123,6 +135,7 @@ class Population:
 
         if conn_params.rule == 'all':
             for s in source:
+                # TODO syn_num_per_source
                 for t in target:
                     if not self._is_connect(conn_params.proba):
                         continue
@@ -136,6 +149,7 @@ class Population:
                     "for rule 'one' len of sources and population cells must be the same, "
                     "but it was %s and %s respectively." % (len(source), len(self.cells)))
 
+            # TODO syn_num_per_source
             for s, t in zip(source, target):
                 if not self._is_connect(conn_params.proba):
                     continue
@@ -148,7 +162,6 @@ class Population:
         self.syns.extend(result)
         return result
 
-    # TODO syn_num_per_source
     @staticmethod
     def _add_syn(source: Union[Seg, VecStim, NetStim], target: Seg, mod_name,
                  netcon_params, spine_params, tag, **kwargs) -> list:
@@ -216,13 +229,3 @@ class Population:
         """
         for r in self.recs.values():
             r.plot(animate=animate, **kwargs)
-
-    @abc.abstractmethod
-    def cell_definition(self, **kwargs) -> Cell:
-        """
-        You can pass any param you like to this this method
-        as long as you provide default param during the method definition.
-        :return:
-            Must return a single cell created by the population.
-        """
-        raise NotImplementedError()

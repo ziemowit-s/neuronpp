@@ -4,16 +4,19 @@ from neuron import h
 from neuronpp.core.cells.point_process_cell import PointProcessCell
 from nrn import Section
 
+from neuronpp.core.decorators import build
 from neuronpp.core.hocwrappers.sec import Sec
 from neuronpp.core.cells.section_cell import SectionCell
 from neuronpp.core.hocwrappers.seg import Seg
 
 
 class CoreHocCell(PointProcessCell):
-    def __init__(self, name, compile_paths=None):
-        SectionCell.__init__(self, name, compile_paths=compile_paths)
+    def __init__(self, name, compile_paths=None, build_on_the_fly=True):
+        SectionCell.__init__(self, name, compile_paths=compile_paths,
+                             build_on_the_fly=build_on_the_fly)
         self._hoc_loaded = False
 
+    @build
     def load_hoc(self, hoc_file, cell_template_name: str = None, reinitialize=True):
         """
         This method allows to load a single cell to your model. It is experimental function so may not work stable.

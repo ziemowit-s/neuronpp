@@ -2,7 +2,23 @@ import functools
 import numpy as np
 from typing import List
 
-from neuronpp.core.distributions.distribution import Dist, UniformDist, NormalDist, TruncatedNormal
+from neuronpp.core.buildable import Buildable
+from neuronpp.core.distributions import Dist, UniformDist, NormalDist, TruncatedNormal
+
+
+def build(func):
+    @functools.wraps(func)
+    def _wrapper_build(*args, **kwargs):
+        obj = args[0]
+        if not isinstance(obj, Buildable):
+            raise TypeError("Decorator @build can be use only with Buildable object.")
+
+        if not obj._build_on_the_fly:
+            obj._builds.append((func, args[1:], kwargs))
+            return
+        else:
+            return func(*args, **kwargs)
+    return _wrapper_build
 
 
 def distparams(_func=None, *, exlude: List[str] = None, include: List[str] = None):

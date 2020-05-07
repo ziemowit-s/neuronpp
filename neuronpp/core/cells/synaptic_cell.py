@@ -1,13 +1,14 @@
 from collections import defaultdict
 
 from neuronpp.core.cells.netcon_cell import NetConCell
-from neuronpp.core.distributions.decorators import distparams
+from neuronpp.core.decorators import distparams, build
 from neuronpp.core.hocwrappers.composed.synapse import Synapse
 
 
 class SynapticCell(NetConCell):
-    def __init__(self, name=None, compile_paths=None):
-        NetConCell.__init__(self, name, compile_paths=compile_paths)
+    def __init__(self, name=None, compile_paths=None, build_on_the_fly=True):
+        NetConCell.__init__(self, name, compile_paths=compile_paths,
+                            build_on_the_fly=build_on_the_fly)
         self.syns = []
         self._syn_num = defaultdict(int)
 
@@ -47,6 +48,7 @@ class SynapticCell(NetConCell):
                            source=source,
                            point_process=point_process, parent=parent, tag=tag, **kwargs)
 
+    @build
     @distparams
     def add_synapse(self, source, mod_name: str, seg, netcon_weight=1, delay=0, threshold=10,
                     tag: str = None, **synaptic_params):

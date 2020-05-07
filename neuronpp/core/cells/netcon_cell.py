@@ -1,6 +1,6 @@
 from neuron import h
 
-from neuronpp.core.distributions.decorators import distparams
+from neuronpp.core.decorators import distparams, build
 from neuronpp.core.hocwrappers.netcon import NetCon
 from neuronpp.core.hocwrappers.point_process import PointProcess
 from neuronpp.core.hocwrappers.seg import Seg
@@ -13,8 +13,9 @@ from neuronpp.core.cells.point_process_cell import PointProcessCell
 
 
 class NetConCell(PointProcessCell):
-    def __init__(self, name=None, compile_paths=None):
-        PointProcessCell.__init__(self, name, compile_paths=compile_paths)
+    def __init__(self, name=None, compile_paths=None, build_on_the_fly=True):
+        PointProcessCell.__init__(self, name, compile_paths=compile_paths,
+                                  build_on_the_fly=build_on_the_fly)
         self.ncs = []
         self._spike_detector = None
         self._nc_num = defaultdict(int)
@@ -47,6 +48,7 @@ class NetConCell(PointProcessCell):
         """
         return self.filter(searchable=self.ncs, obj_filter=obj_filter, mod_name=mod_name, name=name, **kwargs)
 
+    @build
     @distparams
     def add_netcon(self, source, point_process, netcon_weight=1, delay=0, threshold=10):
         """
@@ -76,6 +78,43 @@ class NetConCell(PointProcessCell):
         self.ncs.append(conn)
         self._nc_num[name] += 1
         return conn
+
+    @build
+    def make_spike_detector(self, segment):
+        """
+        :param segment:
+        """
+        if not isinstance(segment, Seg):
+            raise TypeError("Param 'segment' can be only a Seg object.")
+        if self._spike_detector is not None:
+            raise RuntimeError("Spike detector has been created already for the cell %s, "
+                               "you can't create another one." % self.name)
+
+        nc_detector = self.add_netcon(source=segment, point_process=None)
+        nc_detector.name = "SpikeDetector[%s]" % self.name
+
+        result_vector = h.Vector()
+        nc_detector.hoc.record(result_vector)
+        self._spike_detector = (nc_detector, result_vector)
+
+    def get_spikes(self):
+        """
+        :return:
+            numpy array of time of spikes in ms
+        """
+        if self._spike_detector is None:
+            raise LookupError("Spike detector have not been setup before run. call cell.make_spike_detector() function before.")
+        spikes = self._spike_detector[1].as_numpy()
+        return spikes
+
+    @build
+    def plot_spikes(self):
+        spikes = self.get_spikes()
+        fig, ax = plt.subplots(1)
+
+        ax.set_title("Spike detector of %s" % self.name)
+        ax.vlines(spikes, 0, 1)
+        ax.set(xlabel='t (ms)', ylabel="spikes")
 
     def _make_netcon(self, source, point_process, ref_variable: str = 'v',
                      delay=1.0, netcon_weight=1.0, threshold=10):
@@ -121,38 +160,3 @@ class NetConCell(PointProcessCell):
         name = "%s->%s" % (source, point_process)
         con = NetCon(con, source=source, target=point_process, parent=self, name=name)
         return con, name
-
-    def make_spike_detector(self, segment):
-        """
-        :param segment:
-        """
-        if not isinstance(segment, Seg):
-            raise TypeError("Param 'segment' can be only a Seg object.")
-        if self._spike_detector is not None:
-            raise RuntimeError("Spike detector has been created already for the cell %s, "
-                               "you can't create another one." % self.name)
-
-        nc_detector = self.add_netcon(source=segment, point_process=None)
-        nc_detector.name = "SpikeDetector[%s]" % self.name
-
-        result_vector = h.Vector()
-        nc_detector.hoc.record(result_vector)
-        self._spike_detector = (nc_detector, result_vector)
-
-    def get_spikes(self):
-        """
-        :return:
-            numpy array of time of spikes in ms
-        """
-        if self._spike_detector is None:
-            raise LookupError("Spike detector have not been setup before run. call cell.make_spike_detector() function before.")
-        spikes = self._spike_detector[1].as_numpy()
-        return spikes
-
-    def plot_spikes(self):
-        spikes = self.get_spikes()
-        fig, ax = plt.subplots(1)
-
-        ax.set_title("Spike detector of %s" % self.name)
-        ax.vlines(spikes, 0, 1)
-        ax.set(xlabel='t (ms)', ylabel="spikes")

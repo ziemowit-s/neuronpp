@@ -1,13 +1,15 @@
 from neuronpp.core.cells.spine_cell import SpineCell
 from neuronpp.core.cells.complex_synaptic_cell import ComplexSynapticCell
-from neuronpp.core.distributions.decorators import distparams
+from neuronpp.core.decorators import distparams, build
 
 
 class SynapticSpineCell(SpineCell, ComplexSynapticCell):
-    def __init__(self, name=None, compile_paths=None):
-        ComplexSynapticCell.__init__(self, name, compile_paths=compile_paths)
+    def __init__(self, name=None, compile_paths=None, build_on_the_fly=True):
+        ComplexSynapticCell.__init__(self, name, compile_paths=compile_paths,
+                                     build_on_the_fly=build_on_the_fly)
         SpineCell.__init__(self, name)
 
+    @build
     @distparams
     def add_synapses_with_spine(self, source, mod_name: str, segs,
                                 netcon_weight=1, delay=0,
@@ -35,6 +37,7 @@ class SynapticSpineCell(SpineCell, ComplexSynapticCell):
                                          synaptic_params)
         return syns, heads
 
+    @build
     @distparams
     def add_random_synapses_with_spine(self, source, mod_name: str, secs,
                                        netcon_weight=1, number=1, delay=0,

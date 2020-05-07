@@ -2,18 +2,19 @@ from neuron import h
 from collections import defaultdict
 
 from neuronpp.core.cells.section_cell import SectionCell
-from neuronpp.core.distributions.decorators import distparams
+from neuronpp.core.decorators import distparams, build
 from neuronpp.core.hocwrappers.point_process import PointProcess
 from neuronpp.core.hocwrappers.seg import Seg
 
 
 class PointProcessCell(SectionCell):
-    def __init__(self, name=None, compile_paths=None):
+    def __init__(self, name=None, compile_paths=None, build_on_the_fly=True):
         """
         :param name:
             Name of the cell
         """
-        SectionCell.__init__(self, name, compile_paths=compile_paths)
+        SectionCell.__init__(self, name, compile_paths=compile_paths,
+                             build_on_the_fly=build_on_the_fly)
         self.pps = []
         self._pp_num = defaultdict(int)
 
@@ -47,6 +48,7 @@ class PointProcessCell(SectionCell):
         return self.filter(searchable=self.pps, obj_filter=obj_filter, mod_name=mod_name, name=name, parent=parent,
                            **kwargs)
 
+    @build
     @distparams
     def add_point_process(self, mod_name: str, seg, tag: str = None, **point_process_params):
         """
