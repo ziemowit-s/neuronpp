@@ -1,5 +1,5 @@
 from copy import deepcopy
-from typing import List, Union
+from typing import List, Union, Optional
 
 import numpy as np
 
@@ -63,7 +63,7 @@ class Population:
             self.cell_counter += 1
             self.cells.append(cell)
 
-    def connect(self, source: List[Union[Seg, VecStim, NetStim]], target: List[Seg],
+    def connect(self, source: Optional[List[Union[Seg, VecStim, NetStim]]], target: List[Seg],
                 mod_name, tag=None,
                 netcon_params: NetconParams = None, conn_params: ConnParams = None,
                 spine_params: SpineParams = None, **point_process_params):
