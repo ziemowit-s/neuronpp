@@ -202,7 +202,7 @@ The main cell object `Cell` contains all filter methods inside.
    ```python
    cell = Cell(name="cell")
    dendrites = cell.filter_secs(name="dend")
-   cell.add_random_spines(spine_number=10, head_nseg=10, neck_nseg=10, secs=dendrites)
+   cell.add_randuniform_spines(spine_number=10, head_nseg=10, neck_nseg=10, secs=dendrites)
    ```
 
   * add many synapses with spines (1 synapse/spine) in a single function to provided sections:

@@ -1,8 +1,9 @@
 from neuronpp.core.cells.spine_cell import SpineCell
 from neuronpp.core.decorators import distparams, template
+from neuronpp.core.cells.complex_synaptic_cell import ComplexSynapticCell
 
 
-class SynapticSpineCell(SpineCell):
+class SynapticSpineCell(SpineCell, ComplexSynapticCell):
     def __init__(self, name=None, compile_paths=None):
         SpineCell.__init__(self, name, compile_paths=compile_paths)
 
@@ -56,8 +57,8 @@ class SynapticSpineCell(SpineCell):
         :param synaptic_params:
         :return:
         """
-        spines = self.add_random_spines(spine_number=number, secs=secs, head_nseg=head_nseg,
-                                        neck_nseg=neck_nseg)
+        spines = self.add_randuniform_spines(spine_number=number, secs=secs, head_nseg=head_nseg,
+                                             neck_nseg=neck_nseg)
 
         syns, heads = self._add_synapses(spines, source, mod_name, netcon_weight, delay, tag,
                                          synaptic_params)

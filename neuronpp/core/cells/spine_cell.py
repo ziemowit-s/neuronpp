@@ -114,9 +114,9 @@ class SpineCell(SectionCell):
 
     @template
     @distparams
-    def add_random_spines(self, spine_number, secs=None, spine_type="generic",
-                          head_nseg=2, neck_nseg=2,
-                          seed: int = None):
+    def add_randuniform_spines(self, spine_number, secs=None, spine_type="generic",
+                               head_nseg=2, neck_nseg=2,
+                               seed: int = None):
         """
         Currently the only supported spine distribution is random_uniform
 
