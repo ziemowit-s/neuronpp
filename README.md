@@ -241,7 +241,7 @@ The main cell object `Cell` contains all filter methods inside.
 
   * Change source to the previously created synapse:
   ```python
-    synapse.add_source(source=None, weight=0.035, threshold=15, delay=2)
+    synapse.add_netcon(source=None, weight=0.035, threshold=15, delay=2)
   ```
 
 ### Record and plot

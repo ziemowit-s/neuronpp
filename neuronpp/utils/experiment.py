@@ -1,9 +1,9 @@
-from neuron import h
+from typing import Optional
+
 from neuronpp.utils.iclamp import IClamp
 from neuronpp.core.hocwrappers.sec import Sec
 from neuronpp.core.cells.netstim_cell import NetStimCell
-from neuronpp.core.hocwrappers.composed.synapse import Synapse
-from neuronpp.core.hocwrappers.composed.complex_synapse import ComplexSynapse
+from neuronpp.core.hocwrappers.synapse import Synapse
 
 
 class Experiment:
@@ -14,7 +14,7 @@ class Experiment:
         self.netstims = []
         self.iclamps = []
 
-    def make_protocol(self, protocol: str, start, isi=1, iti=1, epsp_synapse: [Synapse, ComplexSynapse] = None,
+    def make_protocol(self, protocol: str, start, isi=1, iti=1, epsp_synapse: Optional[Synapse] = None,
                       i_clamp_section: Sec = None, train_number=1, copy_netconn_params=True):
         """
         Create an experimental protocol of EPSPs and APs.
@@ -115,13 +115,7 @@ class Experiment:
 
         if ptype == 'epsp':
             stim = netstim.make_netstim(event_time, number=num, interval=interval)
-
-            if isinstance(epsp_synapse, ComplexSynapse):
-                for s in epsp_synapse.values():
-                    self._set_source(stim, s, weight, threshold, delay, copy_netconn_params)
-            else:
-                self._set_source(stim, epsp_synapse, weight, threshold, delay, copy_netconn_params)
-
+            self._set_source(stim, epsp_synapse, weight, threshold, delay, copy_netconn_params)
             event_time += interval * num
 
         elif ptype == 'ap':
@@ -140,4 +134,4 @@ class Experiment:
             delay = nc.hoc.delay
             weight = nc.hoc.weight[0]
             threshold = nc.hoc.threshold
-        syn.add_source(source=stim, weight=weight, threshold=threshold, delay=delay)
+        syn.add_netcon(source=stim, weight=weight, threshold=threshold, delay=delay)

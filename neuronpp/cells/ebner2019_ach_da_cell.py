@@ -1,7 +1,7 @@
 import os
 
 from neuron import h
-from neuronpp.core.hocwrappers.composed.synapse import Synapse
+from neuronpp.core.hocwrappers.synapse import Synapse
 
 from neuronpp.cells.hay2011_cell import Hay2011Cell
 

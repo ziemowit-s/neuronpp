@@ -2,7 +2,7 @@ from collections import defaultdict
 
 from neuronpp.core.cells.netcon_cell import NetConCell
 from neuronpp.core.decorators import distparams, template
-from neuronpp.core.hocwrappers.composed.synapse import Synapse
+from neuronpp.core.hocwrappers.synapse import Synapse
 
 
 class SynapticCell(NetConCell):

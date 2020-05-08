@@ -1,8 +1,5 @@
-import nrn
-
 from neuronpp.core.hocwrappers.sec import Sec
 from neuronpp.core.cells.section_cell import SectionCell
-from neuronpp.core.hocwrappers.hoc_wrapper import HocWrapper
 
 
 class Spine:
@@ -25,4 +22,4 @@ class Spine:
 
     @property
     def sections(self):
-        return (self.head, self.neck)
+        return self.head, self.neck

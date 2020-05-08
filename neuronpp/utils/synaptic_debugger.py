@@ -1,7 +1,7 @@
 import time
 from collections import defaultdict
 
-from neuronpp.core.hocwrappers.composed.synapse import Synapse
+from neuronpp.core.hocwrappers.synapse import Synapse
 from neuronpp.core.hocwrappers.netcon import NetCon
 from neuronpp.core.hocwrappers.seg import Seg
 from neuronpp.utils.record import Record
