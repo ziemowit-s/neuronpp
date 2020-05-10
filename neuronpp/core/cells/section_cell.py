@@ -1,9 +1,9 @@
 from os import path
 from neuron import h
 
-from neuronpp.core.decorators import distparams, template
 from neuronpp.core.hocwrappers.sec import Sec
 from neuronpp.core.cells.core_cell import CoreCell
+from neuronpp.core.decorators import distparams, template
 
 h.load_file('stdlib.hoc')
 h.load_file('import3d.hoc')
@@ -26,22 +26,27 @@ class SectionCell(CoreCell):
         Currently all filter passed are treated as AND statements.
 
         * Whole object callable function passed to the obj_filter param.
-            eg. (lambda expression) returns sections which name contains 'apic' or their distance > 1000 um from the soma:
+            eg. (lambda expression) returns sections which name contains 'apic' or
+            their distance > 1000 um from the soma:
           ```
            soma = cell.filter_secs("soma")
-           cell.filter_secs(obj_filter=lambda o: 'apic' in o.name or h.distance(soma.hoc(0.5), o.hoc(0.5)) > 1000)
+           cell.filter_secs(obj_filter=lambda o: 'apic' in o.name or h.distance(soma.hoc(0.5),
+                                                o.hoc(0.5)) > 1000)
           ```
 
         * Single object field filter based on callable function passed to the obj_filter param.
-          eg. (lambda expression) returns sections which parent's name contains less than 10 characters
+          eg. (lambda expression) returns sections which parent's name contains less than 10
+          characters
           ```
           cell.filter_secs(parent=lambda o: len(o.parent.name) < 10)
           ```
 
         :param name:
-            start with 'regex:any pattern' to use regular expression. If without 'regex:' - will look which Hoc objects contain the str
+            start with 'regex:any pattern' to use regular expression. If without 'regex:'
+             will look which Hoc objects contain the str
         :param obj_filter:
-            Whole object callable functional filter. If you added also any kwargs they will be together with the
+            Whole object callable functional filter. If you added also any kwargs they will be
+            together with the
             obj_filter treated as AND statement.
         :return:
         """
@@ -194,8 +199,8 @@ class SectionCell(CoreCell):
             name = hoc_sec.name().split('.')[-1]  # eg. name="dend[19]"
             if len(self.filter_secs(name)) > 0:
                 raise LookupError(
-                    "The name '%s' is already taken by another section of the cell: '%s' of type: '%s'."
-                    % (name, self.name, self.__class__.__name__))
+                    "The name '%s' is already taken by another section of the cell: '%s' of "
+                    "type: '%s'." % (name, self.name, self.__class__.__name__))
             sec = Sec(hoc_sec, cell=self, name=name)
             self.secs.append(sec)
 
@@ -232,7 +237,8 @@ class SectionCell(CoreCell):
     def copy_mechanisms(self, secs_to, sec_from='parent'):
         """
         Copy mechanisms from the sec_from to all sections specified in the secs_to param.
-        If sec_from is 'parent' it will copy mechanisms from the parent of each sections in the secs_to param.
+        If sec_from is 'parent' it will copy mechanisms from the parent of each sections in the
+        secs_to param.
         """
         for sec in secs_to:
 
