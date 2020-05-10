@@ -3,10 +3,10 @@ from neuronpp.core.hocwrappers.synapse import Synapse
 from neuronpp.core.hocwrappers.hoc_wrapper import HocWrapper
 
 
-class ComplexSynapse(Wrapper, dict):
+class SynapticGroup(Wrapper, dict):
     def __init__(self, synapses, name, tag=None):
         self.tag = tag
-        self.mod_name = '+'.join([s.mod_name for s in synapses])
+        self.mod_name = '_'.join([s.mod_name for s in synapses])
         name = "%s[%s]" % (self.mod_name, name)
 
         parent = None
@@ -61,4 +61,4 @@ class ComplexSynapse(Wrapper, dict):
 
     def __repr__(self):
         synapses_in = '+'.join(self.keys())
-        return "{}[{}]+{}".format(self.parent, self.__class__.__name__, synapses_in)
+        return "{}[{}][{}]".format(self.parent, self.__class__.__name__, synapses_in)

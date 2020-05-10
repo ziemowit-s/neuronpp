@@ -24,7 +24,7 @@ if __name__ == '__main__':
         syn_da = cell.add_synapse(source=None, mod_name="SynDa", seg=h(1.0), netcon_weight=0.1,
                                   delay=1)
         cell.set_synaptic_pointers(s, syn_ach, syn_da)
-        cell.group_complex_synapses("input_syn", s, syn_ach, syn_da)
+        cell.group_synapses("input_syn", s, syn_ach, syn_da)
 
     # add mechanisms
     cell.make_default_mechanisms()

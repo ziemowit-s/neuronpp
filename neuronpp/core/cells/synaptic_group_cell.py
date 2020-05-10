@@ -2,10 +2,10 @@ from collections import defaultdict
 
 from neuronpp.core.cells.synaptic_cell import SynapticCell
 from neuronpp.core.decorators import template
-from neuronpp.core.hocwrappers.complex_synapse import ComplexSynapse
+from neuronpp.core.hocwrappers.synaptic_group import SynapticGroup
 
 
-class ComplexSynapticCell(SynapticCell):
+class SynapticGroupCell(SynapticCell):
     def __init__(self, name=None, compile_paths=None):
         """
         Create a single synapse composed from existing synapses
@@ -55,7 +55,7 @@ class ComplexSynapticCell(SynapticCell):
                            parent=parent, tag=tag, **kwargs)
 
     @template
-    def group_complex_synapses(self, tag=None, *synapses):
+    def group_synapses(self, tag=None, *synapses):
         """
         Group existing synapses as a single complex synapse
         :param synapses:
@@ -68,7 +68,7 @@ class ComplexSynapticCell(SynapticCell):
         mod_names = '+'.join([s.mod_name for s in synapses])
 
         name = str(self._complex_syn_num[mod_names])
-        comp_syn = ComplexSynapse(synapses=synapses, name=name, tag=tag)
+        comp_syn = SynapticGroup(synapses=synapses, name=name, tag=tag)
         self.complex_syns.append(comp_syn)
         self._complex_syn_num[mod_names] += 1
 

@@ -1,10 +1,10 @@
 from neuron import h
 from collections import defaultdict
 
+from neuronpp.core.hocwrappers.seg import Seg
 from neuronpp.core.cells.section_cell import SectionCell
 from neuronpp.core.decorators import distparams, template
 from neuronpp.core.hocwrappers.point_process import PointProcess
-from neuronpp.core.hocwrappers.seg import Seg
 
 
 class PointProcessCell(SectionCell):

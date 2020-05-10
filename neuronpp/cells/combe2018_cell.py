@@ -75,5 +75,5 @@ class Combe2018Cell(Cell, CoreHocCell):
                 nmda_syns.append(syn)
 
             for syns in zip(ampa_syns, nmda_syns):
-                comp_syn = self.group_complex_synapses("combe_type", syns)
+                comp_syn = self.group_synapses("combe_type", syns)
                 self.combe_syns.append(comp_syn)

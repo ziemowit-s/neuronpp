@@ -1,11 +1,12 @@
 from neuronpp.core.cells.spine_cell import SpineCell
 from neuronpp.core.decorators import distparams, template
-from neuronpp.core.cells.complex_synaptic_cell import ComplexSynapticCell
+from neuronpp.core.cells.synaptic_group_cell import SynapticGroupCell
 
 
-class SynapticSpineCell(SpineCell, ComplexSynapticCell):
+class SynapticSpineCell(SpineCell, SynapticGroupCell):
     def __init__(self, name=None, compile_paths=None):
         SpineCell.__init__(self, name, compile_paths=compile_paths)
+        SynapticGroupCell.__init__(self, name, compile_paths=compile_paths)
 
     @template
     @distparams
