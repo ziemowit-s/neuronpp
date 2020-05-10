@@ -136,7 +136,7 @@ class Population:
                 syns = self._make_conn(s, t, conn)
                 result.extend(syns)
         else:
-            raise TypeError("Wrong type of conn_dist")
+            raise TypeError("Wrong type of rule")
 
         self.syns.extend(result)
         return result

@@ -7,7 +7,6 @@ from threading import Thread
 
 from neuronpp.core.hocwrappers.point_process import PointProcess
 from pyvis.network import Network
-import matplotlib.pyplot as py
 from pynput.keyboard import Listener
 from neuronpp.core.hocwrappers.seg import Seg
 

@@ -1,8 +1,9 @@
 import os
+import numpy as np
 
 from neuronpp.cells.cell_template import CellTemplate
 from neuronpp.core.cells.netstim_cell import NetStimCell
-from neuronpp.core.distributions import NormalDist
+from neuronpp.core.distributions import NormalDist, Dist, NormalTruncatedDist
 from neuronpp.core.populations.population import Population, NormalProba
 from neuronpp.utils.graphs.network_status_graph import NetworkStatusGraph
 
@@ -21,14 +22,15 @@ if __name__ == '__main__':
     netstim = NetStimCell("stim").make_netstim(start=21, number=100, interval=2)
 
     # Define connection probabilities
-    conn_dist = NormalProba(expected=0.5, mean=0.5, std=0.1)
-    weight_dist = NormalDist(mean=0.01, std=0.02)
+    Dist.set_seed(13)
+    connection_proba = NormalProba(mean=0.45, std=0.1)
+    weight_dist = NormalTruncatedDist(mean=0.01, std=0.02)
 
     # Create population 1
     pop1 = Population("pop_0")
     pop1.add_cells(template=cell_template, num=4)
 
-    connector = pop1.connect(proba=conn_dist) \
+    connector = pop1.connect(proba=connection_proba) \
         .source(netstim) \
         .target([c.filter_secs("dend")(0.5) for c in pop1.cells])
     connector.add_synapse("Exp2Syn") \
@@ -41,7 +43,7 @@ if __name__ == '__main__':
     pop2 = Population("pop_1")
     pop2.add_cells(template=cell_template, num=4)
 
-    connector = pop2.connect(proba=conn_dist) \
+    connector = pop2.connect(proba=connection_proba) \
         .source([c.filter_secs("soma")(0.5) for c in pop1.cells]) \
         .target([c.filter_secs("dend")(0.5) for c in pop2.cells])
     connector.add_synapse("Exp2Syn") \
@@ -54,7 +56,7 @@ if __name__ == '__main__':
     pop3 = Population("pop_2")
     pop3.add_cells(template=cell_template, num=4)
 
-    connector = pop3.connect(proba=conn_dist) \
+    connector = pop3.connect(proba=connection_proba) \
         .source([c.filter_secs("soma")(0.5) for c in pop2.cells]) \
         .target([c.filter_secs("dend")(0.5) for c in pop3.cells])
     connector.add_synapse("Exp2Syn") \

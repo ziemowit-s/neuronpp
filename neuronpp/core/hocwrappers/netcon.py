@@ -31,3 +31,6 @@ class NetCon(HocWrapper):
         if use_global_sim_time:
             sim_time = h.t + sim_time
         self.hoc.event(sim_time)
+
+    def get_weight(self):
+        return self.hoc.weight[0]

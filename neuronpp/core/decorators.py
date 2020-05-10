@@ -3,7 +3,7 @@ import numpy as np
 from typing import List
 
 from neuronpp.core.template import Template
-from neuronpp.core.distributions import Dist, UniformDist, NormalDist, TruncatedNormal
+from neuronpp.core.distributions import Dist, UniformDist, NormalDist, NormalTruncatedDist
 
 
 def template(_func):
@@ -74,7 +74,7 @@ def distparams(_func=None, *, exlude: List[str] = None, include: List[str] = Non
                     elif isinstance(value, NormalDist):
                         result = np.random.normal(loc=value.mean, scale=value.std)
 
-                        if isinstance(value, TruncatedNormal):
+                        if isinstance(value, NormalTruncatedDist):
                             result = np.abs(result)
                     else:
                         raise TypeError("Not allowed value type for Dist: %s" % value)
