@@ -14,7 +14,8 @@ class Experiment:
         self.netstims = []
         self.iclamps = []
 
-    def make_protocol(self, protocol: str, start, isi=1, iti=1, epsp_synapse: Optional[Synapse] = None,
+    def make_protocol(self, protocol: str, start, isi=1, iti=1,
+                      epsp_synapse: Optional[Synapse] = None,
                       i_clamp_section: Sec = None, train_number=1, copy_netconn_params=True):
         """
         Create an experimental protocol of EPSPs and APs.
@@ -39,7 +40,8 @@ class Experiment:
         :param epsp_synapse:
             synapse to stimulate. Default is None if you don't want to stimulate synapse
         :param i_clamp_section:
-            section to input IClamp. Default is None if you don't want to stimulate any section by electrode (eg. making AP)
+            section to input IClamp. Default is None if you don't want to stimulate any section by
+            electrode (eg. making AP)
             It is assumed that IClamp stimulate i_clamp_section(0.5) segment.
         :param start:
             start time of the first stimuli in ms, it is absolute time, so bear in mind warmup time.
@@ -50,16 +52,13 @@ class Experiment:
         :param train_number:
             number of trains. Default is 1
         :param copy_netconn_params:
-            If copy_netconn_params=True it will copy NetConn params from the last NetConn added to the synapse.
+            If copy_netconn_params=True it will copy NetConn params from the last NetConn added to
+            the synapse.
         :return:
             tuple(NetStim, IClamp).
             If epsp_synapse is None NetStim will be None
             If i_clamp_section is None IClamp will be None
         """
-        #if start < h.t:
-        #    raise ValueError("Experimental protocol 'start' param must > h.t (time of the simulation), but your "
-        #                     "start=%s and h.t=%s. Bear in mind that 'start' param is the absolute time" % (start, h.t))
-
         protocol = protocol.lower()
         protocols = protocol.split(" ")
 
@@ -77,13 +76,15 @@ class Experiment:
         for train_no in range(train_number):
 
             for p in protocols:
-                event_time = self._prepare_protocol(p, netstim, iclamp, event_time, epsp_synapse, copy_netconn_params)
+                event_time = self._prepare_protocol(p, netstim, iclamp, event_time, epsp_synapse,
+                                                    copy_netconn_params)
                 event_time += isi
 
             event_time += iti
             return netstim, iclamp
 
-    def _prepare_protocol(self, protocol, netstim, iclamp, event_time, epsp_synapse, copy_netconn_params):
+    def _prepare_protocol(self, protocol, netstim, iclamp, event_time, epsp_synapse,
+                          copy_netconn_params):
         protocol, params = protocol.split("[")
 
         num, ptype = protocol.split("x")

@@ -24,28 +24,35 @@ class NetConCell(PointProcessCell):
         Currently all filter passed are treated as AND statements.
 
         * Whole object callable function passed to the obj_filter param.
-            eg. (lambda expression) returns sections which name contains 'apic' or their distance > 1000 um from the soma:
+            eg. (lambda expression) returns sections which name contains 'apic' or
+             their distance > 1000 um from the soma:
           ```
            soma = cell.filter_secs("soma")
-           cell.filter_secs(obj_filter=lambda o: 'apic' in o.name or h.distance(soma.hoc(0.5), o.hoc(0.5)) > 1000)
+           cell.filter_secs(obj_filter=lambda o: 'apic' in o.name or h.distance(soma.hoc(0.5),
+                                                  o.hoc(0.5)) > 1000)
           ```
 
         * Single object field filter based on callable function passed to the obj_filter param.
-          eg. (lambda expression) returns sections which parent's name contains less than 10 characters
+          eg. (lambda expression) returns sections which parent's name contains less than 10
+          characters
           ```
           cell.filter_secs(parent=lambda o: len(o.parent.name) < 10)
           ```
 
         :param mod_name:
-            single string defining name of target point process type name, eg. concere synaptic mechanisms like Syn4PAChDa
+            single string defining name of target point process type name, eg. concere synaptic
+            mechanisms like Syn4PAChDa
         :param obj_filter:
-            Whole object callable functional filter. If you added also any kwargs they will be together with the
+            Whole object callable functional filter. If you added also any kwargs they will be
+            together with the
             obj_filter treated as AND statement.
         :param name:
-            start with 'regex:any pattern' to use regular expression. If without 'regex:' - will look which Hoc objects contain the str
+            start with 'regex:any pattern' to use regular expression. If without 'regex:'
+            will look which Hoc objects contain the str
         :return:
         """
-        return self.filter(searchable=self.ncs, obj_filter=obj_filter, mod_name=mod_name, name=name, **kwargs)
+        return self.filter(searchable=self.ncs, obj_filter=obj_filter, mod_name=mod_name, name=name,
+                           **kwargs)
 
     @template
     @distparams
@@ -53,15 +60,19 @@ class NetConCell(PointProcessCell):
         """
         :param source:
             NetStim, VecStim, Seg or None.
-            If remain None it will create NetConn with no source, which can be use as external event source
+            If remain None it will create NetConn with no source, which can be use as external
+            event source
         :param netcon_weight:
         :param source_loc:
-            if source is type of hocwrapper.Sec - source_loc need to be between 0-1, otherwise must remain None.
+            if source is type of hocwrapper.Sec - source_loc need to be between 0-1, otherwise must
+            remain None.
         :param mod_name:
-            single string defining name of point process type name, eg. concrete synaptic mechanisms like Syn4PAChDa
+            single string defining name of point process type name, eg. concrete synaptic
+            mechanisms like Syn4PAChDa
             If None - it assumes that point_process has list of point processes objects
         :param point_process:
-            start with 'regex:any pattern' to use regular expression. If without 'regex:' - will look which Hoc objects contain the str
+            start with 'regex:any pattern' to use regular expression. If without 'regex:'
+            will look which Hoc objects contain the str
         :param delay:
             in ms
         :param threshold:
@@ -73,7 +84,9 @@ class NetConCell(PointProcessCell):
             raise TypeError("Param 'source' can be NetStim, VecStim, Seg or None, "
                             "but provided %s" % source.__class__)
 
-        conn, name = self._make_netcon(source=source, point_process=point_process, netcon_weight=netcon_weight, delay=delay, threshold=threshold)
+        conn, name = self._make_netcon(source=source, point_process=point_process,
+                                       netcon_weight=netcon_weight, delay=delay,
+                                       threshold=threshold)
         self.ncs.append(conn)
         self._nc_num[name] += 1
         return conn
@@ -102,7 +115,9 @@ class NetConCell(PointProcessCell):
             numpy array of time of spikes in ms
         """
         if self._spike_detector is None:
-            raise LookupError("Spike detector have not been setup before run. call cell.make_spike_detector() function before.")
+            raise LookupError(
+                "Spike detector have not been setup before run. call cell.make_spike_detector() "
+                "function before.")
         spikes = self._spike_detector[1].as_numpy()
         return spikes
 
@@ -119,11 +134,14 @@ class NetConCell(PointProcessCell):
                      delay=1.0, netcon_weight=1.0, threshold=10):
         """
         :param source:
-            NetStim, VecStim, HOC's Section or None. If None it will create a NetConn without the source.
+            NetStim, VecStim, HOC's Section or None. If None it will create a NetConn without the
+            source.
         :param point_process:
-            PointProcess object. If None - will create NetConn without target, it is used as a spike detector.
+            PointProcess object. If None - will create NetConn without target, it is used as a
+            spike detector.
         :param ref_variable:
-            Name of the variable which is reference to pass to the NetConn. In most cases it is voltage 'v'.
+            Name of the variable which is reference to pass to the NetConn. In most cases it is
+            voltage 'v'.
             If the source is NetStim or VecStim is the ref_variable is not used.
         :param delay:
         :param netcon_weight:
@@ -147,7 +165,9 @@ class NetConCell(PointProcessCell):
                 source_ref = getattr(source.hoc, "_ref_%s" % ref_variable)
                 con = h.NetCon(source_ref, hoc_pp, sec=source.hoc.sec)
             else:
-                raise TypeError("Source can only be NetStim, VecStim or Seg, but provided type of: %s" % source.__class__)
+                raise TypeError(
+                    "Source can only be NetStim, VecStim or Seg, but provided type of: %s"
+                    % source.__class__)
 
         if delay:
             con.delay = delay
