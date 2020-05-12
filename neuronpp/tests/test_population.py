@@ -1,10 +1,12 @@
 import os
 import unittest
 
+from neuronpp.cells.cell import Cell
+from neuronpp.cells.hay2011_cell import Hay2011Cell
 from neuronpp.core.distributions import Dist, NormalTruncatedDist
-from neuronpp.cells.cell_template import CellTemplate
 from neuronpp.core.cells.netstim_cell import NetStimCell
 from neuronpp.core.populations.population import Population, NormalProba
+from neuronpp.utils.utils import template
 
 path = os.path.dirname(os.path.abspath(__file__))
 
@@ -12,11 +14,19 @@ path = os.path.dirname(os.path.abspath(__file__))
 class TestPopulation(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cell_template = CellTemplate(name="cell")
         morpho_path = os.path.join(path, "..", "commons/morphologies/swc/my.swc")
-        cell_template.load_morpho(filepath=morpho_path)
-        cell_template.insert("pas")
-        cell_template.insert("hh")
+
+        TemplateCell = template(Cell)
+        template_cell = TemplateCell(name="cell")
+        template_cell.load_morpho(filepath=morpho_path)
+        template_cell.insert("pas")
+        template_cell.insert("hh")
+
+        TemplateHay2011Cell = template(Hay2011Cell)
+        template_hay = TemplateHay2011Cell(name="cell")
+        template_hay.load_morpho(filepath=morpho_path)
+        template_hay.insert("pas")
+        template_hay.insert("hh")
 
         # Create NetStim
         netstim = NetStimCell("stim1").make_netstim(start=21, number=100, interval=2)
@@ -28,35 +38,35 @@ class TestPopulation(unittest.TestCase):
 
         # Create population 1
         cls.pop1 = Population("pop_0")
-        cls.pop1.add_cells(template=cell_template, num=3)
+        cls.pop1.add_cells(template=template_cell, num=3)
 
-        connector = cls.pop1.connect(proba=conn_dist) \
-            .source(netstim) \
-            .target([c.filter_secs("dend")(0.5) for c in cls.pop1.cells])
-        connector.add_synapse("Exp2Syn") \
-            .add_netcon(weight=weight_dist)
+        connector = cls.pop1.connect(proba=conn_dist)
+        connector.source(netstim)
+        connector.target([c.filter_secs("dend")(0.5) for c in cls.pop1.cells])
+        mech_adder = connector.add_synapse("Exp2Syn")
+        mech_adder.add_netcon(weight=weight_dist)
         connector.build()
 
         # Create population 2
         cls.pop2 = Population("pop_1")
-        cls.pop2.add_cells(template=cell_template, num=4)
+        cls.pop2.add_cells(template=template_hay, num=4)
 
-        connector = cls.pop2.connect(proba=conn_dist) \
-            .source([c.filter_secs("soma")(0.5) for c in cls.pop1.cells]) \
-            .target([c.filter_secs("dend")(0.5) for c in cls.pop2.cells])
-        connector.add_synapse("Exp2Syn") \
-            .add_netcon(weight=weight_dist)
+        connector = cls.pop2.connect(proba=conn_dist)
+        connector.source([c.filter_secs("soma")(0.5) for c in cls.pop1.cells])
+        connector.target([c.filter_secs("dend")(0.5) for c in cls.pop2.cells])
+        mech_adder = connector.add_synapse("Exp2Syn")
+        mech_adder.add_netcon(weight=weight_dist)
         connector.build()
 
         # Create population 3
         cls.pop3 = Population("pop_2")
-        cls.pop3.add_cells(template=cell_template, num=5)
+        cls.pop3.add_cells(template=template_cell, num=5)
 
-        connector = cls.pop3.connect(proba=conn_dist) \
-            .source([c.filter_secs("soma")(0.5) for c in cls.pop2.cells]) \
-            .target([c.filter_secs("dend")(0.5) for c in cls.pop3.cells])
-        connector.add_synapse("Exp2Syn") \
-            .add_netcon(weight=weight_dist)
+        connector = cls.pop3.connect(proba=conn_dist)
+        connector.source([c.filter_secs("soma")(0.5) for c in cls.pop2.cells])
+        connector.target([c.filter_secs("dend")(0.5) for c in cls.pop3.cells])
+        mech_adder = connector.add_synapse("Exp2Syn")
+        mech_adder.add_netcon(weight=weight_dist)
         connector.build()
 
         # Creates inhibitory connections between cls.pop2->cls.pop3

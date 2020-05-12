@@ -2,7 +2,7 @@ from neuron.rxd import rxd
 
 from neuronpp.core.cells.rxd_tools import RxDTool
 from neuronpp.core.cells.section_cell import SectionCell
-from neuronpp.core.decorators import template
+from neuronpp.core.decorators import templatable
 from neuronpp.core.hocwrappers.rxd import RxD
 
 
@@ -15,7 +15,7 @@ class RxDCell(SectionCell):
         SectionCell.__init__(self, name, compile_paths=compile_paths)
         self.rxds = []
 
-    @template
+    @templatable
     def make_rxd(self, rxd_obj: RxDTool, sec=None, is_3d=False, threads=1, dx_3d_size=None):
         """
         :param rxd_obj:

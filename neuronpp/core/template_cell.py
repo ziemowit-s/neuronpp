@@ -2,7 +2,7 @@ from neuronpp.cells.cell import Cell
 from neuronpp.core.template import Template
 
 
-class CellTemplate(Template, Cell):
+class TemplateCell(Template, Cell):
     def __init__(self, name=None, compile_paths=None):
         """
         Class used to create Cell template object which maybe used to create cells in Population.

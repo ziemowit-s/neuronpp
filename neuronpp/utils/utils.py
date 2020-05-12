@@ -1,14 +1,43 @@
 import os
-from typing import List
+from copy import deepcopy, copy
+from typing import List, Generic, TypeVar, Type
 
 import numpy as np
 from neuron import h
 from threading import Thread
 
+from neuronpp.cells.cell import Cell
+from neuronpp.core.template_cell import TemplateCell
+from neuronpp.core.cells.core_cell import CoreCell
 from neuronpp.core.hocwrappers.point_process import PointProcess
 from pyvis.network import Network
 from pynput.keyboard import Listener
 from neuronpp.core.hocwrappers.seg import Seg
+from neuronpp.core.template import Template
+
+
+def template(cls: Type[Cell]) -> Type[TemplateCell]:
+    """
+    It returns Template class as if cls inherited from Template.
+    :param cls:
+    :return:
+    """
+    if not is_derived_from(test_class=cls, template_class=Cell):
+        raise TypeError("Param cls must derive from Cell class.")
+    if is_derived_from(test_class=cls, template_class=Template):
+        raise TypeError("Param cls cannot derive from Template class.")
+
+    name = "Template" + cls.__name__
+    new_template = type(name, (Template, cls), {})
+    return new_template
+
+
+def is_derived_from(test_class, template_class):
+    for c in test_class.mro():
+        if c == template_class:
+            return True
+    else:
+        return False
 
 
 def make_shape_plot(variable=None, min_val=-70, max_val=40):

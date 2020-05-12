@@ -3,7 +3,7 @@ from typing import List, Union
 import numpy as np
 
 from neuronpp.core.cells.section_cell import SectionCell
-from neuronpp.core.decorators import distparams, template
+from neuronpp.core.decorators import distparams, templatable
 from neuronpp.core.hocwrappers.sec import Sec
 from neuronpp.core.hocwrappers.seg import Seg
 from neuronpp.core.hocwrappers.spine import Spine
@@ -74,7 +74,7 @@ class SpineCell(SectionCell):
                     result[spine.parent].append(spine)
         return result
 
-    @template
+    @templatable
     @distparams
     def add_spines(self, segs: Union[Seg, List[Seg]] = None, head_nseg=2, neck_nseg=2):
         """
@@ -112,7 +112,7 @@ class SpineCell(SectionCell):
         self.necks.extend(necks)
         return spines
 
-    @template
+    @templatable
     @distparams
     def add_randuniform_spines(self, spine_number, secs=None, spine_type="generic",
                                head_nseg=2, neck_nseg=2,
@@ -159,7 +159,7 @@ class SpineCell(SectionCell):
         self.necks.extend(necks)
         return spines
 
-    @template
+    @templatable
     @distparams(include=["spine_density"])
     def add_spines_by_density(self, secs: List[Sec], spine_density,
                               spine_type="generic", **spine_params):
@@ -273,7 +273,7 @@ class SpineCell(SectionCell):
             all_target_locations.append(target_locations)
         return all_target_locations
 
-    @template
+    @templatable
     @distparams
     def compensate(self, cm_adjustment=False, **mechs_with_gbar_name):
         """

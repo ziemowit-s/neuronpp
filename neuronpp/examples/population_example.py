@@ -1,18 +1,18 @@
 import os
-import numpy as np
-
-from neuronpp.cells.cell_template import CellTemplate
+from neuronpp.cells.cell import Cell
 from neuronpp.core.cells.netstim_cell import NetStimCell
-from neuronpp.core.distributions import NormalDist, Dist, NormalTruncatedDist
+from neuronpp.core.distributions import Dist, NormalTruncatedDist
 from neuronpp.core.populations.population import Population, NormalProba
 from neuronpp.utils.graphs.network_status_graph import NetworkStatusGraph
 
 from neuronpp.utils.simulation import Simulation
+from neuronpp.utils.utils import template
 
 path = os.path.dirname(os.path.abspath(__file__))
 
 if __name__ == '__main__':
-    cell_template = CellTemplate(name="cell")
+    TemplateCell = template(Cell)
+    cell_template = TemplateCell(name="cell")
     morpho_path = os.path.join(path, "..", "commons/morphologies/swc/my.swc")
     cell_template.load_morpho(filepath=morpho_path)
     cell_template.insert("pas")
@@ -27,40 +27,40 @@ if __name__ == '__main__':
     weight_dist = NormalTruncatedDist(mean=0.01, std=0.02)
 
     # Create population 1
-    pop1 = Population("pop_0")
+    pop1 = Population("pop_1")
     pop1.add_cells(template=cell_template, num=4)
 
-    connector = pop1.connect(proba=connection_proba) \
-        .source(netstim) \
-        .target([c.filter_secs("dend")(0.5) for c in pop1.cells])
-    connector.add_synapse("Exp2Syn") \
-        .add_netcon(weight=weight_dist)
+    connector = pop1.connect(proba=connection_proba)
+    connector.source(netstim)
+    connector.target([c.filter_secs("dend")(0.5) for c in pop1.cells])
+    mod_adder = connector.add_synapse("Exp2Syn")
+    mod_adder.add_netcon(weight=weight_dist)
 
     connector.build()
     pop1.record()
 
     # Create population 2
-    pop2 = Population("pop_1")
+    pop2 = Population("pop_2")
     pop2.add_cells(template=cell_template, num=4)
 
-    connector = pop2.connect(proba=connection_proba) \
-        .source([c.filter_secs("soma")(0.5) for c in pop1.cells]) \
-        .target([c.filter_secs("dend")(0.5) for c in pop2.cells])
-    connector.add_synapse("Exp2Syn") \
-        .add_netcon(weight=weight_dist)
+    connector = pop2.connect(proba=connection_proba)
+    connector.source([c.filter_secs("soma")(0.5) for c in pop1.cells])
+    connector.target([c.filter_secs("dend")(0.5) for c in pop2.cells])
+    mod_adder = connector.add_synapse("Exp2Syn")
+    mod_adder.add_netcon(weight=weight_dist)
 
     connector.build()
     pop2.record()
 
     # Create population 3
-    pop3 = Population("pop_2")
+    pop3 = Population("pop_3")
     pop3.add_cells(template=cell_template, num=4)
 
-    connector = pop3.connect(proba=connection_proba) \
-        .source([c.filter_secs("soma")(0.5) for c in pop2.cells]) \
-        .target([c.filter_secs("dend")(0.5) for c in pop3.cells])
-    connector.add_synapse("Exp2Syn") \
-        .add_netcon(weight=weight_dist)
+    connector = pop3.connect(proba=connection_proba)
+    connector.source([c.filter_secs("soma")(0.5) for c in pop2.cells])
+    connector.target([c.filter_secs("dend")(0.5) for c in pop3.cells])
+    mod_adder = connector.add_synapse("Exp2Syn")
+    mod_adder.add_netcon(weight=weight_dist)
 
     connector.build()
     pop3.record()

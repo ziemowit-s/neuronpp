@@ -5,8 +5,8 @@ from neuron import h
 from neuronpp.cells.cell import Cell
 
 path = os.path.dirname(os.path.abspath(__file__))
-model_path = os.path.join(path, "..",
-                          "commons/mods/hay2011")
+model_path = os.path.join(path, "..", "commons/mods/hay2011")
+
 
 class Hay2011Cell(Cell):
     def __init__(self, name, compile_paths=model_path):

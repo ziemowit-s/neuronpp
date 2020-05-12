@@ -3,7 +3,7 @@ from neuron import h
 
 from neuronpp.core.hocwrappers.sec import Sec
 from neuronpp.core.cells.core_cell import CoreCell
-from neuronpp.core.decorators import distparams, template
+from neuronpp.core.decorators import distparams, templatable
 
 h.load_file('stdlib.hoc')
 h.load_file('import3d.hoc')
@@ -52,7 +52,7 @@ class SectionCell(CoreCell):
         """
         return self.filter(searchable=self.secs, obj_filter=obj_filter, name=name, **kwargs)
 
-    @template
+    @templatable
     def insert(self, mechanism_name: str, sec=None, **params):
         if isinstance(sec, Sec):
             sec = [sec]
@@ -67,7 +67,7 @@ class SectionCell(CoreCell):
                     setattr(mech, name, val)
         return self
 
-    @template
+    @templatable
     @distparams
     def set_pas(self, section, Rm=None, g_pas=None, E_rest=None):
         if isinstance(section, str):
@@ -86,7 +86,7 @@ class SectionCell(CoreCell):
             if g_pas is not None:
                 n_sec.hoc.g_pas = g_pas
 
-    @template
+    @templatable
     @distparams
     def add_sec(self, name: str, diam=None, l=None, rm=None, g_pas=None,
                 E_rest=None, ra=None, cm=None, nseg=None, add_pas=False):
@@ -126,7 +126,7 @@ class SectionCell(CoreCell):
         self.secs.append(sec)
         return sec
 
-    @template
+    @templatable
     @distparams
     def connect_secs(self, source, target, source_loc=1.0, target_loc=0.0):
         """
@@ -171,7 +171,7 @@ class SectionCell(CoreCell):
 
         source.hoc.connect(target.hoc(source_loc), target_loc)
 
-    @template
+    @templatable
     def load_morpho(self, filepath):
         """
         :param filepath:
@@ -206,7 +206,7 @@ class SectionCell(CoreCell):
 
         del self.all
 
-    @template
+    @templatable
     @distparams
     def set_cell_position(self, x, y, z):
         h.define_shape()
@@ -218,7 +218,7 @@ class SectionCell(CoreCell):
                                z - sec.z3d(i),
                                sec.diam3d(i))
 
-    @template
+    @templatable
     @distparams
     def rotate_cell_z(self, theta):
         h.define_shape()
@@ -233,7 +233,7 @@ class SectionCell(CoreCell):
                 yprime = x * s + y * c
                 sec.pt3dchange(i, xprime, yprime, sec.z3d(i), sec.diam3d(i))
 
-    @template
+    @templatable
     def copy_mechanisms(self, secs_to, sec_from='parent'):
         """
         Copy mechanisms from the sec_from to all sections specified in the secs_to param.

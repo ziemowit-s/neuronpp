@@ -2,7 +2,7 @@ from neuron import h
 
 from neuronpp.core.cells.core_cell import CoreCell
 from neuronpp.core.cells.utils import get_vecstim
-from neuronpp.core.decorators import template
+from neuronpp.core.decorators import templatable
 from neuronpp.core.hocwrappers.vecstim import VecStim
 from neuronpp.core.hocwrappers.vector import Vector
 
@@ -65,7 +65,7 @@ class VecStimCell(CoreCell):
         """
         return self.filter(self.vecs, obj_filter=obj_filter, names=name, **kwargs)
 
-    @template
+    @templatable
     def make_vecstim(self, ping_array):
         """
         :param ping_array

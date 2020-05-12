@@ -1,7 +1,7 @@
 from collections import defaultdict
 
 from neuronpp.core.cells.netcon_cell import NetConCell
-from neuronpp.core.decorators import distparams, template
+from neuronpp.core.decorators import distparams, templatable
 from neuronpp.core.hocwrappers.synapse import Synapse
 
 
@@ -46,7 +46,7 @@ class SynapticCell(NetConCell):
                            source=source,
                            point_process=point_process, parent=parent, tag=tag, **kwargs)
 
-    @template
+    @templatable
     @distparams
     def add_synapse(self, source, mod_name: str, seg, netcon_weight=1, delay=0, threshold=10,
                     tag: str = None, **synaptic_params):

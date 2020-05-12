@@ -6,7 +6,7 @@ from neuronpp.core.template import Template
 from neuronpp.core.distributions import Dist, UniformDist, NormalDist, NormalTruncatedDist
 
 
-def template(_func):
+def templatable(_func):
     """
 
     :param _func:
