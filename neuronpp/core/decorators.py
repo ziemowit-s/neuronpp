@@ -8,7 +8,7 @@ from neuronpp.core.distributions import Dist, UniformDist, NormalDist, NormalTru
 
 def templatable(_func):
     """
-
+    Decorator used for template calls
     :param _func:
         function which have been decorated
     :return:
