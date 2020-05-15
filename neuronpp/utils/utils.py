@@ -10,10 +10,10 @@ from pynput.keyboard import Listener
 from neuronpp.core.template import Template
 from neuronpp.core.hocwrappers.seg import Seg
 
-T = TypeVar('T', bound=Cell)
+T_Cell = TypeVar('T_Cell', bound=Cell)
 
 
-def template(cls: Type[T]) -> Type[T]:
+def template(cls: Type[T_Cell]) -> Type[T_Cell]:
     """
     Creates a template from the cls class which must to derive from Cell class.
 

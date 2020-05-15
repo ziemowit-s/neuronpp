@@ -1,8 +1,9 @@
-from typing import Optional, List, Union
+from typing import Optional, List, Union, Callable
 
 from neuronpp.core.distributions import Dist
 from neuronpp.core.hocwrappers.seg import Seg
 from neuronpp.core.hocwrappers.netstim import NetStim
+from neuronpp.core.hocwrappers.synapse import Synapse
 from neuronpp.core.hocwrappers.vecstim import VecStim
 from neuronpp.core.populations.params.conn_params import ConnParams
 from neuronpp.core.populations.mech_adder import SynAdder
@@ -82,19 +83,19 @@ class Connector:
         self._tag = tag
         return self
 
-    def synaptic_function(self, func):
+    def synaptic_function(self, func: Callable[[List[Synapse]], None]):
         """
         Add function which will be called on all synapses created for single cell of the population.
         The function definition should be:
 
-            def func(synapses: list):
+            def func(synapses: List[Synapse]):
                 ...
 
         It maybe useful if you create more than a single PointProcess or more than a single NetCon.
 
         :param func:
             function to call for all synapses created for a single cell of the population, as:
-                def func(synapses: list):
+                def func(synapses: List[Synapse]):
                     ...
         :return:
             self object (builder paradigm)

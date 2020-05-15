@@ -1,12 +1,13 @@
-from typing import Union, Iterable
-
 import numpy as np
+from typing import Union, Iterable, TypeVar, cast
 
-from neuronpp.core.cells.core_cell import CoreCell
-from neuronpp.core.populations.connector import Connector
-from neuronpp.core.template import Template
+from neuronpp.cells.cell import Cell
 from neuronpp.utils.record import Record
+from neuronpp.core.template import Template
+from neuronpp.core.populations.connector import Connector
 from neuronpp.core.distributions import Dist, UniformProba, NormalProba
+
+T_Cell = TypeVar('T_Cell', bound=Cell)
 
 
 class Population:
@@ -18,23 +19,22 @@ class Population:
 
         self.cell_counter = 0
 
-    def add_cells(self, template: Union[Template, CoreCell], num: int):
+    def add_cells(self, template: T_Cell, num: int):
         """
         Add cells base on provided template cell.
         The template cell must have build_on_the_fly param set to False.
 
         :param template:
-            must be of type Template and CoreCell
-            template cell which will be createn num-times.
-            template cell must have build_on_the_fly param set to False.
+            must be of type Template and Cell, it can derive from Cell.
         :param num:
             number of cells to create
         """
-        if not isinstance(template, Template) or not isinstance(template, CoreCell):
-            raise AttributeError("Param template must be of type Template and CoreCell.")
+        if not isinstance(template, Template) or not isinstance(template, Cell):
+            raise AttributeError("Param template must be of type Template and Cell.")
+        template = cast(Template, template)
 
         for i in range(num):
-            cell, results = template.build_template()
+            cell, results = template.build()
             cell.name = "%s[%s][%s]" % (self.name, cell.name, self.cell_counter)
             self.cell_counter += 1
             self.cells.append(cell)
@@ -98,7 +98,6 @@ class Population:
         :return:
             list of all created synapses
         """
-        source = conn._source
         target = conn._target
         conn_params = conn._conn_params
 
@@ -108,45 +107,21 @@ class Population:
                 "Population %s has no cells, cannot make connections. Add cells first." % self.name)
 
         result = []
-        if source is None:
-            source = [None for _ in range(cell_num)]
-        if not isinstance(source, Iterable):
-            source = [source]
         if not isinstance(target, Iterable):
             target = [target]
 
-        if conn_params.rule == 'all':
-            for s in source:
-                for t in target:
-                    if not self._is_connect(conn_params.proba):
-                        continue
+        for t in target:
+            if not self._is_connect(conn_params.proba):
+                continue
 
-                    syns = self._make_conn(s, t, conn)
-                    result.extend(syns)
-
-        elif conn_params.rule == 'one':
-            if len(source) != len(target):
-                raise LookupError(
-                    "for rule 'one' len of sources and population cells must be the same, "
-                    "but it was %s and %s respectively." % (len(source), len(self.cells)))
-
-            for s, t in zip(source, target):
-                if not self._is_connect(conn_params.proba):
-                    continue
-                syns = self._make_conn(s, t, conn)
-                result.extend(syns)
-        else:
-            raise TypeError("Wrong type of rule")
-
+            syns = self._make_conn(conn_params.rule, t, conn)
+            result.extend(syns)
         self.syns.extend(result)
         return result
 
     @staticmethod
-    def _make_conn(source, target, conn) -> list:
+    def _make_conn(rule: str, target, conn) -> list:
         """
-
-        :param source:
-            single source element
         :param target:
             single target element
         :param conn:
@@ -167,12 +142,15 @@ class Population:
                     target = spine.head(1.0)
 
                 for netcon_params in mech._netcon_params:
-                    syn = cell.add_synapse(source=source, seg=target, mod_name=mech.mod_name,
-                                           delay=netcon_params.delay,
-                                           netcon_weight=netcon_params.weight,
-                                           threshold=netcon_params.threshold, tag=conn.tag,
-                                           **mech._synaptic_params)
-                    syns.append(syn)
+                    source = None
+                    if not netcon_params.source:
+                        for s in netcon_params.source:
+                            syn = cell.add_synapse(source=s, seg=target, mod_name=mech.mod_name,
+                                                   delay=netcon_params.delay,
+                                                   netcon_weight=netcon_params.weight,
+                                                   threshold=netcon_params.threshold, tag=conn.tag,
+                                                   **mech._synaptic_params)
+                            syns.append(syn)
 
         if conn._group_syns:
             cell.group_synapses(tag=conn.tag, *syns)

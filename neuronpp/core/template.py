@@ -15,8 +15,10 @@ class Template:
         self._init_params = args, kwargs
         self._func_calls = []
 
-    def build_template(self):
+    def build(self):
         """
+        Build template.
+        It is intended to use by Population object, no by the user.
         :return:
             tuple(new_cell, results)
 

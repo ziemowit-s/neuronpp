@@ -1,6 +1,9 @@
-from typing import Union
+from typing import Union, Optional, List
 
 from neuronpp.core.distributions import Dist
+from neuronpp.core.hocwrappers.netstim import NetStim
+from neuronpp.core.hocwrappers.seg import Seg
+from neuronpp.core.hocwrappers.vecstim import VecStim
 from neuronpp.core.populations.params.netcon_params import NetconParams
 from neuronpp.core.populations.params.spine_params import SpineParams
 
@@ -13,9 +16,15 @@ class SynAdder:
         self._spine_params = None
         self._synaptic_params = {}
 
-    def add_netcon(self, weight: Union[float, Dist] = 1.0, delay: Union[float, Dist] = 1,
+    def add_netcon(self,
+                   source: Optional[Union[List[Union[Seg, VecStim, NetStim]], str]] = "default",
+                   weight: Union[float, Dist] = 1.0, delay: Union[float, Dist] = 1,
                    threshold: Union[float, Dist] = 10):
         """
+        :param source:
+            source object(s) which will call the Netcon(s) to initiate stimulation(s).
+            By default it is str "default", which means that it will take the default source defined
+            in the Connector object.
         :param weight:
             default is 1.0
         :param delay:
@@ -25,7 +34,7 @@ class SynAdder:
             default is 10
             threshold in mV
         """
-        ncp = NetconParams(weight=weight, delay=delay, threshold=threshold)
+        ncp = NetconParams(source=source, weight=weight, delay=delay, threshold=threshold)
         self._netcon_params.append(ncp)
         return self
 
