@@ -7,8 +7,10 @@ Created on Tue Mar  3 17:39:28 2020
 import re
 import math
 import numpy as np
+from typing import cast
 import matplotlib.pyplot as py
 
+from neuronpp.core.hocwrappers.netcon import NetCon
 from neuronpp.core.hocwrappers.seg import Seg
 from neuronpp.core.hocwrappers.point_process import PointProcess
 
@@ -99,10 +101,11 @@ class NetworkStatusGraph:
     def _find_target(self, c, x_pos, y_pos, weight_name):
         result = []
         for nc in c.ncs:
+            nc = cast(NetCon, nc)
             if "SpikeDetector" in nc.name:
                 continue
-            elif isinstance(nc.set_source, Seg) and isinstance(nc.set_target, PointProcess):
-                split_target = nc.set_source.parent.cell.name.split('[')
+            elif isinstance(nc.source, Seg) and isinstance(nc.target, PointProcess):
+                split_target = nc.source.parent.cell.name.split('[')
                 pop_name = split_target[0]
 
                 try:
@@ -113,8 +116,8 @@ class NetworkStatusGraph:
                 y_trg = int(split_target[-1][:-1])
 
                 weight = None
-                if self.plot_constant_connections and hasattr(nc.set_target.hoc, weight_name):
-                    weight = getattr(nc.set_target.hoc, weight_name)
+                if self.plot_constant_connections and hasattr(nc.target.hoc, weight_name):
+                    weight = getattr(nc.target.hoc, weight_name)
 
                 result.append(((x_pos, x_trg), (y_pos, y_trg), weight))
         return result
@@ -123,10 +126,12 @@ class NetworkStatusGraph:
     def _find_weights(c, weight_name):
         targets = []
         for nc in c.ncs:
+            nc = cast(NetCon, nc)
             if "SpikeDetector" in nc.name:
                 continue
-            elif isinstance(nc.set_source, Seg) and isinstance(nc.set_target, PointProcess) and hasattr(nc.set_target.hoc, weight_name):
-                weight = getattr(nc.set_target.hoc, weight_name)
+            elif isinstance(nc.source, Seg) and isinstance(nc.target, PointProcess) and hasattr(
+                    nc.target.hoc, weight_name):
+                weight = getattr(nc.target.hoc, weight_name)
                 targets.append(weight)
         return targets
 
@@ -139,6 +144,7 @@ class NetworkStatusGraph:
 
         regs = [(re.findall("[0-9]+", n), n) for n in result]
         # sort by number in population name (if contains)
-        result = sorted([(int(l[0]) if len(l) > 0 else math.inf, n) for l, n in regs], key=lambda x: x[0])
+        result = sorted([(int(l[0]) if len(l) > 0 else math.inf, n) for l, n in regs],
+                        key=lambda x: x[0])
 
         return [n for i, n in result]

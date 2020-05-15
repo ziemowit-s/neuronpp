@@ -16,7 +16,7 @@ class SynAdder:
         self._spine_params = None
         self._synaptic_params = {}
 
-    def add_netcon(self,weight: Union[float, Dist] = 1.0, delay: Union[float, Dist] = 1,
+    def add_netcon(self, weight: Union[float, Dist] = 1.0, delay: Union[float, Dist] = 1,
                    threshold: Union[float, Dist] = 10, **kwargs):
         """
         :param weight:

@@ -158,10 +158,9 @@ class TestStandardPopulation(unittest.TestCase):
                 self.assertEqual(cell_name, pop2_names[i])
 
     def test_connections_pop3(self):
+        current_cells = self.get_cells(self.pop3)
         # for numpy.random.seed(13)
-        pop3_names = ["pop_1[cell][0]", "pop_1[cell][0]", "pop_1[cell][1]", "pop_1[cell][1]",
-                      "pop_1[cell][2]", "pop_1[cell][2]", "pop_1[cell][3]", "pop_1[cell][3]",
-                      "pop_1[cell][3]"]
+        pop3_names = ["pop_1[cell][0]", "pop_1[cell][1]", "pop_1[cell][2]", "pop_1[cell][3]"]
         for i, syn in enumerate(self.pop3.syns):
             cell_name = syn.sources[0].parent.cell.name
             self.assertEqual(cell_name, pop3_names[i])
@@ -175,7 +174,6 @@ class TestStandardPopulation(unittest.TestCase):
             self.assertEqual(netcon_weight, weights[i])
 
     def test_netcon_weight_pop2(self):
-        # ", ".join([str(syn.netcons[0].get_weight()) for syn in self.pop2.syns])
         # for numpy.random.seed(13)
         weights = [0.005779780499030976, 0.02125693570562063,
                    .028274814097193554, 0.009683215635451629]
@@ -185,14 +183,21 @@ class TestStandardPopulation(unittest.TestCase):
                 self.assertEqual(netcon_weight, weights[i])
 
     def test_netcon_weight_pop3(self):
+        current_weights_str = self.get_weights(self.pop3)
         # for numpy.random.seed(13)
-        weights = [0.007095773348279606, 0.0044373096698245105, 0.01981743665019032,
-                   0.0009249523751676137, 0.005280679393157255, 0.03276666094984303,
-                   0.002597678437904911, 0.009605486370517344, 0.005351482559450754]
+        weights = [0.005779780499030976, 0.015232118906381384, 0.02125693570562063,
+                   0.005133474962288749]
         for i, syn in enumerate(self.pop3.syns):
             netcon_weight = syn.netcons[0].get_weight()
             self.assertEqual(netcon_weight, weights[i])
 
+    @staticmethod
+    def get_weights(pop) -> str:
+        return "[%s]" % ', '.join([str(syn.netcons[0].get_weight()) for syn in pop.syns])
+
+    @staticmethod
+    def get_cells(pop) -> str:
+        return '["%s"]' % '", "'.join([syn.sources[0].parent.cell.name for syn in pop.syns])
 
 if __name__ == '__main__':
     unittest.main()

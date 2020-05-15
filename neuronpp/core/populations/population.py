@@ -1,7 +1,8 @@
 import numpy as np
-from typing import Union, TypeVar, cast
+from typing import Union, TypeVar, cast, List
 
 from neuronpp.cells.cell import Cell
+from neuronpp.core.hocwrappers.synapse import Synapse
 from neuronpp.utils.record import Record
 from neuronpp.core.template import Template
 from neuronpp.core.populations.connector import Connector
@@ -110,35 +111,35 @@ class Population:
         self.syns.extend(result_syns)
         return result_syns
 
-    def _make_conn(self, rule: str, target, conn) -> list:
+    def _make_conn(self, rule: str, target, connector) -> List[List[Synapse]]:
         """
         :param target:
             single target element
-        :param conn:
+        :param connector:
             Connector object
         :return:
             list of added synapses
         """
         result = []
-        cell = target.parent.cell
         target_len = len(target)
-        for target_i, targ in enumerate(target):
-            if not self._is_connect(conn.proba):
+        for target_i, t in enumerate(target):
+            if not self._is_connect(connector._conn_params.proba):
                 continue
+            cell = t.parent.cell
 
             syns = []
-            for mech in conn._mechs:
-                for i in range(conn._conn_params.syn_num_per_source):
+            for mech in connector._mechs:
+                for i in range(connector._conn_params.syn_num_per_source):
                     spine_params = mech._spine_params
 
                     if spine_params:
                         # TODO rethink connectivity: here - for each target (seg) spine is added
-                        spine = cell.add_spines(segs=target, head_nseg=spine_params.head_nseg,
+                        spine = cell.add_spines(segs=t, head_nseg=spine_params.head_nseg,
                                                 neck_nseg=spine_params.neck_nseg)[0]
                         target = spine.head(1.0)
 
                     for netcon_params in mech._netcon_params:
-                        source = conn._source
+                        source = connector._source
                         if hasattr(netcon_params, "source"):
                             source = netcon_params.source
 
@@ -156,20 +157,20 @@ class Population:
 
                         for s in source:
                             # TODO rethink connectivity: here - for each target (seg) syn is added
-                            syn = cell.add_synapse(source=s, seg=target, mod_name=mech.mod_name,
+                            syn = cell.add_synapse(source=s, seg=t, mod_name=mech.mod_name,
                                                    delay=netcon_params.delay,
                                                    netcon_weight=netcon_params.weight,
                                                    threshold=netcon_params.threshold,
-                                                   tag=conn.set_tag,
+                                                   tag=connector.set_tag,
                                                    **mech._synaptic_params)
                             syns.append(syn)
 
-            if conn._group_syns:
-                cell.group_synapses(tag=conn.set_tag, *syns)
-            if conn._synaptic_func:
-                conn._synaptic_func(syns)
+            if connector._group_syns:
+                cell.group_synapses(tag=connector.set_tag, *syns)
+            if connector._synaptic_func:
+                connector._synaptic_func(syns)
 
-            result.append(syns)
+            result.extend(syns)
 
         return result
 

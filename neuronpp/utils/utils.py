@@ -1,12 +1,13 @@
 import os
 from neuron import h
 from threading import Thread
-from typing import TypeVar, Type
-
+from typing import TypeVar, Type, cast
 
 from pyvis.network import Network
 from neuronpp.cells.cell import Cell
 from pynput.keyboard import Listener
+
+from neuronpp.core.hocwrappers.netcon import NetCon
 from neuronpp.core.template import Template
 from neuronpp.core.hocwrappers.seg import Seg
 
@@ -76,10 +77,13 @@ def make_shape_plot(variable: str = None, min_val=-70, max_val=40):
     return ps
 
 
-def show_connectivity_graph(cells, result_folder=None, file_name="conectivity_graph.html", height="100%", width="100%",
-                            bgcolor="#222222", font_color="white", stim_color="#f5ce42", cell_color="#80bfff",
+def show_connectivity_graph(cells, result_folder=None, file_name="conectivity_graph.html",
+                            height="100%", width="100%",
+                            bgcolor="#222222", font_color="white", stim_color="#f5ce42",
+                            cell_color="#80bfff",
                             edge_excitatory_color="#7dd100", edge_inhibitory_color="#d12d00",
-                            is_excitatory_func=lambda pp: pp.hoc.e >= -20, is_show_edge_func=lambda pp: hasattr(pp.hoc, "e"),
+                            is_excitatory_func=lambda pp: pp.hoc.e >= -20,
+                            is_show_edge_func=lambda pp: hasattr(pp.hoc, "e"),
                             node_distance=100, spring_strength=0):
     """
     Creates graph of connections between passed cells. It will create a HTML file presenting the
@@ -121,29 +125,30 @@ def show_connectivity_graph(cells, result_folder=None, file_name="conectivity_gr
         nodes.append(c.name)
         g.add_node(c.name, color=cell_color)
         for nc in c.ncs:
+            nc = cast(NetCon, nc)
             if "SpikeDetector" in nc.name:
                 continue
-            elif isinstance(nc.set_source, Seg):
-                nc_node = nc.set_source.parent.cell.name
+            elif isinstance(nc.source, Seg):
+                nc_node = nc.source.parent.cell.name
                 node_color = cell_color
-            elif nc.set_source is None:
+            elif nc.source is None:
                 nc_node = "External Stim"
                 node_color = stim_color
             else:
-                nc_node = nc.set_source.name
+                nc_node = nc.source.name
                 node_color = stim_color
 
             if nc_node not in nodes:
                 nodes.append(nc_node)
                 g.add_node(nc_node, color=node_color)
-            if is_show_edge_func is not None and not is_show_edge_func(nc.set_target):
+            if is_show_edge_func is not None and not is_show_edge_func(nc.target):
                 continue
 
             g.add_edge(nc_node, c.name)
             if is_excitatory_func is None:
                 g.edges[-1]['color'] = edge_excitatory_color
             else:
-                if is_excitatory_func(nc.set_target):
+                if is_excitatory_func(nc.target):
                     g.edges[-1]['color'] = edge_excitatory_color
                 else:
                     g.edges[-1]['color'] = edge_inhibitory_color
@@ -173,6 +178,7 @@ def key_release_listener(on_press_func):
         The function which is intented do distinguish if it a pressed key is the required key.
     :return:
     """
+
     def final_func(key):
         if key is not None and hasattr(key, 'char'):
             on_press_func(key.char)
