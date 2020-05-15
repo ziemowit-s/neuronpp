@@ -7,9 +7,9 @@ from pyvis.network import Network
 from neuronpp.cells.cell import Cell
 from pynput.keyboard import Listener
 
-from neuronpp.core.hocwrappers.netcon import NetCon
 from neuronpp.core.template import Template
 from neuronpp.core.hocwrappers.seg import Seg
+from neuronpp.core.hocwrappers.netcon import NetCon
 
 T_Cell = TypeVar('T_Cell', bound=Cell)
 
