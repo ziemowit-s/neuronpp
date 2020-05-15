@@ -31,8 +31,8 @@ if __name__ == '__main__':
     pop1.add_cells(template=cell_template, num=4)
 
     connector = pop1.connect(proba=connection_proba)
-    connector.source(netstim)
-    connector.target([c.filter_secs("dend")(0.5) for c in pop1.cells])
+    connector.set_source(netstim)
+    connector.set_target([c.filter_secs("dend")(0.5) for c in pop1.cells])
     mod_adder = connector.add_synapse("Exp2Syn")
     mod_adder.add_netcon(weight=weight_dist)
 
@@ -44,8 +44,8 @@ if __name__ == '__main__':
     pop2.add_cells(template=cell_template, num=4)
 
     connector = pop2.connect(proba=connection_proba)
-    connector.source([c.filter_secs("soma")(0.5) for c in pop1.cells])
-    connector.target([c.filter_secs("dend")(0.5) for c in pop2.cells])
+    connector.set_source([c.filter_secs("soma")(0.5) for c in pop1.cells])
+    connector.set_target([c.filter_secs("dend")(0.5) for c in pop2.cells])
     mod_adder = connector.add_synapse("Exp2Syn")
     mod_adder.add_netcon(weight=weight_dist)
 
@@ -57,8 +57,8 @@ if __name__ == '__main__':
     pop3.add_cells(template=cell_template, num=4)
 
     connector = pop3.connect(proba=connection_proba)
-    connector.source([c.filter_secs("soma")(0.5) for c in pop2.cells])
-    connector.target([c.filter_secs("dend")(0.5) for c in pop3.cells])
+    connector.set_source([c.filter_secs("soma")(0.5) for c in pop2.cells])
+    connector.set_target([c.filter_secs("dend")(0.5) for c in pop3.cells])
     mod_adder = connector.add_synapse("Exp2Syn")
     mod_adder.add_netcon(weight=weight_dist)
 

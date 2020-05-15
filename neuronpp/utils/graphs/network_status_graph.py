@@ -101,8 +101,8 @@ class NetworkStatusGraph:
         for nc in c.ncs:
             if "SpikeDetector" in nc.name:
                 continue
-            elif isinstance(nc.source, Seg) and isinstance(nc.target, PointProcess):
-                split_target = nc.source.parent.cell.name.split('[')
+            elif isinstance(nc.set_source, Seg) and isinstance(nc.set_target, PointProcess):
+                split_target = nc.set_source.parent.cell.name.split('[')
                 pop_name = split_target[0]
 
                 try:
@@ -113,8 +113,8 @@ class NetworkStatusGraph:
                 y_trg = int(split_target[-1][:-1])
 
                 weight = None
-                if self.plot_constant_connections and hasattr(nc.target.hoc, weight_name):
-                    weight = getattr(nc.target.hoc, weight_name)
+                if self.plot_constant_connections and hasattr(nc.set_target.hoc, weight_name):
+                    weight = getattr(nc.set_target.hoc, weight_name)
 
                 result.append(((x_pos, x_trg), (y_pos, y_trg), weight))
         return result
@@ -125,8 +125,8 @@ class NetworkStatusGraph:
         for nc in c.ncs:
             if "SpikeDetector" in nc.name:
                 continue
-            elif isinstance(nc.source, Seg) and isinstance(nc.target, PointProcess) and hasattr(nc.target.hoc, weight_name):
-                weight = getattr(nc.target.hoc, weight_name)
+            elif isinstance(nc.set_source, Seg) and isinstance(nc.set_target, PointProcess) and hasattr(nc.set_target.hoc, weight_name):
+                weight = getattr(nc.set_target.hoc, weight_name)
                 targets.append(weight)
         return targets
 

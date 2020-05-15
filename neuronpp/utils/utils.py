@@ -123,27 +123,27 @@ def show_connectivity_graph(cells, result_folder=None, file_name="conectivity_gr
         for nc in c.ncs:
             if "SpikeDetector" in nc.name:
                 continue
-            elif isinstance(nc.source, Seg):
-                nc_node = nc.source.parent.cell.name
+            elif isinstance(nc.set_source, Seg):
+                nc_node = nc.set_source.parent.cell.name
                 node_color = cell_color
-            elif nc.source is None:
+            elif nc.set_source is None:
                 nc_node = "External Stim"
                 node_color = stim_color
             else:
-                nc_node = nc.source.name
+                nc_node = nc.set_source.name
                 node_color = stim_color
 
             if nc_node not in nodes:
                 nodes.append(nc_node)
                 g.add_node(nc_node, color=node_color)
-            if is_show_edge_func is not None and not is_show_edge_func(nc.target):
+            if is_show_edge_func is not None and not is_show_edge_func(nc.set_target):
                 continue
 
             g.add_edge(nc_node, c.name)
             if is_excitatory_func is None:
                 g.edges[-1]['color'] = edge_excitatory_color
             else:
-                if is_excitatory_func(nc.target):
+                if is_excitatory_func(nc.set_target):
                     g.edges[-1]['color'] = edge_excitatory_color
                 else:
                     g.edges[-1]['color'] = edge_inhibitory_color

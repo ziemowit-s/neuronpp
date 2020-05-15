@@ -7,6 +7,7 @@ from neuronpp.core.hocwrappers.synapse import Synapse
 from neuronpp.core.hocwrappers.vecstim import VecStim
 from neuronpp.core.populations.params.conn_params import ConnParams
 from neuronpp.core.populations.mech_adder import SynAdder
+from neuronpp.core.populations.utils import check_and_prepare_source, check_and_prepare_target
 
 
 class Connector:
@@ -52,28 +53,31 @@ class Connector:
         self._conn_params = ConnParams(rule=rule, proba=proba,
                                        syn_num_per_source=syn_num_per_source)
 
-    def source(self, source: Optional[List[Union[Seg, VecStim, NetStim]]] = None):
+    def set_source(self, source: Optional[
+                                 Union[List[Union[Seg, VecStim, NetStim]], Seg, VecStim, NetStim]]):
         """
         Source object(s) which will call the Netcon(s) to initiate stimulation(s)
         :param source:
+            can be: None or Seg, VecStim, NetStim, or list of Seg, VecStim, NetStim.
+                    By default source is None.
         :return:
             self object (builder paradigm)
         """
-        self._source = source
+        self._source = check_and_prepare_source(source)
         return self
 
     # TODO change for filter function(?)
-    def target(self, target: List[Seg]):
+    def set_target(self, target: Union[List[Seg], Seg]):
         """
         Target list of Segments
         :param target:
         :return:
             self object (builder paradigm)
         """
-        self._target = target
+        self._target = check_and_prepare_target(target)
         return self
 
-    def tag(self, tag):
+    def set_tag(self, tag):
         """
         Add tag to all synapses created by this Connector
         :param tag:
@@ -83,7 +87,7 @@ class Connector:
         self._tag = tag
         return self
 
-    def synaptic_function(self, func: Callable[[List[Synapse]], None]):
+    def set_synaptic_function(self, func: Callable[[List[Synapse]], None]):
         """
         Add function which will be called on all synapses created for single cell of the population.
         The function definition should be:

@@ -1,16 +1,26 @@
-from typing import Union, Optional, List
+from typing import Union
 
 from neuronpp.core.distributions import Dist
-from neuronpp.core.hocwrappers.netstim import NetStim
-from neuronpp.core.hocwrappers.seg import Seg
-from neuronpp.core.hocwrappers.vecstim import VecStim
+from neuronpp.core.populations.utils import check_and_prepare_source
 
 
 class NetconParams:
-    def __init__(self, source: Optional[Union[List[Union[Seg, VecStim, NetStim]], str]] = "default",
-                 weight: Union[float, Dist] = 1.0, delay: Union[float, Dist] = 1,
-                 threshold: Union[float, Dist] = 10):
-        self.source = source
+    def __init__(self, weight: Union[float, Dist] = 1.0,
+                 delay: Union[float, Dist] = 1,
+                 threshold: Union[float, Dist] = 10, **kwargs):
+        """
+        NetCon params used for Population configuration.
+        :param weight:
+        :param delay:
+        :param threshold:
+        :param kwargs:
+            'custom_source': can be: None or Seg, VecStim, NetStim, or list of Seg, VecStim,
+                             NetStim.
+                             By default it is not set meaning that default source from Connector
+                             will be used.
+        """
+        if "custom_source" in kwargs:
+            self.source = check_and_prepare_source(kwargs['custom_source'])
         self.weight = weight
         self.delay = delay
         self.threshold = threshold

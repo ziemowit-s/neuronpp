@@ -39,8 +39,8 @@ class TestMultiMechPopulation(unittest.TestCase):
         cls.pop1.add_cells(template=template_cell, num=3)
 
         connector = cls.pop1.connect(proba=conn_dist)
-        connector.source(netstim)
-        connector.target([c.filter_secs("dend")(0.5) for c in cls.pop1.cells])
+        connector.set_source(netstim)
+        connector.set_target([c.filter_secs("dend")(0.5) for c in cls.pop1.cells])
         mech_adder = connector.add_synapse("Exp2Syn")
         mech_adder.add_netcon(weight=weight_dist)
         connector.build()
@@ -50,8 +50,8 @@ class TestMultiMechPopulation(unittest.TestCase):
         cls.pop2.add_cells(template=template_ebner, num=4)
 
         connector = cls.pop2.connect(proba=conn_dist)
-        connector.source([c.filter_secs("soma")(0.5) for c in cls.pop1.cells])
-        connector.target([c.filter_secs("dend")(0.5) for c in cls.pop2.cells])
+        connector.set_source([c.filter_secs("soma")(0.5) for c in cls.pop1.cells])
+        connector.set_target([c.filter_secs("dend")(0.5) for c in cls.pop2.cells])
 
         del (template_ebner.params_4p_syn['w_pre_init'])
         del (template_ebner.params_4p_syn['w_post_init'])
@@ -65,9 +65,9 @@ class TestMultiMechPopulation(unittest.TestCase):
         mech_adder = connector.add_synapse("SynDa")
         mech_adder.add_netcon(source=None, weight=1)
 
-        connector.synaptic_function(lambda syns: Ebner2019AChDACell.set_synaptic_pointers(syns[0],
-                                                                                          syns[1],
-                                                                                          syns[2]))
+        connector.set_synaptic_function(lambda syns: Ebner2019AChDACell.set_synaptic_pointers(syns[0],
+                                                                                              syns[1],
+                                                                                              syns[2]))
         connector.group_synapses()
         connector.build()
 
@@ -79,8 +79,8 @@ class TestMultiMechPopulation(unittest.TestCase):
         cls.pop3.add_cells(template=template_cell, num=5)
 
         connector = cls.pop3.connect(proba=conn_dist)
-        connector.source([c.filter_secs("soma")(0.5) for c in cls.pop2.cells])
-        connector.target([c.filter_secs("dend")(0.5) for c in cls.pop3.cells])
+        connector.set_source([c.filter_secs("soma")(0.5) for c in cls.pop2.cells])
+        connector.set_target([c.filter_secs("dend")(0.5) for c in cls.pop3.cells])
         mech_adder = connector.add_synapse("Exp2Syn")
         mech_adder.add_netcon(weight=weight_dist)
         connector.build()
@@ -110,8 +110,8 @@ class TestStandardPopulation(unittest.TestCase):
         cls.pop1.add_cells(template=template_cell, num=3)
 
         connector = cls.pop1.connect(proba=conn_dist)
-        connector.source(netstim)
-        connector.target([c.filter_secs("dend")(0.5) for c in cls.pop1.cells])
+        connector.set_source(netstim)
+        connector.set_target([c.filter_secs("dend")(0.5) for c in cls.pop1.cells])
         mech_adder = connector.add_synapse("Exp2Syn")
         mech_adder.add_netcon(weight=weight_dist)
         connector.build()
@@ -121,8 +121,8 @@ class TestStandardPopulation(unittest.TestCase):
         cls.pop2.add_cells(template=template_cell, num=4)
 
         connector = cls.pop2.connect(proba=conn_dist)
-        connector.source([c.filter_secs("soma")(0.5) for c in cls.pop1.cells])
-        connector.target([c.filter_secs("dend")(0.5) for c in cls.pop2.cells])
+        connector.set_source([c.filter_secs("soma")(0.5) for c in cls.pop1.cells])
+        connector.set_target([c.filter_secs("dend")(0.5) for c in cls.pop2.cells])
         mech_adder = connector.add_synapse("Exp2Syn")
         mech_adder.add_netcon(weight=weight_dist)
         connector.build()
@@ -132,8 +132,8 @@ class TestStandardPopulation(unittest.TestCase):
         cls.pop3.add_cells(template=template_cell, num=5)
 
         connector = cls.pop3.connect(proba=conn_dist)
-        connector.source([c.filter_secs("soma")(0.5) for c in cls.pop2.cells])
-        connector.target([c.filter_secs("dend")(0.5) for c in cls.pop3.cells])
+        connector.set_source([c.filter_secs("soma")(0.5) for c in cls.pop2.cells])
+        connector.set_target([c.filter_secs("dend")(0.5) for c in cls.pop3.cells])
         mech_adder = connector.add_synapse("Exp2Syn")
         mech_adder.add_netcon(weight=weight_dist)
         connector.build()

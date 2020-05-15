@@ -1,5 +1,5 @@
 import numpy as np
-from typing import Union, Iterable, TypeVar, cast
+from typing import Union, TypeVar, cast
 
 from neuronpp.cells.cell import Cell
 from neuronpp.utils.record import Record
@@ -106,21 +106,11 @@ class Population:
             raise LookupError(
                 "Population %s has no cells, cannot make connections. Add cells first." % self.name)
 
-        result = []
-        if not isinstance(target, Iterable):
-            target = [target]
+        result_syns = self._make_conn(conn_params.rule, target, conn)
+        self.syns.extend(result_syns)
+        return result_syns
 
-        for t in target:
-            if not self._is_connect(conn_params.proba):
-                continue
-
-            syns = self._make_conn(conn_params.rule, t, conn)
-            result.extend(syns)
-        self.syns.extend(result)
-        return result
-
-    @staticmethod
-    def _make_conn(rule: str, target, conn) -> list:
+    def _make_conn(self, rule: str, target, conn) -> list:
         """
         :param target:
             single target element
@@ -129,34 +119,59 @@ class Population:
         :return:
             list of added synapses
         """
+        result = []
         cell = target.parent.cell
+        target_len = len(target)
+        for target_i, targ in enumerate(target):
+            if not self._is_connect(conn.proba):
+                continue
 
-        syns = []
-        for mech in conn._mechs:
-            for i in range(conn._conn_params.syn_num_per_source):
-                spine_params = mech._spine_params
+            syns = []
+            for mech in conn._mechs:
+                for i in range(conn._conn_params.syn_num_per_source):
+                    spine_params = mech._spine_params
 
-                if spine_params:
-                    spine = cell.add_spines(segs=target, head_nseg=spine_params.head_nseg,
-                                            neck_nseg=spine_params.neck_nseg)[0]
-                    target = spine.head(1.0)
+                    if spine_params:
+                        # TODO rethink connectivity: here - for each target (seg) spine is added
+                        spine = cell.add_spines(segs=target, head_nseg=spine_params.head_nseg,
+                                                neck_nseg=spine_params.neck_nseg)[0]
+                        target = spine.head(1.0)
 
-                for netcon_params in mech._netcon_params:
-                    source = None
-                    if not netcon_params.source:
-                        for s in netcon_params.source:
+                    for netcon_params in mech._netcon_params:
+                        source = conn._source
+                        if hasattr(netcon_params, "source"):
+                            source = netcon_params.source
+
+                        if rule == 'all':
+                            # iterate over all source
+                            pass
+                        elif rule == 'one':
+                            if target_len != len(source):
+                                raise ValueError("For rule 'one' target and source need to be "
+                                                 "of the same size.")
+                            source = source[target_i]
+                        else:
+                            raise ValueError("The only allowed rule is all or one, "
+                                             "but provided %s" % rule)
+
+                        for s in source:
+                            # TODO rethink connectivity: here - for each target (seg) syn is added
                             syn = cell.add_synapse(source=s, seg=target, mod_name=mech.mod_name,
                                                    delay=netcon_params.delay,
                                                    netcon_weight=netcon_params.weight,
-                                                   threshold=netcon_params.threshold, tag=conn.tag,
+                                                   threshold=netcon_params.threshold,
+                                                   tag=conn.set_tag,
                                                    **mech._synaptic_params)
                             syns.append(syn)
 
-        if conn._group_syns:
-            cell.group_synapses(tag=conn.tag, *syns)
-        if conn._synaptic_func:
-            conn._synaptic_func(syns)
-        return syns
+            if conn._group_syns:
+                cell.group_synapses(tag=conn.set_tag, *syns)
+            if conn._synaptic_func:
+                conn._synaptic_func(syns)
+
+            result.append(syns)
+
+        return result
 
     @staticmethod
     def _is_connect(conn_proba: Union[float, int, Dist]):

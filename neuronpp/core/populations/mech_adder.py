@@ -16,15 +16,9 @@ class SynAdder:
         self._spine_params = None
         self._synaptic_params = {}
 
-    def add_netcon(self,
-                   source: Optional[Union[List[Union[Seg, VecStim, NetStim]], str]] = "default",
-                   weight: Union[float, Dist] = 1.0, delay: Union[float, Dist] = 1,
-                   threshold: Union[float, Dist] = 10):
+    def add_netcon(self,weight: Union[float, Dist] = 1.0, delay: Union[float, Dist] = 1,
+                   threshold: Union[float, Dist] = 10, **kwargs):
         """
-        :param source:
-            source object(s) which will call the Netcon(s) to initiate stimulation(s).
-            By default it is str "default", which means that it will take the default source defined
-            in the Connector object.
         :param weight:
             default is 1.0
         :param delay:
@@ -33,8 +27,13 @@ class SynAdder:
         :param threshold:
             default is 10
             threshold in mV
+        :param kwargs:
+            'custom_source': can be: None or Seg, VecStim, NetStim, or list of Seg, VecStim,
+                             NetStim.
+                             By default it is not set meaning that default source from Connector
+                             will be used.
         """
-        ncp = NetconParams(source=source, weight=weight, delay=delay, threshold=threshold)
+        ncp = NetconParams(weight=weight, delay=delay, threshold=threshold, **kwargs)
         self._netcon_params.append(ncp)
         return self
 
