@@ -65,9 +65,10 @@ class TestMultiMechPopulation(unittest.TestCase):
         mech_adder = connector.add_synapse("SynDa")
         mech_adder.add_netcon(source=None, weight=1)
 
-        connector.set_synaptic_function(lambda syns: Ebner2019AChDACell.set_synaptic_pointers(syns[0],
-                                                                                              syns[1],
-                                                                                              syns[2]))
+        connector.set_synaptic_function(
+            lambda syns: Ebner2019AChDACell.set_synaptic_pointers(syns[0],
+                                                                  syns[1],
+                                                                  syns[2]))
         connector.group_synapses()
         connector.build()
 
@@ -198,6 +199,7 @@ class TestStandardPopulation(unittest.TestCase):
     @staticmethod
     def get_cells(pop) -> str:
         return '["%s"]' % '", "'.join([syn.sources[0].parent.cell.name for syn in pop.syns])
+
 
 if __name__ == '__main__':
     unittest.main()

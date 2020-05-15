@@ -42,7 +42,7 @@ class Connector:
         """
         self._population_ref = population_ref
 
-        self._mechs: List[SynAdder] = []
+        self._mechs = []  # List[SynAdder]
         self._group_syns = False
 
         self._tag = None
@@ -54,7 +54,7 @@ class Connector:
                                        syn_num_per_source=syn_num_per_source)
 
     def set_source(self, source: Optional[
-                                 Union[List[Union[Seg, VecStim, NetStim]], Seg, VecStim, NetStim]]):
+                   Union[List[Union[Seg, VecStim, NetStim]], Seg, VecStim, NetStim]]):
         """
         Source object(s) which will call the Netcon(s) to initiate stimulation(s)
         :param source:
