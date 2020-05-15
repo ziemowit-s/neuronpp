@@ -123,7 +123,7 @@ class Population:
         result = []
         target_len = len(target)
         for target_i, t in enumerate(target):
-            if not self._is_connect(connector._conn_params.proba):
+            if not self._is_connect(connector._conn_params.cell_proba):
                 continue
             cell = t.parent.cell
 

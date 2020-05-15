@@ -50,7 +50,7 @@ class Connector:
         self._target = None
         self._synaptic_func = None
 
-        self._conn_params = ConnParams(rule=rule, proba=proba,
+        self._conn_params = ConnParams(rule=rule, cell_proba=proba,
                                        syn_num_per_source=syn_num_per_source)
 
     def set_source(self, source: Optional[

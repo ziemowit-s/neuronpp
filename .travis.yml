@@ -31,6 +31,7 @@ python:
   - "3.5"
   - "3.6"      # current default Python on Travis CI
 install:
+  - export DISPLAY=:0  # workaround for pynput (for keyboard input) to import
   - pip install -r requirements.txt
   - cd ..	
   - git clone --branch 7.7.2 https://github.com/neuronsimulator/nrn
