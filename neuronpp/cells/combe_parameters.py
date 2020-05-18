@@ -31,6 +31,7 @@ soma_caT = 0.0003
 soma_km = 0*0.001
 potNa = 50 
 mykca_init = 0.9*1.5*0.03 # 0.03 flag
+soma_gnabar = 0*.5*0.000014 
 soma_kca = 0.7*4.5*0.0001# 0.003 flag
 soma_kap = 7*0.0005
 soma_hbar = 1.8e-6
