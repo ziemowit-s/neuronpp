@@ -9,7 +9,7 @@ from neuronpp.cells.morphology_points import axon_points
 from neuronpp.cells.morphology_points import trunk_points
 from neuronpp.cells.morphology_points import points_apic, points_apic_continued
 from neuronpp.cells.morphology_points import points_dend, points_dend_continued
-
+import combe_parameters as params
 
 class Combe2018Cell(Cell):
     def make_axon(self):
@@ -192,8 +192,55 @@ class Combe2018Cell(Cell):
         self.make_apic()
         self.make_dend()
 
-    def add_channels_soma(self):
-        pass
+    def add_d3(self):
+        for sec in self.secs:
+            sec.hoc.insert("d3")
+            sec.hoc.x_d3(0) = sec.hoc.x_d3(0)
+            sec.hoc.y_d3(0) = sec.hoc.y_d3(0)
+            sec.hoc.z_d3(0) = sec.hoc.z_d3(0)
+            #for seg in 
+            
+    
+    def add_soma_mechanisms(self):
+        """
+        :param sections:
+            List of sections or string defining single section name or sections names separated by space
+            None will take all sections
+
+        """
+        sections = "soma"
+        sec = self.filter_secs(name=sections, tolist=True)
+        for s in sec:
+            s.hoc.insert("na3")
+            s.hoc.na3_gbar = params.gna 
+            s.hoc.insert("kdr")
+            s.hoc.kdr_gkdrbar = params.gkdr
+
+            s.hoc.ena = params.potNa
+
+            s.hoc.insert("nap")
+            s.hoc.nap_gnabar = params.soma_gnabar
+            
+            s.hoc.insert("Ca_HVA")
+            s.hoc.insert("CaDynamics_E2")
+            s.hoc.insert("SK_E2")
+            s.hoc.insert("SKv3_1")
+            s.hoc.insert("NaTs2_t")
+            s.hoc.ek = -85
+            s.hoc.ena = 50
+
+            s.hoc.insert("Ih")
+            s.hoc.gIhbar_Ih = 0.0001
+            s.hoc.g_pas = 3e-5
+            s.hoc.gImbar_Im = 0.000008
+            s.hoc.decay_CaDynamics_E2 = 294.679571
+            s.hoc.gamma_CaDynamics_E2 = 0.000509
+            s.hoc.gCa_LVAstbar_Ca_LVAst = 0.000557
+            s.hoc.gCa_HVAbar_Ca_HVA = 0.000644
+            s.hoc.gSK_E2bar_SK_E2 = 0.09965
+            s.hoc.gSKv3_1bar_SKv3_1 = 0.338029
+            s.hoc.gNaTs2_tbar_NaTs2_t = 0.998912
+   
 
     def __init__(self, name=None, compile_paths=f_path):
         """
@@ -209,6 +256,6 @@ class Combe2018Cell(Cell):
         for sec in self.secs:
             sec.hoc.nseg = 1+int(sec.hoc.L/maximum_segment_length)
 
-        self.add_channels_soma()
+        self.add_soma_mechanisms()
         ObliqueTrunkSection = self.trunk[17]
         BasalTrunkSection   = self.trunk[7]
