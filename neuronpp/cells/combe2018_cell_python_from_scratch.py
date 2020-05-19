@@ -192,31 +192,6 @@ class Combe2018Cell(Cell):
         self.make_apic()
         self.make_dend()
 
-    def add_d3(self):
-        for new_sec in self.secs:
-            sec = new_sec.hoc
-            sec.insert("d3")
-            sec.x_d3(0) = sec.x_d3(0)
-            sec.y_d3(0) = sec.y_d3(0)
-            sec.z_d3(0) = sec.z_d3(0)
-            i = 0
-            for seg in sec:
-                while (seg.arc3d(i)/seg.L < seg.x):
-                    i += 1
-                D = seg.arc3d(i) - seg.arc3d(i-1)
-                alpha = (seg.x*seg.L - seg.arc3d(i-1))/D
-                sec.x_d3(seg.x) = sec.x3d(i-1) + (sec.x3d(i)
-                                                  - sec.x3d(i-1))*alpha
-                sec.y_d3(seg.y) = sec.y3d(i-1) + (sec.y3d(i)
-                                                  - sec.y3d(i-1))*alpha
-                sec.z_d3(seg.z) = sec.z3d(i-1) + (sec.z3d(i)
-                                                  - sec.z3d(i-1))*alpha
-
-            sec.x_d3(1) = sec.x3d(sec.n3d() - 1)
-            sec.y_d3(1) = sec.y3d(sec.n3d() - 1)
-            sec.y_d3(1) = sec.y3d(sec.n3d() - 1)
-            
-    
     def add_soma_mechanisms(self):
         """
         :param sections:
@@ -271,7 +246,6 @@ class Combe2018Cell(Cell):
         # adjust segment_number
         for sec in self.secs:
             sec.hoc.nseg = 1+int(sec.hoc.L/maximum_segment_length)
-        self.add_d3()
         self.add_soma_mechanisms()
         ObliqueTrunkSection = self.trunk[17]
         BasalTrunkSection   = self.trunk[7]
