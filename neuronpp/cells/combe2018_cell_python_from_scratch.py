@@ -200,38 +200,57 @@ class Combe2018Cell(Cell):
 
         """
         sections = "soma"
-        sec = self.filter_secs(name=sections, tolist=True)
-        for s in sec:
-            s.hoc.insert("na3")
-            s.hoc.na3_gbar = params.gna 
-            s.hoc.insert("kdr")
-            s.hoc.kdr_gkdrbar = params.gkdr
+        sections = self.filter_secs(name=sections, tolist=True)
+        for s in sections:
+            sec = s.hoc
+            sec.insert("na3")
+            sec.na3_gbar = params.gna
+            sec.insert("kdr")
+            sec.kdr_gkdrbar = params.gkdr
 
-            s.hoc.ena = params.potNa
+            sec.ena = params.potNa
 
-            s.hoc.insert("nap")
-            s.hoc.nap_gnabar = params.soma_gnabar
+            sec.insert("nap")
+            sec.nap_gnabar = params.soma_nap_gnabar
+            sec.nap_K = params.soma_K_nap
+            sec.nap_vhalf = params.vhalf_nap
+
+            sec.insert("pas")
+            sec.g_pas = 1/params.Rm_soma
+            sec.e_pas = params.e_pas
+            sec.Ra = params.Ra_soma
+            sec.cm = params.Cm_soma
+
+            sec.insert("h")
+            sec.h_gbar = params.soma_hbar
+            sec.h_K = params.soma_K_h
+            sec.h_vhalf = params.soma_vhalf_h
+
+            sec.insert("kap")
+            sec.kap_gkabar = params.soma_kap
             
-            s.hoc.insert("Ca_HVA")
-            s.hoc.insert("CaDynamics_E2")
-            s.hoc.insert("SK_E2")
-            s.hoc.insert("SKv3_1")
-            s.hoc.insert("NaTs2_t")
-            s.hoc.ek = -85
-            s.hoc.ena = 50
+            sec.insert("km")
+            sec.km_gbar = params.soma_km
+            sec.ek = params.potK
 
-            s.hoc.insert("Ih")
-            s.hoc.gIhbar_Ih = 0.0001
-            s.hoc.g_pas = 3e-5
-            s.hoc.gImbar_Im = 0.000008
-            s.hoc.decay_CaDynamics_E2 = 294.679571
-            s.hoc.gamma_CaDynamics_E2 = 0.000509
-            s.hoc.gCa_LVAstbar_Ca_LVAst = 0.000557
-            s.hoc.gCa_HVAbar_Ca_HVA = 0.000644
-            s.hoc.gSK_E2bar_SK_E2 = 0.09965
-            s.hoc.gSKv3_1bar_SKv3_1 = 0.338029
-            s.hoc.gNaTs2_tbar_NaTs2_t = 0.998912
-   
+            sec.insert("cal")
+            sec.cal_gcalbar = params.soma_caL
+
+            sec.insert("cat")
+            sec.cat_gcatbar = params.soma_caT
+
+            sec.insert("car")
+            sec.car_gcabar = params.gsomacar
+
+            sec.insert("kca")
+            sec.kca_cac = params.cac_kca
+            sec.kca_gbar = params.gbar_kca
+
+            sec.insert("mykca") # K(Ca) fAHP potassium type current
+            sec.mykca_gkbar = params.gkbar_mykca
+
+            # sec.insert("cad") # ca buffering mechanism, we will add this
+            # much later
 
     def __init__(self, name=None, compile_paths=f_path):
         """
