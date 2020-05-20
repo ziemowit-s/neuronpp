@@ -211,7 +211,7 @@ class Combe2018Cell(Cell):
         sec.insert("nap")
         sec.gnabar_nap = params.soma_nap_gnabar
         sec.K_nap = params.soma_K_nap
-        sec.vhalf_nap = params.vhalf_nap
+        sec.vhalf_nap = params.soma_vhalf_nap
         
         sec.insert("pas")
         sec.g_pas = 1/params.Rm_soma
