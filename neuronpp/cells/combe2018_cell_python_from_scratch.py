@@ -251,6 +251,26 @@ class Combe2018Cell(Cell):
             # sec.insert("cad") # ca buffering mechanism, we will add this
             # much later
 
+    def add_axon_mechanisms(self):
+        sections = self.filter_secs(name="axon", tolist=True)
+        for s in sections:
+            sec = s.hoc
+            sec.insert("nax")
+            sec.nax_gbar = params.gna*params.AXNa
+            sec.insert("kdr")
+            sec.kdr_gkdrbar = params.gkdr*params.AXKdr
+            sec.ena = params.potNa
+            sec.insert("pas")
+            sec.g_pas = 1/params.Rm_axon
+            sec.Ra = params.Ra_axon
+            sec.cm = params.Cm_axon
+            sec.insert("km")
+            sec.km_gbar = 3*params.soma_km
+
+            sec.insert("kap")
+            sec.kap_gkabar = params.soma_kap
+            sec.ek = params.potK
+
     def __init__(self, name=None, compile_paths=f_path):
         """
         :param name:
@@ -265,6 +285,7 @@ class Combe2018Cell(Cell):
         for sec in self.secs:
             sec.hoc.nseg = 1+int(sec.hoc.L/maximum_segment_length)
         self.add_soma_mechanisms()
+        self.add_axon_mechanisms()
         ObliqueTrunkSection = self.trunk[17]
         BasalTrunkSection   = self.trunk[7]
         
