@@ -199,8 +199,7 @@ class Combe2018Cell(Cell):
             None will take all sections
 
         """
-        sections = "soma"
-        sections = self.filter_secs(name=sections, tolist=True)
+        sections = self.filter_secs(name="soma", tolist=True)
         for s in sections:
             sec = s.hoc
             sec.insert("na3")
