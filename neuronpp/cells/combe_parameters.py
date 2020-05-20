@@ -1,7 +1,7 @@
 
 Rm_trunk     = 36900 # Non-oblique dendritic specific membrane resistance.
 Rm_non_trunk = 36900 # Apical oblique specific membrane resistance
-Rm_basal     = 46000 # Basal specific membrane resistance
+Rm_basal     = 15484.67 # Basal specific membrane resistance
 Rm_tip       = 36900 # Tip specific membrane resistance
 Rm_soma      = 20000 # Somatic specific membrane resistance
 Rm_axon      = 28000 # Axonal specific membrane resistance
