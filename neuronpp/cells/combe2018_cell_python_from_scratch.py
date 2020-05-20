@@ -202,16 +202,16 @@ class Combe2018Cell(Cell):
         sec = self.soma.hoc
         sec.insert("na3")
         print(sec.psection())
-        sec.na3_gbar = params.gna
+        sec.gbar_na3 = params.gna
         sec.insert("kdr")
-        sec.kdr_gkdrbar = params.gkdr
+        sec.gkdrbar_kdr = params.gkdr
         
         sec.ena = params.potNa
         
         sec.insert("nap")
-        sec.nap_gnabar = params.soma_nap_gnabar
-        sec.nap_K = params.soma_K_nap
-        sec.nap_vhalf = params.vhalf_nap
+        sec.gnabar_nap = params.soma_nap_gnabar
+        sec.K_nap = params.soma_K_nap
+        sec.vhalf_nap = params.vhalf_nap
         
         sec.insert("pas")
         sec.g_pas = 1/params.Rm_soma
@@ -220,32 +220,32 @@ class Combe2018Cell(Cell):
         sec.cm = params.Cm_soma
         
         sec.insert("h")
-        sec.h_gbar = params.soma_hbar
-        sec.h_K = params.soma_K_h
-        sec.h_vhalf = params.soma_vhalf_h
+        sec.gbar_h = params.soma_hbar
+        sec.K_h = params.soma_K_h
+        sec.vhalf_h = params.soma_vhalf_h
         
         sec.insert("kap")
-        sec.kap_gkabar = params.soma_kap
+        sec.gkabar_kap = params.soma_kap
         
         sec.insert("km")
-        sec.km_gbar = params.soma_km
+        sec.gbar_km = params.soma_km
         sec.ek = params.potK
         
         sec.insert("cal")
-        sec.cal_gcalbar = params.soma_caL
+        sec.gcalbar_cal = params.soma_caL
         
         sec.insert("cat")
-        sec.cat_gcatbar = params.soma_caT
+        sec.gcatbar_cat = params.soma_caT
         
         sec.insert("car")
-        sec.car_gcabar = params.gsomacar
+        sec.gcabar_car = params.gsomacar
 
         sec.insert("kca")
-        sec.kca_cac = params.cac_kca
-        sec.kca_gbar = params.gbar_kca
+        sec.cac_kca = params.cac_kca
+        sec.gbar_kca = params.gbar_kca
         
         sec.insert("mykca") # K(Ca) fAHP potassium type current
-        sec.mykca_gkbar = params.gkbar_mykca
+        sec.gkbar_mykca = params.gkbar_mykca
         
         # sec.insert("cad") # ca buffering mechanism, we will add this
         # much later
@@ -253,19 +253,19 @@ class Combe2018Cell(Cell):
     def add_axon_mechanisms(self):
         sec = self.axon.hoc
         sec.insert("nax")
-        sec.nax_gbar = params.gna*params.AXNa
+        sec.gbar_nax = params.gna*params.AXNa
         sec.insert("kdr")
-        sec.kdr_gkdrbar = params.gkdr*params.AXKdr
+        sec.gkdrbar_kdr = params.gkdr*params.AXKdr
         sec.ena = params.potNa
         sec.insert("pas")
         sec.g_pas = 1/params.Rm_axon
         sec.Ra = params.Ra_axon
         sec.cm = params.Cm_axon
         sec.insert("km")
-        sec.km_gbar = 3*params.soma_km
+        sec.gbar_km = 3*params.soma_km
         
         sec.insert("kap")
-        sec.kap_gkabar = params.soma_kap
+        sec.gkabar_kap = params.soma_kap
         sec.ek = params.potK
         print(sec.psection())
 
