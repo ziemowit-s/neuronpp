@@ -201,7 +201,6 @@ class Combe2018Cell(Cell):
         """
         sec = self.soma.hoc
         sec.insert("na3")
-        print(sec.psection())
         sec.gbar_na3 = params.gna
         sec.insert("kdr")
         sec.gkdrbar_kdr = params.gkdr
