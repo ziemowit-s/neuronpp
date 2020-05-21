@@ -267,7 +267,6 @@ class Combe2018Cell(Cell):
         sec.insert("kap")
         sec.gkabar_kap = params.soma_kap
         sec.ek = params.potK
-        print(sec.psection())
 
     def __init__(self, name=None, compile_paths=f_path):
         """
