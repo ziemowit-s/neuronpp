@@ -66,7 +66,7 @@ class Combe2018Cell(Cell):
             self.dend.append(self.add_sec("dend_%i" % i))
 
         self.connect_secs(self.soma, self.axon)
-        for i in range(18):
+        for i in range(19):
             if i == 0:
                 self.connect_secs(self.trunk[i], self.soma)
             else:
@@ -123,11 +123,12 @@ class Combe2018Cell(Cell):
             self.connect_secs(self.apic[i], self.apic[20])
         for i in [23, 24]:
             self.connect_secs(self.apic[i], self.apic[22])
-        for i in [25, 27]:
+        for i in [25, 26, 27]:
             self.connect_secs(self.apic[i], self.trunk[i-18])
+            print(self.trunk[i-18].name)
         for i in [28, 29]:
             self.connect_secs(self.apic[i], self.apic[27])
-        for i in[30, 32]:
+        for i in[30, 31, 32]:
             self.connect_secs(self.apic[i], self.trunk[i-20])
         self.connect_secs(self.apic[33], self.apic[42])
         self.connect_secs(self.apic[34], self.apic[43])
