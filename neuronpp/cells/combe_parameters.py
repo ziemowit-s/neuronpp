@@ -1,10 +1,11 @@
 
-Rm_trunk     = 36900 # Non-oblique dendritic specific membrane resistance.
+
 Rm_non_trunk = 36900 # Apical oblique specific membrane resistance
 Rm_basal     = 15484.67 # Basal specific membrane resistance
 Rm_tip       = 36900 # Tip specific membrane resistance
 Rm_soma      = 20000 # Somatic specific membrane resistance
 Rm_axon      = 28000 # Axonal specific membrane resistance
+Rm_trunk     = Rm_soma # 36900 # Non-oblique dendritic specific Rm
 
 Ra_basal     = 150 # Basal specific axial resistance
 Ra_trunk     = 150 # Somatic specific axial resistance
@@ -54,3 +55,10 @@ soma_vhalf_h = -82
 cac_kca=0.00075 //0.0005
 gbar_kca = 0.5*soma_kca
 gkbar_mykca = 5.5*mykca_init
+
+
+caT_distal_maxfactor = 4
+caT_distal_distance  = 350
+
+kca_distal_maxfactor = 1   # ORIG>> maximum cond. factor in dendrites
+kca_distal_distance  = 200 # ORIG>> distance in dendrites for maximum cond.
