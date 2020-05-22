@@ -102,7 +102,7 @@ class Combe2018Cell(Cell):
             self.connect_secs(self.apic[i], self.apic[i-1])
         self.connect_secs(self.apic[70], self.apic[68])
         self.connect_secs(self.apic[71], self.apic[67])
-        self.connect_secs(self.apic[0], self.trunk[-1])
+        self.connect_secs(self.apic[0], self.trunk[0])
         for i in [1, 2]:
             self.connect_secs(self.apic[i], self.apic[0])
         for i in [3, 4]:
@@ -143,7 +143,7 @@ class Combe2018Cell(Cell):
             self.connect_secs(self.apic[i], self.apic[i-1])
         self.connect_secs(self.apic[40], self.apic[38])
         self.connect_secs(self.apic[41], self.apic[37])
-        self.connect_secs(self.dend[0], self.soma)
+        self.connect_secs(self.dend[0], self.soma, 0, 0)
         for i in range(1, 4):
             self.connect_secs(self.dend[i], self.dend[i-1])
         self.connect_secs(self.dend[4], self.dend[2])
