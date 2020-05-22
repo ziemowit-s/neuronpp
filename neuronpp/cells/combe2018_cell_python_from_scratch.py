@@ -423,7 +423,27 @@ class Combe2018Cell(Cell):
                     density_mechs["kap"]["gkabar"][i] = params.soma_kap*(1+xdist/100)
 
     def add_basal_tree_mechanisms(self):
-        pass
+        for s in self.dend:
+            sec = s.hoc
+            sec.insert("na3dend")
+	    sec.insert("nap")
+	    sec.gnabar_nap = params.soma_nap_gnabar
+	    sec.K_nap = params.soma_K_nap
+	    sec.vhalf_nap = params.soma_vhalf_nap
+	    sec.insert("kap")
+	    sec.gkabar_kap = params.dend_kap
+	    sec.insert("h")
+	    sec.gbar_h = params.soma_hbar
+	    sec.ek = params.potK
+	    sec.insert("kdr")
+	    sec.gbar_na3dend = params.gnadend
+	    sec.gkdrbar_kdr = params.gkdrdend
+	    sec.ena = params.potNa
+	    sec.insert("pas")
+	    sec.g_pas = 1/params.Rm_basal
+	    sec.e_pas = params.e_pas
+	    sec.Ra = params.Ra_basal
+	    sec.cm = params.Cm_basal
 
     def __init__(self, name=None, compile_paths=f_path):
         """
