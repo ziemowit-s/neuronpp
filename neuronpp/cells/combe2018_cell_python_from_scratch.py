@@ -164,7 +164,7 @@ class Combe2018Cell(Cell):
         self.connect_secs(self.dend[20], self.dend[12])
         for i in [21, 22]:
             self.connect_secs(self.dend[i], self.dend[20])
-        self.connect_secs(self.dend[23], self.soma)
+        self.connect_secs(self.dend[23], self.soma, 0, 0)
         for i in range(24, 27):
             self.connect_secs(self.dend[i], self.dend[i-1])
         self.connect_secs(self.dend[27], self.dend[25])
