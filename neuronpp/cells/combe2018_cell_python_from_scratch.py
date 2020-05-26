@@ -129,7 +129,6 @@ class Combe2018Cell(Cell):
             self.connect_secs(self.apic[i], self.apic[22])
         for i in [25, 26, 27]:
             self.connect_secs(self.apic[i], self.trunk[i-18])
-            print(self.trunk[i-18].name)
         for i in [28, 29]:
             self.connect_secs(self.apic[i], self.apic[27])
         for i in[30, 31, 32]:
@@ -250,9 +249,6 @@ class Combe2018Cell(Cell):
         
         sec.insert("mykca") # K(Ca) fAHP potassium type current
         sec.gkbar_mykca = params.gkbar_mykca
-        
-        # sec.insert("cad") # ca buffering mechanism, we will add this
-        # much later
 
     def add_axon_mechanisms(self):
         sec = self.axon.hoc
@@ -310,9 +306,7 @@ class Combe2018Cell(Cell):
             density_mechs = sec.psection()["density_mechs"]
 
             for i, seg in enumerate(sec):
-                #h.distance(seg.x)
                 xdist = h.distance(seg, sec=self.soma.hoc)
-                print(sec, xdist)
                 fr = xdist/params.caT_distal_distance
                 if xdist > 50:
                     density_mechs["calH"]["gcalbar"][i] = 2*params.soma_calH
@@ -387,7 +381,6 @@ class Combe2018Cell(Cell):
             density_mechs = sec.psection()["density_mechs"]
             for i, seg in enumerate(sec):
                 xdist = h.distance(seg)
-                print(sec, xdist)
                 fr = xdist/params.caT_distal_distance
                 if xdist > 50:
                     density_mechs["calH"]["gcalbar"][i] = 2*params.soma_calH
