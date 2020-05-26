@@ -466,7 +466,7 @@ class Combe2018Cell(Cell):
         self.add_axon_mechanisms()
         self.add_trunk_mechanisms()
         self.add_apical_mechanisms()
-        ObliqueTrunkSection = self.trunk[17]
-        BasalTrunkSection   = self.trunk[7]
+        self.ObliqueTrunkSection = self.trunk[17]
+        self.BasalTrunkSection   = self.trunk[7]
         
         self.add_calcium()
