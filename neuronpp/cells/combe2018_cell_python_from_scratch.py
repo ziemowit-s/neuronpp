@@ -438,6 +438,16 @@ class Combe2018Cell(Cell):
             sec.Ra = params.Ra_basal
             sec.cm = params.Cm_basal
 
+    def add_calcium(self, decay=True):
+        if decay:
+            ca_sections = [self.soma] +  self.trunk + self.apic
+            for section in self.secs:
+                section.hoc.insert("cad")
+                section.hoc.taur_cad = params.taur_cad
+                section.hoc.eca = params.potCa
+        else:
+            print("Unimplemented mechanism")
+
     def __init__(self, name=None, compile_paths=f_path):
         """
         :param name:
@@ -459,3 +469,4 @@ class Combe2018Cell(Cell):
         ObliqueTrunkSection = self.trunk[17]
         BasalTrunkSection   = self.trunk[7]
         
+        self.add_calcium()

@@ -64,3 +64,6 @@ kca_distal_maxfactor = 1   # ORIG>> maximum cond. factor in dendrites
 kca_distal_distance  = 200 # ORIG>> distance in dendrites for maximum cond.
 
 dend_kap = 0.0025036
+
+taur_cad = 20
+potCa = 140
