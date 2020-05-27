@@ -1,6 +1,6 @@
 from typing import Optional, List, Union, Callable
 
-from neuronpp.core.distributions import Dist
+from neuronpp.core.distributions import Dist, NormalTruncatedSegDist
 from neuronpp.core.hocwrappers.seg import Seg
 from neuronpp.core.hocwrappers.netstim import NetStim
 from neuronpp.core.hocwrappers.synapse import Synapse
@@ -11,7 +11,9 @@ from neuronpp.core.populations.utils import check_and_prepare_source, check_and_
 
 
 class Connector:
-    def __init__(self, population_ref, rule: str = "all", proba: Union[float, Dist] = 1.0,
+    def __init__(self, population_ref, rule: str = "all",
+                 cell_proba: Union[float, Dist] = 1.0,
+                 seg_dist: Union[NormalTruncatedSegDist, str] = "uniform",
                  syn_num_per_source: Union[int, Dist] = 1):
         """
         Connector object required to build new connections for Population.
@@ -29,13 +31,36 @@ class Connector:
             default is 'all'
             'all' - all-to-all connections
             'one' - one-to-one connections
-        :param proba:
+        :param cell_proba:
             default us 1.0
             can be a single number from 0 to 1 defining probability of connection.
             In this case it will assume UniformProba
 
             It can also be an instance of Dist class which defines specific distribution with
             an expected value
+        :param seg_dist:
+            distribution of single connection between provided target segments.
+
+            "all" - str: means all provided segments will be taken.
+
+            "uniform" - str: means all segs are equally probable
+                        Uniform distribution for segment choosing. Uniform means that all
+                        provided segments have equal probability.
+
+            NormalDist - object: probability of choose seg with mean and std provided
+                        Normal distribution for segment choosing.
+                        Normal means that choosing segments are clustered around mean with standard
+                        deviation std.
+                        :param mean:
+                            Provided in normalized arbitrary unit between 0-1.
+                            It is normalized mean (between 0-1), where all provided segments are
+                            organized as list
+                            and first element has location=0 and the last location=1
+                            During computation this number will be change for appropriate mean in
+                            um.
+                        :param std:
+                            Provided in um.
+                            standard deviation of the cluster of distribution.
         :param syn_num_per_source:
             default is 1
             number of synapse per single source object
@@ -50,7 +75,7 @@ class Connector:
         self._target = None
         self._synaptic_func = None
 
-        self._conn_params = ConnParams(rule=rule, cell_proba=proba,
+        self._conn_params = ConnParams(rule=rule, cell_proba=cell_proba, seg_dist=seg_dist,
                                        syn_num_per_source=syn_num_per_source)
 
     def set_source(self, source: Optional[

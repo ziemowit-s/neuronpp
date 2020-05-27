@@ -1,4 +1,6 @@
 from os import path
+from typing import Union
+
 from neuron import h
 
 from neuronpp.core.hocwrappers.sec import Sec
@@ -128,7 +130,8 @@ class SectionCell(CoreCell):
 
     @templatable
     @distparams
-    def connect_secs(self, source, target, source_loc=1.0, target_loc=0.0):
+    def connect_secs(self, source: Union[Sec, str], target: Union[Sec, str], source_loc=1.0,
+                     target_loc=0.0):
         """
         default: source(0.0) -> target(1.0)
 

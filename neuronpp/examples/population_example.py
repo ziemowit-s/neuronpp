@@ -1,7 +1,7 @@
 import os
 from neuronpp.cells.cell import Cell
 from neuronpp.core.cells.netstim_cell import NetStimCell
-from neuronpp.core.distributions import Dist, NormalTruncatedDist
+from neuronpp.core.distributions import Dist, NormalTruncatedDist, NormalTruncatedSegDist
 from neuronpp.core.populations.population import Population, NormalProba
 from neuronpp.utils.graphs.network_status_graph import NetworkStatusGraph
 
@@ -30,7 +30,7 @@ if __name__ == '__main__':
     pop1 = Population("pop_1")
     pop1.add_cells(template=cell_template, num=4)
 
-    connector = pop1.connect(proba=connection_proba)
+    connector = pop1.connect(cell_proba=connection_proba)
     connector.set_source(netstim)
     connector.set_target([c.filter_secs("dend")(0.5) for c in pop1.cells])
     mod_adder = connector.add_synapse("Exp2Syn")
@@ -43,7 +43,7 @@ if __name__ == '__main__':
     pop2 = Population("pop_2")
     pop2.add_cells(template=cell_template, num=4)
 
-    connector = pop2.connect(proba=connection_proba)
+    connector = pop2.connect(cell_proba=connection_proba, seg_dist=NormalTruncatedSegDist(0.5, 0.1))
     connector.set_source([c.filter_secs("soma")(0.5) for c in pop1.cells])
     connector.set_target([c.filter_secs("dend")(0.5) for c in pop2.cells])
     mod_adder = connector.add_synapse("Exp2Syn")
@@ -56,7 +56,7 @@ if __name__ == '__main__':
     pop3 = Population("pop_3")
     pop3.add_cells(template=cell_template, num=4)
 
-    connector = pop3.connect(proba=connection_proba)
+    connector = pop3.connect(cell_proba=connection_proba)
     connector.set_source([c.filter_secs("soma")(0.5) for c in pop2.cells])
     connector.set_target([c.filter_secs("dend")(0.5) for c in pop3.cells])
     mod_adder = connector.add_synapse("Exp2Syn")

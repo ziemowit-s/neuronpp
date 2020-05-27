@@ -19,6 +19,11 @@ class TestMultiMechPopulation(unittest.TestCase):
         TemplateCell = template(Cell)
         template_cell = TemplateCell(name="cell")
         template_cell.load_morpho(filepath=morpho_path)
+        template_cell.add_sec("dend1", diam=2, l=10)
+        template_cell.add_sec("dend2", diam=2, l=10)
+        template_cell.add_sec("soma", diam=10, l=10)
+        template_cell.connect_secs("dend1", "soma")
+        template_cell.connect_secs("dend2", "soma")
         template_cell.insert("pas")
         template_cell.insert("hh")
 
@@ -38,7 +43,7 @@ class TestMultiMechPopulation(unittest.TestCase):
         cls.pop1 = Population("pop_0")
         cls.pop1.add_cells(template=template_cell, num=3)
 
-        connector = cls.pop1.connect(proba=conn_dist)
+        connector = cls.pop1.connect(cell_proba=conn_dist)
         connector.set_source(netstim)
         connector.set_target([c.filter_secs("dend")(0.5) for c in cls.pop1.cells])
         mech_adder = connector.add_synapse("Exp2Syn")
@@ -49,7 +54,7 @@ class TestMultiMechPopulation(unittest.TestCase):
         cls.pop2 = Population("pop_1")
         cls.pop2.add_cells(template=template_ebner, num=4)
 
-        connector = cls.pop2.connect(proba=conn_dist)
+        connector = cls.pop2.connect(cell_proba=conn_dist)
         connector.set_source([c.filter_secs("soma")(0.5) for c in cls.pop1.cells])
         connector.set_target([c.filter_secs("dend")(0.5) for c in cls.pop2.cells])
 
@@ -79,7 +84,7 @@ class TestMultiMechPopulation(unittest.TestCase):
         cls.pop3 = Population("pop_2")
         cls.pop3.add_cells(template=template_cell, num=5)
 
-        connector = cls.pop3.connect(proba=conn_dist)
+        connector = cls.pop3.connect(cell_proba=conn_dist)
         connector.set_source([c.filter_secs("soma")(0.5) for c in cls.pop2.cells])
         connector.set_target([c.filter_secs("dend")(0.5) for c in cls.pop3.cells])
         mech_adder = connector.add_synapse("Exp2Syn")
@@ -110,7 +115,7 @@ class TestStandardPopulation(unittest.TestCase):
         cls.pop1 = Population("pop_0")
         cls.pop1.add_cells(template=template_cell, num=3)
 
-        connector = cls.pop1.connect(proba=conn_dist)
+        connector = cls.pop1.connect(cell_proba=conn_dist)
         connector.set_source(netstim)
         connector.set_target([c.filter_secs("dend")(0.5) for c in cls.pop1.cells])
         mech_adder = connector.add_synapse("Exp2Syn")
@@ -121,7 +126,7 @@ class TestStandardPopulation(unittest.TestCase):
         cls.pop2 = Population("pop_1")
         cls.pop2.add_cells(template=template_cell, num=4)
 
-        connector = cls.pop2.connect(proba=conn_dist)
+        connector = cls.pop2.connect(cell_proba=conn_dist)
         connector.set_source([c.filter_secs("soma")(0.5) for c in cls.pop1.cells])
         connector.set_target([c.filter_secs("dend")(0.5) for c in cls.pop2.cells])
         mech_adder = connector.add_synapse("Exp2Syn")
@@ -132,7 +137,7 @@ class TestStandardPopulation(unittest.TestCase):
         cls.pop3 = Population("pop_2")
         cls.pop3.add_cells(template=template_cell, num=5)
 
-        connector = cls.pop3.connect(proba=conn_dist)
+        connector = cls.pop3.connect(cell_proba=conn_dist)
         connector.set_source([c.filter_secs("soma")(0.5) for c in cls.pop2.cells])
         connector.set_target([c.filter_secs("dend")(0.5) for c in cls.pop3.cells])
         mech_adder = connector.add_synapse("Exp2Syn")

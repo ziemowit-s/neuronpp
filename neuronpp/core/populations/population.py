@@ -1,12 +1,13 @@
 import numpy as np
-from typing import Union, TypeVar, cast, List
+from typing import Union, TypeVar, cast, List, Iterable
 
 from neuronpp.cells.cell import Cell
 from neuronpp.core.hocwrappers.synapse import Synapse
 from neuronpp.utils.record import Record
 from neuronpp.core.template import Template
 from neuronpp.core.populations.connector import Connector
-from neuronpp.core.distributions import Dist, UniformProba, NormalProba
+from neuronpp.core.distributions import Dist, UniformProba, NormalProba, NormalTruncatedSegDist, \
+    UniformDist
 
 T_Cell = TypeVar('T_Cell', bound=Cell)
 
@@ -66,7 +67,9 @@ class Population:
         for r in self.recs.values():
             r.plot(animate=animate, **kwargs)
 
-    def connect(self, rule: str = "all", proba: Union[float, Dist] = 1.0,
+    def connect(self, rule: str = "all",
+                cell_proba: Union[float, Dist] = 1.0,
+                seg_dist: Union[NormalTruncatedSegDist, str] = "uniform",
                 syn_num_per_source: Union[int, Dist] = 1) -> Connector:
         """
         Make a new connection by returning Connector object and adjust it afterwards.
@@ -75,21 +78,44 @@ class Population:
             default is 'all'
             'all' - all-to-all connections
             'one' - one-to-one connections
-        :param proba:
+        :param cell_proba:
             default us 1.0
             can be a single number from 0 to 1 defining probability of connection.
             In this case it will assume UniformProba
 
             It can also be an instance of Dist class which defines specific distribution with
             an expected value
+        :param seg_dist:
+            distribution of single connection between provided target segments.
+
+            "all" - str: means all provided segments will be taken.
+
+            "uniform" - str: means all segs are equally probable
+                        Uniform distribution for segment choosing. Uniform means that all
+                        provided segments have equal probability.
+
+            NormalDist - object: probability of choose seg with mean and std provided
+                        Normal distribution for segment choosing.
+                        Normal means that choosing segments are clustered around mean with standard
+                        deviation std.
+                        :param mean:
+                            Provided in normalized arbitrary unit between 0-1.
+                            It is normalized mean (between 0-1), where all provided segments are
+                            organized as list
+                            and first element has location=0 and the last location=1
+                            During computation this number will be change for appropriate mean in
+                            um.
+                        :param std:
+                            Provided in um.
+                            standard deviation of the cluster of distribution.
         :param syn_num_per_source:
             default is 1
             number of synapse per single source object
         :return:
             Connector object
         """
-        return Connector(population_ref=self, rule=rule, proba=proba,
-                         syn_num_per_source=syn_num_per_source)
+        return Connector(population_ref=self, rule=rule, cell_proba=cell_proba,
+                         seg_dist=seg_dist, syn_num_per_source=syn_num_per_source)
 
     def _build_connector(self, conn: Connector):
         """
@@ -111,9 +137,9 @@ class Population:
         self.syns.extend(result_syns)
         return result_syns
 
-    def _make_conn(self, rule: str, target, connector) -> List[List[Synapse]]:
+    def _make_conn(self, rule: str, cells_targets, connector) -> List[List[Synapse]]:
         """
-        :param target:
+        :param cells_targets:
             single target element
         :param connector:
             Connector object
@@ -121,58 +147,87 @@ class Population:
             list of added synapses
         """
         result = []
-        target_len = len(target)
-        for target_i, t in enumerate(target):
-            if not self._is_connect(connector._conn_params.cell_proba):
-                continue
-            cell = t.parent.cell
+        cell_num = len(cells_targets)
+        conn_params = connector._conn_params
 
-            syns = []
-            for mech in connector._mechs:
-                for i in range(connector._conn_params.syn_num_per_source):
-                    spine_params = mech._spine_params
+        for target_i, targets in enumerate(cells_targets):
+            current_targets = self._get_current_targets(targets, seg_dist=conn_params.seg_dist)
 
-                    if spine_params:
-                        # TODO rethink connectivity: here - for each target (seg) spine is added
-                        spine = cell.add_spines(segs=t, head_nseg=spine_params.head_nseg,
-                                                neck_nseg=spine_params.neck_nseg)[0]
-                        target = spine.head(1.0)
+            for t in current_targets:
+                if not self._is_connect(conn_params.cell_proba):
+                    continue
+                cell = targets.parent.cell
 
-                    for netcon_params in mech._netcon_params:
-                        source = connector._source
-                        if hasattr(netcon_params, "source"):
-                            source = netcon_params.source
+                syns = []
+                for mech in connector._mechs:
+                    for i in range(conn_params.syn_num_per_source):
+                        spine_params = mech._spine_params
 
-                        if rule == 'all':
-                            # iterate over all source
-                            pass
-                        elif rule == 'one':
-                            if target_len != len(source):
-                                raise ValueError("For rule 'one' target and source need to be "
-                                                 "of the same size.")
-                            source = source[target_i]
-                        else:
-                            raise ValueError("The only allowed rule is all or one, "
-                                             "but provided %s" % rule)
+                        if spine_params:
+                            spine = cell.add_spines(segs=t, head_nseg=spine_params.head_nseg,
+                                                    neck_nseg=spine_params.neck_nseg)[0]
+                            t = spine.head(1.0)
 
-                        for s in source:
-                            # TODO rethink connectivity: here - for each target (seg) syn is added
-                            syn = cell.add_synapse(source=s, seg=t, mod_name=mech.mod_name,
-                                                   delay=netcon_params.delay,
-                                                   netcon_weight=netcon_params.weight,
-                                                   threshold=netcon_params.threshold,
-                                                   tag=connector.set_tag,
-                                                   **mech._synaptic_params)
-                            syns.append(syn)
+                        for netcon_params in mech._netcon_params:
+                            source = connector._source
+                            if hasattr(netcon_params, "source"):
+                                source = netcon_params.source
 
-            if connector._group_syns:
-                cell.group_synapses(tag=connector.set_tag, *syns)
-            if connector._synaptic_func:
-                connector._synaptic_func(syns)
+                            if rule == 'all':
+                                # iterate over all source
+                                pass
+                            elif rule == 'one':
+                                if cell_num != len(source):
+                                    raise ValueError("For rule 'one' target and source need to be "
+                                                     "of the same size.")
+                                source = source[target_i]
+                            else:
+                                raise ValueError("The only allowed rule is all or one, "
+                                                 "but provided %s" % rule)
 
-            result.extend(syns)
+                            for s in source:
+                                syn = cell.add_synapse(source=s, seg=t, mod_name=mech.mod_name,
+                                                       delay=netcon_params.delay,
+                                                       netcon_weight=netcon_params.weight,
+                                                       threshold=netcon_params.threshold,
+                                                       tag=connector.set_tag,
+                                                       **mech._synaptic_params)
+                                syns.append(syn)
+
+                if connector._group_syns:
+                    cell.group_synapses(tag=connector.set_tag, *syns)
+                if connector._synaptic_func:
+                    connector._synaptic_func(syns)
+
+                result.extend(syns)
 
         return result
+
+    @staticmethod
+    def _get_current_targets(targets, seg_dist):
+        """
+        :param targets:
+        :param seg_dist:
+        :return:
+            current target list based on the provided distribution type
+        """
+        mean = None
+        if not isinstance(targets, Iterable):
+            targets = [targets]
+
+        if seg_dist == 'all':
+            return targets
+        elif seg_dist == 'uniform':
+            return np.random.choice(targets, 1)
+        elif isinstance(seg_dist, NormalTruncatedSegDist):
+            if not mean:
+                mean = np.random.uniform(size=1)[0]
+            targets[0].parent.hoc.n3d()
+            xyz = np.random.normal(loc=mean, scale=seg_dist.std, size=3)
+            return ""
+        else:
+            raise TypeError("Param seg_dist can be only str: 'all', 'uniform' or "
+                            "object: NormalTruncatedSegDist, but provided: %s" % seg_dist.__class__)
 
     @staticmethod
     def _is_connect(conn_proba: Union[float, int, Dist]):
