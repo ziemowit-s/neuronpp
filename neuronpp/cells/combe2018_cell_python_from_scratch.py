@@ -11,10 +11,6 @@ from neuronpp.cells.morphology_points import points_apic, points_apic_continued
 from neuronpp.cells.morphology_points import points_dend, points_dend_continued
 import neuronpp.cells.combe_parameters as params
 
-def fromtodistance(origin_segment, to_segment):
-    h.distance(0, origin_segment.x, sec=origin_segment.sec)
-    return h.distance(to_segment.x, sec=to_segment.sec)
-
 class Combe2018Cell(Cell):
     def make_axon(self):
         # axon
