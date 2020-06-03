@@ -1,5 +1,3 @@
-
-
 Rm_non_trunk = 36900 # Apical oblique specific membrane resistance
 Rm_basal     = 15484.67 # Basal specific membrane resistance
 Rm_tip       = 36900 # Tip specific membrane resistance
@@ -52,7 +50,7 @@ e_pas = -70
 potK = -80
 soma_K_h = 8.8
 soma_vhalf_h = -82
-cac_kca=0.00075 //0.0005
+cac_kca = 0.00075
 gbar_kca = 0.5*soma_kca
 gkbar_mykca = 5.5*mykca_init
 
