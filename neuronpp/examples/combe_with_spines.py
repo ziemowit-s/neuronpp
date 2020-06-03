@@ -10,20 +10,21 @@ cell = Combe2018Cell(name="cell1")
 h.CVode()
 soma = cell.filter_secs("soma")
 axon = cell.filter_secs("axon")
-ic = IClamp(segment=soma(0.5))
+
 
 fig, ax = plt.subplots(1, 1)
-injections = [ .100]
-rec_v = h.Vector().record(soma.hoc(0.5)._ref_v)
-time =  h.Vector().record(h._ref_t)
+injections = [-.1, 0, .100]
+
 for inj in injections:
+    print(inj)
+    ic = IClamp(segment=soma(0.5))
+    rec_v = h.Vector().record(soma.hoc(0.5)._ref_v)
+    time =  h.Vector().record(h._ref_t)
     ic.stim(delay=300, dur=1000, amp=inj)
     sim = Simulation(init_v=-70, constant_timestep=False)
     sim.run(runtime=1500, stepsize=1)
-    for key in axon.hoc.psection()["density_mechs"]:
-        print(key, axon.hoc.psection()["density_mechs"][key])
-    ax.plot(time, rec_v, label="%4.2fnA"%inj)
-    sim.reset()
+    ax.plot(time, rec_v, label="%4.3fnA" % inj)
+    #sim.reset()
 ax.set_xlabel("time (s)")
 ax.set_ylabel("V (mV)")
 ax.legend()
