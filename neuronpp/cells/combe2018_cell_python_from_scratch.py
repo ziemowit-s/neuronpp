@@ -12,6 +12,11 @@ from neuronpp.cells.morphology_points import points_dend, points_dend_continued
 import neuronpp.cells.combe_parameters as params
 
 class Combe2018Cell(Cell):
+    @staticmethod
+    def _distribute_channel(x, mech, mech_param, val):
+        mech_obj = getattr(x, mech)
+        setattr(mech_obj, mech_param, val)
+
     def make_axon(self):
         # axon
         self.axon.hoc.pt3dclear()
@@ -259,7 +264,6 @@ class Combe2018Cell(Cell):
         sec.cm = params.Cm_axon
         sec.insert("km")
         sec.gbar_km = 3*params.soma_km
-
         sec.insert("kap")
         sec.gkabar_kap = params.soma_kap
         sec.ek = params.potK
@@ -269,11 +273,10 @@ class Combe2018Cell(Cell):
             sec = s.hoc
             sec.insert("car")
             sec.gcabar_car = 0.1*params.soma_car
-            sec.insert("calH")
             sec.insert("cat")
             sec.insert("kca")
             sec.cac_kca = params.cac_kca
-
+            sec.insert("calH")
             sec.insert("mykca")
             sec.insert("h")
             sec.insert("kap")
@@ -299,42 +302,49 @@ class Combe2018Cell(Cell):
             sec.e_pas = params.e_pas
             sec.Ra = params.Ra_trunk
             sec.cm = params.Cm_trunk
-            density_mechs = sec.psection()["density_mechs"]
 
             for i, seg in enumerate(sec):
                 xdist = h.distance(seg, sec=self.soma.hoc)
                 fr = xdist/params.caT_distal_distance
+
                 if xdist > 50:
-                    density_mechs["calH"]["gcalbar"][i] = 2*params.soma_calH
+                    self._distribute_channel(seg, "calH", "gcalbar", 2*params.soma_calH)
                 else:
-                    density_mechs["calH"]["gcalbar"][i] = 0.1*params.soma_calH
+                    self._distribute_channel(seg, "calH", "gcalbar", 0.1*params.soma_calH)
+
                 if xdist < 100:
-                    density_mechs["cat"]["gcatbar"][i] = 0
+                    self._distribute_channel(seg, "cat", "gcatbar", 0)
                 else:
                     val = params.caT_distal_maxfactor*params.soma_caT*fr
-                    density_mechs["cat"]["gcatbar"][i] = val
+                    self._distribute_channel(seg, "cat", "gcatbar", val)
+
                 if xdist < params.kca_distal_distance and xdist > 50:
-                    density_mechs["kca"]["gbar"][i] = 5*params.soma_kca
-                    density_mechs["mykca"]["gkbar"][i] = 2*params.mykca_init
+                    self._distribute_channel(seg, "kca", "gbar", 5*params.soma_kca)
+                    self._distribute_channel(seg, "mykca", "gkbar", 2*params.mykca_init)
                 else:
-                    density_mechs["kca"]["gbar"][i] = 0.5*params.soma_kca
-                    density_mechs["mykca"]["gkbar"][i] = 0.5*params.mykca_init
+                    self._distribute_channel(seg, "kca", "gbar", 0.5*params.soma_kca)
+                    self._distribute_channel(seg, "mykca", "gkbar", 0.5*params.mykca_init)
 
                 if xdist > 500:
                     xdist = 500
-                density_mechs["h"]["gbar"][i] = params.soma_hbar*(1+3*xdist/100)
+                val = params.soma_hbar*(1+3*xdist/100)
+                self._distribute_channel(seg, "h", "gbar", val)
+
                 if xdist > 100:
                     if xdist > 300:
                         new_dist = 300
                     else:
                         new_dist = xdist
-                    density_mechs["h"]["vhalf"][i] = -81-8*(new_dist-100)/200
-                    density_mechs["kad"]["gkabar"][i] = params.soma_kad*(1+xdist/100)
-                    density_mechs["kap"]["gkabar"][i] = 0
+
+                    self._distribute_channel(seg, "h", "vhalf", -81-8*(new_dist-100)/200)
+                    self._distribute_channel(seg, "kad", "gkabar",
+                                             params.soma_kad*(1+xdist/100))
+                    self._distribute_channel(seg, "kap", "gkabar", 0)
                 else:
-                    density_mechs["h"]["vhalf"][i] = -81
-                    density_mechs["kad"]["gkabar"][i] = 0
-                    density_mechs["kap"]["gkabar"][i] = params.soma_kap*(1+xdist/100)
+                    self._distribute_channel(seg, "h", "vhalf", -81)
+                    self._distribute_channel(seg, "kad", "gkabar", 0)
+                    self._distribute_channel(seg, "kap", "gkabar",
+                                             params.soma_kap*(1+xdist/100))
 
 
     def add_apical_mechanisms(self):
@@ -374,42 +384,45 @@ class Combe2018Cell(Cell):
             sec.Ra = params.Ra_non_trunk
             sec.cm = params.Cm_non_trunk
 
-            density_mechs = sec.psection()["density_mechs"]
             for i, seg in enumerate(sec):
                 xdist = h.distance(seg)
                 fr = xdist/params.caT_distal_distance
                 if xdist > 50:
-                    density_mechs["calH"]["gcalbar"][i] = 2*params.soma_calH
+                    self._distribute_channel(seg, "calH", "gcalbar", 2*params.soma_calH)
                 else:
-                    density_mechs["calH"]["gcalbar"][i] = 0.1*params.soma_calH
+                    self._distribute_channel(seg, "calH", "gcalbar", 0.1*params.soma_calH)
+
                 if xdist < 100:
-                    density_mechs["cat"]["gcatbar"][i] = 0
+                    self._distribute_channel(seg, "cat", "gcatbar", 0)
                 else:
                     val = params.caT_distal_maxfactor*params.soma_caT*fr
-                    density_mechs["cat"]["gcatbar"][i] = val
+                    self._distribute_channel(seg, "cat", "gcatbar", val)
 
                 if xdist < params.kca_distal_distance and xdist > 50:
-                    density_mechs["kca"]["gbar"][i] = 5*params.soma_kca
-                    density_mechs["mykca"]["gkbar"][i] = 2*params.mykca_init
+                    self._distribute_channel(seg, "kca", "gbar", 5*params.soma_kca)
+                    self._distribute_channel(seg, "mykca", "gkbar", 2*params.mykca_init)
                 else:
-                    density_mechs["kca"]["gbar"][i] = 0.5*params.soma_kca
-                    density_mechs["mykca"]["gkbar"][i] = 0.5*params.mykca_init
+                    self._distribute_channel(seg, "kca", "gbar", 0.5*params.soma_kca)
+                    self._distribute_channel(seg, "mykca", "gkbar", 0.5*params.mykca_init)
 
                 if xdist > 500:
                     xdist = 500
-                density_mechs["h"]["gbar"][i] = params.soma_hbar*(1+3*xdist/100)
+                val = params.soma_hbar*(1+3*xdist/100)
+                self._distribute_channel(seg, "h", "gbar", val)
                 if xdist > 100:
                     if xdist > 300:
                         new_dist = 300
                     else:
                         new_dist = xdist
-                    density_mechs["h"]["vhalf"][i] = -81-8*(new_dist-100)/200
-                    density_mechs["kad"]["gkabar"][i] = params.soma_kad*(1+xdist/100)
-                    density_mechs["kap"]["gkabar"][i] = 0
+                    self._distribute_channel(seg, "h", "vhalf", -81-8*(new_dist-100)/200)
+                    self._distribute_channel(seg, "kad", "gkabar",
+                                             params.soma_kad*(1+xdist/100))
+                    self._distribute_channel(seg, "kap", "gkabar", 0)
                 else:
-                    density_mechs["h"]["vhalf"][i] = -81
-                    density_mechs["kad"]["gkabar"][i] = 0
-                    density_mechs["kap"]["gkabar"][i] = params.soma_kap*(1+xdist/100)
+                    self._distribute_channel(seg, "h", "vhalf", -81)
+                    self._distribute_channel(seg, "kad", "gkabar", 0)
+                    self._distribute_channel(seg, "kap", "gkabar",
+                                             params.soma_kap*(1+xdist/100))
 
     def add_basal_tree_mechanisms(self):
         for s in self.dend:
@@ -462,6 +475,7 @@ class Combe2018Cell(Cell):
         self.add_axon_mechanisms()
         self.add_trunk_mechanisms()
         self.add_apical_mechanisms()
+        self.add_basal_tree_mechanisms()
         self.ObliqueTrunkSection = self.trunk[17]
         self.BasalTrunkSection   = self.trunk[7]
         
