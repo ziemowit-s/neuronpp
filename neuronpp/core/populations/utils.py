@@ -5,11 +5,18 @@ from neuronpp.core.hocwrappers.seg import Seg
 from neuronpp.core.hocwrappers.vecstim import VecStim
 
 
-def check_and_prepare_source(source):
+def check_and_prepare_sources(source):
+    """
+    Check source type and return source(s) as a list
+
+    :param source:
+        single source or list of sources
+    :return:
+        list of sources based on provided source(s)
+    """
     source_ok = True
     if isinstance(source, Iterable):
-        check = [isinstance(s, (Seg, VecStim, NetStim)) for s in source]
-        if not all(check):
+        if not all([isinstance(s, (Seg, VecStim, NetStim)) for s in source]):
             source_ok = False
     else:
         if source is not None and not isinstance(source, (Seg, VecStim, NetStim)):

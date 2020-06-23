@@ -7,7 +7,7 @@ from neuronpp.core.hocwrappers.synapse import Synapse
 from neuronpp.core.hocwrappers.vecstim import VecStim
 from neuronpp.core.populations.params.conn_params import ConnParams
 from neuronpp.core.populations.mech_adder import SynAdder
-from neuronpp.core.populations.utils import check_and_prepare_source, check_and_prepare_target
+from neuronpp.core.populations.utils import check_and_prepare_sources, check_and_prepare_target
 
 
 class Connector:
@@ -32,7 +32,7 @@ class Connector:
             'all' - all-to-all connections
             'one' - one-to-one connections
         :param cell_proba:
-            default us 1.0
+            default is 1.0
             can be a single number from 0 to 1 defining probability of connection.
             In this case it will assume UniformProba
 
@@ -71,15 +71,14 @@ class Connector:
         self._group_syns = False
 
         self._tag = None
-        self._source = None
+        self._sources = None
         self._target = None
         self._synaptic_func = None
 
         self._conn_params = ConnParams(rule=rule, cell_proba=cell_proba, seg_dist=seg_dist,
                                        syn_num_per_source=syn_num_per_source)
 
-    def set_source(self, source: Optional[
-                   Union[List[Union[Seg, VecStim, NetStim]], Seg, VecStim, NetStim]]):
+    def set_source(self, source: Optional[Union[List[Union[Seg, VecStim, NetStim]], Seg, VecStim, NetStim]]):
         """
         Source object(s) which will call the Netcon(s) to initiate stimulation(s)
         :param source:
@@ -88,7 +87,7 @@ class Connector:
         :return:
             self object (builder paradigm)
         """
-        self._source = check_and_prepare_source(source)
+        self._sources = check_and_prepare_sources(source)
         return self
 
     # TODO change for filter function(?)

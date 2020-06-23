@@ -79,14 +79,12 @@ class Population:
             'all' - all-to-all connections
             'one' - one-to-one connections
         :param cell_proba:
-            default us 1.0
-            can be a single number from 0 to 1 defining probability of connection.
-            In this case it will assume UniformProba
-
-            It can also be an instance of Dist class which defines specific distribution with
-            an expected value
+            default is 1.0
+            can be a single float between 0 to 1 (defining probability of connection), it will assume UniformProba.
+            It can also be an instance of Dist class which defines specific distribution with an expected value
         :param seg_dist:
-            distribution of single connection between provided target segments.
+            default is "uniform"
+            distribution of a single connection from source to target segments
 
             "all" - str: means all provided segments will be taken.
 
@@ -99,12 +97,8 @@ class Population:
                         Normal means that choosing segments are clustered around mean with standard
                         deviation std.
                         :param mean:
-                            Provided in normalized arbitrary unit between 0-1.
-                            It is normalized mean (between 0-1), where all provided segments are
-                            organized as list
-                            and first element has location=0 and the last location=1
-                            During computation this number will be change for appropriate mean in
-                            um.
+                            Provided in normalized arbitrary unit between 0-1, where all provided segments are
+                            organized as list. The first element has location=0, the last location=1.
                         :param std:
                             Provided in um.
                             standard deviation of the cluster of distribution.
@@ -137,12 +131,27 @@ class Population:
         self.syns.extend(result_syns)
         return result_syns
 
-    def _make_conn(self, rule: str, cells_targets, connector) -> List[List[Synapse]]:
+    def _make_conn(self, source_rule: str, cells_targets, connector) -> List[List[Synapse]]:
         """
+        TODO refactoring required:
+          * method is too extensive
+          * rethink connection rule provision because currently there is:
+            * source_rule as string - defines rule for source -to-> target connection
+            * connector.conn_params.cell_proba - defines distribution for cell connection (yes or no)
+            * connector.conn_params.seg_dist - defines distribution for target selection
+              (while cell is selected to connect)
+
+        Creates connection based on provided source_rule, cells' target segments and connection rule
+
+        :param source_rule:
+            string which defines connection rule for source
+
+            "all" - means all to all connection between each source and each target
+            "one" - means one to one connection between one source and one target
         :param cells_targets:
-            single target element
+            Each element of cells_targets contains a list of target segments
         :param connector:
-            Connector object
+            Connector object containing rules for connection
         :return:
             list of added synapses
         """
@@ -150,89 +159,147 @@ class Population:
         cell_num = len(cells_targets)
         conn_params = connector._conn_params
 
-        for target_i, targets in enumerate(cells_targets):
-            current_targets = self._get_current_targets(targets, seg_dist=conn_params.seg_dist)
+        for cell_i, potential_target_segments in enumerate(cells_targets):
+            # based on cell_proba - decide if we want to make a connection with that cell
+            if not self._is_make_cell_connection(conn_params.cell_proba):
+                continue
+            cell = potential_target_segments.parent.cell
 
-            for t in current_targets:
-                if not self._is_connect(conn_params.cell_proba):
-                    continue
-                cell = targets.parent.cell
+            # TODO Hack - which ensures that there is the same seg_dist_mean for all synapses with the same cell
+            seg_dist_mean = None
+            if isinstance(conn_params.seg_dist, NormalTruncatedSegDist) and conn_params.seg_dist.mean is None:
+                seg_dist_mean = np.random.uniform(size=1)[0]
 
-                syns = []
-                for mech in connector._mechs:
-                    for i in range(conn_params.syn_num_per_source):
+            # create syn_num_per_source number of synapses per single source
+            for synapse_i in range(conn_params.syn_num_per_source):
+
+                # based on seg_dist - decide with what target_segment(s) we want to make connection
+                target_segments = self._get_current_target_segments(potential_target_segments,
+                                                                    seg_dist=conn_params.seg_dist,
+                                                                    normal_mean=seg_dist_mean)
+
+                for target_segment in target_segments:
+                    syns = []
+                    # iter over all point processes provided
+                    # each target_segment will receive all provided point processes
+                    for mech in connector._mechs:
                         spine_params = mech._spine_params
 
                         if spine_params:
-                            spine = cell.add_spines(segs=t, head_nseg=spine_params.head_nseg,
+                            spine = cell.add_spines(segs=target_segment, head_nseg=spine_params.head_nseg,
                                                     neck_nseg=spine_params.neck_nseg)[0]
-                            t = spine.head(1.0)
+                            target_segment = spine.head(1.0)
 
+                        # iter over all netcons - for each netcon create a new connection
+                        # eg. single point process can have netconn from the real source
+                        # and from the outside stimuli (netcon with source=None)
                         for netcon_params in mech._netcon_params:
-                            source = connector._source
-                            if hasattr(netcon_params, "source"):
-                                source = netcon_params.source
+                            sources = connector._sources
 
-                            if rule == 'all':
-                                # iterate over all source
-                                pass
-                            elif rule == 'one':
-                                if cell_num != len(source):
+                            # if netcon has custom sources, different than the default connector sources
+                            # it will use only netconn's sources in that case
+                            if hasattr(netcon_params, "source"):
+                                sources = netcon_params.custom_sources
+
+                            # Based on source_rule - decide with which source we want to make connection
+                            if source_rule == 'all':
+                                pass  # iterate over all sources provided
+                            elif source_rule == 'one':
+                                if cell_num != len(sources):
                                     raise ValueError("For rule 'one' target and source need to be "
                                                      "of the same size.")
-                                source = source[target_i]
+                                sources = [sources[cell_i]]  # select only a particular source
                             else:
                                 raise ValueError("The only allowed rule is all or one, "
-                                                 "but provided %s" % rule)
+                                                 "but provided %s" % source_rule)
 
-                            for s in source:
-                                syn = cell.add_synapse(source=s, seg=t, mod_name=mech.mod_name,
-                                                       delay=netcon_params.delay,
+                            # iter over all sources
+                            for s in sources:
+                                syn = cell.add_synapse(source=s, seg=target_segment, mod_name=mech.mod_name,
+                                                       tag=connector.set_tag, delay=netcon_params.delay,
                                                        netcon_weight=netcon_params.weight,
-                                                       threshold=netcon_params.threshold,
-                                                       tag=connector.set_tag,
-                                                       **mech._synaptic_params)
+                                                       threshold=netcon_params.threshold, **mech._synaptic_params)
                                 syns.append(syn)
 
-                if connector._group_syns:
-                    cell.group_synapses(tag=connector.set_tag, *syns)
-                if connector._synaptic_func:
-                    connector._synaptic_func(syns)
+                    # group synapses if required for each target_segment
+                    # eg. for multi-netcons synapses (like ACh+Da+hebbian synapse)
+                    # This requirement need to be directly define by the user
+                    if connector._group_syns:
+                        cell.group_synapses(tag=connector.set_tag, *syns)
 
-                result.extend(syns)
+                    # perform a custom function on created synapses if required for each target_segment
+                    # This requirement need to be directly define by the user
+                    if connector._synaptic_func:
+                        connector._synaptic_func(syns)
+
+                    result.extend(syns)
 
         return result
 
     @staticmethod
-    def _get_current_targets(targets, seg_dist):
+    def _get_current_target_segments(potential_target_segments, seg_dist, normal_mean=None):
         """
-        :param targets:
+        TODO It requires refactoring in the future
+          * returning all potential_target_segments or only one from that list - seems to be a bad practice
+          * passing mean as a param only for NormalTruncatedSegDist distribution - seems to be a bad practice
+
+        Returns a list of target section to connect.
+
+        It returns a list of single element: target section if seg_dist is "uniform" or NormalDist
+        It returns a list of all targets provided in the potential_target_segments if seg_dist is "all"
+
+        :param potential_target_segments:
         :param seg_dist:
+            distribution of single connection between provided target segments.
+
+            "all" - str: means all provided segments will be taken.
+
+            "uniform" - str: means all segs are equally probable
+                        Uniform distribution for segment choosing. Uniform means that all
+                        provided segments have equal probability.
+
+            NormalDist - object: probability of choose seg with mean and std provided
+                        Normal distribution for segment choosing.
+                        Normal means that choosing segments are clustered around mean with standard
+                        deviation std.
+                        :param mean:
+                            Provided in normalized arbitrary unit between 0-1.
+                            It is normalized mean (between 0-1), where all provided segments are
+                            organized as list
+                            and first element has location=0 and the last location=1
+                            During computation this number will be change for appropriate mean in
+                            um.
+                        :param std:
+                            Provided in um.
+                            standard deviation of the cluster of distribution.
         :return:
-            current target list based on the provided distribution type
+            target section list based on the provided distribution type
         """
-        mean = None
-        if not isinstance(targets, Iterable):
-            targets = [targets]
+        if not isinstance(potential_target_segments, Iterable):
+            potential_target_segments = [potential_target_segments]
 
         if seg_dist == 'all':
-            return targets
+            return np.array(potential_target_segments)
         elif seg_dist == 'uniform':
-            return np.random.choice(targets, 1)
+            return np.random.choice(potential_target_segments, 1)
         elif isinstance(seg_dist, NormalTruncatedSegDist):
-            if not mean:
-                mean = np.random.uniform(size=1)[0]
-            targets[0].parent.hoc.n3d()
-            xyz = np.random.normal(loc=mean, scale=seg_dist.std, size=3)
-            return ""
+            if normal_mean is None:
+                normal_mean = seg_dist.mean
+            value = np.abs(np.random.normal(loc=normal_mean, scale=seg_dist.std, size=1))[0]
+            if len(potential_target_segments) == 1:
+                index = 0
+            else:
+                index = round(len(potential_target_segments)*value)-1
+            return np.array([potential_target_segments[index]])
         else:
             raise TypeError("Param seg_dist can be only str: 'all', 'uniform' or "
                             "object: NormalTruncatedSegDist, but provided: %s" % seg_dist.__class__)
 
     @staticmethod
-    def _is_connect(conn_proba: Union[float, int, Dist]):
+    def _is_make_cell_connection(conn_proba: Union[float, int, Dist]):
         """
-        Determin if make connection between single tuple of (source and target) based on conn_proba
+        Determine if there should be a connection between single tuple of (source and target) based on conn_proba type
+        and conn_proba.expected value.
 
         :param conn_proba:
             can be a single number from 0 to 1 defining probability of connection.

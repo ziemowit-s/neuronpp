@@ -1,7 +1,7 @@
 from typing import Union
 
 from neuronpp.core.distributions import Dist
-from neuronpp.core.populations.utils import check_and_prepare_source
+from neuronpp.core.populations.utils import check_and_prepare_sources
 
 
 class NetconParams:
@@ -14,13 +14,11 @@ class NetconParams:
         :param delay:
         :param threshold:
         :param kwargs:
-            'custom_source': can be: None or Seg, VecStim, NetStim, or list of Seg, VecStim,
-                             NetStim.
-                             By default it is not set meaning that default source from Connector
-                             will be used.
+            'custom_source': can be: None or Seg, VecStim, NetStim, or list of Seg, VecStim, NetStim.
+                             By default it is not set meaning that default source from Connector will be used.
         """
         if "custom_source" in kwargs:
-            self.source = check_and_prepare_source(kwargs['custom_source'])
+            self.custom_sources = check_and_prepare_sources(kwargs['custom_source'])
         self.weight = weight
         self.delay = delay
         self.threshold = threshold
