@@ -14,8 +14,9 @@ class NetconParams:
         :param delay:
         :param threshold:
         :param kwargs:
-            'custom_source': can be: None or Seg, VecStim, NetStim, or list of Seg, VecStim, NetStim.
-                             By default it is not set meaning that default source from Connector will be used.
+            'custom_source': can be: None or Seg, VecStim, NetStim, or list of Seg, VecStim,
+            NetStim. By default it is not set meaning that default source from Connector will be
+            used.
         """
         if "custom_source" in kwargs:
             self.custom_sources = check_and_prepare_sources(kwargs['custom_source'])

@@ -78,7 +78,8 @@ class Connector:
         self._conn_params = ConnParams(rule=rule, cell_proba=cell_proba, seg_dist=seg_dist,
                                        syn_num_per_source=syn_num_per_source)
 
-    def set_source(self, source: Optional[Union[List[Union[Seg, VecStim, NetStim]], Seg, VecStim, NetStim]]):
+    def set_source(self, source: Optional[Union[List[Union[Seg, VecStim, NetStim]], Seg, VecStim,
+                                                NetStim]]):
         """
         Source object(s) which will call the Netcon(s) to initiate stimulation(s)
         :param source:

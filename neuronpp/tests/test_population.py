@@ -62,7 +62,7 @@ class TestMultiMechPopulation(unittest.TestCase):
         del (template_ebner.params_4p_syn['w_post_init'])
         syn_adder = connector.add_synapse("Syn4PAChDa")
         syn_adder.add_point_process_params(w_pre_init=weight_dist, w_post_init=weight_dist,
-                                            **template_ebner.params_4p_syn)
+                                           **template_ebner.params_4p_syn)
         syn_adder.add_netcon(weight=weight_dist)
 
         syn_adder = connector.add_synapse("SynACh")

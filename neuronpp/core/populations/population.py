@@ -2,12 +2,11 @@ import numpy as np
 from typing import Union, TypeVar, cast, List, Iterable
 
 from neuronpp.cells.cell import Cell
-from neuronpp.core.hocwrappers.synapse import Synapse
 from neuronpp.utils.record import Record
 from neuronpp.core.template import Template
+from neuronpp.core.hocwrappers.synapse import Synapse
 from neuronpp.core.populations.connector import Connector
-from neuronpp.core.distributions import Dist, UniformProba, NormalProba, NormalTruncatedSegDist, \
-    UniformDist
+from neuronpp.core.distributions import Dist, UniformProba, NormalProba, NormalTruncatedSegDist
 
 T_Cell = TypeVar('T_Cell', bound=Cell)
 
@@ -59,7 +58,8 @@ class Population:
         :param y_lim:
             tuple of limits for y axis. Default is (-80, 50)
         :param position:
-            position of all subplots ON EACH figure (each figure is created for each variable separately).
+            position of all subplots ON EACH figure (each figure is created for each variable
+            separately).
             * position=(3,3) -> if you have 9 neurons and want to display 'v' on 3x3 matrix
             * position='merge' -> it will display all figures on the same graph.
             * position=None -> Default, each neuron has separated  axis (row) on the figure.
@@ -80,8 +80,10 @@ class Population:
             'one' - one-to-one connections
         :param cell_proba:
             default is 1.0
-            can be a single float between 0 to 1 (defining probability of connection), it will assume UniformProba.
-            It can also be an instance of Dist class which defines specific distribution with an expected value
+            can be a single float between 0 to 1 (defining probability of connection), it will
+            assume UniformProba.
+            It can also be an instance of Dist class which defines specific distribution with an
+            expected value.
         :param seg_dist:
             default is "uniform"
             distribution of a single connection from source to target segments
@@ -97,8 +99,9 @@ class Population:
                         Normal means that choosing segments are clustered around mean with standard
                         deviation std.
                         :param mean:
-                            Provided in normalized arbitrary unit between 0-1, where all provided segments are
-                            organized as list. The first element has location=0, the last location=1.
+                            Provided in normalized arbitrary unit between 0-1, where all provided
+                            segments are organized as list. The first element has location=0,
+                            the last location=1.
                         :param std:
                             Provided in um.
                             standard deviation of the cluster of distribution.
@@ -137,7 +140,8 @@ class Population:
           * method is too extensive
           * rethink connection rule provision because currently there is:
             * source_rule as string - defines rule for source -to-> target connection
-            * connector.conn_params.cell_proba - defines distribution for cell connection (yes or no)
+            * connector.conn_params.cell_proba - defines distribution for cell connection
+            (yes or no)
             * connector.conn_params.seg_dist - defines distribution for target selection
               (while cell is selected to connect)
 
@@ -165,9 +169,11 @@ class Population:
                 continue
             cell = potential_target_segments.parent.cell
 
-            # TODO Hack - which ensures that there is the same seg_dist_mean for all synapses with the same cell
+            # TODO Hack - which ensures that there is the same seg_dist_mean for all synapses with
+            #  the same cell
             seg_dist_mean = None
-            if isinstance(conn_params.seg_dist, NormalTruncatedSegDist) and conn_params.seg_dist.mean is None:
+            if isinstance(conn_params.seg_dist,
+                          NormalTruncatedSegDist) and conn_params.seg_dist.mean is None:
                 seg_dist_mean = np.random.uniform(size=1)[0]
 
             # create syn_num_per_source number of synapses per single source
@@ -186,8 +192,9 @@ class Population:
                         spine_params = mech._spine_params
 
                         if spine_params:
-                            spine = cell.add_spines(segs=target_segment, head_nseg=spine_params.head_nseg,
-                                                    neck_nseg=spine_params.neck_nseg)[0]
+                            spine = \
+                            cell.add_spines(segs=target_segment, head_nseg=spine_params.head_nseg,
+                                            neck_nseg=spine_params.neck_nseg)[0]
                             target_segment = spine.head(1.0)
 
                         # iter over all netcons - for each netcon create a new connection
@@ -196,12 +203,13 @@ class Population:
                         for netcon_params in mech._netcon_params:
                             sources = connector._sources
 
-                            # if netcon has custom sources, different than the default connector sources
-                            # it will use only netconn's sources in that case
+                            # if netcon has custom sources, different than the default connector
+                            # sources it will use only netconn's sources in that case
                             if hasattr(netcon_params, "source"):
                                 sources = netcon_params.custom_sources
 
-                            # Based on source_rule - decide with which source we want to make connection
+                            # Based on source_rule - decide with which source we want to make c
+                            # onnection
                             if source_rule == 'all':
                                 pass  # iterate over all sources provided
                             elif source_rule == 'one':
@@ -215,10 +223,13 @@ class Population:
 
                             # iter over all sources
                             for s in sources:
-                                syn = cell.add_synapse(source=s, seg=target_segment, mod_name=mech.mod_name,
-                                                       tag=connector.set_tag, delay=netcon_params.delay,
+                                syn = cell.add_synapse(source=s, seg=target_segment,
+                                                       mod_name=mech.mod_name,
+                                                       tag=connector.set_tag,
+                                                       delay=netcon_params.delay,
                                                        netcon_weight=netcon_params.weight,
-                                                       threshold=netcon_params.threshold, **mech._point_process_params)
+                                                       threshold=netcon_params.threshold,
+                                                       **mech._point_process_params)
                                 syns.append(syn)
 
                     # group synapses if required for each target_segment
@@ -227,7 +238,8 @@ class Population:
                     if connector._group_syns:
                         cell.group_synapses(tag=connector.set_tag, *syns)
 
-                    # perform a custom function on created synapses if required for each target_segment
+                    # perform a custom function on created synapses if required for each
+                    # target_segment
                     # This requirement need to be directly define by the user
                     if connector._synaptic_func:
                         connector._synaptic_func(syns)
@@ -240,13 +252,16 @@ class Population:
     def _get_current_target_segments(potential_target_segments, seg_dist, normal_mean=None):
         """
         TODO It requires refactoring in the future
-          * returning all potential_target_segments or only one from that list - seems to be a bad practice
-          * passing mean as a param only for NormalTruncatedSegDist distribution - seems to be a bad practice
+          * returning all potential_target_segments or only one from that list - seems to be a
+          bad practice
+          * passing mean as a param only for NormalTruncatedSegDist distribution - seems to be a
+          bad practice
 
         Returns a list of target section to connect.
 
         It returns a list of single element: target section if seg_dist is "uniform" or NormalDist
-        It returns a list of all targets provided in the potential_target_segments if seg_dist is "all"
+        It returns a list of all targets provided in the potential_target_segments if seg_dist is
+        "all"
 
         :param potential_target_segments:
         :param seg_dist:
@@ -289,7 +304,7 @@ class Population:
             if len(potential_target_segments) == 1:
                 index = 0
             else:
-                index = round(len(potential_target_segments)*value)-1
+                index = round(len(potential_target_segments) * value) - 1
             return np.array([potential_target_segments[index]])
         else:
             raise TypeError("Param seg_dist can be only str: 'all', 'uniform' or "
@@ -298,8 +313,8 @@ class Population:
     @staticmethod
     def _is_make_cell_connection(conn_proba: Union[float, int, Dist]):
         """
-        Determine if there should be a connection between single tuple of (source and target) based on conn_proba type
-        and conn_proba.expected value.
+        Determine if there should be a connection between single tuple of (source and target) based
+        on conn_proba type and conn_proba.expected value.
 
         :param conn_proba:
             can be a single number from 0 to 1 defining probability of connection.
