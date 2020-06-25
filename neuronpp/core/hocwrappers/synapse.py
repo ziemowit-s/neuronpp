@@ -42,8 +42,8 @@ class Synapse(Wrapper):
         for nc in self.netcons:
             nc.make_event(time, use_global_sim_time)
 
-    def add_netcon(self, source: HocWrapper, weight: float = 1.0,
-                   delay: float = 1.0, threshold: float = 10):
+    def add_netcon(self, source: HocWrapper, weight: float = 1.0, delay: float = 1.0,
+                   threshold: float = 10):
         """
         Currently it allows to add single new source
         :param source:

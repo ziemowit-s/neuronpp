@@ -2,8 +2,8 @@ from typing import Optional
 
 from neuronpp.utils.iclamp import IClamp
 from neuronpp.core.hocwrappers.sec import Sec
-from neuronpp.core.cells.netstim_cell import NetStimCell
 from neuronpp.core.hocwrappers.synapse import Synapse
+from neuronpp.core.cells.netstim_cell import NetStimCell
 
 
 class Experiment:
@@ -16,7 +16,7 @@ class Experiment:
 
     def make_protocol(self, protocol: str, start, isi=1, iti=1,
                       epsp_synapse: Optional[Synapse] = None,
-                      i_clamp_section: Sec = None, train_number=1, copy_netconn_params=True):
+                      i_clamp_section: Sec = None, train_number=1):
         """
         Create an experimental protocol of EPSPs and APs.
 
@@ -51,9 +51,6 @@ class Experiment:
             Inter Train Interval eg. 3xEPSP,2xAP -isi- 3xEPSP,2xAP -iti- 3xEPSP,2xAP-isi-3xEPSP,2xAP
         :param train_number:
             number of trains. Default is 1
-        :param copy_netconn_params:
-            If copy_netconn_params=True it will copy NetConn params from the last NetConn added to
-            the synapse.
         :return:
             tuple(NetStim, IClamp).
             If epsp_synapse is None NetStim will be None
@@ -76,15 +73,13 @@ class Experiment:
         for train_no in range(train_number):
 
             for p in protocols:
-                event_time = self._prepare_protocol(p, netstim, iclamp, event_time, epsp_synapse,
-                                                    copy_netconn_params)
+                event_time = self._prepare_protocol(p, netstim, iclamp, event_time, epsp_synapse)
                 event_time += isi
 
             event_time += iti
             return netstim, iclamp
 
-    def _prepare_protocol(self, protocol, netstim, iclamp, event_time, epsp_synapse,
-                          copy_netconn_params):
+    def _prepare_protocol(self, protocol, netstim, iclamp, event_time, epsp_synapse):
         protocol, params = protocol.split("[")
 
         num, ptype = protocol.split("x")
@@ -116,7 +111,7 @@ class Experiment:
 
         if ptype == 'epsp':
             stim = netstim.make_netstim(event_time, number=num, interval=interval)
-            self._set_source(stim, epsp_synapse, weight, threshold, delay, copy_netconn_params)
+            epsp_synapse.add_netcon(source=stim, weight=weight, threshold=threshold, delay=delay)
             event_time += interval * num
 
         elif ptype == 'ap':
@@ -127,12 +122,3 @@ class Experiment:
             raise TypeError("Only allowed types are EPSP or AP.")
 
         return event_time
-
-    @staticmethod
-    def _set_source(stim, syn, weight, threshold, delay, copy_netconn_params):
-        if copy_netconn_params:
-            nc = syn.netcons[-1]
-            delay = nc.hoc.delay
-            weight = nc.hoc.weight[0]
-            threshold = nc.hoc.threshold
-        syn.add_netcon(source=stim, weight=weight, threshold=threshold, delay=delay)

@@ -37,7 +37,8 @@ class SynapticGroup(Wrapper, dict):
         for syn in self.values():
             syn.make_event(time, use_global_sim_time)
 
-    def add_source(self, source: HocWrapper, weight=1.0, delay=1.0, threshold=10):
+    def add_netcon(self, source: HocWrapper, weight: float = 1.0, delay: float = 1.0,
+                   threshold: float = 10):
         """
         This is use on all synapses in this object. If you want to set source only for particular
         subset of synapses,
@@ -57,7 +58,7 @@ class SynapticGroup(Wrapper, dict):
             threshold for NetConn, default=10
         """
         for s in self.values():
-            s.add_source(source, weight, delay, threshold)
+            s.add_netcon(source, weight, delay, threshold)
 
     def __repr__(self):
         synapses_in = '+'.join(self.keys())
