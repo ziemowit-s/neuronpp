@@ -1,11 +1,17 @@
 import os
+
+from Xlib.error import DisplayConnectionError
 from neuron import h
 from threading import Thread
 from typing import TypeVar, Type, cast
 
 from pyvis.network import Network
 from neuronpp.cells.cell import Cell
-from pynput.keyboard import Listener
+try:
+    from pynput.keyboard import Listener
+except DisplayConnectionError as e:
+    print("Warning: key listeners and interactive debugging (on key press) won't work "
+          "due to the error: %s" % str(e))
 
 from neuronpp.core.template import Template
 from neuronpp.core.hocwrappers.seg import Seg

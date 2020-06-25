@@ -305,66 +305,63 @@ The main cell object `Cell` contains all filter methods inside.
 
 ### Populations of neurons
 
-[Experimental feature] Create a population of many neurons of the same type and connect them between populations or stimulate them just as any synapse (with NetStim, VecStim or event based stimulation):
+Create a population of many neurons of the same type and connect them between populations:
 
-  * This is an experimental feature so may not be so easy to use
+* Create a template cell by wrapping any Cell object and define such template as any other cell:
   ```python
-    # Define a new Population class. 
-    # You need to implement abstract method cell_definition() and syn_definition() for each new Population
-    import os
+    # Create a template cell by wrapping
+    TemplateCell = template(Cell)
+    cell_template = TemplateCell(name="cell")
+    cell_template.load_morpho(filepath="my.swc")
+    cell_template.insert("pas")
+    cell_template.insert("hh")
+    ```
+  
+  * Create a stimulation and define your first population:
+  ```python
+    # Create NetStim
+    netstim = NetStimCell("stim").make_netstim(start=21, number=100, interval=2)
 
-    path = os.path.dirname(os.path.abspath(__file__))
-    class ExcitatoryPopulation(Population):
-    def cell_definition(self, **kwargs) -> Cell:
-        cell = Cell(name="cell")
-	f_path = os.path.join(path, "..", "commons/morphologies/swc/my.swc")
-        cell.load_morpho(filepath=f_path)
-        cell.insert("pas")
-        cell.insert("hh")
-        return cell
+    # Create population 1
+    pop1 = Population("pop_1")
+    pop1.add_cells(template=cell_template, num=4)
 
-    def syn_definition(self, cell, source, weight=1, **kwargs) -> list:
-        secs = cell.filter_secs("dend")
-        syns, heads = cell.add_random_synapses_with_spine(source=source, secs=secs, mod_name="Exp2Syn",
-                                                   netcon_weight=weight)
-        return syns
+    connector = pop1.connect(cell_proba=0.5)
+    connector.set_source(netstim)
+    connector.set_target([c.filter_secs("dend")(0.5) for c in pop1.cells])
+    syn_adder = connector.add_synapse("Exp2Syn")
+    syn_adder.add_netcon(weight=0.01)
+  ```
+  
+  * Build connections and define that you want to record from the population:
+  ```python
+    connector.build()
+    pop1.record()
+  ```
+  
+  * Create a second population
+  ```python
+    # Create population 2
+    pop2 = Population("pop_2")
+    pop2.add_cells(template=cell_template, num=4)
+  ```
+  
+  * Define source segments and target segments as well as define that netcon weight for each cell will be chosen from the normal truncated (positive) distribution
+  ```python
+    connector = pop2.connect(cell_proba=0.2)
+    connector.set_source([c.filter_secs("soma")(0.5) for c in pop1.cells])
+    connector.set_target([c.filter_secs("dend")(0.5) for c in pop2.cells])
+    syn_adder = connector.add_synapse("Exp2Syn")
+    syn_adder.add_netcon(weight=NormalTruncatedDist(mean=0.01, std=0.02))
 
-
-    if __name__ == '__main__':
-        # Create NetStim
-        stim = NetStimCell("stim").make_netstim(start=21, number=10, interval=10)
-    
-        # Create population 1
-        pop1 = ExcitatoryPopulation("pop1")
-        pop1.create(4)
-        pop1.connect(source=stim, rule='all', weight=0.01)
-        pop1.record()
-    
-        # Create population 2
-        pop2 = ExcitatoryPopulation("pop2")
-        pop2.create(4)
-        pop2.connect(source=pop1, rule='all', weight=0.01)
-        pop2.record()
-    
-        # Create population 3
-        pop3 = ExcitatoryPopulation("pop3")
-        pop3.create(4)
-        pop3.connect(source=pop2, rule='all', weight=0.01)
-        pop3.record()
-    
-        # Run
-        sim = RunSim(init_v=-70, warmup=20)
-        for i in range(1000):
-            sim.run(runtime=1)
-            pop1.plot(animate=True)
-            pop2.plot(animate=True)
-            pop3.plot(animate=True)
+    connector.build()
+    pop2.record()
    ```
 
   * Create interactive graph of connected cells:
   ```python
   # Based on the previously created 3 populations
-  make_conectivity_graph(pop1.cells + pop2.cells + pop3.cells)
+  make_conectivity_graph(pop1.cells + pop2.cells)
   ```
 ![Network Graph](images/conectivity_graph.png) 
   
