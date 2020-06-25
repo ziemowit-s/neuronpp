@@ -46,8 +46,8 @@ class TestMultiMechPopulation(unittest.TestCase):
         connector = cls.pop1.connect(cell_proba=conn_dist)
         connector.set_source(netstim)
         connector.set_target([c.filter_secs("dend")(0.5) for c in cls.pop1.cells])
-        mech_adder = connector.add_synapse("Exp2Syn")
-        mech_adder.add_netcon(weight=weight_dist)
+        syn_adder = connector.add_synapse("Exp2Syn")
+        syn_adder.add_netcon(weight=weight_dist)
         connector.build()
 
         # Create population 2
@@ -60,15 +60,15 @@ class TestMultiMechPopulation(unittest.TestCase):
 
         del (template_ebner.params_4p_syn['w_pre_init'])
         del (template_ebner.params_4p_syn['w_post_init'])
-        mech_adder = connector.add_synapse("Syn4PAChDa")
-        mech_adder.add_synaptic_params(w_pre_init=weight_dist, w_post_init=weight_dist,
-                                       **template_ebner.params_4p_syn)
-        mech_adder.add_netcon(weight=weight_dist)
+        syn_adder = connector.add_synapse("Syn4PAChDa")
+        syn_adder.add_point_process_params(w_pre_init=weight_dist, w_post_init=weight_dist,
+                                            **template_ebner.params_4p_syn)
+        syn_adder.add_netcon(weight=weight_dist)
 
-        mech_adder = connector.add_synapse("SynACh")
-        mech_adder.add_netcon(source=None, weight=1)
-        mech_adder = connector.add_synapse("SynDa")
-        mech_adder.add_netcon(source=None, weight=1)
+        syn_adder = connector.add_synapse("SynACh")
+        syn_adder.add_netcon(source=None, weight=1)
+        syn_adder = connector.add_synapse("SynDa")
+        syn_adder.add_netcon(source=None, weight=1)
 
         connector.set_synaptic_function(
             lambda syns: Ebner2019AChDACell.set_synaptic_pointers(syns[0],
@@ -87,8 +87,8 @@ class TestMultiMechPopulation(unittest.TestCase):
         connector = cls.pop3.connect(cell_proba=conn_dist)
         connector.set_source([c.filter_secs("soma")(0.5) for c in cls.pop2.cells])
         connector.set_target([c.filter_secs("dend")(0.5) for c in cls.pop3.cells])
-        mech_adder = connector.add_synapse("Exp2Syn")
-        mech_adder.add_netcon(weight=weight_dist)
+        syn_adder = connector.add_synapse("Exp2Syn")
+        syn_adder.add_netcon(weight=weight_dist)
         connector.build()
 
 
@@ -118,8 +118,8 @@ class TestStandardPopulation(unittest.TestCase):
         connector = cls.pop1.connect(cell_proba=conn_dist)
         connector.set_source(netstim)
         connector.set_target([c.filter_secs("dend")(0.5) for c in cls.pop1.cells])
-        mech_adder = connector.add_synapse("Exp2Syn")
-        mech_adder.add_netcon(weight=weight_dist)
+        syn_adder = connector.add_synapse("Exp2Syn")
+        syn_adder.add_netcon(weight=weight_dist)
         connector.build()
 
         # Create population 2
@@ -129,8 +129,8 @@ class TestStandardPopulation(unittest.TestCase):
         connector = cls.pop2.connect(cell_proba=conn_dist)
         connector.set_source([c.filter_secs("soma")(0.5) for c in cls.pop1.cells])
         connector.set_target([c.filter_secs("dend")(0.5) for c in cls.pop2.cells])
-        mech_adder = connector.add_synapse("Exp2Syn")
-        mech_adder.add_netcon(weight=weight_dist)
+        syn_adder = connector.add_synapse("Exp2Syn")
+        syn_adder.add_netcon(weight=weight_dist)
         connector.build()
 
         # Create population 3
@@ -140,8 +140,8 @@ class TestStandardPopulation(unittest.TestCase):
         connector = cls.pop3.connect(cell_proba=conn_dist)
         connector.set_source([c.filter_secs("soma")(0.5) for c in cls.pop2.cells])
         connector.set_target([c.filter_secs("dend")(0.5) for c in cls.pop3.cells])
-        mech_adder = connector.add_synapse("Exp2Syn")
-        mech_adder.add_netcon(weight=weight_dist)
+        syn_adder = connector.add_synapse("Exp2Syn")
+        syn_adder.add_netcon(weight=weight_dist)
         connector.build()
 
     def test_cell_number(self):
@@ -152,25 +152,25 @@ class TestStandardPopulation(unittest.TestCase):
     def test_connections_pop1(self):
         # for numpy.random.seed(13)
         for i, syn in enumerate(self.pop1.syns):
-            netstim_name = syn.custom_sources[0].parent.name
-            self.assertEqual(netstim_name, "stim1")
+            stim_cell_name = syn.sources[0].parent.name
+            self.assertEqual(stim_cell_name, "stim1")
 
     def test_connections_pop2(self):
         # for numpy.random.seed(13)
         pop2_names = ["pop_0[cell][1]", "pop_0[cell][1]", "pop_0[cell][1]", "pop_0[cell][2]"]
         for i, syn in enumerate(self.pop2.syns):
             if syn.mod_name == 'Syn4PAChDa':
-                cell_name = syn.custom_sources[0].parent.cell.name
-                self.assertEqual(cell_name, pop2_names[i])
+                stim_cell_name = syn.sources[0].parent.cell.name
+                self.assertEqual(stim_cell_name, pop2_names[i])
 
     def test_connections_pop3(self):
         current_cells = self.get_cells(self.pop3)
         # for numpy.random.seed(13)
         pop3_names = ["pop_1[cell][0]", "pop_1[cell][1]", "pop_1[cell][2]", "pop_1[cell][3]"]
         for i, syn in enumerate(self.pop3.syns):
-            cell_name = syn.custom_sources[0].parent.cell.name
-            self.assertEqual(cell_name, pop3_names[i])
-            print(cell_name)
+            stim_cell_name = syn.sources[0].parent.cell.name
+            self.assertEqual(stim_cell_name, pop3_names[i])
+            print(stim_cell_name)
 
     def test_netcon_weight_pop1(self):
         # for numpy.random.seed(13)
@@ -203,7 +203,7 @@ class TestStandardPopulation(unittest.TestCase):
 
     @staticmethod
     def get_cells(pop) -> str:
-        return '["%s"]' % '", "'.join([syn.custom_sources[0].parent.cell.name for syn in pop.syns])
+        return '["%s"]' % '", "'.join([syn.sources[0].parent.name for syn in pop.syns])
 
 
 if __name__ == '__main__':

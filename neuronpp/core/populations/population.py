@@ -182,7 +182,7 @@ class Population:
                     syns = []
                     # iter over all point processes provided
                     # each target_segment will receive all provided point processes
-                    for mech in connector._mechs:
+                    for mech in connector._syn_adders:
                         spine_params = mech._spine_params
 
                         if spine_params:
@@ -218,7 +218,7 @@ class Population:
                                 syn = cell.add_synapse(source=s, seg=target_segment, mod_name=mech.mod_name,
                                                        tag=connector.set_tag, delay=netcon_params.delay,
                                                        netcon_weight=netcon_params.weight,
-                                                       threshold=netcon_params.threshold, **mech._synaptic_params)
+                                                       threshold=netcon_params.threshold, **mech._point_process_params)
                                 syns.append(syn)
 
                     # group synapses if required for each target_segment

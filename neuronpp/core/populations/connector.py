@@ -6,7 +6,7 @@ from neuronpp.core.hocwrappers.netstim import NetStim
 from neuronpp.core.hocwrappers.synapse import Synapse
 from neuronpp.core.hocwrappers.vecstim import VecStim
 from neuronpp.core.populations.params.conn_params import ConnParams
-from neuronpp.core.populations.mech_adder import SynAdder
+from neuronpp.core.populations.syn_adder import SynAdder
 from neuronpp.core.populations.utils import check_and_prepare_sources, check_and_prepare_target
 
 
@@ -67,7 +67,7 @@ class Connector:
         """
         self._population_ref = population_ref
 
-        self._mechs = []  # List[SynAdder]
+        self._syn_adders = []  # List[SynAdder]
         self._group_syns = False
 
         self._tag = None
@@ -147,6 +147,18 @@ class Connector:
         self._group_syns = True
         return self
 
+    def add_synapse(self, mod_name: str) -> SynAdder:
+        """
+        Add new synapse adder object, which consists of single PointProcess and 1 or more NetCons
+        :param mod_name:
+            name of the MOD file which must be PointProcess
+        :return:
+            SynAdder object
+        """
+        syn_adder = SynAdder(mod_name=mod_name)
+        self._syn_adders.append(syn_adder)
+        return syn_adder
+
     def build(self):
         """
         Build this Connector object.
@@ -157,15 +169,3 @@ class Connector:
         """
         self._population_ref._build_connector(self)
         return self._population_ref
-
-    def add_synapse(self, mod_name: str) -> SynAdder:
-        """
-        Add new synapse, which consists of single PointProcess and 1 or more NetCons
-        :param mod_name:
-            name of the MOD file which must be PointProcess
-        :return:
-            SynAdder object
-        """
-        mech = SynAdder(mod_name=mod_name)
-        self._mechs.append(mech)
-        return mech

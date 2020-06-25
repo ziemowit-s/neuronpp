@@ -14,7 +14,7 @@ class SynAdder:
 
         self._netcon_params = []
         self._spine_params = None
-        self._synaptic_params = {}
+        self._point_process_params = {}
 
     def add_netcon(self, weight: Union[float, Dist] = 1.0, delay: Union[float, Dist] = 1,
                    threshold: Union[float, Dist] = 10, **kwargs):
@@ -37,11 +37,11 @@ class SynAdder:
         self._netcon_params.append(ncp)
         return self
 
-    def add_synaptic_params(self, **kwargs):
+    def add_point_process_params(self, **point_process_params):
         """
-        kwargs for MOD PointProcess parameters
+        kwargs params for MOD PointProcess parameters
         """
-        self._synaptic_params.update(kwargs)
+        self._point_process_params.update(point_process_params)
         return self
 
     def spine_params(self, head_nseg: Union[int, Dist] = 2, neck_nseg: Union[int, Dist] = 2):
