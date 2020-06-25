@@ -34,14 +34,13 @@ def distparams(_func=None, *, exlude: List[str] = None, include: List[str] = Non
       * If so it will take the value from the appropriate distribution and pass it to the function.
       * If the value is numerical type (int, float) it will remain as it is
 
-    By default it will check all parameters of the function. But if are not Dist implementation
-     it won't do any changes.
-     
+    By default it will check all parameters of the function. But if are not Dist implementation it
+    won't do any changes.
+
     If one of your parameters may be a Dist implementation but you want to handle it by yourself
     pass the name of that param to the exclude list.
 
     It may only affect numerical types of params (int, float). The other types cannot be affected.
-    
     :param _func:
         function which have been decorated
     :param exlude:

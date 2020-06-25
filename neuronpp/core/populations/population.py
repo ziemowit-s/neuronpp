@@ -192,9 +192,9 @@ class Population:
                         spine_params = mech._spine_params
 
                         if spine_params:
-                            spine = \
-                            cell.add_spines(segs=target_segment, head_nseg=spine_params.head_nseg,
-                                            neck_nseg=spine_params.neck_nseg)[0]
+                            spine = cell.add_spines(segs=target_segment,
+                                                    head_nseg=spine_params.head_nseg,
+                                                    neck_nseg=spine_params.neck_nseg)[0]
                             target_segment = spine.head(1.0)
 
                         # iter over all netcons - for each netcon create a new connection
