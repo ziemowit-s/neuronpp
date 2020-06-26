@@ -3,46 +3,17 @@ import os
 from Xlib.error import DisplayConnectionError
 from neuron import h
 from threading import Thread
-from typing import TypeVar, Type, cast
+from typing import cast
 
 from pyvis.network import Network
-from neuronpp.cells.cell import Cell
 try:
     from pynput.keyboard import Listener
 except DisplayConnectionError as e:
     print("Warning: key listeners and interactive debugging (on key press) won't work "
           "due to the error: %s" % str(e))
 
-from neuronpp.core.template import Template
 from neuronpp.core.hocwrappers.seg import Seg
 from neuronpp.core.hocwrappers.netcon import NetCon
-
-T_Cell = TypeVar('T_Cell', bound=Cell)
-
-
-def template(cls: Type[T_Cell]) -> Type[T_Cell]:
-    """
-    Creates a template from the cls class which must to derive from Cell class.
-
-    It returns Template+cls class as a new class.
-    Code completion support indicates cls class as return, because Template methods are not
-    intended to use by the user.
-
-    :param cls:
-        class which derived from the Cell type
-    :return:
-        It returns Template+cls class as a new class.
-        The return type indicated is just cls class, because Template methods are not intended
-        to use by the user
-    """
-    if not is_derived_from(test_class=cls, template_class=Cell):
-        raise TypeError("Param cls must derive from Cell class.")
-    if is_derived_from(test_class=cls, template_class=Template):
-        raise TypeError("Param cls cannot derive from Template class.")
-
-    name = "Template" + cls.__name__
-    new_template = type(name, (Template, cls), {})
-    return new_template
 
 
 def is_derived_from(test_class, template_class):

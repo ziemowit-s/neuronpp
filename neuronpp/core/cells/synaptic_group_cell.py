@@ -1,7 +1,6 @@
 from collections import defaultdict
 
 from neuronpp.core.cells.synaptic_cell import SynapticCell
-from neuronpp.core.decorators import templatable
 from neuronpp.core.hocwrappers.synaptic_group import SynapticGroup
 
 
@@ -54,7 +53,6 @@ class SynapticGroupCell(SynapticCell):
         return self.filter(self.complex_syns, obj_filter=obj_filter, mod_name=mod_name, name=name,
                            parent=parent, tag=tag, **kwargs)
 
-    @templatable
     def group_synapses(self, tag=None, *synapses):
         """
         Group existing synapses as a single complex synapse

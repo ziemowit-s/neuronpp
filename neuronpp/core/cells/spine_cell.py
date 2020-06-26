@@ -3,7 +3,7 @@ from typing import List, Union
 import numpy as np
 
 from neuronpp.core.cells.section_cell import SectionCell
-from neuronpp.core.decorators import distparams, templatable
+from neuronpp.core.decorators import distparams
 from neuronpp.core.hocwrappers.sec import Sec
 from neuronpp.core.hocwrappers.seg import Seg
 from neuronpp.core.hocwrappers.spine import Spine
@@ -74,7 +74,6 @@ class SpineCell(SectionCell):
                     result[spine.parent].append(spine)
         return result
 
-    @templatable
     @distparams
     def add_spines(self, segs: Union[Seg, List[Seg]] = None, head_nseg=2, neck_nseg=2):
         """
@@ -112,11 +111,9 @@ class SpineCell(SectionCell):
         self.necks.extend(necks)
         return spines
 
-    @templatable
     @distparams
     def add_randuniform_spines(self, spine_number, secs=None, spine_type="generic",
-                               head_nseg=2, neck_nseg=2,
-                               seed: int = None):
+                               head_nseg=2, neck_nseg=2, seed: int = None):
         """
         Currently the only supported spine distribution is random_uniform
 
@@ -127,6 +124,9 @@ class SpineCell(SectionCell):
         :param spine_number:
             The number of spines to make
         :param secs:
+        :param spine_type:
+            Spine type. There are four predifined types: thin, stubby,
+            mushroom and other.
         :param head_nseg
         :param neck_nseg
         :param seed:
@@ -143,10 +143,14 @@ class SpineCell(SectionCell):
         spines = []
         heads = []
         necks = []
+
+        spine_dimensions = SPINE_DIMENSIONS[spine_type]
         for _ in range(spine_number):
             i = self._next_index
-            head = self.add_sec(name="head[%s]" % i, diam=1, l=1, nseg=head_nseg)
-            neck = self.add_sec(name="neck[%s]" % i, diam=0.5, l=0.5, nseg=neck_nseg)
+            head = self.add_sec(name="head[%s]" % i, diam=spine_dimensions["head_diam"],
+                                l=spine_dimensions["head_len"], nseg=head_nseg)
+            neck = self.add_sec(name="neck[%s]" % i, diam=spine_dimensions["neck_diam"],
+                                l=spine_dimensions["neck_len"], nseg=neck_nseg)
             spine = Spine(head, neck, self, "spine")
             spines.append(spine)
             heads.append(head)
@@ -159,7 +163,6 @@ class SpineCell(SectionCell):
         self.necks.extend(necks)
         return spines
 
-    @templatable
     @distparams(include=["spine_density"])
     def add_spines_by_density(self, secs: List[Sec], spine_density,
                               spine_type="generic", **spine_params):
@@ -273,7 +276,6 @@ class SpineCell(SectionCell):
             all_target_locations.append(target_locations)
         return all_target_locations
 
-    @templatable
     @distparams
     def compensate(self, cm_adjustment=False, **mechs_with_gbar_name):
         """

@@ -2,7 +2,7 @@ from neuron import h
 
 from neuronpp.core.cells.core_cell import CoreCell
 from neuronpp.core.cells.utils import get_netstim
-from neuronpp.core.decorators import distparams, templatable
+from neuronpp.core.decorators import distparams
 from neuronpp.core.hocwrappers.netstim import NetStim
 
 
@@ -37,7 +37,6 @@ class NetStimCell(CoreCell):
         """
         return self.filter(searchable=self.nss, obj_filter=obj_filter, name=name, **kwargs)
 
-    @templatable
     @distparams
     def make_netstim(self, start, number, interval=1, noise=0):
         """

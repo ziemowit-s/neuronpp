@@ -6,17 +6,18 @@ from neuronpp.core.populations.population import Population, NormalProba
 from neuronpp.utils.graphs.network_status_graph import NetworkStatusGraph
 
 from neuronpp.utils.simulation import Simulation
-from neuronpp.utils.utils import template
 
 path = os.path.dirname(os.path.abspath(__file__))
 
 if __name__ == '__main__':
-    TemplateCell = template(Cell)
-    cell_template = TemplateCell(name="cell")
-    morpho_path = os.path.join(path, "..", "commons/morphologies/swc/my.swc")
-    cell_template.load_morpho(filepath=morpho_path)
-    cell_template.insert("pas")
-    cell_template.insert("hh")
+    def cell_function():
+        cell = Cell(name="cell")
+        morpho_path = os.path.join(path, "..", "commons/morphologies/swc/my.swc")
+        cell.load_morpho(filepath=morpho_path)
+        cell.insert("pas")
+        cell.insert("hh")
+        cell.make_spike_detector(seg=cell.filter_secs("soma")(0.5))
+        return cell
 
     # Create NetStim
     netstim = NetStimCell("stim").make_netstim(start=21, number=100, interval=2)
@@ -28,7 +29,7 @@ if __name__ == '__main__':
 
     # Create population 1
     pop1 = Population("pop_1")
-    pop1.add_cells(template=cell_template, num=4)
+    pop1.add_cells(num=4, cell_function=cell_function)
 
     connector = pop1.connect(cell_proba=connection_proba)
     connector.set_source(netstim)
@@ -41,7 +42,7 @@ if __name__ == '__main__':
 
     # Create population 2
     pop2 = Population("pop_2")
-    pop2.add_cells(template=cell_template, num=4)
+    pop2.add_cells(num=4, cell_function=cell_function)
 
     connector = pop2.connect(cell_proba=connection_proba, seg_dist=NormalTruncatedSegDist(0.5, 0.1))
     connector.set_source([c.filter_secs("soma")(0.5) for c in pop1.cells])
@@ -53,7 +54,7 @@ if __name__ == '__main__':
     pop2.record()
 
     # Create connectivity graph grouped by populations, with weighs and spike rates updated
-    graph = NetworkStatusGraph(cells=pop1.cells + pop2.cells)
+    graph = NetworkStatusGraph(populations=[pop1, pop2])
     graph.plot()
 
     # Run

@@ -2,30 +2,7 @@ import functools
 import numpy as np
 from typing import List
 
-from neuronpp.core.template import Template
 from neuronpp.core.distributions import Dist, UniformDist, NormalDist, NormalTruncatedDist
-
-
-def templatable(_func):
-    """
-    Decorator used for template calls
-    :param _func:
-        function which have been decorated
-    :return:
-        if object which calls the function has build_on_the_fly set to True:
-            returns the same value as the function decorated
-        else:
-            returns None, because building and all returning values will be get
-            by calling build() on the parent object.
-    """
-    @functools.wraps(_func)
-    def _wrapper_template(*args, **kwargs):
-        obj = args[0]
-        if isinstance(obj, Template):
-            obj._func_calls.append((_func, args[1:], kwargs))
-        else:
-            return _func(*args, **kwargs)
-    return _wrapper_template
 
 
 def distparams(_func=None, *, exlude: List[str] = None, include: List[str] = None):

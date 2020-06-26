@@ -1,9 +1,8 @@
 import numpy as np
-from typing import Union, TypeVar, cast, List, Iterable
+from typing import Union, TypeVar, cast, List, Iterable, Callable
 
 from neuronpp.cells.cell import Cell
 from neuronpp.utils.record import Record
-from neuronpp.core.template import Template
 from neuronpp.core.hocwrappers.synapse import Synapse
 from neuronpp.core.populations.connector import Connector
 from neuronpp.core.distributions import Dist, UniformProba, NormalProba, NormalTruncatedSegDist
@@ -20,22 +19,15 @@ class Population:
 
         self.cell_counter = 0
 
-    def add_cells(self, template: T_Cell, num: int):
+    def add_cells(self, num: int, cell_function: Callable[[], T_Cell]):
         """
-        Add cells base on provided template cell.
-        The template cell must have build_on_the_fly param set to False.
-
-        :param template:
-            must be of type Template and Cell, it can derive from Cell.
         :param num:
             number of cells to create
+        :param cell_function
         """
-        if not isinstance(template, Template) or not isinstance(template, Cell):
-            raise AttributeError("Param template must be of type Template and Cell.")
-        template = cast(Template, template)
-
         for i in range(num):
-            cell, results = template.build()
+            cell = cell_function()
+            cell.population = self
             cell.name = "%s[%s][%s]" % (self.name, cell.name, self.cell_counter)
             self.cell_counter += 1
             self.cells.append(cell)

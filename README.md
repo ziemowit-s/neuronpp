@@ -328,7 +328,7 @@ Create a population of many neurons of the same type and connect them between po
 
     connector = pop1.connect(cell_proba=0.5)
     connector.set_source(netstim)
-    connector.set_target([c.filter_secs("dend")(0.5) for c in pop1.cells])
+    connector.set_target([c.filter_secs("dend")(0.5) for c in pop1.populations])
     syn_adder = connector.add_synapse("Exp2Syn")
     syn_adder.add_netcon(weight=0.01)
   ```
@@ -349,8 +349,8 @@ Create a population of many neurons of the same type and connect them between po
   * Define source segments and target segments as well as define that netcon weight for each cell will be chosen from the normal truncated (positive) distribution
   ```python
     connector = pop2.connect(cell_proba=0.2)
-    connector.set_source([c.filter_secs("soma")(0.5) for c in pop1.cells])
-    connector.set_target([c.filter_secs("dend")(0.5) for c in pop2.cells])
+    connector.set_source([c.filter_secs("soma")(0.5) for c in pop1.populations])
+    connector.set_target([c.filter_secs("dend")(0.5) for c in pop2.populations])
     syn_adder = connector.add_synapse("Exp2Syn")
     syn_adder.add_netcon(weight=NormalTruncatedDist(mean=0.01, std=0.02))
 
@@ -361,7 +361,7 @@ Create a population of many neurons of the same type and connect them between po
   * Create interactive graph of connected cells:
   ```python
   # Based on the previously created 3 populations
-  make_conectivity_graph(pop1.cells + pop2.cells)
+  make_conectivity_graph(pop1.populations + pop2.populations)
   ```
 ![Network Graph](images/conectivity_graph.png) 
   

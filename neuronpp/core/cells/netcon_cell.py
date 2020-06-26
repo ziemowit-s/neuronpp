@@ -1,6 +1,6 @@
 from neuron import h
 
-from neuronpp.core.decorators import distparams, templatable
+from neuronpp.core.decorators import distparams
 from neuronpp.core.hocwrappers.netcon import NetCon
 from neuronpp.core.hocwrappers.point_process import PointProcess
 from neuronpp.core.hocwrappers.seg import Seg
@@ -54,7 +54,6 @@ class NetConCell(PointProcessCell):
         return self.filter(searchable=self.ncs, obj_filter=obj_filter, mod_name=mod_name, name=name,
                            **kwargs)
 
-    @templatable
     @distparams
     def add_netcon(self, source, point_process, netcon_weight=1, delay=0, threshold=10):
         """
@@ -91,18 +90,19 @@ class NetConCell(PointProcessCell):
         self._nc_num[name] += 1
         return conn
 
-    @templatable
-    def make_spike_detector(self, segment):
+    def make_spike_detector(self, seg):
         """
-        :param segment:
+        Create a spike detector for the segment
+        :param seg:
+            of type Seg
         """
-        if not isinstance(segment, Seg):
+        if not isinstance(seg, Seg):
             raise TypeError("Param 'segment' can be only a Seg object.")
         if self._spike_detector is not None:
             raise RuntimeError("Spike detector has been created already for the cell %s, "
                                "you can't create another one." % self.name)
 
-        nc_detector = self.add_netcon(source=segment, point_process=None)
+        nc_detector = self.add_netcon(source=seg, point_process=None)
         nc_detector.name = "SpikeDetector[%s]" % self.name
 
         result_vector = h.Vector()
@@ -121,7 +121,6 @@ class NetConCell(PointProcessCell):
         spikes = self._spike_detector[1].as_numpy()
         return spikes
 
-    @templatable
     def plot_spikes(self):
         spikes = self.get_spikes()
         fig, ax = plt.subplots(1)
