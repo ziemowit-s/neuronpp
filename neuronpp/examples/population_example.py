@@ -6,7 +6,7 @@ from neuronpp.cells.cell import Cell
 from neuronpp.utils.simulation import Simulation
 from neuronpp.core.cells.netstim_cell import NetStimCell
 from neuronpp.core.populations.population import Population, NormalProba
-from neuronpp.utils.graphs.network_status_graph import NetworkStatusGraph
+from neuronpp.utils.graphs.network_graph import NetworkGraph
 from neuronpp.core.distributions import Dist, NormalTruncatedDist, NormalTruncatedSegDist
 
 
@@ -57,7 +57,7 @@ if __name__ == '__main__':
     pop2.record()
 
     # Create connectivity graph grouped by populations, with weighs and spike rates updated
-    graph = NetworkStatusGraph(populations=[pop1, pop2])
+    graph = NetworkGraph(populations=[pop1, pop2])
     graph.plot()
 
     # Run

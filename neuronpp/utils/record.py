@@ -20,8 +20,9 @@ class Record:
             str or list_of_str of variable names to track
         """
         if h.t > 0:
-            raise ConnectionRefusedError("Record cannot be created after simulation have been initiated. "
-                                         "You need to specify Record before creation of SimRun object.")
+            raise ConnectionRefusedError(
+                "Record cannot be created after simulation have been initiated. "
+                "You need to specify Record before creation of SimRun object.")
         if not isinstance(elements, (list, set, tuple)):
             elements = [elements]
 
@@ -42,14 +43,18 @@ class Record:
                 elif isinstance(elem, PointProcess):
                     name = "%s_%s" % (elem.cell.name, elem.name)
                 elif isinstance(elem, Sec):
-                    raise TypeError("Record element cannot be of type Sec, however you can specify Seg eg. soma(0.5) and pass as element.")
+                    raise TypeError(
+                        "Record element cannot be of type Sec, however you can specify Seg eg. "
+                        "soma(0.5) and pass as element.")
                 else:
                     name = elem.name
 
                 try:
                     s = getattr(elem.hoc, "_ref_%s" % var)
                 except AttributeError:
-                    raise AttributeError("there is no attribute of %s. Maybe you forgot to append loc param for sections?" % var)
+                    raise AttributeError(
+                        "there is no attribute of %s. Maybe you forgot to append loc param "
+                        "for sections?" % var)
 
                 rec = h.Vector().record(s)
                 self.recs[var].append((name, rec))
@@ -65,7 +70,8 @@ class Record:
         :param y_lim:
             [used only if animate=True] tuple of limits for y axis. Default is (-80, 50)
         :param position:
-            position of all subplots ON EACH figure (each figure is created for each variable separately).
+            position of all subplots ON EACH figure (each figure is created for each variable
+            separately).
             * position=(3,3) -> if you have 9 neurons and want to display 'v' on 3x3 matrix
             * position='merge' -> it will display all figures on the same graph.
             * position=None -> Default, each neuron has separated  axis (row) on the figure.
@@ -79,7 +85,8 @@ class Record:
     def _plot_static(self, position=None):
         """
         :param position:
-            position of all subplots ON EACH figure (each figure is created for each variable separately).
+            position of all subplots ON EACH figure (each figure is created for each variable
+            separately).
             * position=(3,3) -> if you have 9 neurons and want to display 'v' on 3x3 matrix
             * position='merge' -> it will display all figures on the same graph.
             * position=None -> Default, each neuron has separated  axis (row) on the figure.
@@ -94,10 +101,12 @@ class Record:
             for i, (segment_name, rec) in enumerate(variable_recs):
                 rec_np = rec.as_numpy()
                 if np.max(np.isnan(rec_np)):
-                    raise ValueError("Vector recorded for variable: '%s' and segment: '%s' contains nan values." % (var_name, segment_name))
+                    raise ValueError("Vector recorded for variable: '%s' and segment: '%s' "
+                                     "contains nan values." % (var_name, segment_name))
 
                 if position is not "merge":
-                    ax = self._get_subplot(fig=fig, var_name=var_name, position=position, row_len=len(variable_recs), index=i + 1)
+                    ax = self._get_subplot(fig=fig, var_name=var_name, position=position,
+                                           row_len=len(variable_recs), index=i + 1)
                 ax.set_title("Variable: %s" % var_name)
                 ax.plot(self.time, rec, label=segment_name)
                 ax.set(xlabel='t (ms)', ylabel=var_name)
@@ -112,7 +121,8 @@ class Record:
         :param y_lim:
             tuple of limits for y axis. Default is None
         :param position:
-            position of all subplots ON EACH figure (each figure is created for each variable separately).
+            position of all subplots ON EACH figure (each figure is created for each variable
+            separately).
             * position=(3,3) -> if you have 9 neurons and want to display 'v' on 3x3 matrix
             * position='merge' -> it will display all figures on the same graph.
             * position=None -> Default, each neuron has separated  axis (row) on the figure.
@@ -142,7 +152,8 @@ class Record:
                     if position == 'merge':
                         ax = fig.add_subplot(1, 1, 1)
                     else:
-                        ax = self._get_subplot(fig=fig, var_name=var_name, position=position, row_len=len(section_recs), index=i + 1)
+                        ax = self._get_subplot(fig=fig, var_name=var_name, position=position,
+                                               row_len=len(section_recs), index=i + 1)
 
                     if y_lim:
                         ax.set_ylim(y_lim[0], y_lim[1])
@@ -157,12 +168,14 @@ class Record:
                 ax.set_xlim(current_time.min(), current_time.max())
 
                 if y_lim is None and position != "merge":
-                    ax.set_ylim(rec.min()-(np.abs(rec.min()*0.05)), rec.max()+(np.abs(rec.max()*0.05)))
+                    ax.set_ylim(rec.min() - (np.abs(rec.min() * 0.05)),
+                                rec.max() + (np.abs(rec.max() * 0.05)))
 
                 # update data
                 line.set_data(current_time, rec)
 
-            fig.subplots_adjust(left=0.09, bottom=0.075, right=0.99, top=0.98, wspace=None, hspace=0.00)
+            fig.subplots_adjust(left=0.09, bottom=0.075, right=0.99, top=0.98, wspace=None,
+                                hspace=0.00)
             fig.canvas.draw()
             fig.canvas.flush_events()
 

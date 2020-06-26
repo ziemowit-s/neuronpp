@@ -62,5 +62,6 @@ class TestExperimentAndRecord(unittest.TestCase):
         self.assertEqual(round(arr[500], 4), -15.8164)
         self.assertEqual(round(arr[-1], 4), -76.6513)
 
+
 if __name__ == '__main__':
     unittest.main()

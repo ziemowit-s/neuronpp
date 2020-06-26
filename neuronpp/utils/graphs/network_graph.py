@@ -5,11 +5,12 @@ import matplotlib.pyplot as plt
 from neuronpp.core.populations.population import Population
 
 
-class NetworkStatusGraph:
+class NetworkGraph:
     def __init__(self, populations: List[Population], additional_weight_name='w', soma_name='soma'):
         """
-        
-        :param populations: 
+        Create a Network Graph
+
+        :param populations:
             list of population to create a graph
         :param additional_weight_name: 
             name of additional weight which is point_process's additional weight
@@ -101,7 +102,6 @@ class NetworkStatusGraph:
     def redraw(self):
         self.fig.canvas.draw()
         self.fig.canvas.flush_events()
-
 
     def _check_and_add_spike_detector(self, soma_name='soma'):
         for p in self.populations:
