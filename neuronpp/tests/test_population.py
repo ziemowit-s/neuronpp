@@ -1,8 +1,8 @@
 import os
 import unittest
+from copy import deepcopy
 
 from neuronpp.cells.cell import Cell
-from neuronpp.utils.utils import template
 from neuronpp.core.cells.netstim_cell import NetStimCell
 from neuronpp.core.distributions import Dist, NormalTruncatedDist
 from neuronpp.cells.ebner2019_ach_da_cell import Ebner2019AChDACell
@@ -16,20 +16,22 @@ class TestMultiMechPopulation(unittest.TestCase):
     def setUpClass(cls):
         morpho_path = os.path.join(path, "..", "commons/morphologies/swc/my.swc")
 
-        TemplateCell = template(Cell)
-        template_cell = TemplateCell(name="cell")
-        template_cell.load_morpho(filepath=morpho_path)
-        template_cell.add_sec("dend1", diam=2, l=10)
-        template_cell.add_sec("dend2", diam=2, l=10)
-        template_cell.add_sec("soma", diam=10, l=10)
-        template_cell.connect_secs("dend1", "soma")
-        template_cell.connect_secs("dend2", "soma")
-        template_cell.insert("pas")
-        template_cell.insert("hh")
+        def cell_template():
+            cell = Cell(name="cell")
+            cell.load_morpho(filepath=morpho_path)
+            cell.add_sec("dend1", diam=2, l=10)
+            cell.add_sec("dend2", diam=2, l=10)
+            cell.add_sec("soma", diam=10, l=10)
+            cell.connect_secs("dend1", "soma")
+            cell.connect_secs("dend2", "soma")
+            cell.insert("pas")
+            cell.insert("hh")
+            return cell
 
-        TemplateEbner2019AChDACell = template(Ebner2019AChDACell)
-        template_ebner = TemplateEbner2019AChDACell(name="cell")
-        template_ebner.load_morpho(filepath=morpho_path)
+        def cell_ebner_template():
+            cell = Ebner2019AChDACell(name="cell")
+            cell.load_morpho(filepath=morpho_path)
+            return cell
 
         # Create NetStim
         netstim = NetStimCell("stim1").make_netstim(start=21, number=100, interval=2)
@@ -41,7 +43,7 @@ class TestMultiMechPopulation(unittest.TestCase):
 
         # Create population 1
         cls.pop1 = Population("pop_0")
-        cls.pop1.add_cells(template=template_cell, num=3)
+        cls.pop1.add_cells(num=3, cell_function=cell_template)
 
         connector = cls.pop1.connect(cell_proba=conn_dist)
         connector.set_source(netstim)
@@ -52,17 +54,19 @@ class TestMultiMechPopulation(unittest.TestCase):
 
         # Create population 2
         cls.pop2 = Population("pop_1")
-        cls.pop2.add_cells(template=template_ebner, num=4)
+        cls.pop2.add_cells(num=4, cell_function=cell_ebner_template)
 
         connector = cls.pop2.connect(cell_proba=conn_dist)
         connector.set_source([c.filter_secs("soma")(0.5) for c in cls.pop1.cells])
         connector.set_target([c.filter_secs("dend")(0.5) for c in cls.pop2.cells])
 
-        del (template_ebner.params_4p_syn['w_pre_init'])
-        del (template_ebner.params_4p_syn['w_post_init'])
+        params_4p_syn = deepcopy(Ebner2019AChDACell.params_4p_syn)
+        del params_4p_syn['w_pre_init']
+        del params_4p_syn['w_post_init']
+
         syn_adder = connector.add_synapse("Syn4PAChDa")
         syn_adder.add_point_process_params(w_pre_init=weight_dist, w_post_init=weight_dist,
-                                           **template_ebner.params_4p_syn)
+                                           **params_4p_syn)
         syn_adder.add_netcon(weight=weight_dist)
 
         syn_adder = connector.add_synapse("SynACh")
@@ -82,7 +86,7 @@ class TestMultiMechPopulation(unittest.TestCase):
 
         # Create population 3
         cls.pop3 = Population("pop_2")
-        cls.pop3.add_cells(template=template_cell, num=5)
+        cls.pop3.add_cells(num=5, cell_function=cell_template)
 
         connector = cls.pop3.connect(cell_proba=conn_dist)
         connector.set_source([c.filter_secs("soma")(0.5) for c in cls.pop2.cells])
@@ -97,11 +101,12 @@ class TestStandardPopulation(unittest.TestCase):
     def setUpClass(cls):
         morpho_path = os.path.join(path, "..", "commons/morphologies/swc/my.swc")
 
-        TemplateCell = template(Cell)
-        template_cell = TemplateCell(name="cell")
-        template_cell.load_morpho(filepath=morpho_path)
-        template_cell.insert("pas")
-        template_cell.insert("hh")
+        def cell_template():
+            cell = Cell(name="cell")
+            cell.load_morpho(filepath=morpho_path)
+            cell.insert("pas")
+            cell.insert("hh")
+            return cell
 
         # Create NetStim
         netstim = NetStimCell("stim1").make_netstim(start=21, number=100, interval=2)
@@ -113,7 +118,7 @@ class TestStandardPopulation(unittest.TestCase):
 
         # Create population 1
         cls.pop1 = Population("pop_0")
-        cls.pop1.add_cells(template=template_cell, num=3)
+        cls.pop1.add_cells(num=3, cell_function=cell_template)
 
         connector = cls.pop1.connect(cell_proba=conn_dist)
         connector.set_source(netstim)
@@ -124,7 +129,7 @@ class TestStandardPopulation(unittest.TestCase):
 
         # Create population 2
         cls.pop2 = Population("pop_1")
-        cls.pop2.add_cells(template=template_cell, num=4)
+        cls.pop2.add_cells(num=4, cell_function=cell_template)
 
         connector = cls.pop2.connect(cell_proba=conn_dist)
         connector.set_source([c.filter_secs("soma")(0.5) for c in cls.pop1.cells])
@@ -135,7 +140,7 @@ class TestStandardPopulation(unittest.TestCase):
 
         # Create population 3
         cls.pop3 = Population("pop_2")
-        cls.pop3.add_cells(template=template_cell, num=5)
+        cls.pop3.add_cells(num=5, cell_function=cell_template)
 
         connector = cls.pop3.connect(cell_proba=conn_dist)
         connector.set_source([c.filter_secs("soma")(0.5) for c in cls.pop2.cells])

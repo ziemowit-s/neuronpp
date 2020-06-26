@@ -58,7 +58,7 @@ class NetworkGraph:
 
         plt.xticks([i for i in range(len(self.population_names))], self.population_names)
         plt.yticks([i for i in range(max(self.y_list) + 1)],
-                   [f"Cell {i}" for i in range(max(self.y_list) + 1)])
+                   ["Cell %s" % i for i in range(max(self.y_list) + 1)])
 
     def update_weights(self, additional_weight_name='w'):
         """

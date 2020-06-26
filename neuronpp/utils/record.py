@@ -212,13 +212,13 @@ class Record:
             result.append(v_result)
 
             if v not in self.recs:
-                raise NameError(f"There is no variable record as {v}")
+                raise NameError("There is no variable record as %s" % v)
 
             seg_names = [t[0] for t in self.recs[v]]
             if segment_names is None:
                 segment_names = seg_names
             elif segment_names not in seg_names:
-                raise NameError(f"Cannot find {segment_names} in {v}.")
+                raise NameError("Cannot find %s in %s." % (seg_names, v))
 
             for rec_seg_name, rec in self.recs[v]:
                 if rec_seg_name in segment_names:
