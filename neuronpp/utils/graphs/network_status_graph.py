@@ -16,7 +16,7 @@ from neuronpp.core.hocwrappers.point_process import PointProcess
 
 
 class NetworkStatusGraph:
-    def __init__(self, cells, weight_name='w', plot_fixed_weight_edges=True):
+    def __init__(self, cells, weight_name='w', plot_fixed_weight_edges=True, soma_name='soma'):
         self.cells = cells
         self.colors = []
         self.texts = []
@@ -29,27 +29,28 @@ class NetworkStatusGraph:
         self.correct_position = (0.1, 0.1)
 
         self.population_names = self._get_population_names()
-        self.edges = self._get_edges(weight_name)
+        self.edges = self._get_edges(weight_name, soma_name)
 
     def plot(self):
         py.figure()
         ax2 = py.subplot(111)
         self.nodes = []
         for cell_num, edge in enumerate(self.edges):
-            self.nodes.append(ax2.scatter(self.x_list[cell_num],
-                                          self.y_list[cell_num], s=300,
+            self.nodes.append(ax2.scatter(self.x_list[cell_num], self.y_list[cell_num], s=300,
                                           color=self.colors[cell_num], alpha=0.5))
             for target in edge:
                 line, = ax2.plot(target[0], target[1], lw=target[2], color='grey')
                 self.lines.append(line)
         n = 0
         for c in self.cells:
-            self.texts.append(ax2.text(self.x_list[n] - self.correct_position[0],
-                                       self.y_list[n] - self.correct_position[1], ''))
+            self.texts.append(ax2.text(self.x_list[n] - self.correct_position[0], self.y_list[n] - self.correct_position[1], ''))
             n += 1
         ax2.spines['right'].set_visible(False)
         ax2.spines['top'].set_visible(False)
-        py.xticks([i for i in range(0, len(self.population_names))], self.population_names)
+
+        py.xticks([i for i in range(len(self.population_names))], self.population_names)
+        py.yticks([i for i in range(max(self.y_list)+1)],
+                  [f"cell[{i}]" for i in range(max(self.y_list)+1)])
 
     def update_weights(self, weight_name):
         n = 0
@@ -69,25 +70,22 @@ class NetworkStatusGraph:
             n += 1
             py.draw()
 
-    def _get_edges(self, weight_name):
+    def _get_edges(self, weight_name, soma_name='soma'):
         result = []
         for c in self.cells:
-            soma = c.filter_secs('soma')
+            soma = c.filter_secs(soma_name)
             if c._spike_detector is None:
                 c.make_spike_detector(soma(0.5))
+
             split_name = c.name.split('[')
+            cell_num_in_pop = int(split_name[-1][:-1])
             pop_name = split_name[0]
 
-            try:
-                x_pos = int(pop_name[-1])
-            except ValueError:
-                x_pos = self.population_names.index(pop_name)
-
-            y_pos = int(split_name[-1][:-1])
+            x_pos = self.population_names.index(pop_name)
+            y_pos = cell_num_in_pop
 
             if 'inh' in c.name:
                 self.colors.append('red')
-                y_pos -= 5
             elif 'hid' in c.name:
                 self.colors.append('blue')
             else:
@@ -107,13 +105,10 @@ class NetworkStatusGraph:
             elif isinstance(nc.source, Seg) and isinstance(nc.target, PointProcess):
                 split_target = nc.source.parent.cell.name.split('[')
                 pop_name = split_target[0]
+                cell_num_in_pop = int(split_target[-1][:-1])
 
-                try:
-                    x_trg = int(pop_name[-1])
-                except ValueError:
-                    x_trg = self.population_names.index(pop_name)
-
-                y_trg = int(split_target[-1][:-1])
+                x_trg = self.population_names.index(pop_name)
+                y_trg = cell_num_in_pop
 
                 weight = None
                 if self.plot_constant_connections and hasattr(nc.target.hoc, weight_name):

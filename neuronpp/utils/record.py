@@ -1,4 +1,5 @@
 from collections import defaultdict
+from typing import Union, List, Optional
 
 import numpy as np
 import pandas as pd
@@ -84,21 +85,21 @@ class Record:
             * position=None -> Default, each neuron has separated  axis (row) on the figure.
         :return:
         """
-        for i, (var_name, section_recs) in enumerate(self.recs.items()):
+        for i, (var_name, variable_recs) in enumerate(self.recs.items()):
             fig = plt.figure()
 
             if position is "merge":
                 ax = fig.add_subplot(1, 1, 1)
 
-            for i, (name, rec) in enumerate(section_recs):
+            for i, (segment_name, rec) in enumerate(variable_recs):
                 rec_np = rec.as_numpy()
                 if np.max(np.isnan(rec_np)):
-                    raise ValueError("Vector recorded for variable: '%s' and segment: '%s' contains nan values." % (var_name, name))
+                    raise ValueError("Vector recorded for variable: '%s' and segment: '%s' contains nan values." % (var_name, segment_name))
 
                 if position is not "merge":
-                    ax = self._get_subplot(fig=fig, var_name=var_name, position=position, row_len=len(section_recs), index=i + 1)
+                    ax = self._get_subplot(fig=fig, var_name=var_name, position=position, row_len=len(variable_recs), index=i + 1)
                 ax.set_title("Variable: %s" % var_name)
-                ax.plot(self.time, rec, label=name)
+                ax.plot(self.time, rec, label=segment_name)
                 ax.set(xlabel='t (ms)', ylabel=var_name)
                 ax.legend()
 
@@ -167,6 +168,50 @@ class Record:
 
         if create_fig:
             plt.show(block=False)
+
+    def as_numpy(self, variables: Optional[Union[str, List[str]]] = None,
+                 segment_names: Optional[Union[str, List[str]]] = None):
+        """
+        Return numpy array of records as 3-dim array
+          * axis 0: records
+          * axis 1: segment
+          * axis 2: variable
+
+        :param variables:
+            str or list_of_str of variable names. Default is None, meaning all
+            variables in that record will be taken.
+        :param segment_names:
+            str or list_of_str of segment_names names for the variable
+        :return:
+            numpy array of records
+              * axis 0: records
+              * axis 1: segment
+              * axis 2: variable
+        """
+        if variables is None:
+            variables = list(self.recs.keys())
+        if isinstance(variables, str):
+            variables = variables.split(' ')
+
+        result = []
+        for v in variables:
+            v_result = []
+            result.append(v_result)
+
+            if v not in self.recs:
+                raise NameError(f"There is no variable record as {v}")
+
+            seg_names = [t[0] for t in self.recs[v]]
+            if segment_names is None:
+                segment_names = seg_names
+            elif segment_names not in seg_names:
+                raise NameError(f"Cannot find {segment_names} in {v}.")
+
+            for rec_seg_name, rec in self.recs[v]:
+                if rec_seg_name in segment_names:
+                    v_result.append(rec.as_numpy())
+
+        return np.array(result).T
 
     def to_csv(self, filename):
         cols = ['time']

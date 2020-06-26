@@ -84,6 +84,11 @@ class Simulation:
             in ms. Default None -> stepsize is the size of runtime
         :param delay_between_steps:
             in ms (computer real time)
+        :param debug
+            if True, print debug information:
+            * Current time (in ms)
+            * Computation time (in ms)
+            * Simulation stepsize
         """
         if stepsize is None:
             stepsize = runtime
@@ -119,9 +124,9 @@ class Simulation:
 
             self._plot_shapes()
             if debug:
-                print("Current time:", round(r, 2), "ms",
-                      'sim for:', stepsize,
-                      'comp_time:', round(computation_time * 1000, 2), "ms")
+                print("Current time:", round(r, 2), "ms\n",
+                      'Computation time:', round(computation_time * 1000, 2), "ms\n",
+                      'Simulation stepsize:', stepsize)
 
         self.last_runtime = runtime
 
@@ -149,7 +154,6 @@ class Simulation:
                     getattr(pp, name)
                 except AttributeError as e:
                     if e.args[0].lower() == 'pointer is null':
-
                         raise AttributeError("RANGE Variable: %s in Point_Process: %s is a NULL "
                                              "POINTER. Set the POINTER before simulation init.\n"
                                              "Located in the section: %s.\n"

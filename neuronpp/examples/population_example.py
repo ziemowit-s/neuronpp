@@ -23,8 +23,8 @@ if __name__ == '__main__':
 
     # Define connection probabilities
     Dist.set_seed(13)
-    connection_proba = NormalProba(mean=0.45, std=0.1)
-    weight_dist = NormalTruncatedDist(mean=0.01, std=0.02)
+    connection_proba = NormalProba(mean=0.8, std=0.1)
+    weight_dist = NormalTruncatedDist(mean=0.1, std=0.2)
 
     # Create population 1
     pop1 = Population("pop_1")
@@ -52,32 +52,13 @@ if __name__ == '__main__':
     connector.build()
     pop2.record()
 
-    # Create population 3
-    pop3 = Population("pop_3")
-    pop3.add_cells(template=cell_template, num=4)
-
-    connector = pop3.connect(cell_proba=connection_proba)
-    connector.set_source([c.filter_secs("soma")(0.5) for c in pop2.cells])
-    connector.set_target([c.filter_secs("dend")(0.5) for c in pop3.cells])
-    syn_adder = connector.add_synapse("Exp2Syn")
-    syn_adder.add_netcon(weight=weight_dist)
-
-    connector.build()
-    pop3.record()
-
-    # Creates inhibitory connections between pop2->pop3
-    for c in pop3.cells:
-        for p in c.pps:
-            p.hoc.e = -90
-
     # Create connectivity graph grouped by populations, with weighs and spike rates updated
-    graph = NetworkStatusGraph(cells=pop1.cells + pop2.cells + pop3.cells)
+    graph = NetworkStatusGraph(cells=pop1.cells + pop2.cells)
     graph.plot()
 
     # Run
     sim = Simulation(init_v=-70, warmup=20)
     for i in range(1000):
         sim.run(runtime=1)
-        # pop1.plot(animate=True)
-        # pop2.plot(animate=True)
-        # pop3.plot(animate=True)
+        #pop1.plot(animate=True)
+        #pop2.plot(animate=True)
