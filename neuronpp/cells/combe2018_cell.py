@@ -4,7 +4,7 @@ from neuronpp.cells.cell import Cell
 from neuronpp.core.cells.core_hoc_cell import CoreHocCell
 
 path = os.path.dirname(os.path.abspath(__file__))
-f_path = os.path.join(path, "..", "commons/mods/combe2018")
+f_path = os.path.join(path, "..", "commons/hocmodels/combe2018")
 
 
 class Combe2018Cell(Cell, CoreHocCell):
