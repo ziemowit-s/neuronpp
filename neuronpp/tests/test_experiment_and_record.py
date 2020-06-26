@@ -11,7 +11,7 @@ from neuronpp.utils.record import Record
 path = os.path.dirname(os.path.abspath(__file__))
 
 
-class TestExperiment(unittest.TestCase):
+class TestExperimentAndRecord(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # Create cell
