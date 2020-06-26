@@ -109,7 +109,7 @@ class NetConCell(PointProcessCell):
         nc_detector.hoc.record(result_vector)
         self._spike_detector = (nc_detector, result_vector)
 
-    def get_spikes(self):
+    def spikes(self):
         """
         :return:
             numpy array of time of spikes in ms
@@ -122,7 +122,7 @@ class NetConCell(PointProcessCell):
         return spikes
 
     def plot_spikes(self):
-        spikes = self.get_spikes()
+        spikes = self.spikes()
         fig, ax = plt.subplots(1)
 
         ax.set_title("Spike detector of %s" % self.name)

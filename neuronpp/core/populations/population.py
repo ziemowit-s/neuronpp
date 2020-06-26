@@ -1,5 +1,5 @@
 import numpy as np
-from typing import Union, TypeVar, cast, List, Iterable, Callable
+from typing import Union, TypeVar, List, Iterable, Callable
 
 from neuronpp.cells.cell import Cell
 from neuronpp.utils.record import Record

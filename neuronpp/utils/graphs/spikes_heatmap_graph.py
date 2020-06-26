@@ -14,7 +14,7 @@ class SpikesHeatmapGraph(HeatmapGraph):
                 c.make_spike_detector(c.filter_secs(sec)(loc))
 
         def extract_func(cell):
-            spikes = [ms for ms in cell.get_spikes() if ms > self.last_sim_time]
+            spikes = [ms for ms in cell.spikes() if ms > self.last_sim_time]
             return len(spikes)
 
         super().__init__(name=name, elements=cells, extract_func=extract_func, shape=shape)

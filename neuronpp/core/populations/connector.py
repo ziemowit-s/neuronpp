@@ -1,12 +1,12 @@
 from typing import Optional, List, Union, Callable
 
-from neuronpp.core.distributions import Dist, NormalTruncatedSegDist
 from neuronpp.core.hocwrappers.seg import Seg
 from neuronpp.core.hocwrappers.netstim import NetStim
 from neuronpp.core.hocwrappers.synapse import Synapse
 from neuronpp.core.hocwrappers.vecstim import VecStim
-from neuronpp.core.populations.params.conn_params import ConnParams
 from neuronpp.core.populations.syn_adder import SynAdder
+from neuronpp.core.populations.params.conn_params import ConnParams
+from neuronpp.core.distributions import Dist, NormalTruncatedSegDist
 from neuronpp.core.populations.utils import check_and_prepare_sources, check_and_prepare_target
 
 

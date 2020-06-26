@@ -1,8 +1,7 @@
 import numpy as np
-from typing import cast, List
-import matplotlib.pyplot as py
+from typing import List
+import matplotlib.pyplot as plt
 
-from neuronpp.core.hocwrappers.point_process import PointProcess
 from neuronpp.core.populations.population import Population
 
 
@@ -20,7 +19,7 @@ class NetworkStatusGraph:
             name of soma segment. It will be used if you haven't put a spike detector into the cell
         """
         self.populations = populations
-        self.check_and_add_spike_detector(soma_name)
+        self._check_and_add_spike_detector(soma_name)
         self.population_names = [p.name for p in populations]
 
         self.colors = []
@@ -33,15 +32,16 @@ class NetworkStatusGraph:
         self.correct_position = (0.1, 0.1)
 
         self.edges = self._get_edges(additional_weight_name)
+        self.fig = None
 
     def plot(self):
-        py.figure()
-        ax = py.subplot(111)
+        self.fig = plt.figure()
+        ax = plt.subplot(111)
         self.nodes = []
 
         for cell_num in range(len(self.x_list)):
             self.nodes.append(ax.scatter(self.x_list[cell_num], self.y_list[cell_num], s=300,
-                                          color=self.colors[cell_num], alpha=0.5))
+                                         color=self.colors[cell_num], alpha=0.5))
 
         for xs, ys, weight in self.edges:
             line, = ax.plot(xs, ys, lw=weight, color='grey')
@@ -50,36 +50,60 @@ class NetworkStatusGraph:
         n = 0
         for _ in self.populations:
             self.texts.append(ax.text(self.x_list[n] - self.correct_position[0],
-                                       self.y_list[n] - self.correct_position[1], ''))
+                                      self.y_list[n] - self.correct_position[1], ''))
             n += 1
         ax.spines['right'].set_visible(False)
         ax.spines['top'].set_visible(False)
 
-        py.xticks([i for i in range(len(self.population_names))], self.population_names)
-        py.yticks([i for i in range(max(self.y_list) + 1)],
-                  [f"Cell {i}" for i in range(max(self.y_list) + 1)])
+        plt.xticks([i for i in range(len(self.population_names))], self.population_names)
+        plt.yticks([i for i in range(max(self.y_list) + 1)],
+                   [f"Cell {i}" for i in range(max(self.y_list) + 1)])
 
-    def update_weights(self, weight_name):
+    def update_weights(self, additional_weight_name='w'):
+        """
+        Update weights display on the network graph
+
+        :param additional_weight_name:
+            name of additional weight which is point_process's additional weight
+            (which change with plasticity), if a point_process don't contains this name
+            it will be ignored. In such case only weight from netcon will be displayed.
+        """
+        new_weights = []
+        for p in self.populations:
+            for c in p.cells:
+                for weight in self._get_new_weights(c, additional_weight_name):
+                    new_weights.append(weight)
+
+        for i, weight in enumerate(new_weights):
+            self.lines[i].set_linewidth(weight)
+        self.redraw()
+
+    def update_spikes(self, sim_time=1):
+        """
+        Update spikes display on the network graph
+        :param sim_time:
+            simulation time in ms
+        """
         n = 0
         for p in self.populations:
             for c in p.cells:
-                for target in self._find_weights(c, weight_name):
-                    self.lines[n].set_linewidth(target)
+                spikes = np.asarray(c.spikes())
+                if spikes.size == 0:
                     n += 1
-                    py.draw()
+                    continue
+                else:
+                    self.texts[n].set_text(str(spikes.shape[0]))
+                    alpha = spikes > (sim_time - 50)
+                    self.nodes[n].set_alpha(np.sum(alpha) / 10)
+                    n += 1
+        self.redraw()
 
-    def update_spikes(self, sim_time):
-        n = 0
-        for p in self.populations:
-            for c in p.cells:
-                spikes = np.asarray(c.get_spikes())
-                self.texts[n].set_text(str(spikes.shape[0]))
-                alpha = spikes > (sim_time - 50)
-                self.nodes[n].set_alpha(np.sum(alpha) / 10)
-                n += 1
-            py.draw()
+    def redraw(self):
+        self.fig.canvas.draw()
+        self.fig.canvas.flush_events()
 
-    def check_and_add_spike_detector(self, soma_name='soma'):
+
+    def _check_and_add_spike_detector(self, soma_name='soma'):
         for p in self.populations:
             for c in p.cells:
                 soma = c.filter_secs(soma_name)
@@ -111,23 +135,30 @@ class NetworkStatusGraph:
                             # show only connections from other cells as source
                             continue
 
-                        target_y_pos = int(target_cell.name.split('[')[-1][:-1])
-
                         weight = nc.get_weight()
                         if hasattr(target_syn.hoc, additional_weight_name):
                             weight *= getattr(target_cell.hoc, additional_weight_name)
 
+                        target_y_pos = int(target_cell.name.split('[')[-1][:-1])
                         xs = source_x_pos, target_x_pos
                         ys = source_y_pos, target_y_pos
                         result.append((xs, ys, weight))
         return result
 
     @staticmethod
-    def _find_weights(c, weight_name):
-        targets = []
-        for pp in c.pps:
-            pp = cast(PointProcess, pp)
-            if hasattr(pp.hoc, weight_name):
-                weight = getattr(pp.hoc, weight_name)
-                targets.append(weight)
-        return targets
+    def _get_new_weights(cell, additional_weight_name):
+        result = []
+        for syn in cell.syns:
+            for nc in syn.netcons:
+                try:
+                    target_x_pos = nc.source.parent.cell.population.name
+                except AttributeError:
+                    # get only connections from other cells as source
+                    continue
+
+                weight = nc.get_weight()
+                if hasattr(syn.hoc, additional_weight_name):
+                    weight *= getattr(cell.hoc, additional_weight_name)
+
+                result.append(weight)
+        return result

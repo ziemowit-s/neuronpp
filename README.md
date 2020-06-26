@@ -307,14 +307,16 @@ The main cell object `Cell` contains all filter methods inside.
 
 Create a population of many neurons of the same type and connect them between populations:
 
-* Create a template cell by wrapping any Cell object and define such template as any other cell:
+* Create a template cell function:
   ```python
-    # Create a template cell by wrapping
-    TemplateCell = template(Cell)
-    cell_template = TemplateCell(name="cell")
-    cell_template.load_morpho(filepath="my.swc")
-    cell_template.insert("pas")
-    cell_template.insert("hh")
+    def cell_function():
+        cell = Cell(name="cell")
+        morpho_path = os.path.join(path, "..", "commons/morphologies/swc/my.swc")
+        cell.load_morpho(filepath=morpho_path)
+        cell.insert("pas")
+        cell.insert("hh")
+        cell.make_spike_detector(seg=cell.filter_secs("soma")(0.5))
+        return cell
     ```
   
   * Create a stimulation and define your first population:
@@ -324,7 +326,7 @@ Create a population of many neurons of the same type and connect them between po
 
     # Create population 1
     pop1 = Population("pop_1")
-    pop1.add_cells(template=cell_template, num=4)
+    pop1.add_cells(num=4, cell_function=cell_function)
 
     connector = pop1.connect(cell_proba=0.5)
     connector.set_source(netstim)
@@ -343,7 +345,7 @@ Create a population of many neurons of the same type and connect them between po
   ```python
     # Create population 2
     pop2 = Population("pop_2")
-    pop2.add_cells(template=cell_template, num=4)
+    pop2.add_cells(num=4, cell_function=cell_function)
   ```
   
   * Define source segments and target segments as well as define that netcon weight for each cell will be chosen from the normal truncated (positive) distribution

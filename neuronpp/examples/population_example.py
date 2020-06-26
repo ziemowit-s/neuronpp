@@ -1,11 +1,14 @@
 import os
+from time import sleep
+import matplotlib.pyplot as plt
+
 from neuronpp.cells.cell import Cell
+from neuronpp.utils.simulation import Simulation
 from neuronpp.core.cells.netstim_cell import NetStimCell
-from neuronpp.core.distributions import Dist, NormalTruncatedDist, NormalTruncatedSegDist
 from neuronpp.core.populations.population import Population, NormalProba
 from neuronpp.utils.graphs.network_status_graph import NetworkStatusGraph
+from neuronpp.core.distributions import Dist, NormalTruncatedDist, NormalTruncatedSegDist
 
-from neuronpp.utils.simulation import Simulation
 
 path = os.path.dirname(os.path.abspath(__file__))
 
@@ -61,5 +64,8 @@ if __name__ == '__main__':
     sim = Simulation(init_v=-70, warmup=20)
     for i in range(1000):
         sim.run(runtime=1)
-        #pop1.plot(animate=True)
-        #pop2.plot(animate=True)
+        pop1.plot(animate=True)
+        pop2.plot(animate=True)
+
+        graph.update_weights()
+        graph.update_spikes()
