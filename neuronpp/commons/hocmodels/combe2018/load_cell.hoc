@@ -2,7 +2,8 @@
 back=0
 
 //////// load needed templates////////////
-if(!back){ load_file("nrngui.hoc")               }
+//not show gui
+//if(!back){ load_file("nrngui.hoc")               }
 if(!back){ load_file("template/ObliquePath.hoc") }
 if(!back){ load_file("template/BasalPath.hoc"  ) }
 
@@ -60,7 +61,8 @@ xopen("cell-setup.hoc")                                             // specify a
 ///////////////////Load File//////////////////////
 
 //if(!back) load_file("kca.ses")
-if(!back) { load_file("print.ses") }
+//not show graphs
+//if(!back) { load_file("print.ses") }
 /*cvode_active(1)*/
 
 //////   Spike counter//////////

@@ -76,8 +76,11 @@ forall {
 
 //ORIG>>// prepare to make a graph with cell configuration
 //NDB >>>>    $o1.tmpo2=new Shape()
-objref tmpo2
-tmpo2=new Shape()
+
+//remove shape
+//objref tmpo2
+//tmpo2=new Shape()
+
 //NDB <<<<  
 
 
@@ -148,8 +151,10 @@ forsec "soma" {
 		gkbar_mykca = 5.5*mykca_init        
 	insert cad  // calcium pump/buffering mechanism 
 		taur_cad=20
-	//insert cabalan  // calcium pump/buffering mechanism 
-	tmpo2.color(2)            
+	//insert cabalan  // calcium pump/buffering mechanism
+
+	// remove shape
+	//tmpo2.color(2)
 }
 
 //ORIG>>  Configure Axon
@@ -270,7 +275,9 @@ forsec apical_trunk_list {
 	cm             = Cm_trunk
 	//ORIG>>>// Rm_sigmoid($o1)   // configure Rm along apical trunk
 	//ORIG>>>//  Ra_sigmoid($o1)   // configure Ra along apical trunk
-	tmpo2.color(4)
+
+	//remove shape
+	//tmpo2.color(4)
 }
  
 
@@ -374,7 +381,9 @@ forsec apical_non_trunk_list {
 	cm        = Cm_non_trunk
 	//ORIG>>//Rm_sigmoid($o1)   // configure Rm along apical trunk
 	//ORIG>>//Ra_sigmoid($o1)   // configure Ra along apical trunk
-	tmpo2.color(3)
+
+	//remove shape
+	//tmpo2.color(3)
 }
 
 //ORIG>>//khoblique_peri_decay($o1)  // Configure the apical oblique dendrites
@@ -404,7 +413,9 @@ forsec basal_tree_list {
 	Ra             = Ra_basal
 	cm             = Cm_basal
 	//ORIG>>//  Ra_sigmoid($o1) // configure Ra
-	tmpo2.color(5)
+
+	//remove shape
+	//tmpo2.color(5)
 }
 
 //ORIG>>//khbasal_fixed($o1) // Configure basal dendrites         
@@ -426,7 +437,9 @@ forall if(ismembrane("ca_ion")) {
 //ORIG>>// Print a postcript file in the generic directory with the cell configuration
 //NTB>>> sprint(tmp_str2, "%s/configure_sections.eps", $o1.generic_dir)
 //      $o1.tmpo2.printfile($o1.tmp_str2)
-tmpo2.printfile("experiment/configure_sections.eps")
+
+//remove shape
+//tmpo2.printfile("experiment/configure_sections.eps")
 //<<<NTB
 
 //NTB>>> econ.xopen_library("Terrence","current-balance") 

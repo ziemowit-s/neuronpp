@@ -59,8 +59,8 @@ class TestExperimentAndRecord(unittest.TestCase):
         self.assertEqual(round(np.min(arr), 4), -76.9668)
 
         self.assertEqual(arr[0], -70)
-        self.assertEqual(round(arr[500], 4), -15.8164)
-        self.assertEqual(round(arr[-1], 4), -76.6513)
+        self.assertEqual(round(arr[500], 4), -15.8288)
+        self.assertEqual(round(arr[-1], 4), -76.6515)
 
 
 if __name__ == '__main__':
