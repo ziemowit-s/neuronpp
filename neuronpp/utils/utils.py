@@ -8,9 +8,12 @@ from typing import cast
 from pyvis.network import Network
 try:
     from pynput.keyboard import Listener
+    KEY_LISTENER_IMPORTED = True
+
 except DisplayConnectionError as e:
     print("Warning: key listeners and interactive debugging (on key press) won't work "
           "due to the error: %s" % str(e))
+    KEY_LISTENER_IMPORTED = False
 
 from neuronpp.core.hocwrappers.seg import Seg
 from neuronpp.core.hocwrappers.netcon import NetCon
