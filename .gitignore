@@ -8,6 +8,7 @@ project/.idea/
 .DS_Store
 project/.DS_Store
 *.out
+*.csv
 
 neuronpp/examples/x86_64/
 
