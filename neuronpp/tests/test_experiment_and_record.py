@@ -27,55 +27,56 @@ class TestExperimentAndRecord(unittest.TestCase):
                                epsp_synapse=cls.syns[0], i_clamp_section=cls.soma)
 
         # Prepare plots
-        cls.v_soma_rec = Record([cls.soma(0.5), cls.syns[0].parent], variables='v')
-        cls.cai_head0_rec = Record(cls.syns[0].parent, variables='cai')
+        cls.rec = Record([cls.soma(0.5), cls.syns[0].parent], variables='v cai')
 
         # Run
-        sim = Simulation(init_v=-70, warmup=20, with_neuron_gui=False, constant_timestep=False)
+        sim = Simulation(init_v=-70, warmup=20, with_neuron_gui=False)
         sim.run(runtime=100)
 
-        cls.cai_records = cls.cai_head0_rec.as_numpy()[:, 0, 0]
-        cls.v_records = cls.v_soma_rec.as_numpy()[:, 0, 0]
+        cls.v_soma = cls.rec.as_numpy('v', segment_name=cls.soma(.5).name)
+        cls.cai = cls.rec.as_numpy('cai', segment_name=cls.syns[0].parent.name)
 
     def test_cai_record_size(self):
-        self.assertEqual(self.cai_records.size, 912)
+        self.assertEqual(4011, self.cai.size)
 
     def test_cai_max_record(self):
-        self.assertEqual(np.argmax(self.cai_records), 336)
-        self.assertEqual(round(np.max(self.cai_records), 4), 0.0061)
+        self.assertEqual(516, np.argmax(self.cai.records))
+        self.assertEqual(0.0062, round(np.max(self.cai.records), 4))
 
     def test_cai_min_record(self):
-        self.assertEqual(np.argmin(self.cai_records), 0)
-        self.assertEqual(np.min(self.cai_records), 0.0001)
+        self.assertEqual(0, np.argmin(self.cai.records))
+        self.assertEqual(0.00005, np.min(self.cai.records))
 
     def test_cai_first_record(self):
-        self.assertEqual(self.cai_records[0], 0.0001)
+        self.assertEqual(0.00005, self.cai.records[0])
 
     def test_cai_last_record(self):
-        self.assertEqual(round(self.cai_records[-1], 3), 0.001)
+        self.assertEqual(0.001, round(self.cai.records[-1], 3))
 
-    def test_cai_500ms_record(self):
-        self.assertEqual(round(self.cai_records[500], 4), 0.0054)
+    def test_cai_50ms_record(self):
+        cai = self.cai.get_records_from_time(50)
+        self.assertEqual(0.0053, round(cai[0], 4))
 
     def test_v_record_size(self):
-        self.assertEqual(self.v_records.size, 912)
+        self.assertEqual(4011, self.v_soma.size)
 
     def test_v_max_record(self):
-        self.assertEqual(np.argmax(self.v_records), 395)
-        self.assertEqual(round(np.max(self.v_records), 4), 36.4358)
+        self.assertEqual(914, np.argmax(self.v_soma.records))
+        self.assertEqual(36.7521, round(np.max(self.v_soma.records), 4))
 
     def test_v_min_record(self):
-        self.assertEqual(np.argmin(self.v_records), 900)
-        self.assertEqual(round(np.min(self.v_records), 4), -76.9668)
+        self.assertEqual(3191, np.argmin(self.v_soma.records))
+        self.assertEqual(-76.965, round(np.min(self.v_soma.records), 4))
 
     def test_v_first_record(self):
-        self.assertEqual(self.v_records[0], -70)
+        self.assertEqual(-70, self.v_soma.records[0])
 
     def test_v_last_record(self):
-        self.assertEqual(-76.6498, round(self.v_records[-1], 4))
+        self.assertEqual(-76.6071, round(self.v_soma.records[-1], 4))
 
-    def test_v_500ms_record(self):
-        self.assertEqual(-15.8324, round(self.v_records[500], 4))
+    def test_v_50ms_record(self):
+        v = self.v_soma.get_records_from_time(50)
+        self.assertEqual(-44.2341, round(v[0], 4))
 
 
 if __name__ == '__main__':

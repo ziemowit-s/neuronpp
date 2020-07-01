@@ -50,8 +50,7 @@ class Simulation:
         self.warmup = warmup
         self.check_pointers = check_pointers
 
-        if not constant_timestep:
-            h.CVode().active(True)
+        h.CVode().active(not constant_timestep)
 
         self.reset()
 

@@ -1,5 +1,5 @@
-from collections import defaultdict
 from typing import Union, List, Optional
+from collections import defaultdict, namedtuple
 
 import numpy as np
 import pandas as pd
@@ -7,8 +7,7 @@ from neuron import h
 import matplotlib.pyplot as plt
 
 from neuronpp.core.hocwrappers.sec import Sec
-from neuronpp.core.hocwrappers.seg import Seg
-from neuronpp.core.hocwrappers.point_process import PointProcess
+from neuronpp.utils.RecordOutput import RecordOutput
 
 
 class Record:
@@ -38,11 +37,7 @@ class Record:
 
         for elem in elements:
             for var in variables:
-                if isinstance(elem, Seg):
-                    name = "%s_%s" % (elem.parent.cell.name, elem.name)
-                elif isinstance(elem, PointProcess):
-                    name = "%s_%s" % (elem.cell.name, elem.name)
-                elif isinstance(elem, Sec):
+                if isinstance(elem, Sec):
                     raise TypeError(
                         "Record element cannot be of type Sec, however you can specify Seg eg. "
                         "soma(0.5) and pass as element.")
@@ -182,49 +177,38 @@ class Record:
         if create_fig:
             plt.show(block=False)
 
-    def as_numpy(self, variables: Optional[Union[str, List[str]]] = None,
-                 segment_names: Optional[Union[str, List[str]]] = None):
+    def as_numpy(self, variable: str, segment_name: Optional[str] = None):
         """
-        Return numpy array of records as 3-dim array
-          * axis 0: records
-          * axis 1: segment
-          * axis 2: variable
+        Returns dictionary[variable_name][segment_name] = numpy_record
 
-        :param variables:
-            str or list_of_str of variable names. Default is None, meaning all
-            variables in that record will be taken.
-        :param segment_names:
-            str or list_of_str of segment_names names for the variable
+        :param variable:
+            variable name.
+        :param segment_name:
+            name of the segment. Default is None, meaning - it will take all segments for this
+            variable in the order of adding.
         :return:
-            numpy array of records
-              * axis 0: records
-              * axis 1: segment
-              * axis 2: variable
+            Returns dictionary[variable_name][segment_name] = numpy_record
         """
-        if variables is None:
-            variables = list(self.recs.keys())
-        if isinstance(variables, str):
-            variables = variables.split(' ')
-
         result = []
-        for v in variables:
-            v_result = []
-            result.append(v_result)
 
-            if v not in self.recs:
-                raise NameError("There is no variable record as %s" % v)
+        if variable not in self.recs:
+            raise NameError("There is no variable record as %s" % variable)
 
-            seg_names = [t[0] for t in self.recs[v]]
-            if segment_names is None:
-                segment_names = seg_names
-            elif segment_names not in seg_names:
-                raise NameError("Cannot find %s in %s." % (seg_names, v))
+        seg_names = [r[0] for r in self.recs[variable]]
+        if segment_name is None:
+            segment_name = seg_names
+        elif segment_name not in seg_names:
+            raise NameError("Cannot find segment name: %s in variable: %s." % (seg_names, variable))
 
-            for rec_seg_name, rec in self.recs[v]:
-                if rec_seg_name in segment_names:
-                    v_result.append(rec.as_numpy())
+        for seg_name, rec in self.recs[variable]:
+            if seg_name in segment_name:
+                result.append(rec.as_numpy())
 
-        return np.array(result).T
+        result = np.array(result)
+        if result.shape[0] == 1:
+            result = result[0]
+
+        return RecordOutput(records=result, time=self.time.as_numpy())
 
     def to_csv(self, filename):
         cols = ['time']
