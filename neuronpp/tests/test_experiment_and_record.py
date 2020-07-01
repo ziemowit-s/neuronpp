@@ -34,33 +34,48 @@ class TestExperimentAndRecord(unittest.TestCase):
         sim = Simulation(init_v=-70, warmup=20, with_neuron_gui=False, constant_timestep=False)
         sim.run(runtime=100)
 
-    def test_cai_records(self):
-        arr = self.cai_head0_rec.as_numpy()[:, 0, 0]
-        self.assertEqual(arr.size, 915)
+        cls.cai_records = cls.cai_head0_rec.as_numpy()[:, 0, 0]
+        cls.v_records = cls.v_soma_rec.as_numpy()[:, 0, 0]
 
-        self.assertEqual(np.argmax(arr), 336)
-        self.assertEqual(round(np.max(arr), 4), 0.0061)
+    def test_cai_record_size(self):
+        self.assertEqual(self.cai_records.size, 912)
 
-        self.assertEqual(np.argmin(arr), 0)
-        self.assertEqual(np.min(arr), 0.0001)
+    def test_cai_max_record(self):
+        self.assertEqual(np.argmax(self.cai_records), 336)
+        self.assertEqual(round(np.max(self.cai_records), 4), 0.0061)
 
-        self.assertEqual(arr[0], 0.0001)
-        self.assertEqual(round(arr[500], 4), 0.0054)
-        self.assertEqual(round(arr[-1], 3), 0.001)
+    def test_cai_min_record(self):
+        self.assertEqual(np.argmin(self.cai_records), 0)
+        self.assertEqual(np.min(self.cai_records), 0.0001)
 
-    def test_v_records(self):
-        arr = self.v_soma_rec.as_numpy()[:, 0, 0]
-        self.assertEqual(arr.size, 915)
+    def test_cai_first_record(self):
+        self.assertEqual(self.cai_records[0], 0.0001)
 
-        self.assertEqual(np.argmax(arr), 395)
-        self.assertEqual(round(np.max(arr), 4), 36.4358)
+    def test_cai_last_record(self):
+        self.assertEqual(round(self.cai_records[-1], 3), 0.001)
 
-        self.assertEqual(np.argmin(arr), 903)
-        self.assertEqual(round(np.min(arr), 4), -76.9668)
+    def test_cai_500ms_record(self):
+        self.assertEqual(round(self.cai_records[500], 4), 0.0054)
 
-        self.assertEqual(arr[0], -70)
-        self.assertEqual(round(arr[500], 4), -15.8288)
-        self.assertEqual(round(arr[-1], 4), -76.6515)
+    def test_v_record_size(self):
+        self.assertEqual(self.v_records.size, 912)
+
+    def test_v_max_record(self):
+        self.assertEqual(np.argmax(self.v_records), 395)
+        self.assertEqual(round(np.max(self.v_records), 4), 36.4358)
+
+    def test_v_min_record(self):
+        self.assertEqual(np.argmin(self.v_records), 900)
+        self.assertEqual(round(np.min(self.v_records), 4), -76.9668)
+
+    def test_v_first_record(self):
+        self.assertEqual(self.v_records[0], -70)
+
+    def test_v_last_record(self):
+        self.assertEqual(-76.6498, round(self.v_records[-1], 4))
+
+    def test_v_500ms_record(self):
+        self.assertEqual(-15.8324, round(self.v_records[500], 4))
 
 
 if __name__ == '__main__':
