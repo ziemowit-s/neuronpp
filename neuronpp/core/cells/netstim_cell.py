@@ -48,8 +48,10 @@ class NetStimCell(CoreCell):
             created NetStim
         """
         if h.t > 0:
-            raise ConnectionRefusedError("NetStim cannot be created after simulation have been initiated. "
-                                         "You need to specify NetStim before creation of SimRun object.")
+            # TODO: Change all warnings and prints to loggers
+            print("Warning: NetStim created after simulation have been initiated, will not affect "
+                  "this simulation, but rather the next one after you execute reset() method on "
+                  "the Simulation object.")
 
         ns_hoc = get_netstim(start=start, number=number, interval=interval, noise=noise)
         name = str(len(self.nss))

@@ -18,6 +18,12 @@ class Record:
         :param variables:
             str or list_of_str of variable names to track
         """
+        if h.t > 0:
+            # TODO: Change all warnings and prints to loggers
+            print("Warning: Record created after simulation have been initiated, will not affect "
+                  "this simulation, but rather the next one after you execute reset() method on "
+                  "the Simulation object.")
+
         if not isinstance(elements, (list, set, tuple)):
             elements = [elements]
 
