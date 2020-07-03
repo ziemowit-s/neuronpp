@@ -13,9 +13,11 @@ path = os.path.dirname(os.path.abspath(__file__))
 class TestExperimentAndRecord(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        morpho_path = os.path.join(path, "..", "commons/morphologies/asc/cell2.asc")
+
         # Create cell
         cell = Cell(name="cell")
-        cell.load_morpho(filepath="../commons/morphologies/asc/cell2.asc")
+        cell.load_morpho(filepath=morpho_path)
         cell.insert("pas")
         cell.insert("hh")
 
