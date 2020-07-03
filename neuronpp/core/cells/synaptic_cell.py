@@ -2,7 +2,7 @@ from collections import defaultdict
 
 from neuronpp.core.cells.netcon_cell import NetConCell
 from neuronpp.core.decorators import distparams
-from neuronpp.core.hocwrappers.synapse import Synapse
+from neuronpp.core.hocwrappers.synapses.single_synapse import SingleSynapse
 
 
 class SynapticCell(NetConCell):
@@ -70,7 +70,7 @@ class SynapticCell(NetConCell):
                              delay=delay, threshold=threshold)
 
         syn_name = "%s[%s]" % (pp.name, self._syn_num[mod_name])
-        syn = Synapse(source, point_process=pp, netcon=nn, name=syn_name, tag=tag)
+        syn = SingleSynapse(source, point_process=pp, netcon=nn, name=syn_name, tag=tag)
         self.syns.append(syn)
         self._syn_num[mod_name] += 1
 

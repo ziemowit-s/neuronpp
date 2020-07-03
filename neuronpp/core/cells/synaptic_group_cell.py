@@ -1,7 +1,7 @@
 from collections import defaultdict
 
 from neuronpp.core.cells.synaptic_cell import SynapticCell
-from neuronpp.core.hocwrappers.synaptic_group import SynapticGroup
+from neuronpp.core.hocwrappers.synapses.synaptic_group import SynapticGroup
 
 
 class SynapticGroupCell(SynapticCell):

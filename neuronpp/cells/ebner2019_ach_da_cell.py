@@ -1,7 +1,7 @@
 import os
 
 from neuron import h
-from neuronpp.core.hocwrappers.synapse import Synapse
+from neuronpp.core.hocwrappers.synapses.single_synapse import SingleSynapse
 
 from neuronpp.cells.hay2011_cell import Hay2011Cell
 
@@ -64,7 +64,7 @@ class Ebner2019AChDACell(Hay2011Cell):
         Hay2011Cell.__init__(self, name=name, compile_paths=compile_paths)
 
     @staticmethod
-    def set_synaptic_pointers(syn_4p: Synapse, syn_ach: Synapse, syn_da: Synapse):
+    def set_synaptic_pointers(syn_4p: SingleSynapse, syn_ach: SingleSynapse, syn_da: SingleSynapse):
         """
         POINTER ach_stdp
         POINTER da_stdp

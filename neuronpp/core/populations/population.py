@@ -2,8 +2,8 @@ import numpy as np
 from typing import Union, TypeVar, List, Iterable, Callable
 
 from neuronpp.cells.cell import Cell
+from neuronpp.core.hocwrappers.synapses.synapse import Synapse
 from neuronpp.utils.record import Record
-from neuronpp.core.hocwrappers.synapse import Synapse
 from neuronpp.core.populations.connector import Connector
 from neuronpp.core.distributions import Dist, UniformProba, NormalProba, NormalTruncatedSegDist
 

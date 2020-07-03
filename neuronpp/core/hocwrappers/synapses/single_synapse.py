@@ -3,10 +3,11 @@ from typing import Union, List, Optional, Iterable
 from neuronpp.core.hocwrappers.netcon import NetCon
 from neuronpp.core.hocwrappers.wrapper import Wrapper
 from neuronpp.core.hocwrappers.hoc_wrapper import HocWrapper
+from neuronpp.core.hocwrappers.synapses.synapse import Synapse
 from neuronpp.core.hocwrappers.point_process import PointProcess
 
 
-class Synapse(Wrapper):
+class SingleSynapse(Wrapper, Synapse):
     def __init__(self, source, point_process: PointProcess, name,
                  netcon: Optional[Union[List[NetCon], NetCon]] = None, tag=None):
         self.mod_name = point_process.mod_name

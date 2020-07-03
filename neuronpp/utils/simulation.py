@@ -52,7 +52,7 @@ class Simulation:
 
         h.CVode().active(not constant_timestep)
 
-        self.reset()
+        self.warmup_done = False
 
     def reset(self):
         print("Simulation initialization.")
@@ -89,6 +89,9 @@ class Simulation:
             * Computation time (in ms)
             * Simulation stepsize
         """
+        if not self.warmup_done:
+            self.reset()
+            self.warmup_done = True
         if stepsize is None:
             stepsize = runtime
 

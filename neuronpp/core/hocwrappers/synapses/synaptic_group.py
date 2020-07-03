@@ -1,9 +1,10 @@
 from neuronpp.core.hocwrappers.wrapper import Wrapper
-from neuronpp.core.hocwrappers.synapse import Synapse
 from neuronpp.core.hocwrappers.hoc_wrapper import HocWrapper
+from neuronpp.core.hocwrappers.synapses.synapse import Synapse
+from neuronpp.core.hocwrappers.synapses.single_synapse import SingleSynapse
 
 
-class SynapticGroup(Wrapper, dict):
+class SynapticGroup(Wrapper, Synapse, dict):
     def __init__(self, synapses, name, tag=None):
         self.tag = tag
         self.mod_name = '_'.join([s.mod_name for s in synapses])
@@ -11,8 +12,8 @@ class SynapticGroup(Wrapper, dict):
 
         parent = None
         for s in synapses:
-            if not isinstance(s, Synapse):
-                raise TypeError("All synapses must be of type hocwrappers.Synapse, "
+            if not isinstance(s, SingleSynapse):
+                raise TypeError("All synapses must be of type SingleSynapse, "
                                 "but one of provided object was of type '%s'" % type(s))
             if parent is None:
                 parent = s.parent
