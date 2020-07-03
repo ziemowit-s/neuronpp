@@ -37,7 +37,6 @@ class TestExperimentAndRecord(unittest.TestCase):
         sim = Simulation(init_v=-70, warmup=20, with_neuron_gui=False, constant_timestep=True)
         sim.run(runtime=100)
 
-        rec.plot()
         cls.v_soma = rec.as_numpy('v', segment_name=soma(.5).name)
         cls.v_apic = rec.as_numpy('v', segment_name=dend(.5).name)
 
