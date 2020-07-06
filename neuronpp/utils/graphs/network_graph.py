@@ -35,7 +35,11 @@ class NetworkGraph:
         self.edges = self._get_edges(additional_weight_name)
         self.fig = None
 
-    def plot(self):
+    def plot(self, with_weight_thickness=True):
+        """
+        :param with_weight_thickness:
+            if True - it will show weight as the thickness of the edge between nodes
+        """
         self.fig = plt.figure()
         ax = plt.subplot(111)
         self.nodes = []
@@ -45,7 +49,9 @@ class NetworkGraph:
                                          color=self.colors[cell_num], alpha=0.5))
 
         for xs, ys, weight in self.edges:
-            line, = ax.plot(xs, ys, lw=weight, color='grey')
+            if not with_weight_thickness:
+                weight = 1
+            line, = ax.plot(xs, ys, linewidth=weight, color='grey')
             self.lines.append(line)
 
         n = 0

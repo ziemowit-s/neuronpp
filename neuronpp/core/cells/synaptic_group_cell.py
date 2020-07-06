@@ -15,8 +15,8 @@ class SynapticGroupCell(SynapticCell):
         self.complex_syns = []
         self._complex_syn_num = defaultdict(int)
 
-    def filter_complex_synapses(self, mod_name: str = None, name=None, parent=None, tag=None,
-                                obj_filter=None, **kwargs):
+    def filter_synaptic_group(self, mod_name: str = None, name=None, parent=None, tag=None,
+                              obj_filter=None, **kwargs):
         """
         Currently all filter passed are treated as AND statements.
 
