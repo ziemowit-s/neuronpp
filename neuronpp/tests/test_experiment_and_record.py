@@ -25,10 +25,11 @@ class TestExperimentAndRecord(unittest.TestCase):
         dend = cell.filter_secs("apic[10]")
         syn = cell.add_synapse(source=None, mod_name="ExpSyn", seg=dend(0.5))
 
-        # Prepare STDP protocol
-        stdp = Experiment()
-        stdp.make_protocol("3xEPSP[init=20,int=20,w=0.02] 3xAP[init=60,int=20,dur=3,amp=1.6]",
-                           epsp_synapse=syn, i_clamp_segment=soma(0.5))
+        # Prepare EPSP and AP (IClamp) protocols
+        experiment = Experiment(iti=40)
+        experiment.add_epsp(num=3, synapse=syn, init=20, interval=20, weight=0.02)
+        experiment.add_iclamp(num=3, segment=soma(0.5), init=60, interval=20, dur=3, amp=1.6)
+        experiment.build()
 
         # Prepare plots
         rec = Record([soma(0.5), dend(0.5)], variables='v')

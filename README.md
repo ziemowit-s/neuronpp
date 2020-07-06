@@ -294,14 +294,11 @@ The main cell object `Cell` contains all filter methods inside.
     soma = cell.filter_secs("soma")
     syn = cell.filter_synapses(tag="my_synapse")
 
-    stdp = Experiment()
-    stdp.make_protocol("3xEPSP[int=10] 3xAP[int=10,dur=3,amp=1.6]", start=1, isi=10, iti=3000,
-                       epsp_synapse=syn, i_clamp_section=soma)
+    experiment = Experiment(iti=40)
+    experiment.add_epsp(num=3, synapse=syn, init=20, interval=20, weight=0.02)
+    experiment.add_iclamp(num=3, segment=soma(0.5), init=60, interval=20, dur=3, amp=1.6)
+    experiment.build()
    ```
-
-  * Example of the above STDP experimental protocol performed on Combe et al. 2018 cell model with custom added dendritic spines:
-  https://doi.org/10.1523/JNEUROSCI.0449-18.2018
-  ![STDP](images/combe2018_stdp.png) 
 
 ### Populations of neurons
 
