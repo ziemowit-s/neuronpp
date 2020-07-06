@@ -32,7 +32,7 @@ if __name__ == '__main__':
 
     soma = cell.filter_secs("soma")
 
-    syns = cell.filter_complex_synapses()
+    syns = cell.filter_synaptic_group()
     syn4p = syns[0]['Syn4PAChDa']
     synach = syns[0]['SynACh']
 

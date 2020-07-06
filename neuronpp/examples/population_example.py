@@ -1,14 +1,11 @@
 import os
-from time import sleep
-import matplotlib.pyplot as plt
 
 from neuronpp.cells.cell import Cell
 from neuronpp.utils.simulation import Simulation
 from neuronpp.core.cells.netstim_cell import NetStimCell
-from neuronpp.core.populations.population import Population, NormalProba
 from neuronpp.utils.graphs.network_graph import NetworkGraph
+from neuronpp.core.populations.population import Population, NormalProba
 from neuronpp.core.distributions import Dist, NormalTruncatedDist, NormalTruncatedSegDist
-
 
 path = os.path.dirname(os.path.abspath(__file__))
 
