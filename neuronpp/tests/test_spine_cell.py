@@ -237,39 +237,39 @@ class TestAddSpinesToSectionList(unittest.TestCase):
         cls.g_pas = 1 / 20000
         cls.ra = 100
         cls.cm = 1.1
-        cls.out_1 = cls.cell1.add_spines_to_section_list([cls.dend1,
-                                                          cls.dend2],
-                                                         cls.spine_density,
-                                                         spine_type="mushroom",
-                                                         spine_E_pas=cls.E_pas,
-                                                         spine_g_pas=cls.g_pas,
-                                                         spine_ra=cls.ra,
-                                                         spine_cm=cls.cm,
-                                                         u_random=None,
-                                                         area_density=False,
-                                                         add_pas=True)
+        cls.out_1 = cls.cell1.add_spines_by_density([cls.dend1,
+                                                     cls.dend2],
+                                                    cls.spine_density,
+                                                    spine_type="mushroom",
+                                                    spine_E_pas=cls.E_pas,
+                                                    spine_g_pas=cls.g_pas,
+                                                    spine_ra=cls.ra,
+                                                    spine_cm=cls.cm,
+                                                    u_random=None,
+                                                    area_density=False,
+                                                    add_pas=True)
 
         cls.cell2 = SpineCell(name="cell2")
         cls.dend21 = cls.cell2.add_sec("dend1", add_pas=True)
         cls.dend22 = cls.cell2.add_sec("dend2", add_pas=True)
         cls.cell2.connect_secs(cls.dend21, cls.dend22)
-        cls.out_2 = cls.cell2.add_spines_to_section_list([cls.dend21,
-                                                          cls.dend22],
-                                                         cls.spine_density,
-                                                         spine_type="mushroom",
-                                                         head_diam=cls.head_diam,
-                                                         head_len=cls.head_len,
-                                                         neck_diam=cls.neck_diam,
-                                                         neck_len=cls.neck_len,
-                                                         add_pas=False,
-                                                         u_random=1,
-                                                         area_density=False)
+        cls.out_2 = cls.cell2.add_spines_by_density([cls.dend21,
+                                                     cls.dend22],
+                                                    cls.spine_density,
+                                                    spine_type="mushroom",
+                                                    head_diam=cls.head_diam,
+                                                    head_len=cls.head_len,
+                                                    neck_diam=cls.neck_diam,
+                                                    neck_len=cls.neck_len,
+                                                    add_pas=False,
+                                                    u_random=1,
+                                                    area_density=False)
         cls.cell3 = SpineCell(name="cell3")
         cls.soma3 = cls.cell3.add_sec("soma", add_pas=False)
-        cls.cell3.add_spines_to_section_list([cls.soma3],
-                                             cls.spine_density,
-                                             spine_type="weird",
-                                             add_pas=False)
+        cls.cell3.add_spines_by_density([cls.soma3],
+                                        cls.spine_density,
+                                        spine_type="weird",
+                                        add_pas=False)
 
     def test_number_of_heads(self):
         self.assertEqual(len(self.cell1.heads), 4)
@@ -427,11 +427,11 @@ class TestFindingSectionsWithMechs(unittest.TestCase):
         cls.cell.insert("calH", "dend", gcalbar=0.0002)
         cls.cell.insert("kca", "dend", gbar=0.00075)
         regions = cls.cell.filter_secs("dend", as_list=True)
-        cls.cell.add_spines_to_section_list(regions, 0.02, "thin", add_pas=True)
+        cls.cell.add_spines_by_density(regions, 0.02, "thin", add_pas=True)
         cls.cell.insert("calH", "head", gcalbar=0.0001)
-        cls.find_calH = cls.cell.get_spines_by_section_with_mech("calH")
-        cls.find_kca = cls.cell.get_spines_by_section_with_mech("kca")
-        cls.find_all = cls.cell.get_spines_by_section_with_mech(None)
+        cls.find_calH = cls.cell.get_spines_by_section("calH")
+        cls.find_kca = cls.cell.get_spines_by_section("kca")
+        cls.find_all = cls.cell.get_spines_by_section(None)
 
     def test_if_all_parents_accounted_for(self):
         dends = self.cell.filter_secs(obj_filter=lambda o: "dend" in o.name and
@@ -475,7 +475,7 @@ class TestSpineFactor(unittest.TestCase):
             else:
                 cls.cell.connect_secs(dend, cls.dends[i - 1])
         regions = cls.cell.filter_secs("dend", as_list=True)
-        cls.cell.add_spines_to_section_list(regions, 0.02,
+        cls.cell.add_spines_by_density(regions, 0.02,
                                             "thin", add_pas=True)
         cls.cell.insert("calH", cls.cell.heads, gcalbar=0.0001)
         cls.out_calH = cls.cell._get_spine_factor(cls.cell.spines[:2],
@@ -500,8 +500,7 @@ class TestCompensateForMechanism(unittest.TestCase):
     def setUpClass(cls):
         path = os.path.dirname(os.path.abspath(__file__))
         f_path = os.path.join(path, "..", "commons/mods/combe2018")
-        cls.cell = SpineCell("cell",
-                             compile_paths=f_path)
+        cls.cell = SpineCell("cell", compile_paths=f_path)
         cls.soma = cls.cell.add_sec("soma", add_pas=True, nseg=10)
         cls.soma.hoc.insert("hh")
         diam = 5
@@ -521,8 +520,8 @@ class TestCompensateForMechanism(unittest.TestCase):
         cls.cell.insert("calH", "dend", gcalbar=cls.gbar_dend)
         cls.cell.insert("kca", "dend", gbar=cls.gkca)
         regions = cls.cell.filter_secs("dend", as_list=True)
-        cls.cell.add_spines_to_section_list(regions, 0.02, "thin",
-                                            add_pas=True, spine_cm=10)
+        cls.cell.add_spines_by_density(regions, 0.02, "thin",
+                                       add_pas=True, spine_cm=10)
         cls.cell.insert("calH", "head", gcalbar=cls.gbar_spine)
         cls.cell.compensate(cm_adjustment=False, calH="gcalbar")
         cls.cell.compensate(cm_adjustment=False, kca="gbar")

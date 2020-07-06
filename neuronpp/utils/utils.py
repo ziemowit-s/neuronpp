@@ -1,18 +1,52 @@
 import os
-from typing import List
 
-import numpy as np
+from Xlib.error import DisplayConnectionError
 from neuron import h
 from threading import Thread
+from typing import cast
 
-from neuronpp.core.hocwrappers.point_process import PointProcess
 from pyvis.network import Network
-import matplotlib.pyplot as py
-from pynput.keyboard import Listener
+try:
+    from pynput.keyboard import Listener
+    KEY_LISTENER_IMPORTED = True
+
+except DisplayConnectionError as e:
+    print("Warning: key listeners and interactive debugging (on key press) won't work "
+          "due to the error: %s" % str(e))
+    KEY_LISTENER_IMPORTED = False
+
 from neuronpp.core.hocwrappers.seg import Seg
+from neuronpp.core.hocwrappers.netcon import NetCon
 
 
-def make_shape_plot(variable=None, min_val=-70, max_val=40):
+def is_derived_from(test_class, template_class):
+    """
+    Decide if the test_class derived from template_class
+    :param test_class:
+        class which be tested if it derived from template_class
+    :param template_class:
+        class to test if test_class derived from it
+    :return:
+    """
+    for c in test_class.mro():
+        if c == template_class:
+            return True
+    else:
+        return False
+
+
+def make_shape_plot(variable: str = None, min_val=-70, max_val=40):
+    """
+    Create a shape plot in NEURON GUI
+    :param variable:
+        variable name to show on the neural shape. By default (None) it will show voltage
+    :param min_val:
+        min value of variable specified
+    :param max_val:
+        max valie of the variable specified
+    :return:
+        HOC's plot shape object
+    """
     ps = h.PlotShape(True)
     if variable:
         ps.variable(variable)
@@ -23,33 +57,20 @@ def make_shape_plot(variable=None, min_val=-70, max_val=40):
     return ps
 
 
-def set_random_normal_weights(point_processes: List[PointProcess], mean, std, weight_name="w"):
-    """
-    :param point_processes:
-        list of point processes
-    :param mean:
-    :param std:
-        standard deviation
-    :param weight_name:
-        name of the weight param in the point process. By default it assumes the name "w"
-    """
-    weights = np.abs(np.random.normal(mean, std, len(point_processes)))
-    for pp, w in zip(point_processes, weights):
-        current_weight = w
-        setattr(pp.hoc, weight_name, current_weight)
-
-
-def show_connectivity_graph(cells, result_folder=None, file_name="conectivity_graph.html", height="100%", width="100%",
-                            bgcolor="#222222", font_color="white", stim_color="#f5ce42", cell_color="#80bfff",
+def show_connectivity_graph(cells, result_folder=None, file_name="conectivity_graph.html",
+                            height="100%", width="100%",
+                            bgcolor="#222222", font_color="white", stim_color="#f5ce42",
+                            cell_color="#80bfff",
                             edge_excitatory_color="#7dd100", edge_inhibitory_color="#d12d00",
-                            is_excitatory_func=lambda pp: pp.hoc.e >= -20, is_show_edge_func=lambda pp: hasattr(pp.hoc, "e"),
+                            is_excitatory_func=lambda pp: pp.hoc.e >= -20,
+                            is_show_edge_func=lambda pp: hasattr(pp.hoc, "e"),
                             node_distance=100, spring_strength=0):
     """
-        Creates graph of connections between passed cells. It will create a HTML file presenting the graph in
-    the result_folder as well as run the graph in your browser.
+    Creates graph of connections between passed cells. It will create a HTML file presenting the
+    graph in the result_folder as well as run the graph in your browser.
 
-    It will create a file cell_graph_[DATE].html in the result_folder, where [DATE is the current date with seconds,
-    from the template: "%Y-%m-%d_%H-%M-%S".
+    It will create a file cell_graph_[DATE].html in the result_folder, where [DATE] is the current
+    date with seconds, from the template: "%Y-%m-%d_%H-%M-%S".
 
     :param cells:
         All cells must be of type NetConCell or just Cell
@@ -84,6 +105,7 @@ def show_connectivity_graph(cells, result_folder=None, file_name="conectivity_gr
         nodes.append(c.name)
         g.add_node(c.name, color=cell_color)
         for nc in c.ncs:
+            nc = cast(NetCon, nc)
             if "SpikeDetector" in nc.name:
                 continue
             elif isinstance(nc.source, Seg):
@@ -125,6 +147,18 @@ def show_connectivity_graph(cells, result_folder=None, file_name="conectivity_gr
 
 
 def key_release_listener(on_press_func):
+    """
+    Listener which will execute the function: on_press_func after pressing any key on the keyboard.
+
+    This function is intended to use with the neural interactive debugger (SynapticDebugger)
+    for synaptic stimulation.
+
+    It will start a separated thread for the listener.
+    :param on_press_func:
+        The function which is intented do distinguish if it a pressed key is the required key.
+    :return:
+    """
+
     def final_func(key):
         if key is not None and hasattr(key, 'char'):
             on_press_func(key.char)

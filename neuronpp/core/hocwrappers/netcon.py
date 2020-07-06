@@ -18,7 +18,8 @@ class NetCon(HocWrapper):
         :param time:
             time in ms of next synaptic event
         :param use_global_sim_time:
-            If true it will use global time of hoc simulation (don't need to add h.t or sim.time the the event time)
+            If true it will use global time of hoc simulation
+            (don't need to add h.t or sim.time the the event time)
         :param use_delay:
             If true use delay (ms) defined for the NetCon while creation
         """
@@ -31,3 +32,9 @@ class NetCon(HocWrapper):
         if use_global_sim_time:
             sim_time = h.t + sim_time
         self.hoc.event(sim_time)
+
+    def get_weight(self):
+        return self.hoc.weight[0]
+
+    def set_weight(self, weight):
+        self.hoc.weight[0] = weight

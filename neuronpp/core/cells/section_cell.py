@@ -1,7 +1,11 @@
 from os import path
+from typing import Union
+
 from neuron import h
-from neuronpp.core.cells.core_cell import CoreCell
+
 from neuronpp.core.hocwrappers.sec import Sec
+from neuronpp.core.cells.core_cell import CoreCell
+from neuronpp.core.decorators import distparams
 
 h.load_file('stdlib.hoc')
 h.load_file('import3d.hoc')
@@ -24,22 +28,27 @@ class SectionCell(CoreCell):
         Currently all filter passed are treated as AND statements.
 
         * Whole object callable function passed to the obj_filter param.
-            eg. (lambda expression) returns sections which name contains 'apic' or their distance > 1000 um from the soma:
+            eg. (lambda expression) returns sections which name contains 'apic' or
+            their distance > 1000 um from the soma:
           ```
            soma = cell.filter_secs("soma")
-           cell.filter_secs(obj_filter=lambda o: 'apic' in o.name or h.distance(soma.hoc(0.5), o.hoc(0.5)) > 1000)
+           cell.filter_secs(obj_filter=lambda o: 'apic' in o.name or h.distance(soma.hoc(0.5),
+                                                o.hoc(0.5)) > 1000)
           ```
 
         * Single object field filter based on callable function passed to the obj_filter param.
-          eg. (lambda expression) returns sections which parent's name contains less than 10 characters
+          eg. (lambda expression) returns sections which parent's name contains less than 10
+          characters
           ```
           cell.filter_secs(parent=lambda o: len(o.parent.name) < 10)
           ```
 
         :param name:
-            start with 'regex:any pattern' to use regular expression. If without 'regex:' - will look which Hoc objects contain the str
+            start with 'regex:any pattern' to use regular expression. If without 'regex:'
+             will look which Hoc objects contain the str
         :param obj_filter:
-            Whole object callable functional filter. If you added also any kwargs they will be together with the
+            Whole object callable functional filter. If you added also any kwargs they will be
+            together with the
             obj_filter treated as AND statement.
         :return:
         """
@@ -59,10 +68,8 @@ class SectionCell(CoreCell):
                     setattr(mech, name, val)
         return self
 
-
-
+    @distparams
     def set_pas(self, section, Rm=None, g_pas=None, E_rest=None):
-
         if isinstance(section, str):
             section_list = self.filter_secs(name=section, as_list=True)
         elif isinstance(section, Sec):
@@ -75,11 +82,11 @@ class SectionCell(CoreCell):
             if E_rest is not None:
                 n_sec.hoc.e_pas = E_rest
             if Rm is not None:
-                n_sec.hoc.g_pas = 1/Rm
+                n_sec.hoc.g_pas = 1 / Rm
             if g_pas is not None:
                 n_sec.hoc.g_pas = g_pas
 
-
+    @distparams
     def add_sec(self, name: str, diam=None, l=None, rm=None, g_pas=None,
                 E_rest=None, ra=None, cm=None, nseg=None, add_pas=False):
         """
@@ -104,20 +111,23 @@ class SectionCell(CoreCell):
         if ra is not None:
             hoc_sec.Ra = ra
         if rm is not None:
-            g_pas = 1/rm
- 
+            g_pas = 1 / rm
+
         if add_pas is True or g_pas is not None or E_rest is not None:
             hoc_sec.insert('pas')
             self.set_pas(hoc_sec, E_rest=E_rest, g_pas=g_pas)
 
         if len(self.filter_secs(name, as_list=True)) > 0:
-            raise LookupError("The name '%s' is already taken by another section of the cell: '%s' of type: '%s'."
-                              % (name, self.name, self.__class__.__name__))
+            raise LookupError(
+                "The name '%s' is already taken by another section of the cell: '%s' of type: '%s'."
+                % (name, self.name, self.__class__.__name__))
         sec = Sec(hoc_sec, cell=self, name=name)
         self.secs.append(sec)
         return sec
 
-    def connect_secs(self, source, target, source_loc=1.0, target_loc=0.0):
+    @distparams
+    def connect_secs(self, source: Union[Sec, str], target: Union[Sec, str], source_loc=1.0,
+                     target_loc=0.0):
         """
         default: source(0.0) -> target(1.0)
 
@@ -186,13 +196,15 @@ class SectionCell(CoreCell):
         for hoc_sec in self.all:
             name = hoc_sec.name().split('.')[-1]  # eg. name="dend[19]"
             if len(self.filter_secs(name)) > 0:
-                raise LookupError("The name '%s' is already taken by another section of the cell: '%s' of type: '%s'."
-                                  % (name, self.name, self.__class__.__name__))
+                raise LookupError(
+                    "The name '%s' is already taken by another section of the cell: '%s' of "
+                    "type: '%s'." % (name, self.name, self.__class__.__name__))
             sec = Sec(hoc_sec, cell=self, name=name)
             self.secs.append(sec)
 
         del self.all
 
+    @distparams
     def set_cell_position(self, x, y, z):
         h.define_shape()
         for sec in self.secs:
@@ -203,6 +215,7 @@ class SectionCell(CoreCell):
                                z - sec.z3d(i),
                                sec.diam3d(i))
 
+    @distparams
     def rotate_cell_z(self, theta):
         h.define_shape()
         """Rotate the cell about the Z axis."""
@@ -219,7 +232,8 @@ class SectionCell(CoreCell):
     def copy_mechanisms(self, secs_to, sec_from='parent'):
         """
         Copy mechanisms from the sec_from to all sections specified in the secs_to param.
-        If sec_from is 'parent' it will copy mechanisms from the parent of each sections in the secs_to param.
+        If sec_from is 'parent' it will copy mechanisms from the parent of each sections in the
+        secs_to param.
         """
         for sec in secs_to:
 

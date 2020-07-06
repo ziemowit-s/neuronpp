@@ -21,7 +21,7 @@ def get_vecstim(ping_array):
     return stim, vec
 
 
-def get_spine_number(section: Sec, density, area_density=False):
+def get_spine_number(sec: Sec, density, area_density=False):
     """
     Calculate expected number of spines based on section dimensions and
     spine density. This function works for both linear density and surface
@@ -31,21 +31,22 @@ def get_spine_number(section: Sec, density, area_density=False):
     if calculated spine_number is lower than 1, Monte Carlo is used
     to establish whether a spine will be added to section.
 
-    :param section:
+    :param sec:
         Sec
     :param density:
         linear or surface dendsity
     :area_density:
         if True density is treated as surface density. Otherwise density
         is linear density.
+    :param area_density:
     :return spine_number:
         integer
     """
     if area_density:
-        area = section.hoc.L*np.pi*section.hoc.diam
+        area = sec.hoc.L * np.pi * sec.hoc.diam
         spine_number = int(np.round(area * density))
     else:
-        spine_number = int(np.round(section.hoc.L * density))
+        spine_number = int(np.round(sec.hoc.L * density))
 
     # if spine density is low (less than 1 per comp)
     # use random number to determine whether to add a spine

@@ -1,7 +1,8 @@
 from collections import defaultdict
 
 from neuronpp.core.cells.netcon_cell import NetConCell
-from neuronpp.core.hocwrappers.composed.synapse import Synapse
+from neuronpp.core.decorators import distparams
+from neuronpp.core.hocwrappers.synapses.single_synapse import SingleSynapse
 
 
 class SynapticCell(NetConCell):
@@ -10,8 +11,8 @@ class SynapticCell(NetConCell):
         self.syns = []
         self._syn_num = defaultdict(int)
 
-    def filter_synapses(self, mod_name: str = None, obj_filter=None, name=None, source=None, point_process=None,
-                        parent=None, tag=None, **kwargs):
+    def filter_synapses(self, mod_name: str = None, obj_filter=None, name=None, source=None,
+                        point_process=None, parent=None, tag=None, **kwargs):
         """
         Currently all filter passed are treated as AND statements.
 
@@ -41,10 +42,13 @@ class SynapticCell(NetConCell):
             string of point process compound name
         :return:
         """
-        return self.filter(self.syns, obj_filter=obj_filter, mod_name=mod_name, name=name, source=source,
+        return self.filter(self.syns, obj_filter=obj_filter, mod_name=mod_name, name=name,
+                           source=source,
                            point_process=point_process, parent=parent, tag=tag, **kwargs)
 
-    def add_synapse(self, source, mod_name: str, seg, netcon_weight=1, delay=0, threshold=10, tag: str = None, **synaptic_params):
+    @distparams
+    def add_synapse(self, source, mod_name: str, seg, netcon_weight=1, delay=0, threshold=10,
+                    tag: str = None, **synaptic_params):
         """
 
         :param source:
@@ -61,12 +65,12 @@ class SynapticCell(NetConCell):
         :param synaptic_params:
         :return:
         """
-
         pp = self.add_point_process(mod_name=mod_name, seg=seg, tag=tag, **synaptic_params)
-        nn = self.add_netcon(source=source, netcon_weight=netcon_weight, point_process=pp, delay=delay, threshold=threshold)
+        nn = self.add_netcon(source=source, netcon_weight=netcon_weight, point_process=pp,
+                             delay=delay, threshold=threshold)
 
         syn_name = "%s[%s]" % (pp.name, self._syn_num[mod_name])
-        syn = Synapse(source, point_process=pp, netcon=nn, name=syn_name, tag=tag)
+        syn = SingleSynapse(source, point_process=pp, netcon=nn, name=syn_name, tag=tag)
         self.syns.append(syn)
         self._syn_num[mod_name] += 1
 

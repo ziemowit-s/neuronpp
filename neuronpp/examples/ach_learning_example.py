@@ -1,6 +1,6 @@
-from neuronpp.utils.simulation import Simulation
 
 from neuronpp.utils.record import Record
+from neuronpp.utils.simulation import Simulation
 from neuronpp.cells.ebner2019_ach_da_cell import Ebner2019AChDACell
 
 WARMUP = 100
@@ -13,14 +13,18 @@ if __name__ == '__main__':
     cell.connect_secs(source="dend", target="soma", source_loc=0, target_loc=1)
 
     # make synapses with spines
-    syns_4p, heads = cell.add_synapses_with_spine(source=None, secs=cell.secs, mod_name="Syn4PAChDa",
-                                                  number=3, netcon_weight=1, delay=1, **cell.params_4p_syn)
+    syns_4p, heads = cell.add_random_synapses_with_spine(source=None, secs=cell.secs,
+                                                         mod_name="Syn4PAChDa", number=3,
+                                                         netcon_weight=1, delay=1,
+                                                         **cell.params_4p_syn)
 
     for s, h in zip(syns_4p, heads):
-        syn_ach = cell.add_synapse(source=None, mod_name="SynACh", seg=h(1.0), netcon_weight=0.1, delay=1)
-        syn_da = cell.add_synapse(source=None, mod_name="SynDa", seg=h(1.0), netcon_weight=0.1, delay=1)
+        syn_ach = cell.add_synapse(source=None, mod_name="SynACh", seg=h(1.0), netcon_weight=0.1,
+                                   delay=1)
+        syn_da = cell.add_synapse(source=None, mod_name="SynDa", seg=h(1.0), netcon_weight=0.1,
+                                  delay=1)
         cell.set_synaptic_pointers(s, syn_ach, syn_da)
-        cell.group_complex_synapses("input_syn", s, syn_ach, syn_da)
+        cell.group_synapses("input_syn", s, syn_ach, syn_da)
 
     # add mechanisms
     cell.make_default_mechanisms()

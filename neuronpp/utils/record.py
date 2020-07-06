@@ -1,4 +1,5 @@
-from collections import defaultdict
+from typing import Union, List, Optional
+from collections import defaultdict, namedtuple
 
 import numpy as np
 import pandas as pd
@@ -6,8 +7,7 @@ from neuron import h
 import matplotlib.pyplot as plt
 
 from neuronpp.core.hocwrappers.sec import Sec
-from neuronpp.core.hocwrappers.seg import Seg
-from neuronpp.core.hocwrappers.point_process import PointProcess
+from neuronpp.utils.RecordOutput import RecordOutput
 
 
 class Record:
@@ -19,8 +19,11 @@ class Record:
             str or list_of_str of variable names to track
         """
         if h.t > 0:
-            raise ConnectionRefusedError("Record cannot be created after simulation have been initiated. "
-                                         "You need to specify Record before creation of SimRun object.")
+            # TODO: Change all warnings and prints to loggers
+            print("Warning: Record created after simulation have been initiated, will not affect "
+                  "this simulation, but rather the next one after you execute reset() method on "
+                  "the Simulation object.")
+
         if not isinstance(elements, (list, set, tuple)):
             elements = [elements]
 
@@ -36,19 +39,19 @@ class Record:
 
         for elem in elements:
             for var in variables:
-                if isinstance(elem, Seg):
-                    name = "%s_%s" % (elem.parent.cell.name, elem.name)
-                elif isinstance(elem, PointProcess):
-                    name = "%s_%s" % (elem.cell.name, elem.name)
-                elif isinstance(elem, Sec):
-                    raise TypeError("Record element cannot be of type Sec, however you can specify Seg eg. soma(0.5) and pass as element.")
+                if isinstance(elem, Sec):
+                    raise TypeError(
+                        "Record element cannot be of type Sec, however you can specify Seg eg. "
+                        "soma(0.5) and pass as element.")
                 else:
                     name = elem.name
 
                 try:
                     s = getattr(elem.hoc, "_ref_%s" % var)
                 except AttributeError:
-                    raise AttributeError("there is no attribute of %s. Maybe you forgot to append loc param for sections?" % var)
+                    raise AttributeError(
+                        "there is no attribute of %s. Maybe you forgot to append loc param "
+                        "for sections?" % var)
 
                 rec = h.Vector().record(s)
                 self.recs[var].append((name, rec))
@@ -64,7 +67,8 @@ class Record:
         :param y_lim:
             [used only if animate=True] tuple of limits for y axis. Default is (-80, 50)
         :param position:
-            position of all subplots ON EACH figure (each figure is created for each variable separately).
+            position of all subplots ON EACH figure (each figure is created for each variable
+            separately).
             * position=(3,3) -> if you have 9 neurons and want to display 'v' on 3x3 matrix
             * position='merge' -> it will display all figures on the same graph.
             * position=None -> Default, each neuron has separated  axis (row) on the figure.
@@ -78,27 +82,30 @@ class Record:
     def _plot_static(self, position=None):
         """
         :param position:
-            position of all subplots ON EACH figure (each figure is created for each variable separately).
+            position of all subplots ON EACH figure (each figure is created for each variable
+            separately).
             * position=(3,3) -> if you have 9 neurons and want to display 'v' on 3x3 matrix
             * position='merge' -> it will display all figures on the same graph.
             * position=None -> Default, each neuron has separated  axis (row) on the figure.
         :return:
         """
-        for i, (var_name, section_recs) in enumerate(self.recs.items()):
+        for i, (var_name, variable_recs) in enumerate(self.recs.items()):
             fig = plt.figure()
 
             if position is "merge":
                 ax = fig.add_subplot(1, 1, 1)
 
-            for i, (name, rec) in enumerate(section_recs):
+            for i, (segment_name, rec) in enumerate(variable_recs):
                 rec_np = rec.as_numpy()
                 if np.max(np.isnan(rec_np)):
-                    raise ValueError("Vector recorded for variable: '%s' and segment: '%s' contains nan values." % (var_name, name))
+                    raise ValueError("Vector recorded for variable: '%s' and segment: '%s' "
+                                     "contains nan values." % (var_name, segment_name))
 
                 if position is not "merge":
-                    ax = self._get_subplot(fig=fig, var_name=var_name, position=position, row_len=len(section_recs), index=i + 1)
+                    ax = self._get_subplot(fig=fig, var_name=var_name, position=position,
+                                           row_len=len(variable_recs), index=i + 1)
                 ax.set_title("Variable: %s" % var_name)
-                ax.plot(self.time, rec, label=name)
+                ax.plot(self.time, rec, label=segment_name)
                 ax.set(xlabel='t (ms)', ylabel=var_name)
                 ax.legend()
 
@@ -111,7 +118,8 @@ class Record:
         :param y_lim:
             tuple of limits for y axis. Default is None
         :param position:
-            position of all subplots ON EACH figure (each figure is created for each variable separately).
+            position of all subplots ON EACH figure (each figure is created for each variable
+            separately).
             * position=(3,3) -> if you have 9 neurons and want to display 'v' on 3x3 matrix
             * position='merge' -> it will display all figures on the same graph.
             * position=None -> Default, each neuron has separated  axis (row) on the figure.
@@ -141,7 +149,8 @@ class Record:
                     if position == 'merge':
                         ax = fig.add_subplot(1, 1, 1)
                     else:
-                        ax = self._get_subplot(fig=fig, var_name=var_name, position=position, row_len=len(section_recs), index=i + 1)
+                        ax = self._get_subplot(fig=fig, var_name=var_name, position=position,
+                                               row_len=len(section_recs), index=i + 1)
 
                     if y_lim:
                         ax.set_ylim(y_lim[0], y_lim[1])
@@ -156,17 +165,52 @@ class Record:
                 ax.set_xlim(current_time.min(), current_time.max())
 
                 if y_lim is None and position != "merge":
-                    ax.set_ylim(rec.min()-(np.abs(rec.min()*0.05)), rec.max()+(np.abs(rec.max()*0.05)))
+                    ax.set_ylim(rec.min() - (np.abs(rec.min() * 0.05)),
+                                rec.max() + (np.abs(rec.max() * 0.05)))
 
                 # update data
                 line.set_data(current_time, rec)
 
-            fig.subplots_adjust(left=0.09, bottom=0.075, right=0.99, top=0.98, wspace=None, hspace=0.00)
+            fig.subplots_adjust(left=0.09, bottom=0.075, right=0.99, top=0.98, wspace=None,
+                                hspace=0.00)
             fig.canvas.draw()
             fig.canvas.flush_events()
 
         if create_fig:
             plt.show(block=False)
+
+    def as_numpy(self, variable: str, segment_name: Optional[str] = None):
+        """
+        Returns dictionary[variable_name][segment_name] = numpy_record
+
+        :param variable:
+            variable name.
+        :param segment_name:
+            name of the segment. Default is None, meaning - it will take all segments for this
+            variable in the order of adding.
+        :return:
+            Returns dictionary[variable_name][segment_name] = numpy_record
+        """
+        result = []
+
+        if variable not in self.recs:
+            raise NameError("There is no variable record as %s" % variable)
+
+        seg_names = [r[0] for r in self.recs[variable]]
+        if segment_name is None:
+            segment_name = seg_names
+        elif segment_name not in seg_names:
+            raise NameError("Cannot find segment name: %s in variable: %s." % (seg_names, variable))
+
+        for seg_name, rec in self.recs[variable]:
+            if seg_name in segment_name:
+                result.append(rec.as_numpy())
+
+        result = np.array(result)
+        if result.shape[0] == 1:
+            result = result[0]
+
+        return RecordOutput(records=result, time=self.time.as_numpy())
 
     def to_csv(self, filename):
         cols = ['time']

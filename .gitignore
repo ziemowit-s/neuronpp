@@ -1,11 +1,14 @@
 data/
 compiled/
+x86_64/
 project/tmp/
 project/inception_dir/
 .idea/
 project/.idea/
 .DS_Store
 project/.DS_Store
+*.out
+*.csv
 
 neuronpp/examples/x86_64/
 

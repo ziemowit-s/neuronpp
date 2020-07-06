@@ -9,7 +9,6 @@ path = os.path.dirname(os.path.abspath(__file__))
 WEIGHT = 0.0035  # µS, conductance of (single) synaptic potentials
 WARMUP = 200
 
-
 if __name__ == '__main__':
     # define cell
     cell = Ebner2019Cell(name="cell")
@@ -19,8 +18,9 @@ if __name__ == '__main__':
 
     # stimulation
     stim = NetStimCell("stim_cell").make_netstim(start=WARMUP + 1, number=300, interval=1)
-    cell.add_synapses_with_spine(source=stim, secs=cell.secs, mod_name="Syn4P", netcon_weight=WEIGHT, delay=1,
-                                 head_nseg=10, neck_nseg=10, number=10, **cell.params_4p_syn)
+    cell.add_random_synapses_with_spine(source=stim, secs=cell.secs, mod_name="Syn4P",
+                                        netcon_weight=WEIGHT, delay=1,
+                                        head_nseg=10, neck_nseg=10, number=10, **cell.params_4p_syn)
 
     # add mechanisms
     cell.make_default_mechanisms()

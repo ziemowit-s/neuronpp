@@ -1,9 +1,11 @@
 import random
-from typing import List
+from typing import List, Union
 import numpy as np
 
 from neuronpp.core.cells.section_cell import SectionCell
+from neuronpp.core.decorators import distparams
 from neuronpp.core.hocwrappers.sec import Sec
+from neuronpp.core.hocwrappers.seg import Seg
 from neuronpp.core.hocwrappers.spine import Spine
 from neuronpp.core.cells.utils import establish_electric_properties
 from neuronpp.core.cells.utils import get_spine_number
@@ -47,7 +49,71 @@ class SpineCell(SectionCell):
         self.necks = []
         self._next_index = 0
 
-    def make_spines(self, spine_number, secs=None, head_nseg=2, neck_nseg=2, seed: int = None):
+    def get_spines_by_section(self, mech_name: str = None):
+        """
+        Returns dictionary with section names as keys and spine objects as values.
+
+        :param mech_name:
+            density mechanism name required in each spine to be returned
+            default is None, which means it will return all possible spines in the cell.
+        :return:
+            dict[section] = spine
+        """
+        result = {}
+        all_spines = self.spines
+
+        for spine in all_spines:
+            spine_mechs = set(list(spine.neck.hoc.psection()["density_mechs"]) +
+                              list(spine.head.hoc.psection()["density_mechs"]))
+
+            if mech_name is None or mech_name in spine_mechs:
+                parent_mechs = spine.parent.hoc.psection()["density_mechs"]
+                if mech_name is None or mech_name in parent_mechs:
+                    if spine.parent not in result:
+                        result[spine.parent] = []
+                    result[spine.parent].append(spine)
+        return result
+
+    @distparams
+    def add_spines(self, segs: Union[Seg, List[Seg]] = None, head_nseg=2, neck_nseg=2):
+        """
+        Currently the only supported spine distribution is random_uniform
+
+        Single spine is 2 x cylinder:
+          * head: L=1um diam=1um
+          * neck: L=0.5um diam=0.5um
+
+        :param segs:
+        :param head_nseg
+        :param neck_nseg
+        :return:
+            list of added spine heads
+        """
+        if not isinstance(segs, list):
+            segs = [segs]
+
+        spines = []
+        heads = []
+        necks = []
+        for s in segs:
+            i = self._next_index
+            head = self.add_sec(name="head[%s]" % i, diam=1, l=1, nseg=head_nseg)
+            neck = self.add_sec(name="neck[%s]" % i, diam=0.5, l=0.5, nseg=neck_nseg)
+            spine = Spine(head, neck, self, "spine")
+            spines.append(spine)
+            heads.append(head)
+            necks.append(neck)
+            neck.hoc.connect(s.hoc, 0.0)
+            self._next_index += 1
+
+        self.spines.extend(spines)
+        self.heads.extend(heads)
+        self.necks.extend(necks)
+        return spines
+
+    @distparams
+    def add_randuniform_spines(self, spine_number, secs=None, spine_type="generic",
+                               head_nseg=2, neck_nseg=2, seed: int = None):
         """
         Currently the only supported spine distribution is random_uniform
 
@@ -58,6 +124,9 @@ class SpineCell(SectionCell):
         :param spine_number:
             The number of spines to make
         :param secs:
+        :param spine_type:
+            Spine type. There are four predifined types: thin, stubby,
+            mushroom and other.
         :param head_nseg
         :param neck_nseg
         :param seed:
@@ -67,10 +136,6 @@ class SpineCell(SectionCell):
         """
         if not isinstance(secs, list):
             secs = [secs]
-        # Hack to prevent a loop between sections while adding necks
-        # neck is added to self.secs, so if param secs is the same list it will append to the list each head and neck
-        # after each iteration of the loop. To prevent this we need to copy secs list
-        secs = [s for s in secs]
 
         if seed:
             random.seed(seed)
@@ -78,10 +143,14 @@ class SpineCell(SectionCell):
         spines = []
         heads = []
         necks = []
+
+        spine_dimensions = SPINE_DIMENSIONS[spine_type]
         for _ in range(spine_number):
             i = self._next_index
-            head = self.add_sec(name="head[%s]" % i, diam=1, l=1, nseg=head_nseg)
-            neck = self.add_sec(name="neck[%s]" % i, diam=0.5, l=0.5, nseg=neck_nseg)
+            head = self.add_sec(name="head[%s]" % i, diam=spine_dimensions["head_diam"],
+                                l=spine_dimensions["head_len"], nseg=head_nseg)
+            neck = self.add_sec(name="neck[%s]" % i, diam=spine_dimensions["neck_diam"],
+                                l=spine_dimensions["neck_len"], nseg=neck_nseg)
             spine = Spine(head, neck, self, "spine")
             spines.append(spine)
             heads.append(head)
@@ -94,31 +163,9 @@ class SpineCell(SectionCell):
         self.necks.extend(necks)
         return spines
 
-    @staticmethod
-    def _connect_necks_rand_uniform(neck: Sec, sections):
-        """
-        Connect necks list to sections list with uniform random distribution
-        :param neck:
-        :param sections:
-        """
-        max_l = int(sum([s.hoc.L for s in sections]))
-        added = dict([(s.hoc.name(), []) for s in sections])
-
-        i = 0
-        r = random.randint(0, max_l)
-        for s in sections:
-            s = s.hoc
-            i += s.L
-            if i > r:
-                loc = (r - i + s.L) / s.L
-                if loc in added[s.name()]:
-                    break
-                neck.hoc.connect(s(loc), 0.0)
-                added[s.name()].append(loc)
-                break
-
-    def add_spines_to_section_list(self, sections: List[Sec], spine_density,
-                                   spine_type="generic", **spine_params):
+    @distparams(include=["spine_density"])
+    def add_spines_by_density(self, secs: List[Sec], spine_density,
+                              spine_type="generic", **spine_params):
         """
         Add spines with specified linear density (per 1 um) to specified
         secions (compartments). Spines can have
@@ -126,10 +173,10 @@ class SpineCell(SectionCell):
         dimentions (head_diam, head_len, neck_diam, neck_len) can be specified
         in spine_params.
 
-        :param regions:
+        :param secs:
             Section that will have spines
         :param spine_density:
-            spine density 
+            spine density in spines/1um
         :param spine_type:
             Spine type. There are four predifined types: thin, stubby,
             mushroom and other.
@@ -185,6 +232,7 @@ class SpineCell(SectionCell):
         head_len = spine_params.pop("head_len", spine_dimensions["head_len"])
         neck_diam = spine_params.pop("neck_diam", spine_dimensions["neck_diam"])
         neck_len = spine_params.pop("neck_len", spine_dimensions["neck_len"])
+
         # If Falde
         spine_E_pas = spine_params.pop("spine_E_pas", None)
         spine_g_pas = spine_params.pop("spine_g_pas", None)
@@ -192,15 +240,20 @@ class SpineCell(SectionCell):
         spine_ra = spine_params.pop("spine_ra", None)
         spine_cm = spine_params.pop("spine_cm", None)
         add_pas = spine_params.pop("add_pas", False)
+
         if isinstance(spine_rm, int) or isinstance(spine_rm, float):
             spine_g_pas = 1 / spine_rm
+
         area_density = spine_params.pop("area_density", False)
         seed = spine_params.pop("u_random", None)
+
         if seed is not None:
             np.random.seed(seed)
+
         all_target_locations = []
-        for sec in sections:
-            spine_number = get_spine_number(sec, spine_density, area_density)
+        for sec in secs:
+            spine_number = get_spine_number(sec=sec, density=spine_density,
+                                            area_density=area_density)
             E_pas, g_pas, ra, cm = establish_electric_properties(sec,
                                                                  spine_E_pas,
                                                                  spine_g_pas,
@@ -222,6 +275,73 @@ class SpineCell(SectionCell):
                                         add_pas=add_pas)
             all_target_locations.append(target_locations)
         return all_target_locations
+
+    @distparams
+    def compensate(self, cm_adjustment=False, **mechs_with_gbar_name):
+        """
+        Compensate for a chosen channel/density mechanism after adding spines.
+        Adding spines means adding additional membrane area, increasing
+        conductance and capacitance of the section and thus changing its
+        electric properties. Adding ion channels to spines will also change
+        overall channel conductance of the neuron. If you want to add spines
+        and try to preserve neuron behavior (so you don't have to retune
+        your model) you might try to compensate for that additional membrane
+        area and added mechanisms.
+
+        This function finds dendrites with spines, which both have mechanisms
+        specified in mechs_with_gbar_names, and lowers conductances (gbars) by a
+        (Area_dendrite*dendritic_conductance-sum(spine_conductance*Area_spine)/
+        Area_dendrite*dendritic_conductance
+
+        :param cm_adjustment:
+             if True cm of the section with spines will be lowered
+             to account for membrane area of added spines
+        :param mechs_with_gbar_name:
+             specify mechanisms and their respective conductance names (gbars), e.g. pas="g_pas"
+        """
+        for mech_name, gbar in mechs_with_gbar_name.items():
+            mech_loc = self.get_spines_by_section(mech_name)
+            for dend in mech_loc.keys():
+                A_d = dend.area
+                spine_factor = self._get_spine_factor(spines=mech_loc[dend],
+                                                      mech_name=mech_name, gbar=gbar)
+                for seg in dend.hoc:
+                    mech = getattr(seg, mech_name)
+                    gbar_val = getattr(mech, gbar)
+                    new_val = (gbar_val * A_d - spine_factor) / (gbar_val * A_d)
+                    setattr(mech, gbar, new_val)
+
+        if cm_adjustment:
+            all_spines = self.get_spines_by_section()
+            for dend in all_spines:
+                A_d = dend.area
+                spine_factor = self._get_spine_factor(spines=all_spines[dend], mech_name="cm")
+                cm_val = dend.hoc.cm
+                new_val = (cm_val * A_d - spine_factor) / (cm_val * A_d)
+                dend.hoc.cm = new_val
+
+    @staticmethod
+    def _connect_necks_rand_uniform(neck: Sec, sections):
+        """
+        Connect necks list to sections list with uniform random distribution
+        :param neck:
+        :param sections:
+        """
+        max_l = int(sum([s.hoc.L for s in sections]))
+        added = dict([(s.hoc.name(), []) for s in sections])
+
+        i = 0
+        r = random.randint(0, max_l)
+        for s in sections:
+            s = s.hoc
+            i += s.L
+            if i > r:
+                loc = (r - i + s.L) / s.L
+                if loc in added[s.name()]:
+                    break
+                neck.hoc.connect(s(loc), 0.0)
+                added[s.name()].append(loc)
+                break
 
     def _add_spines_to_section(self, section: Sec, spine_tag,
                                target_location, head_diam,
@@ -248,33 +368,25 @@ class SpineCell(SectionCell):
             self.connect_secs(source=neck, target=section, source_loc=location,
                               target_loc=0.0)
 
-    def get_spines_by_section_with_mech(self, mech_name):
-        mech_dend_loc = {}
-        all_spines = self.spines
-
-        for spine in all_spines:
-            spine_mechs = set(list(spine.neck.hoc.psection()["density_mechs"]) +
-                              list(spine.head.hoc.psection()["density_mechs"]))
-
-            if mech_name is None or mech_name in spine_mechs:
-                parent_mechs = spine.parent.hoc.psection()["density_mechs"]
-                if mech_name is None or mech_name in parent_mechs:
-                    if spine.parent not in mech_dend_loc:
-                        mech_dend_loc[spine.parent] = []
-                    mech_dend_loc[spine.parent].append(spine)
-        return mech_dend_loc
-
-    def _get_spine_factor(self, spines: List[Spine], mech_name: str, gbar: str):
+    @staticmethod
+    def _get_spine_factor(spines: List[Spine], mech_name: str, gbar: str = None):
         """
-        Find sum(gbar*Area_spine) for mech_name in spines. If gbar is None
-        sum(spine_cm*Area_spine) will be returned
-        This factor will further be used in lowering gbar in
-        the dendrite the spine are attached to.
+        Find sum(gbar*Area_spine) for mech_name in spines.
+        If gbar is None sum(spine_cm*Area_spine) will be returned
+
+        This factor will further be used in lowering gbar in the dendrite the spine are attached to.
+
+        :param spines
+            list of spines
+        :param mech_name:
+            name of the mechanism
+        :param gbar:
+            default is None.
+            If gbar is None sum(spine_cm*Area_spine) will be returned
         """
         factor = 0
         for spine in spines:
             for sec in spine.sections:
-                sec_mech = sec.hoc.psection()["density_mechs"]
                 nseg = sec.hoc.nseg
                 for seg in sec.hoc:
                     if gbar is not None:
@@ -288,48 +400,3 @@ class SpineCell(SectionCell):
                     factor += gbar_val * sec.area / nseg
         return factor
 
-    def compensate(self, cm_adjustment=False, **mechs_with_gbar_name):
-        """
-        Compensate for a chosen channel/density mechanism after adding spines.
-        Adding spines means adding additional membrane area, increasing
-        conductance and capacitance of the section and thus changing its
-        electric properties. Adding ion channels to spines will also change
-        overall channel conductance of the neuron. If you want to add spines
-        and try to preserve neuron behavior (so you don't have to retune
-        your model) you might try to compensate for that additional membrane
-        area and added mechanisms.
-
-        This function finds dendrites with spines, which both have mechanisms
-        specified in mechs_with_gbar_names, and lowers conductances (gbars)
-        by a
-        (Area_dendrite*dendritic_conductance-sum(spine_conductance*Area_spine)/
-        Area_dendrite*dendritic_conductance
-
-        :param cm_adjustment:
-             if True cm of the section with spines will be lowered
-             to account for membrane area of added spines
-        :param mechs_with_gbar_name:
-             specify mechanisms and their respective conductance names
-             (gbars), e.g. pas="g_pas"
-        """
-        for mech_name, gbar in mechs_with_gbar_name.items():
-            mech_loc = self.get_spines_by_section_with_mech(mech_name)
-            for dend in mech_loc.keys():
-                A_d = dend.area
-                spine_factor = self._get_spine_factor(mech_loc[dend],
-                                                      mech_name, gbar=gbar)
-                for seg in dend.hoc:
-                    mech = getattr(seg, mech_name)
-                    gbar_val = getattr(mech, gbar)
-                    new_val = (gbar_val * A_d - spine_factor) / (gbar_val * A_d)
-                    setattr(mech, gbar, new_val)
-
-        if cm_adjustment:
-            all_spines = self.get_spines_by_section_with_mech(None)
-            for dend in all_spines:
-                A_d = dend.area
-                spine_factor = self._get_spine_factor(all_spines[dend],
-                                                      "cm", None)
-                cm_val = dend.hoc.cm
-                new_val = (cm_val * A_d - spine_factor) / (cm_val * A_d)
-                dend.hoc.cm = new_val

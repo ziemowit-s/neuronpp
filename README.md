@@ -117,7 +117,7 @@ There are other examples in the folder.
  * if the HOC cell model is defined as a Template - just specify the 'cell_template_name' param:
  ```python
     cell = HocCell(name="cell")
-    cell.load_hoc("Ebner2019_minimum_load/load_model.hoc", cell_template_name="L5PCtemplate")
+    cell.load_hoc("Ebner2019_minimum_load/load_model.hoc", hoc_template_name="L5PCtemplate")
    ```
    
   * create and connect sections:
@@ -202,14 +202,14 @@ The main cell object `Cell` contains all filter methods inside.
    ```python
    cell = Cell(name="cell")
    dendrites = cell.filter_secs(name="dend")
-   cell.make_spines(spine_number=10, head_nseg=10, neck_nseg=10, secs=dendrites)
+   cell.add_randuniform_spines(spine_number=10, head_nseg=10, neck_nseg=10, secs=dendrites)
    ```
 
   * add many synapses with spines (1 synapse/spine) in a single function to provided sections:
    ```python
     cell = Cell(name="cell")
     dendrites = cell.filter_secs(name="dend")
-    syns = cell.add_synapses_with_spine(source=None, secs=dendrites, mod="ExpSyn",
+    syns = cell.add_random_synapses_with_spine(source=None, secs=dendrites, mod="ExpSyn",
                                         netcon_weight=0.01, delay=1, number=10)
    ```
   
@@ -241,7 +241,7 @@ The main cell object `Cell` contains all filter methods inside.
 
   * Change source to the previously created synapse:
   ```python
-    synapse.add_source(source=None, weight=0.035, threshold=15, delay=2)
+    synapse.add_netcon(source=None, weight=0.035, threshold=15, delay=2)
   ```
 
 ### Record and plot
@@ -305,66 +305,65 @@ The main cell object `Cell` contains all filter methods inside.
 
 ### Populations of neurons
 
-[Experimental feature] Create a population of many neurons of the same type and connect them between populations or stimulate them just as any synapse (with NetStim, VecStim or event based stimulation):
+Create a population of many neurons of the same type and connect them between populations:
 
-  * This is an experimental feature so may not be so easy to use
+* Create a template cell function:
   ```python
-    # Define a new Population class. 
-    # You need to implement abstract method cell_definition() and syn_definition() for each new Population
-    import os
-
-    path = os.path.dirname(os.path.abspath(__file__))
-    class ExcitatoryPopulation(Population):
-    def cell_definition(self, **kwargs) -> Cell:
+    def cell_function():
         cell = Cell(name="cell")
-	f_path = os.path.join(path, "..", "commons/morphologies/swc/my.swc")
-        cell.load_morpho(filepath=f_path)
+        morpho_path = os.path.join(path, "..", "commons/morphologies/swc/my.swc")
+        cell.load_morpho(filepath=morpho_path)
         cell.insert("pas")
         cell.insert("hh")
+        cell.make_spike_detector(seg=cell.filter_secs("soma")(0.5))
         return cell
+    ```
+  
+  * Create a stimulation and define your first population:
+  ```python
+    # Create NetStim
+    netstim = NetStimCell("stim").make_netstim(start=21, number=100, interval=2)
 
-    def syn_definition(self, cell, source, weight=1, **kwargs) -> list:
-        secs = cell.filter_secs("dend")
-        syns, heads = cell.add_synapses_with_spine(source=source, secs=secs, mod_name="Exp2Syn",
-                                                   netcon_weight=weight)
-        return syns
+    # Create population 1
+    pop1 = Population("pop_1")
+    pop1.add_cells(num=4, cell_function=cell_function)
 
+    connector = pop1.connect(cell_proba=0.5)
+    connector.set_source(netstim)
+    connector.set_target([c.filter_secs("dend")(0.5) for c in pop1.populations])
+    syn_adder = connector.add_synapse("Exp2Syn")
+    syn_adder.add_netcon(weight=0.01)
+  ```
+  
+  * Build connections and define that you want to record from the population:
+  ```python
+    connector.build()
+    pop1.record()
+  ```
+  
+  * Create a second population
+  ```python
+    # Create population 2
+    pop2 = Population("pop_2")
+    pop2.add_cells(num=4, cell_function=cell_function)
+  ```
+  
+  * Define source segments and target segments as well as define that netcon weight for each cell will be chosen from the normal truncated (positive) distribution
+  ```python
+    connector = pop2.connect(cell_proba=0.2)
+    connector.set_source([c.filter_secs("soma")(0.5) for c in pop1.populations])
+    connector.set_target([c.filter_secs("dend")(0.5) for c in pop2.populations])
+    syn_adder = connector.add_synapse("Exp2Syn")
+    syn_adder.add_netcon(weight=NormalTruncatedDist(mean=0.01, std=0.02))
 
-    if __name__ == '__main__':
-        # Create NetStim
-        stim = NetStimCell("stim").make_netstim(start=21, number=10, interval=10)
-    
-        # Create population 1
-        pop1 = ExcitatoryPopulation("pop1")
-        pop1.create(4)
-        pop1.connect(source=stim, rule='all', weight=0.01)
-        pop1.record()
-    
-        # Create population 2
-        pop2 = ExcitatoryPopulation("pop2")
-        pop2.create(4)
-        pop2.connect(source=pop1, rule='all', weight=0.01)
-        pop2.record()
-    
-        # Create population 3
-        pop3 = ExcitatoryPopulation("pop3")
-        pop3.create(4)
-        pop3.connect(source=pop2, rule='all', weight=0.01)
-        pop3.record()
-    
-        # Run
-        sim = RunSim(init_v=-70, warmup=20)
-        for i in range(1000):
-            sim.run(runtime=1)
-            pop1.plot(animate=True)
-            pop2.plot(animate=True)
-            pop3.plot(animate=True)
+    connector.build()
+    pop2.record()
    ```
 
   * Create interactive graph of connected cells:
   ```python
   # Based on the previously created 3 populations
-  make_conectivity_graph(pop1.cells + pop2.cells + pop3.cells)
+  make_conectivity_graph(pop1.populations + pop2.populations)
   ```
 ![Network Graph](images/conectivity_graph.png) 
   

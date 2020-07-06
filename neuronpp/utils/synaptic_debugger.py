@@ -1,12 +1,12 @@
 import time
 from collections import defaultdict
 
-from neuronpp.core.hocwrappers.composed.synapse import Synapse
-from neuronpp.core.hocwrappers.netcon import NetCon
-from neuronpp.core.hocwrappers.seg import Seg
 from neuronpp.utils.record import Record
+from neuronpp.core.hocwrappers.seg import Seg
 from neuronpp.utils.simulation import Simulation
-from neuronpp.utils.utils import key_release_listener
+from neuronpp.core.hocwrappers.netcon import NetCon
+from neuronpp.core.hocwrappers.synapses.synapse import Synapse
+from neuronpp.utils.utils import key_release_listener, KEY_LISTENER_IMPORTED
 
 
 class SynapticDebugger:
@@ -113,6 +113,13 @@ class SynapticDebugger:
             in ms
         :return:
         """
+        if not KEY_LISTENER_IMPORTED:
+            raise ImportError("Interactive debugging won't work due to import error related to:"
+                              " pynput.keyboard.Listener.\n"
+                              "Do not use Interactive debugging unless you fix this issue.\n"
+                              "Bear in mind that Interactive debugging requires a machine with a "
+                              "display. Interactive debugging won't work no the server.")
+
         self.warmup()
         keys = ['']
 

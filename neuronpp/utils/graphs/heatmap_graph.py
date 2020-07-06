@@ -1,10 +1,7 @@
-from typing import List
-
 import numpy as np
 import seaborn as sb
 from neuron import h
 import matplotlib.pyplot as plt
-from neuronpp.core.hocwrappers.composed.synapse import Synapse
 
 
 class HeatmapGraph:

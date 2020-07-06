@@ -1,16 +1,10 @@
+from neuronpp.core.hocwrappers.wrapper import Wrapper
 
 
-class HocWrapper:
+class HocWrapper(Wrapper):
     def __init__(self, hoc_obj, parent, name):
+        Wrapper.__init__(self, parent=parent, name=name)
         self.hoc = hoc_obj
-        try:
-            self.parent = parent
-        except AttributeError:
-            pass
-        self.name = name
-
-    def __repr__(self):
-        return "{}+{}+{}".format(self.parent, self.__class__.__name__, self.name)
 
     def __hash__(self):
         return self.hoc.__hash__()

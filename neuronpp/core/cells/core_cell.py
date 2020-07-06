@@ -1,6 +1,5 @@
 import re
 
-from neuronpp.core.cells.filters.filter_function import FilterFunction
 from neuronpp.utils.compile_mod import compile_and_load_mods
 
 
@@ -66,7 +65,6 @@ class CoreCell:
         for obj in searchable:
             pat_found = 0
 
-            # If FilterFunction object with filter() function pass
             if obj_filter and obj_filter(obj):
                 pat_found += 1
 
@@ -101,7 +99,8 @@ class CoreCell:
                         if pat.search(value) is not None:
                             pat_found += 1
 
-            # functional AND for all patterns: If all patterns match - add object to the filtered list
+            # functional AND for all patterns: If all patterns match
+            # add object to the filtered list
             if pat_found == pat_len:
                 filtered.append(obj)
 
@@ -111,6 +110,11 @@ class CoreCell:
 
     @staticmethod
     def _prepare_patterns(kwargs):
+        """
+        Used for filtering
+        :param kwargs:
+        :return:
+        """
         result = []
         for attr_name, v in kwargs.items():
 
