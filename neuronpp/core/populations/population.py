@@ -21,13 +21,22 @@ class Population:
 
     def add_cells(self, num: int, cell_function: Callable[[], T_Cell]):
         """
+        Add cells based on provided cell_function.
+        The name of each new cell will be updated based on the population name and cell number
+        in the population.
+
+        If default name for each cell is not defined - it will be set to "cell"
+
         :param num:
             number of cells to create
         :param cell_function
+            Callable function without arguments, which must return at least Cell type object
         """
         for i in range(num):
             cell = cell_function()
             cell.population = self
+            if cell.name is None or len(cell.name.strip()) == 0:
+                cell.name = "cell"
             cell.name = "%s[%s][%s]" % (self.name, cell.name, self.cell_counter)
             self.cell_counter += 1
             self.cells.append(cell)
