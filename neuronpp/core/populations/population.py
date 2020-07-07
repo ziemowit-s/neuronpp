@@ -2,9 +2,9 @@ import numpy as np
 from typing import Union, TypeVar, List, Iterable, Callable
 
 from neuronpp.cells.cell import Cell
-from neuronpp.core.hocwrappers.synapses.synapse import Synapse
 from neuronpp.utils.record import Record
 from neuronpp.core.populations.connector import Connector
+from neuronpp.core.hocwrappers.synapses.synapse import Synapse
 from neuronpp.core.distributions import Dist, UniformProba, NormalProba, NormalTruncatedSegDist
 
 T_Cell = TypeVar('T_Cell', bound=Cell)
@@ -73,7 +73,12 @@ class Population:
                 seg_dist: Union[NormalTruncatedSegDist, str] = "uniform",
                 syn_num_per_source: Union[int, Dist] = 1) -> Connector:
         """
-        Make a new connection by returning Connector object and adjust it afterwards.
+        Returns Connector object.
+
+        Makes a new connection between cells. Defines probability of connection and
+        the number of synapses per source.
+
+        If the connection (based on cell_proba) is established -
 
         :param rule:
             default is 'all'
@@ -237,7 +242,7 @@ class Population:
                     # eg. for multi-netcons synapses (like ACh+Da+hebbian synapse)
                     # This requirement need to be directly define by the user
                     if connector._group_syns:
-                        cell.group_synapses(tag=connector.set_tag, *syns)
+                        cell.group_synapses(connector._tag, *syns)
 
                     # perform a custom function on created synapses if required for each
                     # target_segment
