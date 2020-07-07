@@ -1,11 +1,8 @@
-from typing import Union, Optional, List
+from typing import Union
 
 from neuronpp.core.distributions import Dist
-from neuronpp.core.hocwrappers.netstim import NetStim
-from neuronpp.core.hocwrappers.seg import Seg
-from neuronpp.core.hocwrappers.vecstim import VecStim
-from neuronpp.core.populations.params.netcon_params import NetconParams
 from neuronpp.core.populations.params.spine_params import SpineParams
+from neuronpp.core.populations.params.netcon_params import NetconParams
 
 
 class SynAdder:
@@ -46,6 +43,10 @@ class SynAdder:
 
     def spine_params(self, head_nseg: Union[int, Dist] = 2, neck_nseg: Union[int, Dist] = 2):
         """
+        Experimental feature.
+
+        if called - it will add single spine to each synapse and put synapse on top of the spine.
+
         :param head_nseg:
             number of segments for head of the spine
         :param neck_nseg:

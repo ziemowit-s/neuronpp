@@ -134,8 +134,15 @@ class Connector:
 
     def group_synapses(self):
         """
-        Group synapses as a single SynapticGroup. It is helpful if you have multiple synapses, which
-        you want to group together, eg. AMPA and NMDA synapses.
+        Group synapses as a single SynapticGroup. It groups all synapses (SynAdder objects) defined
+        for a single cell - as a single synaptic group.
+
+        It is helpful if you have multiple synapses, which you want to group together
+        eg. AMPA and NMDA synapses.
+
+        You can perform the same operations of synaptic group as on the single synapse.
+        So sending stimulation to the Synaptic Group of AMPA and NMDA makes a pararel stimulation
+        of both point processes.
 
         Single synapse consists of single PointProcess (MOD file) and 1 or more NetCons. If you have
         multiple PointProcesses (MOD files) which you want to group together and call them together
@@ -150,7 +157,11 @@ class Connector:
 
     def add_synapse(self, mod_name: str) -> SynAdder:
         """
-        Add new synapse adder object, which consists of single PointProcess and 1 or more NetCons
+        Returns SynAdder object which consists of a single PointProcess and 1 or more NetCons
+
+        You can specify multiple SynAdders for the same PointProcess,
+        which gives you the flexibility of different parameters.
+
         :param mod_name:
             name of the MOD file which must be PointProcess
         :return:
