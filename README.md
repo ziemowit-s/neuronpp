@@ -1,36 +1,49 @@
-Neuron++ wraps NEURON (http://www.neuron.yale.edu) with easy to use Python objects. The main intention behind this library was to perform tedious tasks in few lines of code.
+Neuron++ is a wrapper for NEURON (http://www.neuron.yale.edu) with easy to use Python objects. 
+The key intention behind this framework was to perform tedious tasks in few lines of code with 
+the object-oriented paradigm. 
+
+NEURON allows to create simulations of Biological Neural Networks. The Neuron++ framework was 
+designed to match the simplicity of libraries such as Keras library for Artificial Neural Networks.
+With Neuron++ you can easily create group of cells, stack them together as populations, 
+then stimulate them with external input and collect readouts to perform any task.
 
 ## Key features
 
-  * Use for fast prototyping of neuron models and neural networks built in NEURON simulation environment using a Python interface utilizing object-oriented programming (OOP) paradigm.
+  * Use for fast prototyping of neural models in NEURON simulator, using Python interface with 
+    the object-oriented paradigm (OOP)
 
-  * Precisely define single cell models and connect them together to create a network.
+  * Precisely define single cell models and connect them together to create a network
   
   * Auto-compilation of all MOD files on the fly
   
-  * Auto-load SWC/ASC or HOC morphology
+  * Auto-load SWC/ASC or HOC morphology for each cell
   
-  * Upload HOC defined models and adapt them to your needs.
-  
-  * Manage synaptic signaling.
-  
-  * Create dendritic spines.
+  * Upload HOC defined models and adapt them to your needs
   
   * Define in vitro experimental protocols (eg. STDP paradigms)
   
-  * Debug synaptic connections and point process RANGE values in real time with interactive stimulations from the keyboard.
+  * Manage synaptic signaling
   
-  * Define populations of neurons and connect them together.
+  * Debug synapses and point processes RANGE values in real time with interactive 
+    stimulation from the keyboard
   
-  * Provide helpful exception messages and guidelines of how to use NEURON functions without errors.
+  * Create predefined dendritic spines and synapses with ease
+  
+  * Define populations of neurons and connect them together
+  
+  * Provide helpful exception messages and guidelines of how to use NEURON functions with Neuron++ 
+    wrapper without errors
     
-This is an Alpha version
+This is the Alpha version.
 
 ## Prerequisites
 
-* Python > 3.5
-* Install NEURON from the instruction: https://github.com/ziemowit-s/neuron_netpyne_get_started
-* Install requirements.txt
+* Python > 3.5 (recommended is Python 3.6)
+* Install NEURON from the instruction: https://github.com/ziemowit-s/neuron_get_started
+* Install requirements.txt:
+```bash
+pip install -r requirements.txt
+```
 
 ## Repository
 
