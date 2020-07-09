@@ -278,3 +278,9 @@ class SectionCell(CoreCell):
     def _get_first_segment(sec: Sec):
         for s in sec.hoc:
             return s
+
+    def __del__(self):
+        for s in self.secs:
+            # recommended way to delete section in Python wrapper
+            s.hoc = None
+            del s

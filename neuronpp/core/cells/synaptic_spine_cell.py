@@ -74,3 +74,7 @@ class SynapticSpineCell(SpineCell, SynapticGroupCell):
             syns.append(syn)
         heads = [spine.sections[0] for spine in spines]
         return syns, heads
+
+    def __del__(self):
+        SpineCell.__del__(self)
+        SynapticGroupCell.__del__(self)

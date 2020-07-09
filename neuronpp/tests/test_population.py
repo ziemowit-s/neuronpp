@@ -77,7 +77,7 @@ class TestStandardPopulation(unittest.TestCase):
         # for numpy.random.seed(13)
         pop2_names = ["pop_0[cell][1]", "pop_0[cell][1]", "pop_0[cell][1]", "pop_0[cell][2]"]
         for i, syn in enumerate(self.pop2.syns):
-            if syn.mod_name == 'Syn4PAChDa':
+            if syn.point_process_name == 'Syn4PAChDa':
                 stim_cell_name = syn.sources[0].parent.cell.name
                 self.assertEqual(stim_cell_name, pop2_names[i])
 
@@ -102,7 +102,7 @@ class TestStandardPopulation(unittest.TestCase):
         weights = [0.005779780499030976, 0.02125693570562063,
                    .028274814097193554, 0.009683215635451629]
         for i, syn in enumerate(self.pop2.syns):
-            if syn.mod_name == 'Syn4PAChDa':
+            if syn.point_process_name == 'Syn4PAChDa':
                 netcon_weight = syn.netcons[0].get_weight()
                 self.assertEqual(netcon_weight, weights[i])
 

@@ -1,20 +1,27 @@
-from typing import Union, List, Optional
-from collections import defaultdict, namedtuple
-
 import numpy as np
 import pandas as pd
 from neuron import h
 import matplotlib.pyplot as plt
+from collections import defaultdict
+from typing import Union, Optional, Iterable
 
 from neuronpp.core.hocwrappers.sec import Sec
 from neuronpp.utils.RecordOutput import RecordOutput
+from neuronpp.core.hocwrappers.hoc_wrapper import HocWrapper
 
 
 class Record:
-    def __init__(self, elements, variables='v'):
+    def __init__(self, elements: Union[Iterable[Union[HocWrapper]], Union[HocWrapper]],
+                 variables='v'):
         """
+        Making Record after simulation run() makes it has no effect on the current simulation.
+        However it will appear in the next simulation if:
+         * you call reset() on the Simulation object
+         * or create a new Simulation object
+
         :param elements:
-            elements can any object from HocWrappers which implements hoc param
+            any HocWrapper. If you want to use SynapticGroup object - choose appropriate synapse
+            and pass it as SingleSynapse which is a HocWrapper, eg. syngroup["ExpSyn"]
         :param variables:
             str or list_of_str of variable names to track
         """
@@ -242,3 +249,11 @@ class Record:
             ax = fig.add_subplot(position[0], position[1], index)
 
         return ax
+
+    def __del__(self):
+        names = list(self.recs.keys())
+        for n in names:
+            del self.recs[n]
+
+        self.time = None
+        del self.time

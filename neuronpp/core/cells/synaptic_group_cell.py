@@ -63,7 +63,7 @@ class SynapticGroupCell(SynapticCell):
         if isinstance(synapses[0], (list, tuple, set)):
             synapses = [s for syns in synapses for s in syns]
 
-        mod_names = '+'.join([s.mod_name for s in synapses])
+        mod_names = '+'.join([s.point_process_name for s in synapses])
 
         name = str(self._complex_syn_num[mod_names])
         comp_syn = SynapticGroup(synapses=synapses, name=name, tag=tag)
@@ -71,3 +71,12 @@ class SynapticGroupCell(SynapticCell):
         self._complex_syn_num[mod_names] += 1
 
         return comp_syn
+
+    def __del__(self):
+        SynapticCell.__del__(self)
+        for s in self.complex_syns:
+            for key, val in s.items():
+                for v in val:
+                    # recommended way to delete section in Python wrapper
+                    v.hoc = None
+                    del val

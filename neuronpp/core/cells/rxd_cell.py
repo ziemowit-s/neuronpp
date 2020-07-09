@@ -36,3 +36,10 @@ class RxDCell(SectionCell):
         rxd.nthread(threads)
 
         rxd_obj.load(sec, dx_3d_size=dx_3d_size, rxds=self.rxds)
+
+    def __del__(self):
+        SectionCell.__del__(self)
+        for r in self.rxds:
+            # recommended way to delete section in Python wrapper
+            r.hoc = None
+            del r

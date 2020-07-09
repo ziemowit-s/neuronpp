@@ -6,8 +6,15 @@ from neuronpp.core.populations.params.netcon_params import NetconParams
 
 
 class SynAdder:
-    def __init__(self, mod_name):
-        self.mod_name = mod_name
+    def __init__(self, point_process_name):
+        """
+        Create synapse with single Point Process and one or more Netcons.
+
+        :param point_process_name:
+            Name of the Point Process defined in MOD file or default Point Process existing
+            in NEURON
+        """
+        self.point_process_name = point_process_name
 
         self._netcon_params = []
         self._spine_params = None
@@ -36,7 +43,8 @@ class SynAdder:
 
     def add_point_process_params(self, **point_process_params):
         """
-        kwargs params for MOD PointProcess parameters
+        :param point_process_params:
+            kwargs params for MOD PointProcess parameters
         """
         self._point_process_params.update(point_process_params)
         return self

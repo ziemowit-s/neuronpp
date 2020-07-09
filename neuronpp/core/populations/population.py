@@ -230,7 +230,7 @@ class Population:
                             # iter over all sources
                             for s in sources:
                                 syn = cell.add_synapse(source=s, seg=target_segment,
-                                                       mod_name=mech.mod_name,
+                                                       mod_name=mech.point_process_name,
                                                        tag=connector.set_tag,
                                                        delay=netcon_params.delay,
                                                        netcon_weight=netcon_params.weight,
