@@ -1,20 +1,18 @@
 from typing import Union, List, Optional, Iterable
 
 from neuronpp.core.hocwrappers.netcon import NetCon
-from neuronpp.core.hocwrappers.wrapper import Wrapper
 from neuronpp.core.hocwrappers.hoc_wrapper import HocWrapper
 from neuronpp.core.hocwrappers.synapses.synapse import Synapse
 from neuronpp.core.hocwrappers.point_process import PointProcess
 
 
-class SingleSynapse(Wrapper, Synapse):
+class SingleSynapse(HocWrapper, Synapse):
     def __init__(self, source, point_process: PointProcess, name,
                  netcon: Optional[Union[List[NetCon], NetCon]] = None, tag=None):
-        self.mod_name = point_process.mod_name
-        name = "%s[%s]" % (self.mod_name, name)
-        Wrapper.__init__(self, parent=point_process.parent, name=name)
+        self.point_process_name = point_process.mod_name
+        name = "%s[%s]" % (self.point_process_name, name)
+        HocWrapper.__init__(self, hoc_obj=point_process.hoc, parent=point_process.parent, name=name)
 
-        self.hoc = point_process.hoc
         self.tag = tag
 
         self.sources = []
@@ -29,7 +27,7 @@ class SingleSynapse(Wrapper, Synapse):
             self.netcons = netcon
 
         self.point_process = point_process
-        self.mod_name = point_process.mod_name
+        self.point_process_name = point_process.mod_name
 
     def make_event(self, time, use_global_sim_time=True):
         """

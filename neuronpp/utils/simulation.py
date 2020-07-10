@@ -12,15 +12,23 @@ h.load_file('stdrun.hoc')
 
 
 class Simulation:
-    def __init__(self, init_v=None, dt=0.025, warmup=1, init_sleep=0, shape_plots=(),
+    def __init__(self, init_v=None, dt=0.025, warmup=0, init_sleep=0, shape_plots=(),
                  constant_timestep=True, with_neuron_gui=False, check_pointers=False):
         """
+        Create an object to control the simulation.
+
+        After creating the object and execure run() for the first time - the NEURON simulator
+        will be reset(). You can also reset the simulator whether you want calling reset() method.
+
         :param init_v:
             initial value in mV for the neuron function finitialize().
             In many cases it is -70 mV but you need to specify it explicitely.
             If left None it will take h.v_init param as default init_v.
         :param warmup:
-            in ms, default is 1 ms.
+            in ms, default is 0 ms.
+
+            warmup is executed during the first call of run() method, before executing the intended
+            run
         :param init_sleep
             sleep time in seconds. To sleep before first run
         :param with_neuron_gui
@@ -55,6 +63,13 @@ class Simulation:
         self.warmup_done = False
 
     def reset(self):
+        """
+        After each creation of the Simulation object or call the reset() method
+        the Record object is cleaned up (its inside vector for each segment recorded)
+        however on other Hoc object is removed eg. Sections.
+
+        That means - each new sections and cell are retained in the current NEURON run.
+        """
         print("Simulation initialization.")
         if self.check_pointers:
             self._check_point_process_pointers()
@@ -66,9 +81,7 @@ class Simulation:
             print("sleep before run for: %s seconds" % self.init_sleep)
             time.sleep(self.init_sleep)
 
-        if self.warmup > 0:
-            h.dt = self.warmup / 10
-            h.continuerun(self.warmup * ms)
+        self.warmup_done = False
         h.dt = self.dt
 
     @property
@@ -91,7 +104,13 @@ class Simulation:
         """
         if not self.warmup_done:
             self.reset()
+
+            if self.warmup > 0:
+                h.dt = self.warmup / 10
+                h.continuerun(self.warmup * ms)
+                h.dt = self.dt
             self.warmup_done = True
+
         if stepsize is None:
             stepsize = runtime
 

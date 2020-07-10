@@ -1,3 +1,5 @@
+from typing import List
+
 from neuronpp.core.hocwrappers.wrapper import Wrapper
 from neuronpp.core.hocwrappers.hoc_wrapper import HocWrapper
 from neuronpp.core.hocwrappers.synapses.synapse import Synapse
@@ -5,9 +7,20 @@ from neuronpp.core.hocwrappers.synapses.single_synapse import SingleSynapse
 
 
 class SynapticGroup(Wrapper, Synapse, dict):
-    def __init__(self, synapses, name, tag=None):
-        self.tag = tag
-        self.mod_name = '_'.join([s.mod_name for s in synapses])
+    def __init__(self, synapses: List[SingleSynapse], name: str):
+        """
+        It is a dictionary containing Single Synapses where key is point_process name of the 
+        synapse of the same type, eg. self["ExpSyn"] = list(syn1, syn2, syn3)
+
+        All synapses in the group need to have a single source
+
+        :param synapses:
+            list of Single Synapses.
+            All synapses need to have the same parent object.
+        :param name:
+            string name for the group
+        """
+        self.mod_name = '_'.join([s.point_process_name for s in synapses])
         name = "%s[%s]" % (self.mod_name, name)
 
         parent = None
@@ -23,7 +36,9 @@ class SynapticGroup(Wrapper, Synapse, dict):
                         "All synapses must have same parent element inside a single "
                         "ComplexSynapse, but the parent of the first element was '%s' "
                         "and of the second '%s'" % (parent, s.parent))
-            self[s.mod_name] = s
+            if s.point_process_name not in self:
+                self[s.point_process] = []
+            self[s.point_process_name].append(s)
 
         Wrapper.__init__(self, parent=parent, name=name)
 

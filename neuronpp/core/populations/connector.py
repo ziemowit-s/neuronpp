@@ -2,9 +2,9 @@ from typing import Optional, List, Union, Callable
 
 from neuronpp.core.hocwrappers.seg import Seg
 from neuronpp.core.hocwrappers.netstim import NetStim
-from neuronpp.core.hocwrappers.synapses.synapse import Synapse
 from neuronpp.core.hocwrappers.vecstim import VecStim
 from neuronpp.core.populations.syn_adder import SynAdder
+from neuronpp.core.hocwrappers.synapses.synapse import Synapse
 from neuronpp.core.populations.params.conn_params import ConnParams
 from neuronpp.core.distributions import Dist, NormalTruncatedSegDist
 from neuronpp.core.populations.utils import check_and_prepare_sources, check_and_prepare_target
@@ -167,7 +167,7 @@ class Connector:
         :return:
             SynAdder object
         """
-        syn_adder = SynAdder(mod_name=mod_name)
+        syn_adder = SynAdder(point_process_name=mod_name)
         self._syn_adders.append(syn_adder)
         return syn_adder
 

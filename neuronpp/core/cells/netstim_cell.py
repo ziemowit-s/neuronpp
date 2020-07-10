@@ -1,13 +1,22 @@
 from neuron import h
 
-from neuronpp.core.cells.core_cell import CoreCell
-from neuronpp.core.cells.utils import get_netstim
 from neuronpp.core.decorators import distparams
+from neuronpp.core.cells.utils import get_netstim
+from neuronpp.core.cells.core_cell import CoreCell
 from neuronpp.core.hocwrappers.netstim import NetStim
 
 
 class NetStimCell(CoreCell):
-    def __init__(self, name=None):
+    def __init__(self, name: str = None):
+        """
+        Making NetStim after simulation run() makes it has no effect on the current simulation.
+        However it will appear in the next simulation if:
+         * you call reset() on the Simulation object
+         * or create a new Simulation object
+
+        :param name:
+            the name of the NetStim
+        """
         CoreCell.__init__(self, name)
         self.nss = []
 
@@ -16,22 +25,27 @@ class NetStimCell(CoreCell):
         Currently all filter passed are treated as AND statements.
 
         * Whole object callable function passed to the obj_filter param.
-            eg. (lambda expression) returns sections which name contains 'apic' or their distance > 1000 um from the soma:
+            eg. (lambda expression) returns sections which name contains 'apic' or their
+            distance > 1000 um from the soma:
           ```
            soma = cell.filter_secs("soma")
-           cell.filter_secs(obj_filter=lambda o: 'apic' in o.name or h.distance(soma.hoc(0.5), o.hoc(0.5)) > 1000)
+           cell.filter_secs(obj_filter=lambda o: 'apic' in o.name or
+           h.distance(soma.hoc(0.5), o.hoc(0.5)) > 1000)
           ```
 
         * Single object field filter based on callable function passed to the obj_filter param.
-          eg. (lambda expression) returns sections which parent's name contains less than 10 characters
+          eg. (lambda expression) returns sections which parent's name contains less than
+          10 characters
           ```
           cell.filter_secs(parent=lambda o: len(o.parent.name) < 10)
           ```
 
         :param name:
-            start with 'regex:any pattern' to use regular expression. If without 'regex:' - will look which Hoc objects contain the str
+            start with 'regex:any pattern' to use regular expression. If without 'regex:' - will
+            look which Hoc objects contain the str
         :param obj_filter:
-            Whole object callable functional filter. If you added also any kwargs they will be together with the
+            Whole object callable functional filter. If you added also any kwargs they will be
+            together with the
             obj_filter treated as AND statement.
         :return:
         """
@@ -40,7 +54,15 @@ class NetStimCell(CoreCell):
     @distparams
     def make_netstim(self, start, number, interval=1, noise=0):
         """
+        Making NetStim after simulation run() makes it has no effect on the current simulation.
+        However it will appear in the next simulation if:
+         * you call reset() on the Simulation object
+         * or create a new Simulation object
+
         :param start:
+            The absolute value of start in ms.
+
+            The absolute value means that you need to count warmup time as well.
         :param number:
         :param interval:
         :param noise:
@@ -59,3 +81,9 @@ class NetStimCell(CoreCell):
         ns = NetStim(ns_hoc, parent=self, name="NetStim[%s]" % name)
         self.nss.append(ns)
         return ns
+
+    def __del__(self):
+        for n in self.nss:
+            # recommended way to delete section in Python wrapper
+            n.hoc = None
+            del n
