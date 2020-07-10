@@ -1,4 +1,6 @@
 import time
+from typing import List, Optional
+
 import numpy as np
 from neuron import h
 
@@ -12,26 +14,54 @@ h.load_file('stdrun.hoc')
 
 
 class Simulation:
-    def __init__(self, init_v=None, dt=0.025, warmup=0, init_sleep=0, shape_plots=(),
-                 constant_timestep=True, with_neuron_gui=False, check_pointers=False):
+    def __init__(self, init_v: float = None, dt: float = 0.025, warmup: float = 0, warmup_dt=None,
+                 init_sleep: float = 0, shape_plots: Optional[List[h.PlotShape]] = None,
+                 constant_timestep: bool = True, with_neuron_gui: bool = False,
+                 check_pointers: bool = False):
         """
         Create an object to control the simulation.
 
         After creating the object and execure run() for the first time - the NEURON simulator
         will be reset(). You can also reset the simulator whether you want calling reset() method.
 
-        :param init_v:
+        :param init_v
             initial value in mV for the neuron function finitialize().
             In many cases it is -70 mV but you need to specify it explicitely.
             If left None it will take h.v_init param as default init_v.
-        :param warmup:
-            in ms, default is 0 ms.
+        :param dt
+            value of the fundamental integration time step, dt, used by fadvance().
+            When a value is entered into the field editor it is rounded down so that an integral
+            multiple of fadvance’s make up a SingleStep.
 
-            warmup is executed during the first call of run() method, before executing the intended
-            run
+            With constant_timestep=False, the dt arg, fadvance returns at t+dt, it means that any
+            variable timestep choose by the simulator is computed as next_timestep+dt.
+        :param warmup
+            in ms, default is 0 ms. Warmup is executed during the first call of run() method,
+            before executing the first run.
+
+            By default dt during warmup is warmup/10, so there will be 10 steps during warmup,
+            however due to param constant_timestep, the number of steps and their size may vary.
+            You can also define custom dt for warmup by warmup_dt param
         :param init_sleep
-            sleep time in seconds. To sleep before first run
+            sleep time in seconds. To sleep before first run.
+            It performs time.sleep(init_sleep) before the first run.
+        :param shape_plots:
+            a list of objects returned by the function utils.utils.make_shape_plot().
+            It allows to create shape plots in NEURON GUI
+        :param constant_timestep
+            Default is True. Decide if you want a constant timestep of the simulation.
+
+            Multi order variable time step integration method which may be used in place of the
+            default staggered fixed time step method. The performance benefits can be substantial
+            (factor of more than 10) for problems in which all states vary slowly for long periods
+            of time between fast spikes.
+
+            With constant_timestep=False, the dt arg, fadvance returns at t+dt, it means that any
+            variable timestep choose by the simulator is computed as next_timestep+dt.
+
+            It perform NEURON'S call h.CVode().active(not constant_timestep)
         :param with_neuron_gui
+            default False
         :param check_pointers
             WARNING: This is an experimental feature, so use it carefully.
             By default it is False, meaning it is turned off.
@@ -52,9 +82,14 @@ class Simulation:
             init_v = h.v_init
         self.init_v = init_v
         self.dt = dt
+        self.warmup_dt = warmup_dt
         self.shape_plots = shape_plots
         self.last_runtime = 0
+        if init_sleep < 0:
+            raise ValueError("init_sleep time must be >= 0.")
         self.init_sleep = init_sleep
+        if warmup < 0:
+            raise ValueError("warmup time must be >= 0.")
         self.warmup = warmup
         self.check_pointers = check_pointers
 
@@ -106,7 +141,10 @@ class Simulation:
             self.reset()
 
             if self.warmup > 0:
-                h.dt = self.warmup / 10
+                if self.warmup_dt is None:
+                    h.dt = self.warmup / 10
+                else:
+                    h.dt = self.warmup_dt
                 h.continuerun(self.warmup * ms)
                 h.dt = self.dt
             self.warmup_done = True
@@ -143,7 +181,8 @@ class Simulation:
             time.sleep(delay)
             before = time.time()  # compute time before
 
-            self._plot_shapes()
+            if self.shape_plots is not None:
+                self._plot_shapes()
             if debug:
                 print("Current time:", round(r, 2), "ms\n",
                       'Computation time:', round(computation_time * 1000, 2), "ms\n",

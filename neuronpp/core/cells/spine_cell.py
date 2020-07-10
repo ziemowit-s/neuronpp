@@ -406,4 +406,3 @@ class SpineCell(SectionCell):
             # recommended way to delete section in Python wrapper
             s.hoc = None
             del s
-
