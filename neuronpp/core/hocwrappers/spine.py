@@ -1,14 +1,14 @@
 from neuronpp.core.hocwrappers.sec import Sec
 from neuronpp.core.cells.section_cell import SectionCell
-from neuronpp.core.hocwrappers.wrapper import Wrapper
+from neuronpp.core.hocwrappers.sec_group import SecGroup
 
 
-class Spine(Wrapper):
+class Spine(SecGroup):
     def __init__(self, head: Sec, neck: Sec, cell: SectionCell, name):
         """
         Wrapper for the spine which contains head and neck sections.
 
-        It not derives from the HocWrapper because HocWrapper is a wrapper for a single HOC object
+        The connection of the head and the neck is done here in the constructor.
 
         :param head:
             section of the head
@@ -19,8 +19,7 @@ class Spine(Wrapper):
         :param name:
             name of the spine
         """
-        Wrapper.__init__(self, parent=None, name=name)
-        self.cell = cell
+        SecGroup.__init__(self, secs=[head, neck], name=name)
         cell.connect_secs(source=head, target=neck)
         self.hoc_objs = [neck.hoc, head.hoc]
         self.head = head

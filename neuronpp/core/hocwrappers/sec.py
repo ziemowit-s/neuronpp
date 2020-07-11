@@ -7,7 +7,19 @@ from neuronpp.core.hocwrappers.hoc_wrapper import HocWrapper
 
 
 class Sec(HocWrapper):
-    def __init__(self, obj: nrn.Section, cell: CoreCell, name):
+    def __init__(self, obj: nrn.Section, cell: CoreCell, name: str):
+        """
+        Create wrapper for the Section object from HOC.
+
+        Parent is not defined since it is provided as a property method which looks for the parent
+        on the neuron's tree.
+        :param obj:
+            HOC's Section object
+        :param cell:
+            Cell where the section is located
+        :param name:
+            string name of the section
+        """
         self.cell = cell
         HocWrapper.__init__(self, hoc_obj=obj, parent=None, name=name)
 
