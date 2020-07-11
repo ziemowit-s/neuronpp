@@ -178,10 +178,3 @@ class NetConCell(PointProcessCell):
         name = "%s->%s" % (source, point_process)
         con = NetCon(con, source=source, target=point_process, parent=self, name=name)
         return con, name
-
-    def __del__(self):
-        PointProcessCell.__del__(self)
-        for n in self.ncs:
-            # recommended way to delete section in Python wrapper
-            n.hoc = None
-            del n

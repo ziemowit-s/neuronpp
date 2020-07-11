@@ -2,9 +2,10 @@ from neuron import h
 from neuron.units import ms
 
 from neuronpp.core.hocwrappers.seg import Seg
+from neuronpp.core.neuron_removable import NeuronRemovable
 
 
-class IClamp:
+class IClamp(NeuronRemovable):
     def __init__(self, segment: Seg):
         if not isinstance(segment, Seg):
             raise TypeError("Param 'segment' must be a Seg object, eg. soma(0.5).")

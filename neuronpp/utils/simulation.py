@@ -4,6 +4,8 @@ from typing import List, Optional
 import numpy as np
 from neuron import h
 
+from neuronpp.core.neuron_removable import NeuronRemovable
+
 try:
     from neuron.hoc import HocObject
 except ImportError:
@@ -13,7 +15,7 @@ from neuron.units import ms, mV
 h.load_file('stdrun.hoc')
 
 
-class Simulation:
+class Simulation(NeuronRemovable):
     def __init__(self, init_v: float = None, dt: float = 0.025, warmup: float = 0, warmup_dt=None,
                  init_sleep: float = 0, shape_plots: Optional[List[h.PlotShape]] = None,
                  constant_timestep: bool = True, with_neuron_gui: bool = False,

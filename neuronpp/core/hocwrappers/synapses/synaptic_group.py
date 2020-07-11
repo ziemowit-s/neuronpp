@@ -15,6 +15,8 @@ class SynapticGroup(Wrapper, Synapse, dict):
 
         All synapses in the group need to have a single target
 
+        It not derives from the HocWrapper because HocWrapper is a wrapper for a single HOC object
+
         :param synapses:
             list of Single Synapses.
             All synapses need to have the same parent object.

@@ -1,9 +1,10 @@
 import re
 
+from neuronpp.core.neuron_removable import NeuronRemovable
 from neuronpp.utils.compile_mod import compile_and_load_mods
 
 
-class CoreCell:
+class CoreCell(NeuronRemovable):
 
     path_compiled = False
 

@@ -1,6 +1,7 @@
+from neuronpp.core.neuron_removable import NeuronRemovable
 
 
-class Wrapper:
+class Wrapper(NeuronRemovable):
     def __init__(self, parent, name):
         try:
             self.parent = parent

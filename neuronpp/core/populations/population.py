@@ -4,13 +4,14 @@ from typing import Union, TypeVar, List, Iterable, Callable
 from neuronpp.cells.cell import Cell
 from neuronpp.utils.record import Record
 from neuronpp.core.populations.connector import Connector
+from neuronpp.core.neuron_removable import NeuronRemovable
 from neuronpp.core.hocwrappers.synapses.synapse import Synapse
 from neuronpp.core.distributions import Dist, UniformProba, NormalProba, NormalTruncatedSegDist
 
 T_Cell = TypeVar('T_Cell', bound=Cell)
 
 
-class Population:
+class Population(NeuronRemovable):
     def __init__(self, name):
         self.name = name
         self.cells = []

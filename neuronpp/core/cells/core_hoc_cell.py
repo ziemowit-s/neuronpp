@@ -103,8 +103,7 @@ class CoreHocCell(PointProcessCell):
             for mod_name, hoc_obj in pps.items():
                 try:
                     loc = list(hoc_obj)[0].get_segment().x
-                    seg = Seg(obj=hoc_sec_obj(loc), parent=hoc_sec_obj,
-                              name="%s(%s)" % (hoc_sec_obj.name(), loc))
+                    seg = Seg(obj=hoc_sec_obj(loc), parent=hoc_sec_obj)
                     self._append_pp(hoc_point_process=list(hoc_obj)[0], mod_name=mod_name,
                                     segment=seg)
                 except Exception as e:
@@ -120,6 +119,3 @@ class CoreHocCell(PointProcessCell):
         sec = Sec(hoc_sec_obj, cell=self, name=sec_name)
         self.secs.append(sec)
         return sec
-
-    def __del__(self):
-        PointProcessCell.__del__(self)

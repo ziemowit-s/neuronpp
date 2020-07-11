@@ -399,10 +399,3 @@ class SpineCell(SectionCell):
                         gbar_val = getattr(seg, mech_name)
                     factor += gbar_val * sec.area / nseg
         return factor
-
-    def __del__(self):
-        SectionCell.__del__(self)
-        for s in self.spines + self.heads + self.necks:
-            # recommended way to delete section in Python wrapper
-            s.hoc = None
-            del s
