@@ -1,5 +1,6 @@
-from typing import List
+from typing import List, Optional
 
+from neuronpp.core.hocwrappers.netcon import NetCon
 from neuronpp.core.hocwrappers.wrapper import Wrapper
 from neuronpp.core.hocwrappers.hoc_wrapper import HocWrapper
 from neuronpp.core.hocwrappers.synapses.synapse import Synapse
@@ -7,21 +8,25 @@ from neuronpp.core.hocwrappers.synapses.single_synapse import SingleSynapse
 
 
 class SynapticGroup(Wrapper, Synapse, dict):
-    def __init__(self, synapses: List[SingleSynapse], name: str):
+    def __init__(self, synapses: List[SingleSynapse], name: str, tag: Optional[str] = None):
         """
         It is a dictionary containing Single Synapses where key is point_process name of the 
         synapse of the same type, eg. self["ExpSyn"] = list(syn1, syn2, syn3)
 
-        All synapses in the group need to have a single source
+        All synapses in the group need to have a single target
 
         :param synapses:
             list of Single Synapses.
             All synapses need to have the same parent object.
         :param name:
             string name for the group
+        :param tag:
+            string tag which will be attached to the synaptic group as tag.
+            you can filter by this tag
         """
         self.mod_name = '_'.join([s.point_process_name for s in synapses])
         name = "%s[%s]" % (self.mod_name, name)
+        self.tag = tag
 
         parent = None
         for s in synapses:
@@ -33,14 +38,23 @@ class SynapticGroup(Wrapper, Synapse, dict):
             else:
                 if s.parent.name != parent.name:
                     raise TypeError(
-                        "All synapses must have same parent element inside a single "
-                        "ComplexSynapse, but the parent of the first element was '%s' "
-                        "and of the second '%s'" % (parent, s.parent))
+                        "All synapses must have same target segment element "
+                        "(parent of the SingleSynapse)")
+
             if s.point_process_name not in self:
-                self[s.point_process] = []
+                self[s.point_process_name] = []
             self[s.point_process_name].append(s)
 
+        self.target = parent
         Wrapper.__init__(self, parent=parent, name=name)
+
+    @property
+    def sources(self) -> List[List]:
+        return [syn.sources for val in self.values() for syn in val]
+
+    @property
+    def netcons(self) -> List[List[NetCon]]:
+        return [syn.netcons for val in self.values() for syn in val]
 
     def make_event(self, time, use_global_sim_time=True):
         """

@@ -1,4 +1,5 @@
 from collections import defaultdict
+from typing import Optional
 
 from neuronpp.core.cells.synaptic_cell import SynapticCell
 from neuronpp.core.hocwrappers.synapses.synaptic_group import SynapticGroup
@@ -53,19 +54,28 @@ class SynapticGroupCell(SynapticCell):
         return self.filter(self.complex_syns, obj_filter=obj_filter, mod_name=mod_name, name=name,
                            parent=parent, tag=tag, **kwargs)
 
-    def group_synapses(self, tag=None, *synapses):
+    def group_synapses(self, name: Optional[str] = None, tag: Optional[str] = None, *synapses):
         """
-        Group existing synapses as a single complex synapse
-        :param synapses:
+        Group existing synapses as a single SynapticGroup
+
+        :param name:
+            string name, if None it will be a number from 0 to n, where n is the number of
+            synaptic group creation.
         :param tag:
-        :return:
+            string tag which will be attached to the synaptic group as tag.
+            you can filter by this tag
+        :param synapses:
+            list of synapses of type SingleSynapse
         """
         if isinstance(synapses[0], (list, tuple, set)):
             synapses = [s for syns in synapses for s in syns]
 
         mod_names = '+'.join([s.point_process_name for s in synapses])
+        numerical_name = str(self._complex_syn_num[mod_names])
 
-        name = str(self._complex_syn_num[mod_names])
+        if name is None:
+            name = numerical_name
+
         comp_syn = SynapticGroup(synapses=synapses, name=name, tag=tag)
         self.complex_syns.append(comp_syn)
         self._complex_syn_num[mod_names] += 1

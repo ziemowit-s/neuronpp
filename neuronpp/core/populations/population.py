@@ -231,7 +231,7 @@ class Population:
                             for s in sources:
                                 syn = cell.add_synapse(source=s, seg=target_segment,
                                                        mod_name=mech.point_process_name,
-                                                       tag=connector.set_tag,
+                                                       tag=connector._tag,
                                                        delay=netcon_params.delay,
                                                        netcon_weight=netcon_params.weight,
                                                        threshold=netcon_params.threshold,
@@ -242,7 +242,7 @@ class Population:
                     # eg. for multi-netcons synapses (like ACh+Da+hebbian synapse)
                     # This requirement need to be directly define by the user
                     if connector._group_syns:
-                        cell.group_synapses(connector._tag, *syns)
+                        cell.group_synapses(connector._synaptic_group_name, connector._tag, *syns)
 
                     # perform a custom function on created synapses if required for each
                     # target_segment

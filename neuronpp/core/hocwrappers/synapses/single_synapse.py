@@ -9,7 +9,10 @@ from neuronpp.core.hocwrappers.point_process import PointProcess
 class SingleSynapse(HocWrapper, Synapse):
     def __init__(self, source, point_process: PointProcess, name,
                  netcon: Optional[Union[List[NetCon], NetCon]] = None, tag=None):
+
+        self.point_process = point_process
         self.point_process_name = point_process.mod_name
+
         name = "%s[%s]" % (self.point_process_name, name)
         HocWrapper.__init__(self, hoc_obj=point_process.hoc, parent=point_process.parent, name=name)
 
@@ -18,6 +21,7 @@ class SingleSynapse(HocWrapper, Synapse):
         self.sources = []
         if source is not None:
             self.sources.append(source)
+        self.target = point_process.parent
 
         if netcon is None:
             self.netcons = []
@@ -25,9 +29,6 @@ class SingleSynapse(HocWrapper, Synapse):
             if not isinstance(netcon, Iterable):
                 netcon = [netcon]
             self.netcons = netcon
-
-        self.point_process = point_process
-        self.point_process_name = point_process.mod_name
 
     def make_event(self, time, use_global_sim_time=True):
         """
