@@ -47,17 +47,22 @@ class TestSynapticGroup(unittest.TestCase):
         g2 = self.cell.filter_synaptic_group(tag="aa")
         self.assertTrue(g1 == g2)
         self.assertTrue(g1 is not None)
+        del g1
+        del g2
 
     def test_mod_name_filter(self):
         g1 = self.cell.filter_synaptic_group(mod_name="Exp2Syn", tag="aa")
         g2 = self.cell.filter_synaptic_group(mod_name="ExpSyn", name="apic")
         self.assertTrue(g1 == g2)
         self.assertTrue(g1 is not None)
+        del g1
+        del g2
 
     def test_mod_filter(self):
         gs = self.cell.filter_synaptic_group(mod_name="Exp2Syn")
         self.assertEqual("aa", gs[0].tag)
         self.assertEqual("ss", gs[1].tag)
+        del gs
 
     def test_add_netcon_and_make_event_separately(self):
         g1 = self.cell.filter_synaptic_group(mod_name="Exp2Syn", tag="aa")
@@ -72,9 +77,6 @@ class TestSynapticGroup(unittest.TestCase):
         nc['ExpSyn'][0].make_event(20)
         sim.run(100)
 
-        nc['Exp2Syn'][0].remove_immediate_from_neuron()
-        nc['ExpSyn'][0].remove_immediate_from_neuron()
-
         exp2syn_rec = exp2syn_rec.as_numpy('i')
         expsyn_rec = expsyn_rec.as_numpy('i')
 
@@ -82,6 +84,12 @@ class TestSynapticGroup(unittest.TestCase):
         stim_time_expsyn = expsyn_rec.time[(expsyn_rec.records != 0).argmax()]
         self.assertEqual(12.05, round(stim_time_exp2syn, 4))
         self.assertEqual(22.025, round(stim_time_expsyn, 4))
+
+        nc['Exp2Syn'][0].remove_immediate_from_neuron()
+        nc['ExpSyn'][0].remove_immediate_from_neuron()
+        del nc
+        del g1
+        sim.remove_immediate_from_neuron()
 
     def test_stim_syns(self):
         gs = self.cell.filter_synaptic_group()
@@ -119,3 +127,7 @@ class TestSynapticGroup(unittest.TestCase):
         # Test values of mV in soma
         self.assertEqual(31.3285, round(gs0_exp2syn_rec.records.max(), 4))
         self.assertEqual(-61.309, round(gs0_exp2syn_rec.records.min(), 4))
+
+        gs[0].remove_immediate_from_neuron()
+        gs[1].remove_immediate_from_neuron()
+        sim.remove_immediate_from_neuron()
