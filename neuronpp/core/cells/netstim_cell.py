@@ -81,9 +81,3 @@ class NetStimCell(CoreCell):
         ns = NetStim(ns_hoc, parent=self, name="NetStim[%s]" % name)
         self.nss.append(ns)
         return ns
-
-    def __del__(self):
-        for n in self.nss:
-            # recommended way to delete section in Python wrapper
-            n.hoc = None
-            del n

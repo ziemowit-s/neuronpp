@@ -69,6 +69,7 @@ class Connector:
 
         self._syn_adders = []  # List[SynAdder]
         self._group_syns = False
+        self._synaptic_group_name = None
 
         self._tag = None
         self._sources = None
@@ -132,7 +133,7 @@ class Connector:
         self._synaptic_func = func
         return self
 
-    def group_synapses(self):
+    def group_synapses(self, name: Optional[str] = None):
         """
         Group synapses as a single SynapticGroup. It groups all synapses (SynAdder objects) defined
         for a single cell - as a single synaptic group.
@@ -149,10 +150,15 @@ class Connector:
         you can group them as SynapticGroup with this function.
 
         This function group all synapses created with this Connector object.
+
+        :param name:
+            string name, if None it will be a number from 0 to n, where n is the number of
+            synaptic group creation.
         :return:
             self object (builder paradigm)
         """
         self._group_syns = True
+        self._synaptic_group_name = name
         return self
 
     def add_synapse(self, mod_name: str) -> SynAdder:

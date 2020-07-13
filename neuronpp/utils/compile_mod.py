@@ -3,7 +3,6 @@ import shutil
 
 import neuron
 from argparse import ArgumentParser
-from distutils.dir_util import copy_tree, remove_tree
 from distutils.file_util import copy_file
 
 

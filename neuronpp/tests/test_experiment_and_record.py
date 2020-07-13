@@ -1,6 +1,7 @@
 import os
 import unittest
 import numpy as np
+from neuron import h
 
 from neuronpp.cells.cell import Cell
 from neuronpp.utils.record import Record
@@ -40,6 +41,19 @@ class TestExperimentAndRecord(unittest.TestCase):
 
         cls.v_soma = rec.as_numpy('v', segment_name=soma(.5).name)
         cls.v_apic = rec.as_numpy('v', segment_name=dend(.5).name)
+
+        syn.remove_immediate_from_neuron()
+        soma.remove_immediate_from_neuron()
+        dend.remove_immediate_from_neuron()
+        rec.remove_immediate_from_neuron()
+        experiment.remove_immediate_from_neuron()
+        cell.remove_immediate_from_neuron()
+        sim.remove_immediate_from_neuron()
+
+        cls.sections_left = len(list(h.allsec()))
+
+    def removed_section(self):
+        self.assertEqual(-1, self.l)
 
     def test_record_size(self):
         self.assertEqual(4011, self.v_soma.size)

@@ -1,4 +1,5 @@
 import unittest
+from neuron import h
 from neuronpp.core.cells.synaptic_spine_cell import SynapticSpineCell
 
 
@@ -28,6 +29,19 @@ class TestAddSynapsesWithSpine(unittest.TestCase):
         cls.syns.extend(syns)
         cls.heads.extend(heads)
         cls.apic2_syn, cls.apic2_head = syns, heads
+
+    @classmethod
+    def tearDownClass(cls):
+        for sy in cls.syns:
+            sy.remove_immediate_from_neuron()
+        for he in cls.heads:
+            he.remove_immediate_from_neuron()
+        cls.cell.remove_immediate_from_neuron()
+
+        l = len(list(h.allsec()))
+        if len(list(h.allsec())) != 0:
+            raise RuntimeError("Not all section have been removed after teardown. "
+                               "Sections left: %s" % l)
 
     def test_secs_heads_lens(self):
         secs = self.cell.filter_secs("soma,apic")

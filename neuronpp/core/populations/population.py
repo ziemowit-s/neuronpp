@@ -4,13 +4,14 @@ from typing import Union, TypeVar, List, Iterable, Callable
 from neuronpp.cells.cell import Cell
 from neuronpp.utils.record import Record
 from neuronpp.core.populations.connector import Connector
+from neuronpp.core.neuron_removable import NeuronRemovable
 from neuronpp.core.hocwrappers.synapses.synapse import Synapse
 from neuronpp.core.distributions import Dist, UniformProba, NormalProba, NormalTruncatedSegDist
 
 T_Cell = TypeVar('T_Cell', bound=Cell)
 
 
-class Population:
+class Population(NeuronRemovable):
     def __init__(self, name):
         self.name = name
         self.cells = []
@@ -119,6 +120,18 @@ class Population:
         """
         return Connector(population_ref=self, rule=rule, cell_proba=cell_proba,
                          seg_dist=seg_dist, syn_num_per_source=syn_num_per_source)
+
+    def remove_immediate_from_neuron(self):
+        for r in self.recs.values():
+            r.remove_immediate_from_neuron()
+        self.recs = {}
+
+        for s in self.syns:
+            s.remove_immediate_from_neuron()
+        for c in self.cells:
+            c.remove_immediate_from_neuron()
+            del c
+        self.cells = {}
 
     def _build_connector(self, conn: Connector):
         """
@@ -231,7 +244,7 @@ class Population:
                             for s in sources:
                                 syn = cell.add_synapse(source=s, seg=target_segment,
                                                        mod_name=mech.point_process_name,
-                                                       tag=connector.set_tag,
+                                                       tag=connector._tag,
                                                        delay=netcon_params.delay,
                                                        netcon_weight=netcon_params.weight,
                                                        threshold=netcon_params.threshold,
@@ -242,7 +255,7 @@ class Population:
                     # eg. for multi-netcons synapses (like ACh+Da+hebbian synapse)
                     # This requirement need to be directly define by the user
                     if connector._group_syns:
-                        cell.group_synapses(connector._tag, *syns)
+                        cell.group_synapses(connector._synaptic_group_name, connector._tag, *syns)
 
                     # perform a custom function on created synapses if required for each
                     # target_segment

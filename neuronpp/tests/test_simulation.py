@@ -13,9 +13,6 @@ path = os.path.dirname(os.path.abspath(__file__))
 
 
 class TestSimulation(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        cls.first_rec = None
 
     def setUp(self):
         """
@@ -31,6 +28,103 @@ class TestSimulation(unittest.TestCase):
 
         self.soma = self.cell.filter_secs("soma")
         self.apic1 = self.cell.filter_secs('apic[1]')
+
+    def tearDown(self):
+        self.soma.remove_immediate_from_neuron()
+        self.apic1.remove_immediate_from_neuron()
+        self.cell.remove_immediate_from_neuron()
+
+        l = len(list(h.allsec()))
+        if len(list(h.allsec())) != 0:
+            raise RuntimeError("Not all section have been removed after teardown. "
+                               "Sections left: %s" % l)
+
+    def test_dt(self):
+        rec = Record(self.soma(0.5))
+
+        sim = Simulation(dt=10)
+        sim.run(100)
+        r1 = rec.as_numpy('v')
+
+        sim = Simulation(dt=0.01)
+        sim.run(100)
+        r2 = rec.as_numpy('v')
+
+        sim.remove_immediate_from_neuron()
+        rec.remove_immediate_from_neuron()
+
+        self.assertEqual(11, r1.size)
+        self.assertEqual(10001, r2.size)
+
+    def test_init_v(self):
+        rec = Record(self.soma(0.5))
+
+        sim = Simulation(init_v=-100)
+        sim.run(100)
+        r1 = rec.as_numpy('v')
+
+        sim = Simulation(init_v=100)
+        sim.run(100)
+        r2 = rec.as_numpy('v')
+
+        sim.remove_immediate_from_neuron()
+        rec.remove_immediate_from_neuron()
+
+        self.assertEqual(-100, r1.records[0])
+        self.assertEqual(100, r2.records[0])
+
+    def test_timestep_constant(self):
+        rec = Record(self.soma(0.5))
+
+        sim = Simulation(constant_timestep=True, dt=1)
+        sim.run(100)
+        r1 = rec.as_numpy('v')
+
+        sim = Simulation(constant_timestep=False, dt=1)
+        sim.run(100)
+        r2 = rec.as_numpy('v')
+
+        sim = Simulation(constant_timestep=False, dt=10)
+        sim.run(100)
+        r3 = rec.as_numpy('v')
+
+        sim = Simulation(constant_timestep=False, dt=0.0001)
+        sim.run(100)
+        r4 = rec.as_numpy('v')
+
+        sim.remove_immediate_from_neuron()
+        rec.remove_immediate_from_neuron()
+
+        self.assertEqual(101, r1.size)
+        self.assertEqual(188, r2.size)
+        self.assertEqual(180, r3.size)
+        self.assertEqual(189, r4.size)
+
+    def test_warmup(self):
+        rec = Record(self.soma(0.5))
+
+        value_error = False
+        try:
+            sim = Simulation(warmup=-100)
+            sim.run(100)
+            r1 = rec.as_numpy('v')
+        except ValueError:
+            value_error = True
+        self.assertTrue(value_error)
+
+        sim = Simulation(warmup=100, dt=1)
+        sim.run(100)
+        r2 = rec.as_numpy('v')
+
+        sim = Simulation(warmup=100, dt=1, warmup_dt=1)
+        sim.run(100)
+        r3 = rec.as_numpy('v')
+
+        sim.remove_immediate_from_neuron()
+        rec.remove_immediate_from_neuron()
+
+        self.assertEqual(111, r2.size)
+        self.assertEqual(201, r3.size)
 
     def test_netstim_before_sim(self):
         """
@@ -52,6 +146,10 @@ class TestSimulation(unittest.TestCase):
 
         sim.run(100)
         r = rec.as_numpy(variable="v")
+
+        stim.remove_immediate_from_neuron()
+        sim.remove_immediate_from_neuron()
+        rec.remove_immediate_from_neuron()
 
         # Make assertions
         self.assertEqual(4051, r.size)
@@ -81,6 +179,10 @@ class TestSimulation(unittest.TestCase):
                               seg=self.apic1(0.5))
         sim.run(100)
         r = rec.as_numpy(variable="v")
+
+        stim.remove_immediate_from_neuron()
+        sim.remove_immediate_from_neuron()
+        rec.remove_immediate_from_neuron()
 
         # Make assertions
         self.assertEqual(4051, r.size)
@@ -113,6 +215,10 @@ class TestSimulation(unittest.TestCase):
         sim.run(100)
         r = rec.as_numpy(variable="v")
 
+        sim.remove_immediate_from_neuron()
+        rec.remove_immediate_from_neuron()
+        iclamp.remove_immediate_from_neuron()
+
         # Make assertions
         self.assertEqual(4051, r.size)
         self.assertEqual(34.3815, round(r.records.max(), 4))
@@ -144,6 +250,10 @@ class TestSimulation(unittest.TestCase):
         sim.run(100)
         r = rec.as_numpy(variable="v")
 
+        sim.remove_immediate_from_neuron()
+        rec.remove_immediate_from_neuron()
+        iclamp.remove_immediate_from_neuron()
+
         # Make assertions
         self.assertEqual(4051, r.size)
         self.assertEqual(34.3815, round(r.records.max(), 4))
@@ -153,7 +263,7 @@ class TestSimulation(unittest.TestCase):
         # time in ms of max mV value
         self.assertEqual(28, round(r.time[r.records.argmax()], 4))
 
-    def test_2_cells(self):
+    def test_2_runs(self):
         """
         Test setup for 2 cells and their records which should be the same.
 
@@ -162,7 +272,7 @@ class TestSimulation(unittest.TestCase):
         That means - each new sections and cell are retained in the current NEURON run.
         """
 
-        def get_rec():
+        def run_and_get_rec():
             rec = Record(self.soma(0.5))
             iclamp = IClamp(segment=self.soma(0.5))
             iclamp.stim(delay=25, dur=3, amp=3)
@@ -170,12 +280,13 @@ class TestSimulation(unittest.TestCase):
             sim.run(100)
             return rec
 
-        rec1 = get_rec()
+        rec1 = run_and_get_rec()
         r1 = rec1.as_numpy('v').records
 
+        self.tearDown()
         self.setUp()
 
-        rec2 = get_rec()
+        rec2 = run_and_get_rec()
         r2 = rec2.as_numpy('v').records
 
         sim = Simulation(init_v=-70, warmup=20)

@@ -1,9 +1,9 @@
 import os
 
-from Xlib.error import DisplayConnectionError
 from neuron import h
-from threading import Thread
 from typing import cast
+from threading import Thread
+from Xlib.error import DisplayConnectionError
 
 from pyvis.network import Network
 try:

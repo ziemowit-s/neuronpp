@@ -80,9 +80,3 @@ class VecStimCell(CoreCell):
         self.vss.append(vs)
         self.vecs.append(vec)
         return vs
-
-    def __del__(self):
-        for v in self.vss:
-            # recommended way to delete section in Python wrapper
-            v.hoc = None
-            del v

@@ -1,6 +1,7 @@
 import time
 from collections import defaultdict
 
+from neuronpp.core.neuron_removable import NeuronRemovable
 from neuronpp.utils.record import Record
 from neuronpp.core.hocwrappers.seg import Seg
 from neuronpp.utils.simulation import Simulation
@@ -9,7 +10,7 @@ from neuronpp.core.hocwrappers.synapses.synapse import Synapse
 from neuronpp.utils.utils import key_release_listener, KEY_LISTENER_IMPORTED
 
 
-class SynapticDebugger:
+class SynapticDebugger(NeuronRemovable):
     def __init__(self, init_v=-70, warmup=0, delay_between_steps=0):
         """
 

@@ -1,46 +1,60 @@
-from typing import List
+from typing import List, Optional
 
-from neuronpp.core.hocwrappers.wrapper import Wrapper
+from neuronpp.core.hocwrappers.netcon import NetCon
 from neuronpp.core.hocwrappers.hoc_wrapper import HocWrapper
 from neuronpp.core.hocwrappers.synapses.synapse import Synapse
+from neuronpp.core.hocwrappers.group_hoc_wrapper import GroupHocWrapper
 from neuronpp.core.hocwrappers.synapses.single_synapse import SingleSynapse
 
 
-class SynapticGroup(Wrapper, Synapse, dict):
-    def __init__(self, synapses: List[SingleSynapse], name: str):
+class SynapticGroup(GroupHocWrapper, Synapse):
+    def __init__(self, synapses: List[SingleSynapse], name: str, tag: Optional[str] = None):
         """
         It is a dictionary containing Single Synapses where key is point_process name of the 
         synapse of the same type, eg. self["ExpSyn"] = list(syn1, syn2, syn3)
 
-        All synapses in the group need to have a single source
+        All synapses in the group need to have a single target
+
+        It not derives from the HocWrapper because HocWrapper is a wrapper for a single HOC object
 
         :param synapses:
             list of Single Synapses.
             All synapses need to have the same parent object.
         :param name:
             string name for the group
+        :param tag:
+            string tag which will be attached to the synaptic group as tag.
+            you can filter by this tag
         """
+        self.add_non_removable_field("target")
+
+        self.tag = tag
         self.mod_name = '_'.join([s.point_process_name for s in synapses])
         name = "%s[%s]" % (self.mod_name, name)
 
-        parent = None
-        for s in synapses:
-            if not isinstance(s, SingleSynapse):
-                raise TypeError("All synapses must be of type SingleSynapse, "
-                                "but one of provided object was of type '%s'" % type(s))
-            if parent is None:
-                parent = s.parent
-            else:
-                if s.parent.name != parent.name:
-                    raise TypeError(
-                        "All synapses must have same parent element inside a single "
-                        "ComplexSynapse, but the parent of the first element was '%s' "
-                        "and of the second '%s'" % (parent, s.parent))
-            if s.point_process_name not in self:
-                self[s.point_process] = []
-            self[s.point_process_name].append(s)
+        GroupHocWrapper.__init__(self, objs=synapses, name=name,
+                                 key_func=lambda s: s.point_process_name)
 
-        Wrapper.__init__(self, parent=parent, name=name)
+        parent = None
+        for o in synapses:
+            if not isinstance(o, HocWrapper):
+                raise TypeError("All objects must derived from HocWrapper")
+            if parent is None:
+                parent = o.parent
+            else:
+                if o.parent.name != parent.name:
+                    raise TypeError("All objects must have the same parent.")
+
+        self.parent = parent
+        self.target = self.parent
+
+    @property
+    def sources(self) -> List[List]:
+        return [syn.sources for val in self.values() for syn in val]
+
+    @property
+    def netcons(self) -> List[List[NetCon]]:
+        return [syn.netcons for val in self.values() for syn in val]
 
     def make_event(self, time, use_global_sim_time=True):
         """

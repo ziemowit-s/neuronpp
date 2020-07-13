@@ -7,10 +7,11 @@ from typing import Union, Optional, Iterable
 
 from neuronpp.core.hocwrappers.sec import Sec
 from neuronpp.utils.RecordOutput import RecordOutput
+from neuronpp.core.neuron_removable import NeuronRemovable
 from neuronpp.core.hocwrappers.hoc_wrapper import HocWrapper
 
 
-class Record:
+class Record(NeuronRemovable):
     def __init__(self, elements: Union[Iterable[Union[HocWrapper]], Union[HocWrapper]],
                  variables='v'):
         """
@@ -217,7 +218,7 @@ class Record:
         if result.shape[0] == 1:
             result = result[0]
 
-        return RecordOutput(records=result, time=self.time.as_numpy())
+        return RecordOutput(variable=variable, records=result, time=self.time.as_numpy())
 
     def to_csv(self, filename):
         cols = ['time']
@@ -249,11 +250,3 @@ class Record:
             ax = fig.add_subplot(position[0], position[1], index)
 
         return ax
-
-    def __del__(self):
-        names = list(self.recs.keys())
-        for n in names:
-            del self.recs[n]
-
-        self.time = None
-        del self.time

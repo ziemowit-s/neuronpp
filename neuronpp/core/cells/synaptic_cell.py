@@ -75,10 +75,3 @@ class SynapticCell(NetConCell):
         self._syn_num[mod_name] += 1
 
         return syn
-
-    def __del__(self):
-        NetConCell.__del__(self)
-        for s in self.syns:
-            # recommended way to delete section in Python wrapper
-            s.hoc = None
-            del s

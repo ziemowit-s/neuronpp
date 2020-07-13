@@ -1,8 +1,21 @@
+from typing import Optional
+
 from neuronpp.core.hocwrappers.wrapper import Wrapper
 
 
 class HocWrapper(Wrapper):
-    def __init__(self, hoc_obj, parent, name):
+    def __init__(self, hoc_obj, parent: Optional, name: str):
+        """
+        HocWrapper is a wrapper for a single HOC object.
+
+        :param hoc_obj:
+            HOC object
+        :param parent:
+            parent object to the hoc_obj.
+            If it is a Section, the parent=None
+        :param name:
+            string name of this HOC object
+        """
         Wrapper.__init__(self, parent=parent, name=name)
         self.hoc = hoc_obj
 

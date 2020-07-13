@@ -1,7 +1,7 @@
 from collections import Iterable
 
-from neuronpp.core.hocwrappers.netstim import NetStim
 from neuronpp.core.hocwrappers.seg import Seg
+from neuronpp.core.hocwrappers.netstim import NetStim
 from neuronpp.core.hocwrappers.vecstim import VecStim
 
 

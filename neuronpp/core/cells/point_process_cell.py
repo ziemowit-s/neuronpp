@@ -107,10 +107,3 @@ class PointProcessCell(SectionCell):
                           cell=self)
         self.pps.append(pp)
         return pp
-
-    def __del__(self):
-        SectionCell.__del__(self)
-        for p in self.pps:
-            # recommended way to delete section in Python wrapper
-            p.hoc = None
-            del p

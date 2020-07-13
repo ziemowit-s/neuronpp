@@ -1,6 +1,5 @@
-from neuron import h
-from nrn import Section
 import numpy as np
+from neuron import h
 from neuronpp.core.hocwrappers.sec import Sec
 
 

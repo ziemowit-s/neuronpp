@@ -218,7 +218,8 @@ class SpineCell(SectionCell):
         :add_pas:
             add passive mechanism
         :return:
-            list of added spine heads
+            TODO change this to list of objects
+            list target location
 
         TODO: add spines with a distribution of head dimensions and
               neck dimensions
@@ -399,11 +400,3 @@ class SpineCell(SectionCell):
                         gbar_val = getattr(seg, mech_name)
                     factor += gbar_val * sec.area / nseg
         return factor
-
-    def __del__(self):
-        SectionCell.__del__(self)
-        for s in self.spines + self.heads + self.necks:
-            # recommended way to delete section in Python wrapper
-            s.hoc = None
-            del s
-
