@@ -132,7 +132,6 @@ class TestSimulation(unittest.TestCase):
         we have spike of the soma.
 
         However NetStim start is in the absolute time.
-        4 error
         """
         # Netstim to synapse
         stim = NetStimCell("stim").make_netstim(start=25, number=10, interval=2)
@@ -160,12 +159,54 @@ class TestSimulation(unittest.TestCase):
         # time in ms of max mV value
         self.assertEqual(27.725, round(r.time[r.records.argmax()], 4))
 
+    def test_netcon_event_before_sim(self):
+        """
+        Netcon created before sim init or start is not effective and should return error
+        """
+        sim = Simulation()
+        sim.reset()
+        syn = self.cell.add_synapse(source=None, netcon_weight=1.0, mod_name="ExpSyn", delay=1,
+                                    seg=self.apic1(0.5))
+        error = False
+        try:
+            syn.make_event(50)
+        except ConnectionRefusedError:
+            error = True
+
+        self.assertTrue(error)
+
+    def test_netcon_event_after_sim(self):
+        syn = self.cell.add_synapse(source=None, netcon_weight=1.0, mod_name="ExpSyn", delay=1,
+                                    seg=self.apic1(0.5))
+        # Record
+        rec = Record(self.soma(0.5))
+        # Run
+        sim = Simulation(init_v=-70, warmup=20)
+        sim.run(1)
+
+        syn.make_event(50)
+
+        sim.run(100)
+        r = rec.as_numpy(variable="v")
+
+        syn.remove_immediate_from_neuron()
+        sim.remove_immediate_from_neuron()
+        rec.remove_immediate_from_neuron()
+
+        # Make assertions
+        self.assertEqual(4051, r.size)
+        self.assertEqual(34.4582, round(r.records.max(), 4))
+        self.assertEqual(-75.3478, round(r.records.min(), 4))
+
+        self.assertEqual(2159, r.records.argmax())
+        # time in ms of max mV value
+        self.assertEqual(73.725, round(r.time[r.records.argmax()], 4))
+
     def test_netstim_after_sim(self):
         """
         NetStim created after simulation run has no effect, it won't go on this simulation at all.
 
         However NetStim start is in the absolute time.
-        3
         """
         # Record
         rec = Record(self.soma(0.5))
@@ -199,7 +240,6 @@ class TestSimulation(unittest.TestCase):
         we have spike at the soma.
 
         However IClamp delay is in the absolute time.
-        2
         """
         # Record
         rec = Record(self.soma(0.5))
@@ -234,7 +274,6 @@ class TestSimulation(unittest.TestCase):
         we have spike at the soma.
 
         However IClamp delay is in the absolute time.
-        1
         """
         # Record
         rec = Record(self.soma(0.5))
@@ -300,7 +339,6 @@ class TestSimulation(unittest.TestCase):
     def test_record_before_sim(self):
         """
         Record created before simulation run is full of data
-        6 error
         """
         # Record
         rec = Record(self.soma(0.5))
@@ -329,7 +367,6 @@ class TestSimulation(unittest.TestCase):
     def test_record_after_sim(self):
         """
         record created after simulation run is empty
-        5
         """
         # IClamp to soma
         iclamp = IClamp(segment=self.soma(0.5))

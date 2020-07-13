@@ -45,9 +45,8 @@ class NeuronRemovable:
                 getattr(v, "remove_from_neuron")()
             elif hasattr(v, "__del__"):
                 getattr(v, "__del__")()
-            del v
+            setattr(self, k, None)
         self.__dict__ = {}
-        del self
 
     def add_non_removable_field(self, field_name: str):
         """

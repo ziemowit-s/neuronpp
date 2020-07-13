@@ -255,7 +255,8 @@ class Population(NeuronRemovable):
                     # eg. for multi-netcons synapses (like ACh+Da+hebbian synapse)
                     # This requirement need to be directly define by the user
                     if connector._group_syns:
-                        cell.group_synapses(connector._synaptic_group_name, connector._tag, *syns)
+                        cell.group_synapses(name=connector._synaptic_group_name, tag=connector._tag,
+                                            synapses=syns)
 
                     # perform a custom function on created synapses if required for each
                     # target_segment

@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 from neuronpp.core.hocwrappers.netcon import NetCon
 from neuronpp.core.hocwrappers.hoc_wrapper import HocWrapper
@@ -50,25 +50,28 @@ class SynapticGroup(GroupHocWrapper, Synapse):
 
     @property
     def sources(self) -> List[List]:
-        return [syn.sources for val in self.values() for syn in val]
+        return [syn.sources for syn_list in self.values() for syn in syn_list]
 
     @property
     def netcons(self) -> List[List[NetCon]]:
-        return [syn.netcons for val in self.values() for syn in val]
+        return [syn.netcons for syn_list in self.values() for syn in syn_list]
 
     def make_event(self, time, use_global_sim_time=True):
         """
+        Make stimulation of all NetCons in all synapses.
+
         :param time:
-            time in ms of next synaptic event
+            time in ms of the simulational event
         :param use_global_sim_time:
             If true it will use global time of hoc simulation (don't need to add h.t or sim.time
             the the event time)
         """
-        for syn in self.values():
-            syn.make_event(time, use_global_sim_time)
+        for syn_list in self.values():
+            for syn in syn_list:
+                syn.make_event(time, use_global_sim_time)
 
-    def add_netcon(self, source: HocWrapper, weight: float = 1.0, delay: float = 1.0,
-                   threshold: float = 10):
+    def add_netcon(self, source: Optional[HocWrapper], weight: float = 1.0, delay: float = 1.0,
+                   threshold: float = 10) -> Dict[str, List[NetCon]]:
         """
         This is use on all synapses in this object. If you want to set source only for particular
         subset of synapses,
@@ -86,9 +89,16 @@ class SynapticGroup(GroupHocWrapper, Synapse):
             in ms
         :param threshold:
             threshold for NetConn, default=10
+        :return
+            dictionary of all created NetCons for all synapses, where key is the key of each Synapse
         """
-        for s in self.values():
-            s.add_netcon(source, weight, delay, threshold)
+        result = {}
+        for key, syn_list in self.items():
+            result[key] = []
+            for syn in syn_list:
+                nc = syn.add_netcon(source, weight, delay, threshold)
+                result[key].append(nc)
+        return result
 
     def __repr__(self):
         synapses_in = '+'.join(self.keys())

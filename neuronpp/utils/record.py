@@ -22,7 +22,8 @@ class Record(NeuronRemovable):
 
         :param elements:
             any HocWrapper. If you want to use SynapticGroup object - choose appropriate synapse
-            and pass it as SingleSynapse which is a HocWrapper, eg. syngroup["ExpSyn"]
+            and pass it as SingleSynapse which is a HocWrapper, eg. syngroup["ExpSyn"][0],
+            which indicates first synapse of type ExpSyn.
         :param variables:
             str or list_of_str of variable names to track
         """

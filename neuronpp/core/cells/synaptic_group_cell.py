@@ -1,7 +1,8 @@
 from collections import defaultdict
-from typing import Optional
+from typing import Optional, Iterable
 
 from neuronpp.core.cells.synaptic_cell import SynapticCell
+from neuronpp.core.hocwrappers.synapses.single_synapse import SingleSynapse
 from neuronpp.core.hocwrappers.synapses.synaptic_group import SynapticGroup
 
 
@@ -54,18 +55,21 @@ class SynapticGroupCell(SynapticCell):
         return self.filter(self.group_syns, obj_filter=obj_filter, mod_name=mod_name, name=name,
                            parent=parent, tag=tag, **kwargs)
 
-    def group_synapses(self, name: Optional[str] = None, tag: Optional[str] = None, *synapses):
+    def group_synapses(self, synapses: Iterable[SingleSynapse], name: Optional[str] = None,
+                       tag: Optional[str] = None):
         """
         Group existing synapses as a single SynapticGroup
 
+        :param synapses:
+            list of synapses of type SingleSynapse
         :param name:
             string name, if None it will be a number from 0 to n, where n is the number of
             synaptic group creation.
         :param tag:
             string tag which will be attached to the synaptic group as tag.
             you can filter by this tag
-        :param synapses:
-            list of synapses of type SingleSynapse
+        :return
+            created synaptic group object
         """
         if isinstance(synapses[0], (list, tuple, set)):
             synapses = [s for syns in synapses for s in syns]
@@ -76,8 +80,8 @@ class SynapticGroupCell(SynapticCell):
         if name is None:
             name = numerical_name
 
-        comp_syn = SynapticGroup(synapses=synapses, name=name, tag=tag)
-        self.group_syns.append(comp_syn)
+        result = SynapticGroup(synapses=synapses, name=name, tag=tag)
+        self.group_syns.append(result)
         self._group_syn_num[mod_names] += 1
 
-        return comp_syn
+        return result

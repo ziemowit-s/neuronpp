@@ -1,9 +1,9 @@
 from neuron import h
 from neuron.units import ms
-from neuronpp.core.hocwrappers.point_process import PointProcess
 
 from neuronpp.core.cells.core_cell import CoreCell
 from neuronpp.core.hocwrappers.hoc_wrapper import HocWrapper
+from neuronpp.core.hocwrappers.point_process import PointProcess
 
 
 class NetCon(HocWrapper):
@@ -17,9 +17,10 @@ class NetCon(HocWrapper):
 
     def make_event(self, time, use_global_sim_time=True, use_delay=True):
         """
-        Currently it makes events to all NetConns connected to the synapse.
+        Make stimulation of NetCon.
+
         :param time:
-            time in ms of next synaptic event
+            time in ms of the simulational event
         :param use_global_sim_time:
             If true it will use global time of hoc simulation
             (don't need to add h.t or sim.time the the event time)
