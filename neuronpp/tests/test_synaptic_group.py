@@ -47,22 +47,29 @@ class TestSynapticGroup(unittest.TestCase):
         g2 = self.cell.filter_synaptic_group(tag="aa")
         self.assertTrue(g1 == g2)
         self.assertTrue(g1 is not None)
-        del g1
-        del g2
+
+        # Remove variables and clear NEURON
+        g1.remove_immediate_from_neuron()
+        g2.remove_immediate_from_neuron()
 
     def test_mod_name_filter(self):
         g1 = self.cell.filter_synaptic_group(mod_name="Exp2Syn", tag="aa")
         g2 = self.cell.filter_synaptic_group(mod_name="ExpSyn", name="apic")
         self.assertTrue(g1 == g2)
         self.assertTrue(g1 is not None)
-        del g1
-        del g2
+
+        # Remove variables and clear NEURON
+        g1.remove_immediate_from_neuron()
+        g2.remove_immediate_from_neuron()
 
     def test_mod_filter(self):
         gs = self.cell.filter_synaptic_group(mod_name="Exp2Syn")
         self.assertEqual("aa", gs[0].tag)
         self.assertEqual("ss", gs[1].tag)
-        del gs
+
+        # Remove variables and clear NEURON
+        gs[0].remove_immediate_from_neuron()
+        gs[1].remove_immediate_from_neuron()
 
     def test_add_netcon_and_make_event_separately(self):
         g1 = self.cell.filter_synaptic_group(mod_name="Exp2Syn", tag="aa")
@@ -77,18 +84,21 @@ class TestSynapticGroup(unittest.TestCase):
         nc['ExpSyn'][0].make_event(20)
         sim.run(100)
 
-        exp2syn_rec = exp2syn_rec.as_numpy('i')
-        expsyn_rec = expsyn_rec.as_numpy('i')
+        exp2syn_np = exp2syn_rec.as_numpy('i')
+        stim_time_exp2syn = exp2syn_np.time[(exp2syn_np.records != 0).argmax()]
+        expsyn_np = expsyn_rec.as_numpy('i')
+        stim_time_expsyn = expsyn_np.time[(expsyn_np.records != 0).argmax()]
 
-        stim_time_exp2syn = exp2syn_rec.time[(exp2syn_rec.records != 0).argmax()]
-        stim_time_expsyn = expsyn_rec.time[(expsyn_rec.records != 0).argmax()]
         self.assertEqual(12.05, round(stim_time_exp2syn, 4))
         self.assertEqual(22.025, round(stim_time_expsyn, 4))
 
+        # Remove variables and clear NEURON
         nc['Exp2Syn'][0].remove_immediate_from_neuron()
         nc['ExpSyn'][0].remove_immediate_from_neuron()
-        del nc
-        del g1
+        nc = {}
+        g1.remove_immediate_from_neuron()
+        exp2syn_rec.remove_immediate_from_neuron()
+        expsyn_rec.remove_immediate_from_neuron()
         sim.remove_immediate_from_neuron()
 
     def test_stim_syns(self):
@@ -109,25 +119,32 @@ class TestSynapticGroup(unittest.TestCase):
         sim.run(100)
 
         # Test stim time of synaptic group 1
-        gs0_exp2syn_rec = gs0_exp2syn_rec.as_numpy('i')
-        gs0_expsyn_rec = gs0_expsyn_rec.as_numpy('i')
+        gs0_exp2syn_np = gs0_exp2syn_rec.as_numpy('i')
+        stim_time_gs0_exp2syn = gs0_exp2syn_np.time[(gs0_exp2syn_np.records != 0).argmax()]
 
-        stim_time_gs0_exp2syn = gs0_exp2syn_rec.time[(gs0_exp2syn_rec.records != 0).argmax()]
-        stim_time_gs0_expsyn = gs0_expsyn_rec.time[(gs0_expsyn_rec.records != 0).argmax()]
+        gs0_expsyn_np = gs0_expsyn_rec.as_numpy('i')
+        stim_time_gs0_expsyn = gs0_expsyn_np.time[(gs0_expsyn_np.records != 0).argmax()]
+
         self.assertEqual(round(stim_time_gs0_exp2syn, 1), round(stim_time_gs0_expsyn, 1))
 
         # Test stim time of synaptic group 2
-        gs1_exp2syn_rec = gs1_exp2syn_rec.as_numpy('i')
-        gs1_expsyn_rec = gs1_expsyn_rec.as_numpy('i')
+        gs1_exp2syn_np = gs1_exp2syn_rec.as_numpy('i')
+        stim_time_gs1_exp2syn = gs1_exp2syn_np.time[(gs1_exp2syn_np.records != 0).argmax()]
 
-        stim_time_gs1_exp2syn = gs1_exp2syn_rec.time[(gs1_exp2syn_rec.records != 0).argmax()]
-        stim_time_gs1_expsyn = gs1_expsyn_rec.time[(gs1_expsyn_rec.records != 0).argmax()]
+        gs1_expsyn_np = gs1_expsyn_rec.as_numpy('i')
+        stim_time_gs1_expsyn = gs1_expsyn_np.time[(gs1_expsyn_np.records != 0).argmax()]
+
         self.assertEqual(round(stim_time_gs1_exp2syn, 1), round(stim_time_gs1_expsyn, 1))
 
         # Test values of mV in soma
-        self.assertEqual(31.3285, round(gs0_exp2syn_rec.records.max(), 4))
-        self.assertEqual(-61.309, round(gs0_exp2syn_rec.records.min(), 4))
+        self.assertEqual(31.3285, round(gs0_exp2syn_np.records.max(), 4))
+        self.assertEqual(-61.309, round(gs0_exp2syn_np.records.min(), 4))
 
+        # Remove variables and clear NEURON
+        gs0_exp2syn_rec.remove_immediate_from_neuron()
+        gs0_expsyn_rec.remove_immediate_from_neuron()
+        gs1_exp2syn_rec.remove_immediate_from_neuron()
+        gs1_expsyn_rec.remove_immediate_from_neuron()
         gs[0].remove_immediate_from_neuron()
         gs[1].remove_immediate_from_neuron()
         sim.remove_immediate_from_neuron()
