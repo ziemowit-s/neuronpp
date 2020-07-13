@@ -1,20 +1,17 @@
-from typing import Optional
-
 import numpy as np
+from typing import Optional
 
 
 class Dist:
-    _seed = None
+    seed = None
 
     def __init__(self, dtype="float"):
         self.dtype = dtype
 
     @classmethod
     def set_seed(cls, seed):
-        if cls._seed:
-            raise ValueError("Seed have been already set. Seed can be set once.")
         np.random.seed(seed)
-        cls._seed = seed
+        cls.seed = seed
 
 
 class UniformDist(Dist):

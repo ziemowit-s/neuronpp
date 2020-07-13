@@ -1,5 +1,6 @@
 import unittest
 import numpy as np
+from neuron import h
 from neuronpp.core.cells.spine_cell import SpineCell
 from neuronpp.core.cells.utils import establish_electric_properties
 from neuronpp.core.cells.utils import get_spine_number
@@ -13,18 +14,23 @@ class TestParentSectionElectric(unittest.TestCase):
         cls.soma = cell.add_sec("soma", g_pas=1 / 30000, E_rest=-76,
                                 ra=40, cm=1.1, nseg=100, add_pas=True)
         cls.e_pas1, cls.g_pas1, cls.ra1, \
-            cls.cm1 = establish_electric_properties(cls.soma,
-                                                    None, None,
-                                                    None, None)
+            cls.cm1 = establish_electric_properties(cls.soma, None, None, None, None)
 
         cls.e_pas2, cls.g_pas2, cls.ra2, \
-            cls.cm2 = establish_electric_properties(cls.soma,
-                                                    -79, 1 / 20000,
-                                                    50, 1.2)
+            cls.cm2 = establish_electric_properties(cls.soma, -79, 1 / 20000, 50, 1.2)
         cls.dend = cell.add_sec("dend")
         cls.e_pas3, cls.g_pas3, cls.ra3, \
-            cls.cm3 = establish_electric_properties(cls.dend, None, None,
-                                                    None, None)
+            cls.cm3 = establish_electric_properties(cls.dend, None, None, None, None)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.soma.remove_immediate_from_neuron()
+        cls.dend.remove_immediate_from_neuron()
+
+        l = len(list(h.allsec()))
+        if len(list(h.allsec())) != 0:
+            raise RuntimeError("Not all section have been removed after teardown. "
+                               "Sections left: %s" % l)
 
     def test_e_pas_soma(self):
         self.assertEqual(self.soma.hoc.e_pas, self.e_pas1)
@@ -68,8 +74,18 @@ class TestParentSectionElectric(unittest.TestCase):
 class TestGetSpineNumber(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cell = SpineCell(name="cell")
-        cls.soma = cell.add_sec("soma", nseg=10)
+        cls.cell = SpineCell(name="cell")
+        cls.soma = cls.cell.add_sec("soma", nseg=10)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.soma.remove_immediate_from_neuron()
+        cls.cell.remove_immediate_from_neuron()
+
+        l = len(list(h.allsec()))
+        if len(list(h.allsec())) != 0:
+            raise RuntimeError("Not all section have been removed after teardown. "
+                               "Sections left: %s" % l)
 
     def test_length_density(self):
         spine_density = 0.1

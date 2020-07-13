@@ -18,6 +18,18 @@ class TestCellAddSectionDefault(unittest.TestCase):
         cls.cell.connect_secs(cls.dend1, cls.soma)
         cls.cell.connect_secs(cls.dend2, cls.soma)
 
+    @classmethod
+    def tearDownClass(cls):
+        cls.soma.remove_immediate_from_neuron()
+        cls.dend1.remove_immediate_from_neuron()
+        cls.dend2.remove_immediate_from_neuron()
+        cls.cell.remove_immediate_from_neuron()
+
+        l = len(list(h.allsec()))
+        if len(list(h.allsec())) != 0:
+            raise RuntimeError("Not all section have been removed after teardown. "
+                               "Sections left: %s" % l)
+
     def test_add_soma_L_default(self):
         self.assertEqual(self.soma.hoc.L, 100.)
 
@@ -61,17 +73,33 @@ class TestCellAddSectionLeak(unittest.TestCase):
         cls.soma3 = cell3.add_sec("soma", rm=1 / 0.003)
 
         cell4 = Cell(name="cell4")
-
         cls.soma4 = cell4.add_sec("soma", E_rest=-80)
         # no pas but add pas
         cls.cell5 = Cell(name="cell5")
         cls.soma5 = cls.cell5.add_sec("soma", add_pas=True)
+
         cls.dend = h.Section("dend", "cell5")
         cls.dend.insert("pas")
+
         cell6 = Cell(name="cell6")
         cls.soma6 = cell6.add_sec("soma", add_pas=True)
         cls.soma6.hoc.insert("pas")
         cell6.set_pas("soma", Rm=1000, E_rest=-77, g_pas=0.002)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.soma1.remove_immediate_from_neuron()
+        cls.soma2.remove_immediate_from_neuron()
+        cls.soma3.remove_immediate_from_neuron()
+        cls.soma4.remove_immediate_from_neuron()
+        cls.soma5.remove_immediate_from_neuron()
+        cls.soma6.remove_immediate_from_neuron()
+        cls.dend = None
+
+        l = len(list(h.allsec()))
+        if len(list(h.allsec())) != 0:
+            raise RuntimeError("Not all section have been removed after teardown. "
+                               "Sections left: %s" % l)
 
     def test_cell1_g_pas(self):
         self.assertEqual(self.soma1.hoc.g_pas, 0.001)
@@ -133,6 +161,13 @@ class TestFiltering(unittest.TestCase):
         far_secs = cell.filter_secs(
             obj_filter=lambda s: h.distance(soma.hoc(0.5), s.hoc(0.5)) > 1000)
         self.assertEqual(len(far_secs), 32)
+
+        soma.remove_immediate_from_neuron()
+        for s in far_secs:
+            s.remove_immediate_from_neuron()
+        cell.remove_immediate_from_neuron()
+
+        self.assertEqual(0, len(list(h.allsec())))
 
 
 if __name__ == '__main__':

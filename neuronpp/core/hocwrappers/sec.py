@@ -20,6 +20,8 @@ class Sec(HocWrapper):
         :param name:
             string name of the section
         """
+        self.add_non_removable_field("cell")
+
         self.cell = cell
         HocWrapper.__init__(self, hoc_obj=obj, parent=None, name=name)
 

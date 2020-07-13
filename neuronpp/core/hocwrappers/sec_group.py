@@ -23,9 +23,11 @@ class SecGroup(GroupHocWrapper):
             string tag which will be attached to the synaptic group as tag.
             you can filter by this tag
         """
+        self.add_non_removable_field("cell")
+
         self.tag = tag
         self.mod_name = '_'.join([s.name for s in secs])
         name = "%s[%s]" % (self.mod_name, name)
 
-        GroupHocWrapper.__init__(self, name=name, *secs)
+        GroupHocWrapper.__init__(self, objs=secs, name=name)
         self.cell = self.parent

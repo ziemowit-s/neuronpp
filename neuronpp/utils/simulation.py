@@ -86,7 +86,7 @@ class Simulation(NeuronRemovable):
         self.dt = dt
         self.warmup_dt = warmup_dt
         self.shape_plots = shape_plots
-        self.last_runtime = 0
+        self.current_runtime = 0
         if init_sleep < 0:
             raise ValueError("init_sleep time must be >= 0.")
         self.init_sleep = init_sleep
@@ -190,7 +190,7 @@ class Simulation(NeuronRemovable):
                       'Computation time:', round(computation_time * 1000, 2), "ms\n",
                       'Simulation stepsize:', stepsize)
 
-        self.last_runtime = runtime
+        self.current_runtime = runtime
 
     def _plot_shapes(self):
         # flush shape and console log

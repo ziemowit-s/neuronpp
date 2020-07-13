@@ -218,7 +218,8 @@ class SpineCell(SectionCell):
         :add_pas:
             add passive mechanism
         :return:
-            list of added spine heads
+            TODO change this to list of objects
+            list target location
 
         TODO: add spines with a distribution of head dimensions and
               neck dimensions

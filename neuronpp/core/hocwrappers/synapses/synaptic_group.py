@@ -26,12 +26,26 @@ class SynapticGroup(GroupHocWrapper, Synapse):
             string tag which will be attached to the synaptic group as tag.
             you can filter by this tag
         """
+        self.add_non_removable_field("target")
+
         self.tag = tag
         self.mod_name = '_'.join([s.point_process_name for s in synapses])
         name = "%s[%s]" % (self.mod_name, name)
 
-        GroupHocWrapper.__init__(self, name=name,
-                                 key_func=lambda s: s.point_process_name, *synapses)
+        GroupHocWrapper.__init__(self, objs=synapses, name=name,
+                                 key_func=lambda s: s.point_process_name)
+
+        parent = None
+        for o in synapses:
+            if not isinstance(o, HocWrapper):
+                raise TypeError("All objects must derived from HocWrapper")
+            if parent is None:
+                parent = o.parent
+            else:
+                if o.parent.name != parent.name:
+                    raise TypeError("All objects must have the same parent.")
+
+        self.parent = parent
         self.target = self.parent
 
     @property

@@ -9,6 +9,9 @@ from neuronpp.core.hocwrappers.hoc_wrapper import HocWrapper
 class NetCon(HocWrapper):
     def __init__(self, hoc_obj, name, source: HocWrapper, target: PointProcess, parent: CoreCell):
         HocWrapper.__init__(self, hoc_obj=hoc_obj, parent=parent, name=name)
+        self.add_non_removable_field("sources")
+        self.add_non_removable_field("target")
+
         self.source = source
         self.target = target
 

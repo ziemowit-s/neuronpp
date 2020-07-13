@@ -13,6 +13,8 @@ class Cell(SynapticSpineCell):
         :param population:
             reference to the population (if the cell is a part of such). Default is None
         """
+        self.add_non_removable_field("population")
+
         CoreCell.__init__(self, name=name, compile_paths=compile_paths)
         SynapticSpineCell.__init__(self, name)
         self.population = population

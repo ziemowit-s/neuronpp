@@ -13,8 +13,8 @@ class SynapticGroupCell(SynapticCell):
         :param compile_paths:
         """
         SynapticCell.__init__(self, name, compile_paths=compile_paths)
-        self.complex_syns = []
-        self._complex_syn_num = defaultdict(int)
+        self.group_syns = []
+        self._group_syn_num = defaultdict(int)
 
     def filter_synaptic_group(self, mod_name: str = None, name=None, parent=None, tag=None,
                               obj_filter=None, **kwargs):
@@ -51,7 +51,7 @@ class SynapticGroupCell(SynapticCell):
             obj_filter treated as AND statement.
         :return:
         """
-        return self.filter(self.complex_syns, obj_filter=obj_filter, mod_name=mod_name, name=name,
+        return self.filter(self.group_syns, obj_filter=obj_filter, mod_name=mod_name, name=name,
                            parent=parent, tag=tag, **kwargs)
 
     def group_synapses(self, name: Optional[str] = None, tag: Optional[str] = None, *synapses):
@@ -71,13 +71,13 @@ class SynapticGroupCell(SynapticCell):
             synapses = [s for syns in synapses for s in syns]
 
         mod_names = '+'.join([s.point_process_name for s in synapses])
-        numerical_name = str(self._complex_syn_num[mod_names])
+        numerical_name = str(self._group_syn_num[mod_names])
 
         if name is None:
             name = numerical_name
 
         comp_syn = SynapticGroup(synapses=synapses, name=name, tag=tag)
-        self.complex_syns.append(comp_syn)
-        self._complex_syn_num[mod_names] += 1
+        self.group_syns.append(comp_syn)
+        self._group_syn_num[mod_names] += 1
 
         return comp_syn

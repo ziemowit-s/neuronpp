@@ -1,5 +1,6 @@
 import os
 import unittest
+from neuron import h
 
 from neuronpp.cells.cell import Cell
 from neuronpp.core.cells.netstim_cell import NetStimCell
@@ -30,7 +31,7 @@ class TestStandardPopulation(unittest.TestCase):
             return cell
 
         # Create NetStim
-        netstim = NetStimCell("stim1").make_netstim(start=21, number=100, interval=2)
+        cls.netstim = NetStimCell("stim1").make_netstim(start=21, number=100, interval=2)
 
         # Define connection probabilities
         Dist.set_seed(13)
@@ -42,7 +43,7 @@ class TestStandardPopulation(unittest.TestCase):
         cls.pop1.add_cells(num=3, cell_function=cell_template)
 
         connector = cls.pop1.connect(cell_proba=conn_dist)
-        connector.set_source(netstim)
+        connector.set_source(cls.netstim)
         connector.set_target([c.filter_secs("dend")(0.5) for c in cls.pop1.cells])
         syn_adder = connector.add_synapse("Exp2Syn")
         syn_adder.add_netcon(weight=weight_dist)
@@ -70,6 +71,18 @@ class TestStandardPopulation(unittest.TestCase):
         syn_adder.add_netcon(weight=weight_dist)
         connector.build()
 
+    @classmethod
+    def tearDownClass(cls):
+        cls.netstim.remove_immediate_from_neuron()
+        cls.pop1.remove_immediate_from_neuron()
+        cls.pop2.remove_immediate_from_neuron()
+        cls.pop3.remove_immediate_from_neuron()
+
+        l = len(list(h.allsec()))
+        if len(list(h.allsec())) != 0:
+            raise RuntimeError("Not all section have been removed after teardown. "
+                               "Sections left: %s" % l)
+
     def test_cell_number(self):
         self.assertEqual(len(self.pop1.cells), 3)
         self.assertEqual(len(self.pop2.cells), 4)
@@ -95,7 +108,6 @@ class TestStandardPopulation(unittest.TestCase):
         for i, syn in enumerate(self.pop3.syns):
             stim_cell_name = syn.sources[0].parent.cell.name
             self.assertEqual(stim_cell_name, pop3_names[i])
-            print(stim_cell_name)
 
     def test_netcon_weight_pop1(self):
         # for numpy.random.seed(13)
@@ -154,6 +166,16 @@ class TestProbabilities(unittest.TestCase):
         connector.add_synapse("ExpSyn").add_netcon(weight=weight_dist1)
         connector.build()
 
+    @classmethod
+    def tearDownClass(cls):
+        cls.pop1.remove_immediate_from_neuron()
+        cls.pop2.remove_immediate_from_neuron()
+
+        l = len(list(h.allsec()))
+        if len(list(h.allsec())) != 0:
+            raise RuntimeError("Not all section have been removed after teardown. "
+                               "Sections left: %s" % l)
+
     def test(self):
         cells = get_source_cells(self.pop2)
         weights = get_netcon_weights(self.pop2)
@@ -201,6 +223,16 @@ class TestConnectorAndSynAdder(unittest.TestCase):
         connector.add_synapse("Exp2Syn").add_netcon(weight=10.5)
         connector.build()
 
+    @classmethod
+    def tearDownClass(cls):
+        cls.pop1.remove_immediate_from_neuron()
+        cls.pop2.remove_immediate_from_neuron()
+
+        l = len(list(h.allsec()))
+        if len(list(h.allsec())) != 0:
+            raise RuntimeError("Not all section have been removed after teardown. "
+                               "Sections left: %s" % l)
+
     def test(self):
         get_netcon_weights(self.pop2)
         get_source_cells(self.pop2)
@@ -222,6 +254,16 @@ class TestNamingConvention(unittest.TestCase):
         # Create population without name for the cell template
         cls.pop2 = Population("pop_1")
         cls.pop2.add_cells(num=3, cell_function=cell_noname_template)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.pop1.remove_immediate_from_neuron()
+        cls.pop2.remove_immediate_from_neuron()
+
+        l = len(list(h.allsec()))
+        if len(list(h.allsec())) != 0:
+            raise RuntimeError("Not all section have been removed after teardown. "
+                               "Sections left: %s" % l)
 
     def test_cell_with_name(self):
         self.assertEqual("pop_0[my custom name][0]", self.pop1.cells[0].name)

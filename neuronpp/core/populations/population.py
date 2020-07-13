@@ -121,6 +121,18 @@ class Population(NeuronRemovable):
         return Connector(population_ref=self, rule=rule, cell_proba=cell_proba,
                          seg_dist=seg_dist, syn_num_per_source=syn_num_per_source)
 
+    def remove_immediate_from_neuron(self):
+        for r in self.recs.values():
+            r.remove_immediate_from_neuron()
+        self.recs = {}
+
+        for s in self.syns:
+            s.remove_immediate_from_neuron()
+        for c in self.cells:
+            c.remove_immediate_from_neuron()
+            del c
+        self.cells = {}
+
     def _build_connector(self, conn: Connector):
         """
         Make new connection by adding existing Connector object created in advance

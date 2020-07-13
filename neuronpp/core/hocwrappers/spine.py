@@ -19,11 +19,10 @@ class Spine(SecGroup):
         :param name:
             name of the spine
         """
-        SecGroup.__init__(self, secs=[head, neck], name=name)
         cell.connect_secs(source=head, target=neck)
-        self.hoc_objs = [neck.hoc, head.hoc]
         self.head = head
         self.neck = neck
+        SecGroup.__init__(self, secs=[head, neck], name=name)
 
     @property
     def parent(self):

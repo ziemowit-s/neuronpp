@@ -1,33 +1,35 @@
 import os
 import unittest
 import numpy as np
+from neuron import h
+
 from neuronpp.core.cells.spine_cell import SpineCell, SPINE_DIMENSIONS
 
 
 class TestCellAddSpineToSection(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cell = SpineCell(name="cell")
-        cls.soma = cell.add_sec("soma", add_pas=True, nseg=10)
-        cell._add_spines_to_section(cls.soma, "new", 0.5, 1, 1, 0.5, 0.5,
-                                    None, None, None, None,
-                                    add_pas=False)
-        cls.head = cell.heads[0]
-        cls.neck = cell.necks[0]
-        cell2 = SpineCell(name="cell2")
-        cls.soma2 = cell2.add_sec("soma", nseg=10, add_pas=True)
-        cell2._add_spines_to_section(cls.soma2, "new", 0.3, .5, .5, 0.3, 0.3,
-                                     None, None, None, None,
-                                     add_pas=True)
-        cls.head2 = cell2.heads[0]
-        cls.neck2 = cell2.necks[0]
+        cls.cell = SpineCell(name="cell")
+        cls.soma = cls.cell.add_sec("soma", add_pas=True, nseg=10)
+        cls.cell._add_spines_to_section(cls.soma, "new", 0.5, 1, 1, 0.5, 0.5,
+                                        None, None, None, None,
+                                        add_pas=False)
+        cls.head = cls.cell.heads[0]
+        cls.neck = cls.cell.necks[0]
+        cls.cell2 = SpineCell(name="cell2")
+        cls.soma2 = cls.cell2.add_sec("soma", nseg=10, add_pas=True)
+        cls.cell2._add_spines_to_section(cls.soma2, "new", 0.3, .5, .5, 0.3, 0.3,
+                                         None, None, None, None,
+                                         add_pas=True)
+        cls.head2 = cls.cell2.heads[0]
+        cls.neck2 = cls.cell2.necks[0]
 
-        cell3 = SpineCell(name="cell3")
-        cls.soma3 = cell3.add_sec("soma", add_pas=True)
-        cell3._add_spines_to_section(cls.soma3, "new", 0.3, .5, .5, 0.3, 0.3,
-                                     -80, 1 / 30000, 100, 2)
-        cls.head3 = cell3.heads[0]
-        cls.neck3 = cell3.necks[0]
+        cls.cell3 = SpineCell(name="cell3")
+        cls.soma3 = cls.cell3.add_sec("soma", add_pas=True)
+        cls.cell3._add_spines_to_section(cls.soma3, "new", 0.3, .5, .5, 0.3, 0.3,
+                                         -80, 1 / 30000, 100, 2)
+        cls.head3 = cls.cell3.heads[0]
+        cls.neck3 = cls.cell3.necks[0]
 
         cls.cell4 = SpineCell(name="cell4")
         cls.soma4 = cls.cell4.add_sec("soma", add_pas=True)
@@ -37,6 +39,35 @@ class TestCellAddSpineToSection(unittest.TestCase):
                                          -80, 1 / 40000, 100, 2)
         cls.head4 = cls.cell4.heads
         cls.neck4 = cls.cell4.necks
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.head.remove_immediate_from_neuron()
+        cls.neck.remove_immediate_from_neuron()
+        cls.soma.remove_immediate_from_neuron()
+        cls.cell.remove_immediate_from_neuron()
+
+        cls.head2.remove_immediate_from_neuron()
+        cls.neck2.remove_immediate_from_neuron()
+        cls.soma2.remove_immediate_from_neuron()
+        cls.cell2.remove_immediate_from_neuron()
+
+        cls.head3.remove_immediate_from_neuron()
+        cls.neck3.remove_immediate_from_neuron()
+        cls.soma3.remove_immediate_from_neuron()
+        cls.cell3.remove_immediate_from_neuron()
+
+        for o in cls.head4:
+            o.remove_immediate_from_neuron()
+        for o in cls.neck4:
+            o.remove_immediate_from_neuron()
+        cls.soma4.remove_immediate_from_neuron()
+        cls.cell4.remove_immediate_from_neuron()
+
+        l = len(list(h.allsec()))
+        if len(list(h.allsec())) != 0:
+            raise RuntimeError("Not all section have been removed after teardown. "
+                               "Sections left: %s" % l)
 
     def test_head_diam(self):
         self.assertEqual(self.head.hoc.diam, 1.)
@@ -271,6 +302,24 @@ class TestAddSpinesToSectionList(unittest.TestCase):
                                         spine_type="weird",
                                         add_pas=False)
 
+    @classmethod
+    def tearDownClass(cls):
+        cls.dend1.remove_immediate_from_neuron()
+        cls.dend2.remove_immediate_from_neuron()
+        cls.cell1.remove_immediate_from_neuron()
+
+        cls.dend21.remove_immediate_from_neuron()
+        cls.dend22.remove_immediate_from_neuron()
+        cls.cell2.remove_immediate_from_neuron()
+
+        cls.soma3.remove_immediate_from_neuron()
+        cls.cell3.remove_immediate_from_neuron()
+
+        l = len(list(h.allsec()))
+        if len(list(h.allsec())) != 0:
+            raise RuntimeError("Not all section have been removed after teardown. "
+                               "Sections left: %s" % l)
+
     def test_number_of_heads(self):
         self.assertEqual(len(self.cell1.heads), 4)
 
@@ -426,12 +475,45 @@ class TestFindingSectionsWithMechs(unittest.TestCase):
                 cls.cell.connect_secs(dend, cls.dends[i - 1])
         cls.cell.insert("calH", "dend", gcalbar=0.0002)
         cls.cell.insert("kca", "dend", gbar=0.00075)
-        regions = cls.cell.filter_secs("dend", as_list=True)
-        cls.cell.add_spines_by_density(regions, 0.02, "thin", add_pas=True)
+        cls.regions = cls.cell.filter_secs("dend", as_list=True)
+        cls.cell.add_spines_by_density(cls.regions, 0.02, "thin", add_pas=True)
         cls.cell.insert("calH", "head", gcalbar=0.0001)
+
         cls.find_calH = cls.cell.get_spines_by_section("calH")
         cls.find_kca = cls.cell.get_spines_by_section("kca")
         cls.find_all = cls.cell.get_spines_by_section(None)
+
+    @classmethod
+    def tearDownClass(cls):
+        for d in cls.find_calH.values():
+            for i in d:
+                i.remove_immediate_from_neuron()
+        del cls.find_calH
+
+        for d in cls.find_kca.values():
+            for i in d:
+                i.remove_immediate_from_neuron()
+        del cls.find_kca
+
+        for d in cls.find_all.values():
+            for i in d:
+                i.remove_immediate_from_neuron()
+        del cls.find_all
+
+        for d in cls.dends:
+            d.remove_immediate_from_neuron()
+
+        for d in cls.regions:
+            d.remove_immediate_from_neuron()
+
+        cls.soma.remove_immediate_from_neuron()
+
+        cls.cell.remove_immediate_from_neuron()
+
+        l = len(list(h.allsec()))
+        if len(list(h.allsec())) != 0:
+            raise RuntimeError("Not all section have been removed after teardown. "
+                               "Sections left: %s" % l)
 
     def test_if_all_parents_accounted_for(self):
         dends = self.cell.filter_secs(obj_filter=lambda o: "dend" in o.name and
@@ -474,14 +556,25 @@ class TestSpineFactor(unittest.TestCase):
                 cls.cell.connect_secs(dend, cls.soma)
             else:
                 cls.cell.connect_secs(dend, cls.dends[i - 1])
-        regions = cls.cell.filter_secs("dend", as_list=True)
-        cls.cell.add_spines_by_density(regions, 0.02,
-                                            "thin", add_pas=True)
+        cls.regions = cls.cell.filter_secs("dend", as_list=True)
+        cls.cell.add_spines_by_density(cls.regions, 0.02, "thin", add_pas=True)
         cls.cell.insert("calH", cls.cell.heads, gcalbar=0.0001)
-        cls.out_calH = cls.cell._get_spine_factor(cls.cell.spines[:2],
-                                                  "calH", "gcalbar")
-        cls.out_cm = cls.cell._get_spine_factor(cls.cell.spines[:2], "cm",
-                                                None)
+        cls.out_calH = cls.cell._get_spine_factor(cls.cell.spines[:2], "calH", "gcalbar")
+        cls.out_cm = cls.cell._get_spine_factor(cls.cell.spines[:2], "cm", None)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.soma.remove_immediate_from_neuron()
+        for d in cls.dends:
+            d.remove_immediate_from_neuron()
+        for d in cls.regions:
+            d.remove_immediate_from_neuron()
+        cls.cell.remove_immediate_from_neuron()
+
+        l = len(list(h.allsec()))
+        if len(list(h.allsec())) != 0:
+            raise RuntimeError("Not all section have been removed after teardown. "
+                               "Sections left: %s" % l)
 
     def test_cm(self):
         out = 0
@@ -519,13 +612,27 @@ class TestCompensateForMechanism(unittest.TestCase):
         cls.gkca = 0.00075
         cls.cell.insert("calH", "dend", gcalbar=cls.gbar_dend)
         cls.cell.insert("kca", "dend", gbar=cls.gkca)
-        regions = cls.cell.filter_secs("dend", as_list=True)
-        cls.cell.add_spines_by_density(regions, 0.02, "thin",
+        cls.regions = cls.cell.filter_secs("dend", as_list=True)
+        cls.cell.add_spines_by_density(cls.regions, 0.02, "thin",
                                        add_pas=True, spine_cm=10)
         cls.cell.insert("calH", "head", gcalbar=cls.gbar_spine)
         cls.cell.compensate(cm_adjustment=False, calH="gcalbar")
         cls.cell.compensate(cm_adjustment=False, kca="gbar")
         cls.cell.compensate(cm_adjustment=True)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.soma.remove_immediate_from_neuron()
+        for d in cls.dends:
+            d.remove_immediate_from_neuron()
+        for d in cls.regions:
+            d.remove_immediate_from_neuron()
+        cls.cell.remove_immediate_from_neuron()
+
+        l = len(list(h.allsec()))
+        if len(list(h.allsec())) != 0:
+            raise RuntimeError("Not all section have been removed after teardown. "
+                               "Sections left: %s" % l)
 
     def test_cm(self):
         spine_factor = 0

@@ -10,6 +10,9 @@ class SingleSynapse(HocWrapper, Synapse):
     def __init__(self, source, point_process: PointProcess, name,
                  netcon: Optional[Union[List[NetCon], NetCon]] = None, tag=None):
 
+        self.add_non_removable_field("sources")
+        self.add_non_removable_field("target")
+
         self.point_process = point_process
         self.point_process_name = point_process.mod_name
 
