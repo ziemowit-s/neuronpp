@@ -36,8 +36,9 @@ class SingleSynapse(HocWrapper, Synapse):
     def make_event(self, time, use_global_sim_time=True):
         """
         Currently it makes events to all NetConns connected to the synapse.
+
         :param time:
-            time in ms of next synaptic event
+            time in ms of the simulational event
         :param use_global_sim_time:
             If true it will use global time of hoc simulation
             (don't need to add h.t or sim.time the the event time)
@@ -45,8 +46,8 @@ class SingleSynapse(HocWrapper, Synapse):
         for nc in self.netcons:
             nc.make_event(time, use_global_sim_time)
 
-    def add_netcon(self, source: HocWrapper, weight: float = 1.0, delay: float = 1.0,
-                   threshold: float = 10):
+    def add_netcon(self, source: Optional[HocWrapper], weight: float = 1.0, delay: float = 1.0,
+                   threshold: float = 10) -> NetCon:
         """
         Currently it allows to add single new source
         :param source:
@@ -59,13 +60,17 @@ class SingleSynapse(HocWrapper, Synapse):
             in ms
         :param threshold:
             threshold for NetConn, default=10
+        :return:
+            created NetCon
         """
-        conn = self.point_process.cell.add_netcon(source=source, point_process=self.point_process,
-                                                  netcon_weight=weight,
-                                                  delay=delay, threshold=threshold)
-        self.netcons.append(conn)
+        nc = self.point_process.cell.add_netcon(source=source, point_process=self.point_process,
+                                                netcon_weight=weight,
+                                                delay=delay, threshold=threshold)
+        self.netcons.append(nc)
         if source is not None:
             self.sources.append(source)
+
+        return nc
 
     def __repr__(self):
         ncs = '_'.join([str(nc) for nc in self.netcons])

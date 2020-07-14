@@ -130,6 +130,7 @@ class SectionCell(CoreCell):
                      target_loc=0.0):
         """
         default: source(0.0) -> target(1.0)
+        eg. apic(0.0) -> soma(1.0)
 
         source.hoc.connect(target.hoc(source_loc), target_loc)
         child.connect(parent)
