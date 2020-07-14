@@ -6,7 +6,8 @@ from neuronpp.utils.record import Record
 from neuronpp.core.populations.connector import Connector
 from neuronpp.core.neuron_removable import NeuronRemovable
 from neuronpp.core.hocwrappers.synapses.synapse import Synapse
-from neuronpp.core.distributions import Dist, UniformProba, NormalProba, NormalTruncatedSegDist
+from neuronpp.core.distributions import Dist, UniformProba, NormalProba, NormalTruncatedSegDist, \
+    UniformSegDist
 
 T_Cell = TypeVar('T_Cell', bound=Cell)
 
@@ -71,7 +72,7 @@ class Population(NeuronRemovable):
 
     def connect(self, rule: str = "all",
                 cell_proba: Union[float, Dist] = 1.0,
-                seg_dist: Union[NormalTruncatedSegDist, str] = "uniform",
+                seg_dist: Union[NormalTruncatedSegDist, UniformSegDist] = UniformSegDist(),
                 syn_num_per_source: Union[int, Dist] = 1) -> Connector:
         """
         Returns Connector object.
@@ -97,21 +98,18 @@ class Population(NeuronRemovable):
 
             "all" - str: means all provided segments will be taken.
 
-            "uniform" - str: means all segs are equally probable
-                        Uniform distribution for segment choosing. Uniform means that all
-                        provided segments have equal probability.
+            UniformSegDist - all segs are equally probable. Uniform means that all provided segments
+                have equal probability of setup a point of connection.
 
-            NormalDist - object: probability of choose seg with mean and std provided
-                        Normal distribution for segment choosing.
-                        Normal means that choosing segments are clustered around mean with standard
-                        deviation std.
-                        :param mean:
-                            Provided in normalized arbitrary unit between 0-1, where all provided
-                            segments are organized as list. The first element has location=0,
-                            the last location=1.
-                        :param std:
-                            Provided in um.
-                            standard deviation of the cluster of distribution.
+            NormalTruncatedSegDist - probability of choose seg with mean and std provided. Normal
+                means that choosing segments are clustered around mean with standard deviation std.
+                    :param mean:
+                        Provided in normalized arbitrary unit between 0-1, where all provided
+                        segments are organized as list. The first element has location=0,
+                        the last location=1.
+                    :param std:
+                        Provided in um.
+                        standard deviation of the cluster of distribution.
         :param syn_num_per_source:
             default is 1
             number of synapse per single source object

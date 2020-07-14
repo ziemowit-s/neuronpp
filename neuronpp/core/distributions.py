@@ -15,10 +15,10 @@ class Dist:
 
 
 class UniformDist(Dist):
-    def __init__(self, dmin=0, dmax=1, dtype="float"):
+    def __init__(self, low=0, high=1, dtype="float"):
         Dist.__init__(self, dtype=dtype)
-        self.min = dmin
-        self.max = dmax
+        self.low = low
+        self.high = high
 
 
 class NormalDist(Dist):
@@ -34,6 +34,16 @@ class NormalTruncatedDist(NormalDist):
         if mean <= 0 or std <= 0:
             raise ValueError("mean and std cannot be <= 0 for Truncated Normal Distribution.")
         NormalDist.__init__(self, mean=mean, std=std)
+
+
+class UniformSegDist(UniformDist):
+    def __init__(self):
+        """
+        Uniform Segment Distribution, mean is 0 high is 1.
+        """
+        Dist.__init__(self, dtype="float")
+        self.low = 0
+        self.high = 1
 
 
 class NormalTruncatedSegDist(NormalTruncatedDist):
@@ -73,7 +83,7 @@ class UniformProba(Proba, UniformDist):
     def __init__(self, expected: float = 0.5, dtype="float"):
         Dist.__init__(self, dtype=dtype)
         Proba.__init__(self, expected=expected)
-        UniformDist.__init__(self, dmin=0, dmax=1)
+        UniformDist.__init__(self, low=0, high=1)
 
 
 class NormalProba(Proba, NormalTruncatedDist):

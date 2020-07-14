@@ -1,11 +1,11 @@
 from os import path
+from neuron import h
 from typing import Union
 
-from neuron import h
 
 from neuronpp.core.hocwrappers.sec import Sec
-from neuronpp.core.cells.core_cell import CoreCell
 from neuronpp.core.decorators import distparams
+from neuronpp.core.cells.core_cell import CoreCell
 
 h.load_file('stdlib.hoc')
 h.load_file('import3d.hoc')
@@ -87,18 +87,34 @@ class SectionCell(CoreCell):
                 n_sec.hoc.g_pas = g_pas
 
     @distparams
-    def add_sec(self, name: str, diam=None, l=None, rm=None, g_pas=None,
-                E_rest=None, ra=None, cm=None, nseg=None, add_pas=False):
+    def add_sec(self, name: str, diam: float = None, l: float = None, rm: float = None,
+                g_pas: float = None, E_rest: float = None, ra: float = None, cm: float = None,
+                nseg: int = None, add_pas: bool = False):
         """
+        Create a new section.
+
         :param name:
+            str name of the section. If the name already exists - the number (as a str)
+            will be added, eg. if name "dend" exists it will creates "dend1"
         :param diam:
         :param l:
-        :param nseg:
-        :param cm:
         :param rm:
+        :param g_pas:
+        :param E_rest:
         :param ra:
+        :param cm:
+        :param nseg:
+        :param add_pas:
         :return:
+            newly created section as a wrapper object Sec
         """
+        if name is None:
+            raise ValueError("Section's name cannot be None.")
+
+        num_name = len(self.filter_secs(name=name, as_list=True))
+        if num_name > 0:
+            name = "%s%s" % (name, num_name+1)
+
         hoc_sec = h.Section(name=name, cell=self)
         if l is not None:
             hoc_sec.L = l

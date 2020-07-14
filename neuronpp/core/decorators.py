@@ -1,6 +1,6 @@
 import functools
 import numpy as np
-from typing import List
+from typing import List, cast
 
 from neuronpp.core.distributions import Dist, UniformDist, NormalDist, NormalTruncatedDist
 
@@ -46,7 +46,7 @@ def distparams(_func=None, *, exlude: List[str] = None, include: List[str] = Non
                 if isinstance(value, Dist):
 
                     if isinstance(value, UniformDist):
-                        result = np.random.uniform(size=1)[0]
+                        result = np.random.uniform(low=value.low, high=value.high, size=1)[0]
                     elif isinstance(value, NormalDist):
                         result = np.random.normal(loc=value.mean, scale=value.std)
 
