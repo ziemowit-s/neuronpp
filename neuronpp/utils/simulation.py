@@ -132,6 +132,19 @@ class Simulation(NeuronRemovable):
     def t(self):
         return h.t
 
+    @property
+    def size(self) -> int:
+        """
+        Returns number of sections in the current NEURON environment.
+        """
+        return len(list(h.allsec()))
+
+    def is_neuron_empty(self) -> bool:
+        """
+        Returns True if the current NEURON environment has no sections created.
+        """
+        return self.size == 0
+
     def run(self, runtime, stepsize=None, delay_between_steps=1, debug=False):
         """
         :param runtime:
