@@ -39,6 +39,26 @@ class TestSimulation(unittest.TestCase):
             raise RuntimeError("Not all section have been removed after teardown. "
                                "Sections left: %s" % l)
 
+    def test_empty_method(self):
+        sim = Simulation()
+        self.assertFalse(sim.is_neuron_empty())
+
+        self.soma.remove_immediate_from_neuron()
+        self.apic1.remove_immediate_from_neuron()
+        self.cell.remove_immediate_from_neuron()
+
+        self.assertTrue(sim.is_neuron_empty())
+
+    def test_size_method(self):
+        sim = Simulation()
+        self.assertEqual(198, sim.size)
+
+        self.soma.remove_immediate_from_neuron()
+        self.apic1.remove_immediate_from_neuron()
+        self.cell.remove_immediate_from_neuron()
+
+        self.assertEqual(0, sim.size)
+
     def test_dt(self):
         rec = Record(self.soma(0.5))
 
