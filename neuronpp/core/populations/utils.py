@@ -1,5 +1,9 @@
 from collections import Iterable
+from typing import Union, List
 
+from neuronpp.core.cells.core_cell import CoreCell
+from neuronpp.core.cells.section_cell import SectionCell
+from neuronpp.core.hocwrappers.sec import Sec
 from neuronpp.core.hocwrappers.seg import Seg
 from neuronpp.core.hocwrappers.netstim import NetStim
 from neuronpp.core.hocwrappers.vecstim import VecStim
@@ -30,19 +34,24 @@ def check_and_prepare_sources(source):
     return source
 
 
-def check_and_prepare_target(target):
-    target_ok = True
+def check_and_prepare_target(target: Union[List[Sec], Sec, List[Seg], Seg, List[CoreCell], CoreCell]):
+    target_ok = False
     if isinstance(target, Iterable):
-        check = [isinstance(s, Seg) for s in target]
-        if not all(check):
-            target_ok = False
+        if all([isinstance(s, Sec) for s in target]):
+            target_ok = True
+        elif all([isinstance(c, SectionCell) for c in target]):
+            target_ok = True
     else:
-        if target is not None and not isinstance(target, Seg):
-            target_ok = False
-        else:
-            target = [target]
+        if target is None:
+            target_ok = True
+        elif isinstance(target, Seg):
+            target_ok = True
+        elif isinstance(target, Sec):
+            target_ok = True
+        elif isinstance(target, SectionCell):
+            target_ok = True
+            target = target.secs
 
     if not target_ok:
-        raise TypeError("Target can be of type: None or Seg or List[Seg], but provided: %s"
-                        % target.__class__)
+        raise TypeError("Target can be an instance or list of: Sec or Cell.")
     return target

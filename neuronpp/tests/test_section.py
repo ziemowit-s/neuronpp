@@ -53,7 +53,33 @@ class TestSection(unittest.TestCase):
         self.assertEqual(0.7, dend.parent_loc)
         self.assertIsNone(soma.parent_loc)
 
+    def test_allseg(self):
+        soma = self.cell.add_sec(name="soma", diam=1, l=10, nseg=20)
+        dend = self.cell.add_sec(name="dend", diam=1, l=100, nseg=200)
+        self.assertEqual(22, len(soma.segs))
+        self.assertEqual(202, len(dend.segs))
+
+    def test_area1(self):
+        soma = self.cell.add_sec(name="soma", diam=1, l=10, nseg=20)
+        dend = self.cell.add_sec(name="dend", diam=1, l=100, nseg=200)
+
+        self.assertEqual(0, soma.segs[0].area)
+        self.assertEqual(0, soma.segs[-1].area)
+        self.assertEqual(0, dend.segs[0].area)
+        self.assertEqual(0, dend.segs[-1].area)
+
+        for s in soma.segs[1:-1]:
+            self.assertEqual(1.5708, round(s.area, 4))
+        for s in dend.segs[1:-1]:
+            self.assertEqual(1.5708, round(s.area, 4))
+
+    def test_area2(self):
+        apic = self.cell.add_sec(name="apic", diam=10, l=10, nseg=4)
+        for s in apic.segs[1:-1]:
+            self.assertEqual(78.5398, round(s.area, 4))
+
 
 if __name__ == '__main__':
     unittest.main()
+
 

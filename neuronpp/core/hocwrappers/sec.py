@@ -69,6 +69,14 @@ class Sec(HocWrapper):
         else:
             return None
 
+    @property
+    def segs(self):
+        """
+        Returns all Segments wrapper in Seg object
+        :return:
+        """
+        return [Seg(obj=hoc_seg, parent=self) for hoc_seg in self.hoc.allseg()]
+
     def __call__(self, loc) -> Seg:
         hoc_seg = self.hoc(loc)
         return Seg(obj=hoc_seg, parent=self)

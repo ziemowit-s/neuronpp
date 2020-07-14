@@ -3,7 +3,7 @@ import numpy as np
 from neuron import h
 
 from neuronpp.cells.cell import Cell
-from neuronpp.core.distributions import Dist, UniformDist, NormalTruncatedDist
+from neuronpp.core.distributions import Dist, UniformDist, NormalTruncatedDist, UniformSegDist
 from neuronpp.core.populations.population import Population
 
 
@@ -71,7 +71,9 @@ class TestCellDistparam(unittest.TestCase):
 class TestPopulationalDistparam(unittest.TestCase):
     def setUp(self):
         def cell():
-            return Cell(name="cell")
+            c = Cell(name="cell")
+            c.add_sec("soma", nseg=10, l=10)
+            return c
         self.pop1 = Population("pop1")
         self.pop1.add_cells(num=100, cell_function=cell)
 
@@ -88,7 +90,14 @@ class TestPopulationalDistparam(unittest.TestCase):
                                "Sections left: %s" % l)
 
     def test_connection_proba(self):
-        self.pop2.connect(rule="all", cell_proba=0.5,)
+        Dist.set_seed(13)
+        conn = self.pop2.connect(rule="all", cell_proba=0.5, seg_dist=UniformSegDist())
+        conn.set_source([c.filter_secs("soma")(0.5) for c in self.pop1.cells])
+        conn.set_target(self.pop2.cells)
+        conn.add_synapse("Exp2Syn").add_netcon(weight=0.5)
+        conn.build()
+
+        print('a')
 
 
 if __name__ == '__main__':

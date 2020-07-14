@@ -94,11 +94,12 @@ class Population(NeuronRemovable):
             expected value.
         :param seg_dist:
             default is "uniform"
-            distribution of a single connection from source to target segments
+            distribution of target location between [0, 1] to create a single connection from
+            source to target segments.
 
             "all" - str: means all provided segments will be taken.
 
-            UniformSegDist - all segs are equally probable. Uniform means that all provided segments
+            "uniform" - all segs are equally probable. Uniform means that all provided segments
                 have equal probability of setup a point of connection.
 
             NormalTruncatedSegDist - probability of choose seg with mean and std provided. Normal

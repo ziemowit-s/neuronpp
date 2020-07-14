@@ -1,6 +1,8 @@
 from typing import Optional, List, Union, Callable
 
+from neuronpp.core.hocwrappers.sec import Sec
 from neuronpp.core.hocwrappers.seg import Seg
+from neuronpp.core.cells.core_cell import CoreCell
 from neuronpp.core.hocwrappers.netstim import NetStim
 from neuronpp.core.hocwrappers.vecstim import VecStim
 from neuronpp.core.populations.syn_adder import SynAdder
@@ -24,46 +26,6 @@ class Connector:
         After setup you need to call build() method to create NEURON objects.
         build() will call population_ref._build_connector() method to create those objects inside
         Population.
-
-        :param population_ref:
-            reference to the Population
-        :param rule:
-            default is 'all'
-            'all' - all-to-all connections
-            'one' - one-to-one connections
-        :param cell_proba:
-            default is 1.0
-            can be a single number from 0 to 1 defining probability of connection.
-            In this case it will assume UniformProba
-
-            It can also be an instance of Dist class which defines specific distribution with
-            an expected value
-        :param seg_dist:
-            distribution of single connection between provided target segments.
-
-            "all" - str: means all provided segments will be taken.
-
-            "uniform" - str: means all segs are equally probable
-                        Uniform distribution for segment choosing. Uniform means that all
-                        provided segments have equal probability.
-
-            NormalDist - object: probability of choose seg with mean and std provided
-                        Normal distribution for segment choosing.
-                        Normal means that choosing segments are clustered around mean with standard
-                        deviation std.
-                        :param mean:
-                            Provided in normalized arbitrary unit between 0-1.
-                            It is normalized mean (between 0-1), where all provided segments are
-                            organized as list
-                            and first element has location=0 and the last location=1
-                            During computation this number will be change for appropriate mean in
-                            um.
-                        :param std:
-                            Provided in um.
-                            standard deviation of the cluster of distribution.
-        :param syn_num_per_source:
-            default is 1
-            number of synapse per single source object
         """
         self._population_ref = population_ref
 
@@ -93,7 +55,7 @@ class Connector:
         return self
 
     # TODO change for filter function(?)
-    def set_target(self, target: Union[List[Seg], Seg]):
+    def set_target(self, target: Union[List[Sec], Sec, List[CoreCell], CoreCell]):
         """
         Target list of Segments
         :param target:
