@@ -11,7 +11,7 @@ class NetStimCell(CoreCell):
         """
         Making NetStim after simulation run() makes it has no effect on the current simulation.
         However it will appear in the next simulation if:
-         * you call reset() on the Simulation object
+         * you call init_simulation() on the Simulation object
          * or create a new Simulation object
 
         :param name:
@@ -56,7 +56,7 @@ class NetStimCell(CoreCell):
         """
         Making NetStim after simulation run() makes it has no effect on the current simulation.
         However it will appear in the next simulation if:
-         * you call reset() on the Simulation object
+         * you call init_simulation() on the Simulation object
          * or create a new Simulation object
 
         :param start:
@@ -72,8 +72,8 @@ class NetStimCell(CoreCell):
         if h.t > 0:
             # TODO: Change all warnings and prints to loggers
             print("Warning: NetStim created after simulation have been initiated, will not affect "
-                  "this simulation, but rather the next one after you execute reset() method on "
-                  "the Simulation object.")
+                  "this simulation, but rather the next one after you execute init_simulation() "
+                  "method on the Simulation object.")
 
         ns_hoc = get_netstim(start=start, number=number, interval=interval, noise=noise)
         name = str(len(self.nss))

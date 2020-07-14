@@ -24,7 +24,8 @@ class Simulation(NeuronRemovable):
         Create an object to control the simulation.
 
         After creating the object and execure run() for the first time - the NEURON simulator
-        will be reset(). You can also reset the simulator whether you want calling reset() method.
+        will be init_simulation(). You can also reset the simulator whether you want calling
+        init_simulation() method.
 
         :param init_v
             initial value in mV for the neuron function finitialize().
@@ -99,13 +100,19 @@ class Simulation(NeuronRemovable):
 
         self.warmup_done = False
 
-    def reset(self):
+    def init_simulation(self):
         """
-        After each creation of the Simulation object or call the reset() method
-        the Record object is cleaned up (its inside vector for each segment recorded)
-        however on other Hoc object is removed eg. Sections.
+        After each call of this method the Record object is cleaned up (the inside vector for each
+        segment recorded becomes empty).
 
-        That means - each new sections and cell are retained in the current NEURON run.
+        This method is called after the first call of run() method (after Simulation() object is
+        created).
+
+        All sections and other NEURON objects retain. If you want to delete sections or other NEURON
+        objects call remove_immediate_from_neuron() method on each object to delete or just get rid
+        of the object which contains NEURON objects.
+
+        NEURON object - refers to the object which implements HocWrapper or GroupHocWrapper.
         """
         print("Simulation initialization.")
         if self.check_pointers:
@@ -140,7 +147,7 @@ class Simulation(NeuronRemovable):
             * Simulation stepsize
         """
         if not self.warmup_done:
-            self.reset()
+            self.init_simulation()
 
             if self.warmup > 0:
                 if self.warmup_dt is None:
