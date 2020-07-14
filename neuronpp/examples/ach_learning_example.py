@@ -10,7 +10,7 @@ if __name__ == '__main__':
     cell = Ebner2019AChDACell("cell")
     cell.add_sec("soma", diam=20, l=20, nseg=10)
     cell.add_sec("dend", diam=8, l=500, nseg=100)
-    cell.connect_secs(source="dend", target="soma", source_loc=0, target_loc=1)
+    cell.connect_secs(child="dend", parent="soma", child_loc=0, parent_loc=1)
 
     # make synapses with spines
     syns_4p, heads = cell.add_random_synapses_with_spine(source=None, secs=cell.secs,

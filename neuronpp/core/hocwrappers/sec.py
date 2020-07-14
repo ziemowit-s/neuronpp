@@ -1,5 +1,7 @@
+
 import nrn
 from numpy import pi
+from typing import Optional
 
 from neuronpp.core.hocwrappers.seg import Seg
 from neuronpp.core.cells.core_cell import CoreCell
@@ -27,6 +29,9 @@ class Sec(HocWrapper):
 
     @property
     def parent(self):
+        """
+        Returns parent Section or None if there is no parent.
+        """
         parent_seg = self.hoc.parentseg()
         if parent_seg:
             hoc_sec = parent_seg.sec
@@ -35,9 +40,35 @@ class Sec(HocWrapper):
             return None
 
     @property
-    def area(self):
+    def area(self) -> float:
+        """
+        Returns total area of the Section
+        """
         return pi*self.hoc.L*self.hoc.diam
 
-    def __call__(self, loc):
+    @property
+    def orientation(self) -> float:
+        """
+        Return the end (0 or 1) which connects to the parent. This is the value, y, used:
+            * In Neuron++ SectionCell: cell.connect_secs(child, parent, x, y)
+            * In NEURON child.connect(parent(x), y)
+        """
+        return self.hoc.orientation()
+
+    @property
+    def parent_loc(self) -> Optional[float]:
+        """
+        Returns location on parent that child is connected to. (0 <= x <= 1).
+        This information is also available via: self.hoc.parentseg().x
+
+        If the section has no parent it will return None
+        """
+        parent = self.hoc.parentseg()
+        if parent:
+            return parent.x
+        else:
+            return None
+
+    def __call__(self, loc) -> Seg:
         hoc_seg = self.hoc(loc)
         return Seg(obj=hoc_seg, parent=self)

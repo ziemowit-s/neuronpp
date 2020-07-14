@@ -17,7 +17,7 @@ class TestSection(unittest.TestCase):
             raise RuntimeError("Not all section have been removed after teardown. "
                                "Sections left: %s" % l)
 
-    def test_default_name_convetion(self):
+    def test_default_name(self):
         """
         If the name exists it will add a number starting from 2 to the proposed name.
         """
@@ -43,6 +43,15 @@ class TestSection(unittest.TestCase):
 
         for d in self.cell.secs:
             d.remove_immediate_from_neuron()
+
+    def test_connections(self):
+        soma = self.cell.add_sec(name="soma", l=10, nseg=10)
+        dend = self.cell.add_sec(name="dend", l=100, nseg=10)
+        self.cell.connect_secs(child=dend, parent=soma, child_loc=0, parent_loc=0.7)
+
+        self.assertEqual(0, dend.orientation)
+        self.assertEqual(0.7, dend.parent_loc)
+        self.assertIsNone(soma.parent_loc)
 
 
 if __name__ == '__main__':

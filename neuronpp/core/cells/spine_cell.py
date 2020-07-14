@@ -366,8 +366,8 @@ class SpineCell(SectionCell):
                                                                  spine_tag,
                                                                  i))
             self.spines.append(spine)
-            self.connect_secs(source=neck, target=section, source_loc=location,
-                              target_loc=0.0)
+            self.connect_secs(child=neck, parent=section, child_loc=location,
+                              parent_loc=0.0)
 
     @staticmethod
     def _get_spine_factor(spines: List[Spine], mech_name: str, gbar: str = None):

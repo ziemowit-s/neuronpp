@@ -132,7 +132,7 @@ All examples are located in: examples/
    ```python
     cell.add_seg("soma", diam=20, l=20, nseg=10)
     cell.add_seg("dend", diam=2, l=100, nseg=10)
-    cell.connect_secs(source="dend", target="soma")
+    cell.connect_secs(child="dend", parent="soma")
    ```
 
   * add NEURON mechanisms (default or MOD-based):
