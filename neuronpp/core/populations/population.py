@@ -72,7 +72,7 @@ class Population(NeuronRemovable):
 
     def connect(self, rule: str = "all",
                 cell_proba: Union[float, Dist] = 1.0,
-                seg_dist: Union[NormalTruncatedSegDist, UniformSegDist] = UniformSegDist(),
+                seg_dist: Union[NormalTruncatedSegDist, UniformSegDist] = "uniform",
                 syn_num_per_source: Union[int, Dist] = 1) -> Connector:
         """
         Returns Connector object.

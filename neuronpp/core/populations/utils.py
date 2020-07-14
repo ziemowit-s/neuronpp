@@ -34,24 +34,34 @@ def check_and_prepare_sources(source):
     return source
 
 
-def check_and_prepare_target(target: Union[List[Sec], Sec, List[Seg], Seg, List[CoreCell], CoreCell]):
+def check_and_prepare_target(targ: Union[List[Sec], List[Seg], List[CoreCell], Seg, Sec, CoreCell]):
     target_ok = False
-    if isinstance(target, Iterable):
-        if all([isinstance(s, Sec) for s in target]):
+    if isinstance(targ, Iterable):
+        if all([isinstance(s, Seg) for s in targ]):
             target_ok = True
-        elif all([isinstance(c, SectionCell) for c in target]):
+        if all([isinstance(s, Sec) for s in targ]):
             target_ok = True
+            # remove 0 and 1 ends
+            targ = [seg for sec in targ for seg in sec.segs[1:-1]]
+        elif all([isinstance(c, SectionCell) for c in targ]):
+            target_ok = True
+            # remove 0 and 1 ends
+            targ = [seg for c in targ for sec in c.secs for seg in sec.segs[1:-1]]
     else:
-        if target is None:
+        if targ is None:
             target_ok = True
-        elif isinstance(target, Seg):
+        elif isinstance(targ, Seg):
             target_ok = True
-        elif isinstance(target, Sec):
+            targ = [targ]
+        elif isinstance(targ, Sec):
             target_ok = True
-        elif isinstance(target, SectionCell):
+            # remove 0 and 1 ends
+            targ = [seg for seg in targ.segs[1:-1]]
+        elif isinstance(targ, SectionCell):
             target_ok = True
-            target = target.secs
+            # remove 0 and 1 ends
+            targ = [seg for sec in targ.secs for seg in sec.segs[1:-1]]
 
     if not target_ok:
         raise TypeError("Target can be an instance or list of: Sec or Cell.")
-    return target
+    return targ
