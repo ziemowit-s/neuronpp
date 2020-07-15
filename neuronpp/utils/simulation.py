@@ -110,7 +110,6 @@ class Simulation(NeuronRemovable):
         print("Simulation initialization.")
         if self.check_pointers:
             self._check_point_process_pointers()
-        h.frecord_init()
         h.fcurrent()
         h.finitialize(self.init_v * mV)
 
