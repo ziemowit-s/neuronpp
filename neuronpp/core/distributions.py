@@ -31,19 +31,9 @@ class NormalDist(Dist):
 class NormalTruncatedDist(NormalDist):
     def __init__(self, mean, std, dtype="float"):
         Dist.__init__(self, dtype=dtype)
-        if mean <= 0 or std <= 0:
-            raise ValueError("mean and std cannot be <= 0 for Truncated Normal Distribution.")
+        if mean < 0 or std < 0:
+            raise ValueError("mean and std cannot be < 0 for Truncated Normal Distribution.")
         NormalDist.__init__(self, mean=mean, std=std)
-
-
-class UniformSegDist(UniformDist):
-    def __init__(self):
-        """
-        Uniform Segment Distribution, mean is 0 high is 1.
-        """
-        Dist.__init__(self, dtype="float")
-        self.low = 0
-        self.high = 1
 
 
 class NormalTruncatedSegDist(NormalTruncatedDist):
@@ -68,8 +58,8 @@ class NormalTruncatedSegDist(NormalTruncatedDist):
 
         if mean > 1:
             raise ValueError("Param mean cannot be > 1")
-        if mean < 0 or std <= 0:
-            raise ValueError("mean and std cannot be <= 0 for Truncated Normal Distribution.")
+        if mean < 0 or std < 0:
+            raise ValueError("mean and std cannot be < 0 for Truncated Normal Distribution.")
         NormalTruncatedDist.__init__(self, mean=mean, std=std)
 
 

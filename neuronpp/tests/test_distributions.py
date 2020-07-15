@@ -3,7 +3,7 @@ import numpy as np
 from neuron import h
 
 from neuronpp.cells.cell import Cell
-from neuronpp.core.distributions import Dist, UniformDist, NormalTruncatedDist, UniformSegDist
+from neuronpp.core.distributions import Dist, UniformDist, NormalTruncatedDist, NormalProba
 from neuronpp.core.populations.population import Population
 
 
@@ -89,14 +89,27 @@ class TestPopulationalDistparam(unittest.TestCase):
             raise RuntimeError("Not all section have been removed after teardown. "
                                "Sections left: %s" % l)
 
-    def test_connection_proba(self):
+    def test_uniform_cell_proba_uniform_seg_dist(self):
         Dist.set_seed(13)
-        conn = self.pop2.connect(rule="all", cell_proba=0.5, seg_dist=UniformSegDist())
+        conn = self.pop2.connect(rule="all", cell_proba=0.5, seg_dist="uniform")
         conn.set_source([c.filter_secs("soma")(0.5) for c in self.pop1.cells])
         conn.set_target(self.pop2.cells)
         conn.add_synapse("Exp2Syn").add_netcon(weight=0.5)
         conn.build()
 
+        syns = [c.syns for c in self.pop2.cells]
+        print('a')
+
+    def test_normal_cell_proba_uniform_seg_dist(self):
+        Dist.set_seed(13)
+        conn = self.pop2.connect(rule="all", cell_proba=NormalProba(mean=0.01, std=0.01),
+                                 seg_dist="uniform")
+        conn.set_source([c.filter_secs("soma")(0.5) for c in self.pop1.cells])
+        conn.set_target(self.pop2.cells)
+        conn.add_synapse("Exp2Syn").add_netcon(weight=0.5)
+        conn.build()
+
+        syns = [c.syns for c in self.pop2.cells]
         print('a')
 
 

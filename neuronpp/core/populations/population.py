@@ -2,12 +2,12 @@ import numpy as np
 from typing import Union, TypeVar, List, Iterable, Callable
 
 from neuronpp.cells.cell import Cell
+from neuronpp.core.hocwrappers.seg import Seg
 from neuronpp.utils.record import Record
 from neuronpp.core.populations.connector import Connector
 from neuronpp.core.neuron_removable import NeuronRemovable
 from neuronpp.core.hocwrappers.synapses.synapse import Synapse
-from neuronpp.core.distributions import Dist, UniformProba, NormalProba, NormalTruncatedSegDist, \
-    UniformSegDist
+from neuronpp.core.distributions import Dist, UniformProba, NormalProba, NormalTruncatedSegDist
 
 T_Cell = TypeVar('T_Cell', bound=Cell)
 
@@ -72,7 +72,7 @@ class Population(NeuronRemovable):
 
     def connect(self, rule: str = "all",
                 cell_proba: Union[float, Dist] = 1.0,
-                seg_dist: Union[NormalTruncatedSegDist, UniformSegDist] = "uniform",
+                seg_dist: Union[NormalTruncatedSegDist, str] = "uniform",
                 syn_num_per_source: Union[int, Dist] = 1) -> Connector:
         """
         Returns Connector object.
@@ -152,7 +152,8 @@ class Population(NeuronRemovable):
         self.syns.extend(result_syns)
         return result_syns
 
-    def _make_conn(self, source_rule: str, cells_targets, connector) -> List[List[Synapse]]:
+    def _make_conn(self, source_rule: str, target_segs: List[Seg],
+                   connector) -> List[List[Synapse]]:
         """
         TODO refactoring required:
           * method is too extensive
@@ -170,39 +171,57 @@ class Population(NeuronRemovable):
 
             "all" - means all to all connection between each source and each target
             "one" - means one to one connection between one source and one target
-        :param cells_targets:
+        :param target_segs:
             Each element of cells_targets contains a list of target segments
         :param connector:
             Connector object containing rules for connection
         :return:
             list of added synapses
         """
+
+        # for syn_per_source:
+        #   for target_segments
+        #
+        #       for mods
+        #           ? target = mod.spine_param
+
+        #           for netcons in mod
+        #               ? source = netcon.custom_source
+
+        #               for sources
+        #                   add_synapse(target, source)
+
         result = []
-        cell_num = len(cells_targets)
         conn_params = connector._conn_params
 
-        for cell_i, potential_target_segments in enumerate(cells_targets):
+        cell_targets = {}
+        for t in target_segs:
+            c = t.parent.cell
+            if c.name not in cell_targets:
+                cell_targets[c.name] = []
+            cell_targets[c.name].append(t)
+
+        target_cell_num = len(cell_targets.keys())
+        for cell_i, (cell_name, target_segs) in enumerate(cell_targets.items()):
             # based on cell_proba - decide if we want to make a connection with that cell
-            if not self._is_make_cell_connection(conn_params.cell_proba):
-                continue
-            cell = potential_target_segments.parent.cell
 
             # TODO Hack - which ensures that there is the same seg_dist_mean for all synapses with
             #  the same cell
             seg_dist_mean = None
-            if isinstance(conn_params.seg_dist,
-                          NormalTruncatedSegDist) and conn_params.seg_dist.mean is None:
+            if isinstance(conn_params.seg_dist, NormalTruncatedSegDist) and \
+                    conn_params.seg_dist.mean is None:
                 seg_dist_mean = np.random.uniform(size=1)[0]
 
             # create syn_num_per_source number of synapses per single source
             for synapse_i in range(conn_params.syn_num_per_source):
 
                 # based on seg_dist - decide with what target_segment(s) we want to make connection
-                target_segments = self._get_current_target_segments(potential_target_segments,
+                target_segments = self._get_current_target_segments(target_segs,
                                                                     seg_dist=conn_params.seg_dist,
                                                                     normal_mean=seg_dist_mean)
 
                 for target_segment in target_segments:
+                    cell = target_segment.parent.cell
                     syns = []
                     # iter over all point processes provided
                     # each target_segment will receive all provided point processes
@@ -231,9 +250,9 @@ class Population(NeuronRemovable):
                             if source_rule == 'all':
                                 pass  # iterate over all sources provided
                             elif source_rule == 'one':
-                                if cell_num != len(sources):
-                                    raise ValueError("For rule 'one' target and source need to be "
-                                                     "of the same size.")
+                                if target_cell_num != len(sources):
+                                    raise ValueError("For rule 'one' target and source need to "
+                                                     "be of the same size.")
                                 sources = [sources[cell_i]]  # select only a particular source
                             else:
                                 raise ValueError("The only allowed rule is all or one, "
@@ -241,6 +260,8 @@ class Population(NeuronRemovable):
 
                             # iter over all sources
                             for s in sources:
+                                if not self._is_make_cell_connection(conn_params.cell_proba):
+                                    continue
                                 syn = cell.add_synapse(source=s, seg=target_segment,
                                                        mod_name=mech.point_process_name,
                                                        tag=connector._tag,
@@ -254,8 +275,8 @@ class Population(NeuronRemovable):
                     # eg. for multi-netcons synapses (like ACh+Da+hebbian synapse)
                     # This requirement need to be directly define by the user
                     if connector._group_syns:
-                        cell.group_synapses(name=connector._synaptic_group_name, tag=connector._tag,
-                                            synapses=syns)
+                        cell.group_synapses(name=connector._synaptic_group_name,
+                                            tag=connector._tag, synapses=syns)
 
                     # perform a custom function on created synapses if required for each
                     # target_segment
@@ -351,6 +372,7 @@ class Population(NeuronRemovable):
         if isinstance(conn_proba, UniformProba):
             result = np.random.uniform(size=1)[0]
         elif isinstance(conn_proba, NormalProba):
+            # TODO rethink how to manage normal dist conn proba
             result = np.random.normal(loc=conn_proba.mean, scale=conn_proba.std)
         else:
             raise TypeError("Not allowed conn_proba.")
