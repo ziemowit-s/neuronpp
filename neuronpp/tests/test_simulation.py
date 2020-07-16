@@ -184,7 +184,7 @@ class TestSimulation(unittest.TestCase):
         Netcon created before sim init or start is not effective and should return error
         """
         sim = Simulation()
-        sim.reset()
+        sim.reinit()
         syn = self.cell.add_synapse(source=None, netcon_weight=1.0, mod_name="ExpSyn", delay=1,
                                     seg=self.apic1(0.5))
         error = False

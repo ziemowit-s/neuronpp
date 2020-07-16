@@ -19,7 +19,7 @@ class Spine(SecGroup):
         :param name:
             name of the spine
         """
-        cell.connect_secs(source=head, target=neck)
+        cell.connect_secs(child=head, parent=neck, child_loc=0.0, parent_loc=1.0)
         self.head = head
         self.neck = neck
         SecGroup.__init__(self, secs=[head, neck], name=name)
