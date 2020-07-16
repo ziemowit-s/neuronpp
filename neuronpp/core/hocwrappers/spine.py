@@ -1,14 +1,19 @@
 from neuronpp.core.hocwrappers.sec import Sec
 from neuronpp.core.cells.section_cell import SectionCell
 from neuronpp.core.hocwrappers.sec_group import SecGroup
+from neuronpp.core.decorators import non_removable_fields
 
 
+@non_removable_fields("cell")
 class Spine(SecGroup):
     def __init__(self, head: Sec, neck: Sec, cell: SectionCell, name):
         """
         Wrapper for the spine which contains head and neck sections.
 
         The connection of the head and the neck is done here in the constructor.
+
+        Parent is not defined since it is provided as a property method which looks for the parent
+        on the neuron's tree.
 
         :param head:
             section of the head
@@ -22,6 +27,7 @@ class Spine(SecGroup):
         cell.connect_secs(child=head, parent=neck, child_loc=0.0, parent_loc=1.0)
         self.head = head
         self.neck = neck
+        self.cell = cell
         SecGroup.__init__(self, secs=[head, neck], name=name)
 
     @property

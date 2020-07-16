@@ -1,8 +1,44 @@
 import functools
+import inspect
+
 import numpy as np
 from typing import List, cast
 
 from neuronpp.core.distributions import Dist, UniformDist, NormalDist, NormalTruncatedDist
+from neuronpp.core.neuron_removable import NON_REMOVABLE_FIELD_NAME
+
+
+def non_removable_fields(*fields: List[str]):
+    """
+    Class decorator for objects which implements NeuronRemovable.
+
+    By default calling remove_immediate_from_neuron() method or deleting object will remove all its
+    fields (attributes) of the object, however by decorating class with @non_removable_field()
+    you can specify fields not to remove:
+
+    eg. if you don't want to remove fields of cell in MySec object add on top of the class:
+
+        @non_removable_field("cell")
+        class MySec(NeuronRemovable):
+            ...
+
+    :param fields:
+        list of strings defining names of class fields which you don't want to remove during
+        remove_immediate_from_neuron() call or del
+    """
+    def decorate(cls):
+        if not inspect.isclass(cls):
+            raise ValueError("Decorator non_removable_field can decorate only a class not "
+                             "a function.")
+
+        if not hasattr(cls, NON_REMOVABLE_FIELD_NAME):
+            setattr(cls, NON_REMOVABLE_FIELD_NAME, [])
+
+        non_removable_list = getattr(cls, NON_REMOVABLE_FIELD_NAME)
+        for field in fields:
+            non_removable_list.append(field)
+        return cls
+    return decorate
 
 
 def distparams(_func=None, *, exlude: List[str] = None, include: List[str] = None):
