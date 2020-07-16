@@ -3,6 +3,7 @@ import unittest
 from neuron import h
 
 from neuronpp.cells.cell import Cell
+from neuronpp.utils.simulation import Simulation
 
 
 def _get_secs():
@@ -23,6 +24,11 @@ class TestSection(unittest.TestCase):
         self.dend1.remove_immediate_from_neuron()
         self.dend2.remove_immediate_from_neuron()
         self.cell.remove_immediate_from_neuron()
+
+        all_sec_num = _get_secs()
+        if all_sec_num != 0:
+            raise RuntimeError("Not all section have been removed after teardown. "
+                               "Sections left: %s" % all_sec_num)
 
     def test_remove_synapse(self):
         """
