@@ -17,7 +17,7 @@ class Record(NeuronRemovable):
         """
         Making Record after simulation run() makes it has no effect on the current simulation.
         However it will appear in the next simulation if:
-         * you call reset() on the Simulation object
+         * you call reinit() on the Simulation object
          * or create a new Simulation object
 
         :param elements:
@@ -30,7 +30,7 @@ class Record(NeuronRemovable):
         if h.t > 0:
             # TODO: Change all warnings and prints to loggers
             print("Warning: Record created after simulation have been initiated, will not affect "
-                  "this simulation, but rather the next one after you execute reset() method on "
+                  "this simulation, but rather the next one after you execute reinit() method on "
                   "the Simulation object.")
 
         if not isinstance(elements, (list, set, tuple)):
