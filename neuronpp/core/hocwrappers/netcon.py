@@ -2,16 +2,15 @@ from neuron import h
 from neuron.units import ms
 
 from neuronpp.core.cells.core_cell import CoreCell
+from neuronpp.core.decorators import non_removable_fields
 from neuronpp.core.hocwrappers.hoc_wrapper import HocWrapper
 from neuronpp.core.hocwrappers.point_process import PointProcess
 
 
+@non_removable_fields("sources", "target")
 class NetCon(HocWrapper):
     def __init__(self, hoc_obj, name, source: HocWrapper, target: PointProcess, parent: CoreCell):
         HocWrapper.__init__(self, hoc_obj=hoc_obj, parent=parent, name=name)
-        self.add_non_removable_field("sources")
-        self.add_non_removable_field("target")
-
         self.source = source
         self.target = target
 

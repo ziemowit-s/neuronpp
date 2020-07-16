@@ -5,9 +5,11 @@ from typing import Optional
 
 from neuronpp.core.hocwrappers.seg import Seg
 from neuronpp.core.cells.core_cell import CoreCell
+from neuronpp.core.decorators import non_removable_fields
 from neuronpp.core.hocwrappers.hoc_wrapper import HocWrapper
 
 
+@non_removable_fields("cell")
 class Sec(HocWrapper):
     def __init__(self, obj: nrn.Section, cell: CoreCell, name: str):
         """
@@ -25,7 +27,6 @@ class Sec(HocWrapper):
         :param name:
             string name of the section
         """
-        self.add_non_removable_field("cell")
 
         self.cell = cell
         HocWrapper.__init__(self, hoc_obj=obj, parent=None, name=name)
