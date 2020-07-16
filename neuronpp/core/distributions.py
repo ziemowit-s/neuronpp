@@ -63,21 +63,73 @@ class NormalTruncatedSegDist(NormalTruncatedDist):
         NormalTruncatedDist.__init__(self, mean=mean, std=std)
 
 
-class Proba(Dist):
-    def __init__(self, expected: float = 0.5, dtype="float"):
+class ConnectionProba(Dist):
+    def __init__(self, threshold: float, dtype="float"):
         Dist.__init__(self, dtype=dtype)
-        self.expected = expected
+        if 0 > threshold > 1:
+            raise ValueError("Threshold for connection probability must be between 0 and 1.")
+        self.expected = threshold
 
 
-class UniformProba(Proba, UniformDist):
-    def __init__(self, expected: float = 0.5, dtype="float"):
-        Dist.__init__(self, dtype=dtype)
-        Proba.__init__(self, expected=expected)
+class UniformConnectionProba(ConnectionProba, UniformDist):
+    def __init__(self, threshold: float):
+        """
+        Defines probability of the occurrence of connection between 2 neurons.
+
+        If the threshold value > Uniform distribution number -> it will return True to the binary
+        event.
+        
+        :param threshold:
+            the value which is a threshold.
+            If the threshold > Uniform distribution number the event is True. Otherwise False.
+        """
+        Dist.__init__(self)
+        ConnectionProba.__init__(self, threshold=threshold)
         UniformDist.__init__(self, low=0, high=1)
 
 
-class NormalProba(Proba, NormalTruncatedDist):
-    def __init__(self, mean: float = 0.5, std: float = 0.1, dtype="float"):
-        Dist.__init__(self, dtype=dtype)
-        Proba.__init__(self, expected=mean)
+class NormalConnectionProba(ConnectionProba, NormalTruncatedDist):
+    def __init__(self, threshold: float, mean: float, std: float):
+        """
+        Defines probability of the occurrence of connection between 2 neurons.
+
+        Values are obtain from the Truncated Normal Distribution,
+        so mean and std cannot be less than 0.
+
+        If the threshold value > Normal distribution number -> it will return True to the binary
+        event.
+
+        :param threshold:
+            the value which is a threshold.
+            If the threshold > Normal distribution number the event is True. Otherwise False.
+        :param mean:
+            mean of the normal distribution. Must be bewteen 0 and 1.
+        :param std:
+            standard deviation of the normal distribution. Must be bewteen 0 and 1.
+        """
+        if 0 > mean > 1:
+            raise ValueError("Mean value for connection probability must be between 0 and 1.")
+        if 0 > std > 1:
+            raise ValueError("Mean value for connection probability must be between 0 and 1.")
+        Dist.__init__(self)
+        ConnectionProba.__init__(self, threshold=threshold)
         NormalTruncatedDist.__init__(self, mean=mean, std=std)
+
+
+class LogNormalBinaryEvent(NormalConnectionProba):
+    def __init__(self, threshold: float, mean: float, std: float):
+        """
+        Defines probability of the occurrence of binary event.
+
+        If the threshold value > Normal distribution number -> it will return True to the binary
+        event.
+
+        :param threshold:
+            the value which is a threshold.
+            If the threshold > Normal distribution number the event is True. Otherwise False.
+        :param mean:
+            mean of the normal distribution
+        :param std:
+            standard deviation of the normal distribution
+        """
+        NormalConnectionProba.__init__(self, threshold=threshold, mean=mean, std=std)

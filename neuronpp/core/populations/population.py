@@ -7,7 +7,8 @@ from neuronpp.utils.record import Record
 from neuronpp.core.populations.connector import Connector
 from neuronpp.core.neuron_removable import NeuronRemovable
 from neuronpp.core.hocwrappers.synapses.synapse import Synapse
-from neuronpp.core.distributions import Dist, UniformProba, NormalProba, NormalTruncatedSegDist
+from neuronpp.core.distributions import Dist, UniformConnectionProba, NormalConnectionProba, \
+    NormalTruncatedSegDist, LogNormalBinaryEvent
 
 T_Cell = TypeVar('T_Cell', bound=Cell)
 
@@ -178,28 +179,10 @@ class Population(NeuronRemovable):
         :return:
             list of added synapses
         """
-
-        # for syn_per_source:
-        #   for target_segments
-        #
-        #       for mods
-        #           ? target = mod.spine_param
-
-        #           for netcons in mod
-        #               ? source = netcon.custom_source
-
-        #               for sources
-        #                   add_synapse(target, source)
-
         result = []
         conn_params = connector._conn_params
-
-        cell_targets = {}
-        for t in target_segs:
-            c = t.parent.cell
-            if c.name not in cell_targets:
-                cell_targets[c.name] = []
-            cell_targets[c.name].append(t)
+        cell_targets = self._sort_by_cell(target_segs)
+        cell_sources = self._sort_by_cell(connector._sources)
 
         target_cell_num = len(cell_targets.keys())
         for cell_i, (cell_name, target_segs) in enumerate(cell_targets.items()):
@@ -221,6 +204,8 @@ class Population(NeuronRemovable):
                                                                     normal_mean=seg_dist_mean)
 
                 for target_segment in target_segments:
+                    if not self._is_make_cell_connection(conn_params.cell_proba):
+                        continue
                     cell = target_segment.parent.cell
                     syns = []
                     # iter over all point processes provided
@@ -260,8 +245,6 @@ class Population(NeuronRemovable):
 
                             # iter over all sources
                             for s in sources:
-                                if not self._is_make_cell_connection(conn_params.cell_proba):
-                                    continue
                                 syn = cell.add_synapse(source=s, seg=target_segment,
                                                        mod_name=mech.point_process_name,
                                                        tag=connector._tag,
@@ -286,6 +269,16 @@ class Population(NeuronRemovable):
 
                     result.extend(syns)
 
+        return result
+
+    @staticmethod
+    def _sort_by_cell(segs: List[Seg]):
+        result = {}
+        for t in segs:
+            c = t.parent.cell
+            if c.name not in result:
+                result[c.name] = []
+            result[c.name].append(t)
         return result
 
     @staticmethod
@@ -367,13 +360,14 @@ class Population(NeuronRemovable):
         if conn_proba == 1:
             return True
         elif isinstance(conn_proba, (float, int)):
-            conn_proba = UniformProba(expected=conn_proba)
+            conn_proba = UniformConnectionProba(threshold=conn_proba)
 
-        if isinstance(conn_proba, UniformProba):
+        if isinstance(conn_proba, UniformConnectionProba):
             result = np.random.uniform(size=1)[0]
-        elif isinstance(conn_proba, NormalProba):
-            # TODO rethink how to manage normal dist conn proba
+        elif isinstance(conn_proba, NormalConnectionProba):
             result = np.random.normal(loc=conn_proba.mean, scale=conn_proba.std)
+        elif isinstance(conn_proba, LogNormalBinaryEvent):
+            result = np.random.lognormal(mean=conn_proba.mean, sigma=conn_proba.std)
         else:
             raise TypeError("Not allowed conn_proba.")
 

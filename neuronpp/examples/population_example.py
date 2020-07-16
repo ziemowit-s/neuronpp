@@ -4,7 +4,7 @@ from neuronpp.cells.cell import Cell
 from neuronpp.utils.simulation import Simulation
 from neuronpp.core.cells.netstim_cell import NetStimCell
 from neuronpp.utils.graphs.network_graph import NetworkGraph
-from neuronpp.core.populations.population import Population, NormalProba
+from neuronpp.core.populations.population import Population, NormalConnectionProba
 from neuronpp.core.distributions import Dist, NormalTruncatedDist, NormalTruncatedSegDist
 
 path = os.path.dirname(os.path.abspath(__file__))
@@ -24,7 +24,7 @@ if __name__ == '__main__':
 
     # Define connection probabilities
     Dist.set_seed(13)
-    connection_proba = NormalProba(mean=0.8, std=0.1)
+    connection_proba = NormalConnectionProba(mean=0.8, std=0.1)
     weight_dist = NormalTruncatedDist(mean=0.1, std=0.2)
 
     # Create population 1

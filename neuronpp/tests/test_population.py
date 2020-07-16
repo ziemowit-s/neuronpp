@@ -5,7 +5,7 @@ from neuron import h
 from neuronpp.cells.cell import Cell
 from neuronpp.core.cells.netstim_cell import NetStimCell
 from neuronpp.core.distributions import Dist, NormalTruncatedDist
-from neuronpp.core.populations.population import Population, NormalProba
+from neuronpp.core.populations.population import Population, NormalConnectionProba
 
 path = os.path.dirname(os.path.abspath(__file__))
 
@@ -35,7 +35,7 @@ class TestStandardPopulation(unittest.TestCase):
 
         # Define connection probabilities
         Dist.set_seed(13)
-        conn_dist = NormalProba(mean=0.5, std=0.1)
+        conn_dist = NormalConnectionProba(mean=0.5, std=0.1)
         weight_dist = NormalTruncatedDist(mean=0.01, std=0.02)
 
         # Create population 1
@@ -149,7 +149,7 @@ class TestProbabilities(unittest.TestCase):
         #TODO cos jest nie tak z polaczeniami bo albo nie ma albo 10
         # Define connection probabilities
         Dist.set_seed(13)
-        conn_dist = NormalProba(mean=0.5, std=0.1)
+        conn_dist = NormalConnectionProba(mean=0.5, std=0.1)
         weight_dist1 = NormalTruncatedDist(mean=0.01, std=0.02)
 
         # Create population 1
@@ -196,7 +196,7 @@ class TestConnectorAndSynAdder(unittest.TestCase):
 
         # Define connection probabilities
         Dist.set_seed(13)
-        conn_dist = NormalProba(mean=0.5, std=0.1)
+        conn_dist = NormalConnectionProba(mean=0.5, std=0.1)
         weight_dist1 = NormalTruncatedDist(mean=0.01, std=0.02)
         weight_dist2 = NormalTruncatedDist(mean=0.1, std=0.2)
 

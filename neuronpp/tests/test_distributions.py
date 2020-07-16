@@ -3,7 +3,7 @@ import numpy as np
 from neuron import h
 
 from neuronpp.cells.cell import Cell
-from neuronpp.core.distributions import Dist, UniformDist, NormalTruncatedDist, NormalProba
+from neuronpp.core.distributions import Dist, UniformDist, NormalTruncatedDist, NormalConnectionProba
 from neuronpp.core.populations.population import Population
 
 
@@ -89,6 +89,70 @@ class TestPopulationalDistparam(unittest.TestCase):
             raise RuntimeError("Not all section have been removed after teardown. "
                                "Sections left: %s" % l)
 
+    def test_con_proba1(self):
+        error = True
+        try:
+            NormalConnectionProba(threshold=1, mean=10, std=2)
+            error = False
+        except ValueError:
+            self.assertTrue(error)
+
+    def test_con_proba2(self):
+        error = True
+        try:
+            NormalConnectionProba(threshold=0.5, mean=0.5, std=10)
+            error = False
+        except ValueError:
+            self.assertTrue(error)
+
+    def test_con_proba3(self):
+        error = True
+        try:
+            NormalConnectionProba(threshold=10, mean=0.5, std=0.5)
+            error = False
+        except ValueError:
+            self.assertTrue(error)
+
+    def test_con_proba4(self):
+        error = True
+        try:
+            NormalConnectionProba(threshold=-1, mean=0.5, std=0.5)
+            error = False
+        except ValueError:
+            self.assertTrue(error)
+
+    def test_con_proba5(self):
+        error = True
+        try:
+            NormalConnectionProba(threshold=0.5, mean=-2, std=0.5)
+            error = False
+        except ValueError:
+            self.assertTrue(error)
+
+    def test_con_proba6(self):
+        error = True
+        try:
+            NormalConnectionProba(threshold=0.5, mean=0.5, std=-2)
+            error = False
+        except ValueError:
+            self.assertTrue(error)
+
+    def test_con_proba7(self):
+        error = True
+        try:
+            NormalConnectionProba(threshold=0.5, mean=0.5, std=0.5)
+            error = False
+        except ValueError:
+            self.assertFalse(error)
+
+    def test_con_proba8(self):
+        error = True
+        try:
+            NormalConnectionProba(threshold=0, mean=0, std=0)
+            error = False
+        except ValueError:
+            self.assertFalse(error)
+
     def test_uniform_cell_proba_uniform_seg_dist(self):
         Dist.set_seed(13)
         conn = self.pop2.connect(rule="all", cell_proba=0.5, seg_dist="uniform")
@@ -102,8 +166,8 @@ class TestPopulationalDistparam(unittest.TestCase):
 
     def test_normal_cell_proba_uniform_seg_dist(self):
         Dist.set_seed(13)
-        conn = self.pop2.connect(rule="all", cell_proba=NormalProba(mean=0.01, std=0.01),
-                                 seg_dist="uniform")
+        conn = self.pop2.connect(rule="all", seg_dist="uniform",
+                                 cell_proba=NormalConnectionProba(threshold=0.5, mean=0.1, std=0.01))
         conn.set_source([c.filter_secs("soma")(0.5) for c in self.pop1.cells])
         conn.set_target(self.pop2.cells)
         conn.add_synapse("Exp2Syn").add_netcon(weight=0.5)
