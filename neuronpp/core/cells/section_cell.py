@@ -2,7 +2,6 @@ from os import path
 from neuron import h
 from typing import Union
 
-
 from neuronpp.core.hocwrappers.sec import Sec
 from neuronpp.core.decorators import distparams
 from neuronpp.core.cells.core_cell import CoreCell
@@ -113,7 +112,7 @@ class SectionCell(CoreCell):
 
         num_name = len(self.filter_secs(name=name, as_list=True))
         if num_name > 0:
-            name = "%s%s" % (name, num_name+1)
+            name = "%s%s" % (name, num_name + 1)
 
         hoc_sec = h.Section(name=name, cell=self)
         if l is not None:
@@ -145,14 +144,17 @@ class SectionCell(CoreCell):
     def connect_secs(self, child: Union[Sec, str], parent: Union[Sec, str], child_loc: float = 1.0,
                      parent_loc: float = 0.0):
         """
+        child_loc can be: [0 or 1]
+        parent_loc can be: between [0 and 1]
+
         default: child.connect(parent(0.0), [0 or 1])
-        
-        If you specify 1.0 for source_loc or target_loc it will assume 0.999 loc instead. 
-        This is because NEURON do not insert any mechanisms to the 1.0 end (it is dimension-less). 
-        
+
+        If you specify 1.0 for source_loc or target_loc it will assume 0.999 loc instead.
+        This is because NEURON do not insert any mechanisms to the 1.0 end (it is dimension-less).
+
         NEURON allows to connect section to the 1.0, however this raise problems while copying
         parameters between sections. So any 1.0 loc will be changed to 0.999 instead.
-        
+
         :param child:
             child section
         :param parent:

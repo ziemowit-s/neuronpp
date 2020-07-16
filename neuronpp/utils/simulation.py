@@ -21,11 +21,14 @@ class Simulation(NeuronRemovable):
                  constant_timestep: bool = True, with_neuron_gui: bool = False,
                  check_pointers: bool = False):
         """
-        Create an object to control the simulation.
+        Create an Simulation object to control the NEURON's simulation.
 
-        After creating the object and execure run() for the first time - the NEURON simulator
-        will be init_simulation(). You can also reset the simulator whether you want calling
-        init_simulation() method.
+        Simulation WILL NOT create a NEURON environment but rather allows to access to the
+        NEURON's simulator state. So if you create many Simulation objects, all of them will have
+        access to the same NEURON's state.
+
+        After creating the object and execute the run() for the first time - init_simulation()
+        will be called. You can also call init_simulation() to re-init the NEURON any time.
 
         :param init_v
             initial value in mV for the neuron function finitialize().
@@ -102,17 +105,21 @@ class Simulation(NeuronRemovable):
 
     def init_simulation(self):
         """
-        After each call of this method the Record object is cleaned up (the inside vector for each
-        segment recorded becomes empty).
+        This method restart simulation time to 0, reinitialize the voltage to the init value and
+        clear all recorded values in Record objects (its clear inside vector for each segment
+        recorded).
 
-        This method is called after the first call of run() method (after Simulation() object is
-        created).
+        After creation of the new Simulation object and call the first time run() method the method
+        init_simulation() is always called.
 
-        All sections and other NEURON objects retain. If you want to delete sections or other NEURON
-        objects call remove_immediate_from_neuron() method on each object to delete or just get rid
-        of the object which contains NEURON objects.
+        No other Hoc object is removed, eg. all sections remains. If you want to remove NEURON from
+        objects you can:
+          * call remove_immediate_from_neuron() method on each Wrapper object (eg. Sec, Seg, NetCon)
+          * call remove_immediate_from_neuron() method on each Cell object, which automatically
+            removes also containing wrappers
+          * delete or reassign all references to the object you want to delete
 
-        NEURON object - refers to the object which implements HocWrapper or GroupHocWrapper.
+        To check how many Sections in NEURON remains check simulation.size property.
         """
         print("Simulation initialization.")
         if self.check_pointers:

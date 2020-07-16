@@ -52,6 +52,8 @@ class Sec(HocWrapper):
         Return the end (0 or 1) which connects to the parent. This is the value, y, used:
             * In Neuron++ SectionCell: cell.connect_secs(child, parent, x, y)
             * In NEURON child.connect(parent(x), y)
+
+        If the Section has no parent it will return 0.
         """
         return self.hoc.orientation()
 

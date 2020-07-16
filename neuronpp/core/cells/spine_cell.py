@@ -2,13 +2,13 @@ import random
 from typing import List, Union
 import numpy as np
 
-from neuronpp.core.cells.section_cell import SectionCell
-from neuronpp.core.decorators import distparams
 from neuronpp.core.hocwrappers.sec import Sec
 from neuronpp.core.hocwrappers.seg import Seg
+from neuronpp.core.decorators import distparams
 from neuronpp.core.hocwrappers.spine import Spine
-from neuronpp.core.cells.utils import establish_electric_properties
 from neuronpp.core.cells.utils import get_spine_number
+from neuronpp.core.cells.section_cell import SectionCell
+from neuronpp.core.cells.utils import establish_electric_properties
 
 # Nomenclature and values adapted from Harris KM, Jensen FE, Tsao BE.
 # J Neurosci 1992
@@ -366,8 +366,7 @@ class SpineCell(SectionCell):
                                                                  spine_tag,
                                                                  i))
             self.spines.append(spine)
-            self.connect_secs(child=neck, parent=section, child_loc=location,
-                              parent_loc=0.0)
+            self.connect_secs(child=neck, parent=section, child_loc=0.0, parent_loc=location)
 
     @staticmethod
     def _get_spine_factor(spines: List[Spine], mech_name: str, gbar: str = None):
