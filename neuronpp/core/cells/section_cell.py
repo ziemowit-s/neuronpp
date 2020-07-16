@@ -1,11 +1,10 @@
 from os import path
+from neuron import h
 from typing import Union
 
-from neuron import h
-
 from neuronpp.core.hocwrappers.sec import Sec
-from neuronpp.core.cells.core_cell import CoreCell
 from neuronpp.core.decorators import distparams
+from neuronpp.core.cells.core_cell import CoreCell
 
 h.load_file('stdlib.hoc')
 h.load_file('import3d.hoc')
@@ -87,18 +86,34 @@ class SectionCell(CoreCell):
                 n_sec.hoc.g_pas = g_pas
 
     @distparams
-    def add_sec(self, name: str, diam=None, l=None, rm=None, g_pas=None,
-                E_rest=None, ra=None, cm=None, nseg=None, add_pas=False):
+    def add_sec(self, name: str, diam: float = None, l: float = None, rm: float = None,
+                g_pas: float = None, E_rest: float = None, ra: float = None, cm: float = None,
+                nseg: int = None, add_pas: bool = False):
         """
+        Create a new section.
+
         :param name:
+            str name of the section. If the name already exists - the number (as a str)
+            will be added, eg. if name "dend" exists it will creates "dend1"
         :param diam:
         :param l:
-        :param nseg:
-        :param cm:
         :param rm:
+        :param g_pas:
+        :param E_rest:
         :param ra:
+        :param cm:
+        :param nseg:
+        :param add_pas:
         :return:
+            newly created section as a wrapper object Sec
         """
+        if name is None:
+            raise ValueError("Section's name cannot be None.")
+
+        num_name = len(self.filter_secs(name=name, as_list=True))
+        if num_name > 0:
+            name = "%s%s" % (name, num_name + 1)
+
         hoc_sec = h.Section(name=name, cell=self)
         if l is not None:
             hoc_sec.L = l
@@ -126,50 +141,54 @@ class SectionCell(CoreCell):
         return sec
 
     @distparams
-    def connect_secs(self, source: Union[Sec, str], target: Union[Sec, str], source_loc=1.0,
-                     target_loc=0.0):
+    def connect_secs(self, child: Union[Sec, str], parent: Union[Sec, str], child_loc: float = 1.0,
+                     parent_loc: float = 0.0):
         """
-        default: source(0.0) -> target(1.0)
-        eg. apic(0.0) -> soma(1.0)
+        child_loc can be: [0 or 1]
+        parent_loc can be: between [0 and 1]
 
-        source.hoc.connect(target.hoc(source_loc), target_loc)
-        child.connect(parent)
-        If you specify 1.0 for source_loc or target_loc it will assume 0.999
-        loc instead. This is because NEURON do not insert any mechanisms 
-        to the 1.0 end (it is dimension-less). NEURON allows to connect
-        section to the 1.0, however this raise problems while copying
-        parameters between sections. So any 1.0 loc will be changed to 0.999
-        instead.
-        :param source:
-        :param target:
-        :param source_loc:
-        :param target_loc:
+        default: child.connect(parent(0.0), [0 or 1])
+
+        If you specify 1.0 for source_loc or target_loc it will assume 0.999 loc instead.
+        This is because NEURON do not insert any mechanisms to the 1.0 end (it is dimension-less).
+
+        NEURON allows to connect section to the 1.0, however this raise problems while copying
+        parameters between sections. So any 1.0 loc will be changed to 0.999 instead.
+
+        :param child:
+            child section
+        :param parent:
+            parent section
+        :param child_loc:
+            source location. Can be 1 or 0, representing both ends of child section. Default is 1.0
+        :param parent_loc:
+            target location. It must be between 0 and 1. Default is 0.0
         :return:
         """
-        if source_loc > 1.0 or source_loc < 0.0:
-            raise ValueError("source_loc param must be in range [0,1]")
-        if target_loc > 1.0 or target_loc < 0.0:
-            raise ValueError("target_loc param must be in range [0,1]")
+        if child_loc != 1 and child_loc != 0:
+            raise ValueError("child_loc must [0 or 1]")
+        if parent_loc > 1.0 or parent_loc < 0.0:
+            raise ValueError("parent_loc must be in range [0, 1]")
 
-        if source is None or target is None:
+        if child is None or parent is None:
             raise LookupError("source and target must be specified. Can't be None.")
 
-        if isinstance(source, str):
-            source = self.filter_secs(name=source)
-            if isinstance(source, list):
+        if isinstance(child, str):
+            child = self.filter_secs(name=child)
+            if isinstance(child, list):
                 raise LookupError("To connect sections source name must return exactly 1 Section, "
-                                  "but returned %s elements for name=%s" % (len(source), source))
+                                  "but returned %s elements for name=%s" % (len(child), child))
 
-        if isinstance(target, str) or target is None:
-            target = self.filter_secs(name=target)
-            if isinstance(target, list):
+        if isinstance(parent, str) or parent is None:
+            parent = self.filter_secs(name=parent)
+            if isinstance(parent, list):
                 raise LookupError("To connect sections target name must return exactly 1 Section, "
-                                  "but returned %s elements for name=%s" % (len(source), source))
+                                  "but returned %s elements for name=%s" % (len(child), child))
 
-        target_loc = float(target_loc)
-        source_loc = float(source_loc)
+        parent_loc = float(parent_loc)
+        child_loc = float(child_loc)
 
-        source.hoc.connect(target.hoc(source_loc), target_loc)
+        child.hoc.connect(parent(parent_loc).hoc, child_loc)
 
     def load_morpho(self, filepath):
         """

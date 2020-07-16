@@ -16,7 +16,7 @@ model_path2 = os.path.join(path, "..",
 cell = Cell(name="cell", compile_paths=model_path1)
 cell.load_morpho(filepath=model_path2)
 cell.add_sec("dend[1]", diam=10, l=10, nseg=10)
-cell.connect_secs(source="dend[1]", target="soma")
+cell.connect_secs(child="dend[1]", parent="soma")
 cell.insert("pas")
 cell.insert("hh")
 

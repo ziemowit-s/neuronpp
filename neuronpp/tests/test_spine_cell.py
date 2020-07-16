@@ -12,15 +12,13 @@ class TestCellAddSpineToSection(unittest.TestCase):
         cls.cell = SpineCell(name="cell")
         cls.soma = cls.cell.add_sec("soma", add_pas=True, nseg=10)
         cls.cell._add_spines_to_section(cls.soma, "new", 0.5, 1, 1, 0.5, 0.5,
-                                        None, None, None, None,
-                                        add_pas=False)
+                                        None, None, None, None, add_pas=False)
         cls.head = cls.cell.heads[0]
         cls.neck = cls.cell.necks[0]
         cls.cell2 = SpineCell(name="cell2")
         cls.soma2 = cls.cell2.add_sec("soma", nseg=10, add_pas=True)
         cls.cell2._add_spines_to_section(cls.soma2, "new", 0.3, .5, .5, 0.3, 0.3,
-                                         None, None, None, None,
-                                         add_pas=True)
+                                         None, None, None, None, add_pas=True)
         cls.head2 = cls.cell2.heads[0]
         cls.neck2 = cls.cell2.necks[0]
 
