@@ -10,6 +10,9 @@ class Spine(SecGroup):
 
         The connection of the head and the neck is done here in the constructor.
 
+        Parent is not defined since it is provided as a property method which looks for the parent
+        on the neuron's tree.
+
         :param head:
             section of the head
         :param neck:
@@ -19,9 +22,12 @@ class Spine(SecGroup):
         :param name:
             name of the spine
         """
+        self.add_non_removable_field("cell")
+
         cell.connect_secs(child=head, parent=neck, child_loc=0.0, parent_loc=1.0)
         self.head = head
         self.neck = neck
+        self.cell = cell
         SecGroup.__init__(self, secs=[head, neck], name=name)
 
     @property

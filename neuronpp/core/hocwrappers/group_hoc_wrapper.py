@@ -19,12 +19,11 @@ class GroupHocWrapper(Wrapper, dict):
             over each string a dictionary entry will be created, containing a list()
             of objects with the same string as entry.
         """
-        parent = None
         for o in objs:
             val = key_func(o)
             if val not in self:
                 self[val] = []
             self[val].append(o)
 
-        Wrapper.__init__(self, parent=parent, name=name)
+        Wrapper.__init__(self, parent=None, name=name)
 

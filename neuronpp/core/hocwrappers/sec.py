@@ -15,6 +15,9 @@ class Sec(HocWrapper):
 
         Parent is not defined since it is provided as a property method which looks for the parent
         on the neuron's tree.
+
+        Removal is not intented to remove any children of this section.
+
         :param obj:
             HOC's Section object
         :param cell:

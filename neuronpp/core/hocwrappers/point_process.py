@@ -6,6 +6,7 @@ class PointProcess(HocWrapper):
     def __init__(self, hoc_obj, name, parent: Seg, cell, mod_name):
         HocWrapper.__init__(self, hoc_obj=hoc_obj, parent=parent, name=name)
         self.add_non_removable_field("seg")
+        self.add_non_removable_field("cell")
 
         self.seg = parent
         self.mod_name = mod_name
