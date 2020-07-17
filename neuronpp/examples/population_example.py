@@ -31,7 +31,7 @@ if __name__ == '__main__':
     pop1 = Population("pop_1")
     pop1.add_cells(num=4, cell_function=cell_function)
 
-    connector = pop1.connect(cell_proba=connection_proba)
+    connector = pop1.connect(cell_connection_proba=connection_proba)
     connector.set_source(netstim)
     connector.set_target([c.filter_secs("dend")(0.5) for c in pop1.cells])
     syn_adder = connector.add_synapse("Exp2Syn")
@@ -44,7 +44,7 @@ if __name__ == '__main__':
     pop2 = Population("pop_2")
     pop2.add_cells(num=4, cell_function=cell_function)
 
-    connector = pop2.connect(cell_proba=connection_proba, seg_dist=NormalTruncatedSegDist(0.5, 0.1))
+    connector = pop2.connect(cell_connection_proba=connection_proba, seg_dist=NormalTruncatedSegDist(0.5, 0.1))
     connector.set_source([c.filter_secs("soma")(0.5) for c in pop1.cells])
     connector.set_target([c.filter_secs("dend")(0.5) for c in pop2.cells])
     syn_adder = connector.add_synapse("Exp2Syn")

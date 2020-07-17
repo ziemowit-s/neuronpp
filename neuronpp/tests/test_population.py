@@ -42,7 +42,7 @@ class TestStandardPopulation(unittest.TestCase):
         cls.pop1 = Population("pop_0")
         cls.pop1.add_cells(num=3, cell_function=cell_template)
 
-        connector = cls.pop1.connect(cell_proba=conn_dist)
+        connector = cls.pop1.connect(cell_connection_proba=conn_dist)
         connector.set_source(cls.netstim)
         connector.set_target([c.filter_secs("dend") for c in cls.pop1.cells])
         syn_adder = connector.add_synapse("Exp2Syn")
@@ -53,7 +53,7 @@ class TestStandardPopulation(unittest.TestCase):
         cls.pop2 = Population("pop_1")
         cls.pop2.add_cells(num=4, cell_function=cell_template)
 
-        connector = cls.pop2.connect(cell_proba=conn_dist)
+        connector = cls.pop2.connect(cell_connection_proba=conn_dist)
         connector.set_source([c.filter_secs("soma")(0.5) for c in cls.pop1.cells])
         connector.set_target([c.filter_secs("dend") for c in cls.pop2.cells])
         syn_adder = connector.add_synapse("Exp2Syn")
@@ -64,7 +64,7 @@ class TestStandardPopulation(unittest.TestCase):
         cls.pop3 = Population("pop_2")
         cls.pop3.add_cells(num=5, cell_function=cell_template)
 
-        connector = cls.pop3.connect(cell_proba=conn_dist)
+        connector = cls.pop3.connect(cell_connection_proba=conn_dist)
         connector.set_source([c.filter_secs("soma")(0.5) for c in cls.pop2.cells])
         connector.set_target([c.filter_secs("dend") for c in cls.pop3.cells])
         syn_adder = connector.add_synapse("Exp2Syn")
@@ -160,7 +160,7 @@ class TestProbabilities(unittest.TestCase):
         cls.pop2 = Population("pop_1")
         cls.pop2.add_cells(num=10, cell_function=cell_template)
 
-        connector = cls.pop2.connect(cell_proba=conn_dist)
+        connector = cls.pop2.connect(cell_connection_proba=conn_dist)
         connector.set_source([c.filter_secs("soma")(0.5) for c in cls.pop1.cells])
         connector.set_target([c.filter_secs("dend") for c in cls.pop2.cells])
         connector.add_synapse("ExpSyn").add_netcon(weight=weight_dist1)
@@ -208,7 +208,7 @@ class TestConnectorAndSynAdder(unittest.TestCase):
         cls.pop2 = Population("pop_1")
         cls.pop2.add_cells(num=4, cell_function=cell_template)
 
-        connector = cls.pop2.connect(cell_proba=conn_dist)
+        connector = cls.pop2.connect(cell_connection_proba=conn_dist)
         connector.set_source([c.filter_secs("soma")(0.5) for c in cls.pop1.cells])
         connector.set_target([c.filter_secs("dend") for c in cls.pop2.cells])
         connector.add_synapse("ExpSyn").add_netcon(weight=weight_dist1)
@@ -216,7 +216,7 @@ class TestConnectorAndSynAdder(unittest.TestCase):
         connector.group_synapses(name="group1")
         connector.build()
 
-        connector = cls.pop2.connect(cell_proba=conn_dist)
+        connector = cls.pop2.connect(cell_connection_proba=conn_dist)
         connector.set_source([c.filter_secs("soma")(0.5) for c in cls.pop1.cells])
         connector.set_target([c.filter_secs("dend") for c in cls.pop2.cells])
         connector.add_synapse("ExpSyn").add_netcon(weight=weight_dist2)

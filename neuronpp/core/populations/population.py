@@ -72,7 +72,7 @@ class Population(NeuronRemovable):
             r.plot(animate=animate, **kwargs)
 
     def connect(self, rule: str = "all",
-                cell_proba: Union[float, Dist] = 1.0,
+                cell_connection_proba: Union[float, Dist] = 1.0,
                 seg_dist: Union[NormalTruncatedSegDist, str] = "uniform",
                 syn_num_per_source: Union[int, Dist] = 1) -> Connector:
         """
@@ -87,7 +87,7 @@ class Population(NeuronRemovable):
             default is 'all'
             'all' - all-to-all connections
             'one' - one-to-one connections
-        :param cell_proba:
+        :param cell_connection_proba:
             default is 1.0
             can be a single float between 0 to 1 (defining probability of connection), it will
             assume UniformProba.
@@ -118,7 +118,7 @@ class Population(NeuronRemovable):
         :return:
             Connector object
         """
-        return Connector(population_ref=self, rule=rule, cell_proba=cell_proba,
+        return Connector(population_ref=self, rule=rule, cell_proba=cell_connection_proba,
                          seg_dist=seg_dist, syn_num_per_source=syn_num_per_source)
 
     def remove_immediate_from_neuron(self):
@@ -181,71 +181,73 @@ class Population(NeuronRemovable):
         """
         result = []
         conn_params = connector._conn_params
-        cell_targets = self._sort_by_cell(target_segs)
-        cell_sources = self._sort_by_cell(connector._sources)
+        sources = np.random.choice(connector._sources, size=len(connector._sources), replace=False)
+        cell_targets = self._group_segs_by_cell(target_segs)
 
         target_cell_num = len(cell_targets.keys())
-        for cell_i, (cell_name, target_segs) in enumerate(cell_targets.items()):
-            # based on cell_proba - decide if we want to make a connection with that cell
+        # iter all target cells' segments
+        for cell_target_i, (cell_target_name, target_segs) in enumerate(cell_targets.items()):
 
-            # TODO Hack - which ensures that there is the same seg_dist_mean for all synapses with
-            #  the same cell
-            seg_dist_mean = None
-            if isinstance(conn_params.seg_dist, NormalTruncatedSegDist) and \
-                    conn_params.seg_dist.mean is None:
-                seg_dist_mean = np.random.uniform(size=1)[0]
+            if source_rule == 'all':
+                current_sources = np.random.choice(sources, size=len(sources), replace=False)
+            elif source_rule == 'one':
+                if target_cell_num != len(sources):
+                    raise ValueError("For rule 'one' the target and the source len need to be of "
+                                     "the same size.")
+                current_sources = sources[cell_target_i]
+            else:
+                raise ValueError("The only allowed rule is all or one, "
+                                 "but provided %s" % source_rule)
 
-            # create syn_num_per_source number of synapses per single source
-            for synapse_i in range(conn_params.syn_num_per_source):
+            # iter all sources (for all rule) or one source (for one rule)
+            for source in current_sources:
+                if not self._is_make_cell_connection(conn_params.cell_proba):
+                    continue
 
-                # based on seg_dist - decide with what target_segment(s) we want to make connection
-                target_segments = self._get_current_target_segments(target_segs,
-                                                                    seg_dist=conn_params.seg_dist,
-                                                                    normal_mean=seg_dist_mean)
+                # if NormalTruncatedSegDist has no mean defined - choose some with random uniform
+                # dist between 0 and 1. It is used to cluster randomly synapses around this mean
+                # point and with std spread.
+                # If it is different distribution than NormalTruncatedSegDist:
+                # seg_dist_normal_mean is None
+                seg_dist_normal_mean = None
+                if isinstance(conn_params.seg_dist, NormalTruncatedSegDist) and \
+                        conn_params.seg_dist.mean is None:
+                    seg_dist_normal_mean = np.random.uniform(size=1)[0]
 
-                for target_segment in target_segments:
-                    if not self._is_make_cell_connection(conn_params.cell_proba):
-                        continue
-                    cell = target_segment.parent.cell
-                    syns = []
-                    # iter over all point processes provided
-                    # each target_segment will receive all provided point processes
-                    for mech in connector._syn_adders:
-                        spine_params = mech._spine_params
+                # create syn_num_per_source number of synapses per single source
+                for synapse_i in range(conn_params.syn_num_per_source):
 
-                        if spine_params:
-                            spine = cell.add_spines(segs=target_segment,
-                                                    head_nseg=spine_params.head_nseg,
-                                                    neck_nseg=spine_params.neck_nseg)[0]
-                            target_segment = spine.head(1.0)
+                    # based on seg_dist - decide with what target_segment(s) we want to make
+                    # connection
+                    target_segments = self._get_curr_target_segs(target_segs,
+                                                                 seg_dist=conn_params.seg_dist,
+                                                                 normal_mean=seg_dist_normal_mean)
 
-                        # iter over all netcons - for each netcon create a new connection
-                        # eg. single point process can have netconn from the real source
-                        # and from the outside stimuli (netcon with source=None)
-                        for netcon_params in mech._netcon_params:
-                            sources = connector._sources
+                    for target_segment in target_segments:
+                        cell = target_segment.parent.cell
+                        syns = []
+                        # iter over all point processes provided
+                        # each target_segment will receive all provided point processes
+                        for mech in connector._syn_adders:
+                            spine_params = mech._spine_params
 
-                            # if netcon has custom sources, different than the default connector
-                            # sources it will use only netconn's sources in that case
-                            if hasattr(netcon_params, "source"):
-                                sources = netcon_params.custom_sources
+                            if spine_params:
+                                spine = cell.add_spines(segs=target_segment,
+                                                        head_nseg=spine_params.head_nseg,
+                                                        neck_nseg=spine_params.neck_nseg)[0]
+                                target_segment = spine.head(1.0)
 
-                            # Based on source_rule - decide with which source we want to make c
-                            # onnection
-                            if source_rule == 'all':
-                                pass  # iterate over all sources provided
-                            elif source_rule == 'one':
-                                if target_cell_num != len(sources):
-                                    raise ValueError("For rule 'one' target and source need to "
-                                                     "be of the same size.")
-                                sources = [sources[cell_i]]  # select only a particular source
-                            else:
-                                raise ValueError("The only allowed rule is all or one, "
-                                                 "but provided %s" % source_rule)
+                            # iter over all netcons - for each netcon create a new connection
+                            # eg. single point process can have netconn from the real source
+                            # and from the outside stimuli (netcon with source=None)
+                            for netcon_params in mech._netcon_params:
+                                # if netcon has custom source, different than the default connector
+                                if hasattr(netcon_params, "custom_source"):
+                                    current_source = netcon_params.custom_source
+                                else:
+                                    current_source = source
 
-                            # iter over all sources
-                            for s in sources:
-                                syn = cell.add_synapse(source=s, seg=target_segment,
+                                syn = cell.add_synapse(source=current_source, seg=target_segment,
                                                        mod_name=mech.point_process_name,
                                                        tag=connector._tag,
                                                        delay=netcon_params.delay,
@@ -254,25 +256,25 @@ class Population(NeuronRemovable):
                                                        **mech._point_process_params)
                                 syns.append(syn)
 
-                    # group synapses if required for each target_segment
-                    # eg. for multi-netcons synapses (like ACh+Da+hebbian synapse)
-                    # This requirement need to be directly define by the user
-                    if connector._group_syns:
-                        cell.group_synapses(name=connector._synaptic_group_name,
-                                            tag=connector._tag, synapses=syns)
+                        # group synapses if required for each target_segment
+                        # eg. for multi-netcons synapses (like ACh+Da+hebbian synapse)
+                        # This requirement need to be directly define by the user
+                        if connector._group_syns:
+                            cell.group_synapses(name=connector._synaptic_group_name,
+                                                tag=connector._tag, synapses=syns)
 
-                    # perform a custom function on created synapses if required for each
-                    # target_segment
-                    # This requirement need to be directly define by the user
-                    if connector._synaptic_func:
-                        connector._synaptic_func(syns)
+                        # perform a custom function on created synapses if required for each
+                        # target_segment
+                        # This requirement need to be directly define by the user
+                        if connector._synaptic_func:
+                            connector._synaptic_func(syns)
 
-                    result.extend(syns)
+                        result.extend(syns)
 
         return result
 
     @staticmethod
-    def _sort_by_cell(segs: List[Seg]):
+    def _group_segs_by_cell(segs: List[Seg]):
         result = {}
         for t in segs:
             c = t.parent.cell
@@ -282,7 +284,7 @@ class Population(NeuronRemovable):
         return result
 
     @staticmethod
-    def _get_current_target_segments(potential_target_segments, seg_dist, normal_mean=None):
+    def _get_curr_target_segs(potential_target_segments, seg_dist, normal_mean=None):
         """
         TODO It requires refactoring in the future
           * returning all potential_target_segments or only one from that list - seems to be a
@@ -365,10 +367,10 @@ class Population(NeuronRemovable):
         if isinstance(conn_proba, UniformConnectionProba):
             result = np.random.uniform(size=1)[0]
         elif isinstance(conn_proba, NormalConnectionProba):
-            result = np.random.normal(loc=conn_proba.mean, scale=conn_proba.std)
+            result = np.abs(np.random.normal(loc=conn_proba.mean, scale=conn_proba.std))
         elif isinstance(conn_proba, LogNormalBinaryEvent):
-            result = np.random.lognormal(mean=conn_proba.mean, sigma=conn_proba.std)
+            result = np.abs(np.random.lognormal(mean=conn_proba.mean, sigma=conn_proba.std))
         else:
-            raise TypeError("Not allowed conn_proba.")
+            raise TypeError("Not allowed ConnectionProba.")
 
-        return conn_proba.expected > result
+        return result > conn_proba.expected

@@ -74,8 +74,9 @@ class TestPopulationalDistparam(unittest.TestCase):
             c = Cell(name="cell")
             c.add_sec("soma", nseg=10, l=10)
             return c
+
         self.pop1 = Population("pop1")
-        self.pop1.add_cells(num=100, cell_function=cell)
+        self.pop1.add_cells(num=1000, cell_function=cell)
 
         self.pop2 = Population("pop2")
         self.pop2.add_cells(num=100, cell_function=cell)
@@ -153,21 +154,75 @@ class TestPopulationalDistparam(unittest.TestCase):
         except ValueError:
             self.assertFalse(error)
 
-    def test_uniform_cell_proba_uniform_seg_dist(self):
+    def test_normal_proba_connection_between_cells(self):
+        """
+        Compare NormalConnectionProba (which is truncated normal dist) with a regular
+        truncated normal dist of the same size as the maximal all-to-all connections.
+
+        The test will pass if difference between potential conn number is less than 0.95
+        """
+        std = 0.2
+        mean = 0.1
+        threshold = 0.4  # if Truncated Normal Dist pass this threshold - creates connection
+
         Dist.set_seed(13)
-        conn = self.pop2.connect(rule="all", cell_proba=0.5, seg_dist="uniform")
+        cell_conn_proba = NormalConnectionProba(threshold=threshold, mean=mean, std=std)
+        conn = self.pop2.connect(rule="all",
+                                 cell_connection_proba=cell_conn_proba,
+                                 seg_dist="uniform")
+
         conn.set_source([c.filter_secs("soma")(0.5) for c in self.pop1.cells])
         conn.set_target(self.pop2.cells)
-        conn.add_synapse("Exp2Syn").add_netcon(weight=0.5)
+        conn.add_synapse("Exp2Syn").add_netcon()
         conn.build()
 
-        syns = [c.syns for c in self.pop2.cells]
-        print('a')
+        # create Truncated Normal comparative distribution of the same size as maximal
+        # all-to-all connections
+        norm = np.abs(np.random.normal(loc=mean, scale=std, size=1000*100))
+        non_zero_norm = np.count_nonzero(norm[norm > threshold])
+
+        non_zero_cell = sum([len(c.syns) for c in self.pop2.cells])
+
+        # difference of connection number is less then 0.95
+        if non_zero_cell > non_zero_norm:
+            diff = non_zero_norm / non_zero_cell
+        else:
+            diff = non_zero_cell / non_zero_norm
+        self.assertGreater(diff, 0.95)
+
+    def test_uniform_proba_connection_between_cells(self):
+        """
+        Compare UniformConnectionProba with a regular uniform dist of the same size as
+        the maximal all-to-all connections.
+
+        The test will pass if difference between potential conn number is less than 0.95
+        """
+        threshold = 0.9  # if Uniform dist pass this threshold - creates connection
+
+        Dist.set_seed(13)
+        conn = self.pop2.connect(rule="all", cell_connection_proba=threshold, seg_dist="uniform")
+
+        conn.set_source([c.filter_secs("soma")(0.5) for c in self.pop1.cells])
+        conn.set_target(self.pop2.cells)
+        conn.add_synapse("Exp2Syn").add_netcon()
+        conn.build()
+
+        norm = np.abs(np.random.uniform(size=1000*100))
+        non_zero_norm = np.count_nonzero(norm[norm > threshold])
+
+        non_zero_cell = sum([len(c.syns) for c in self.pop2.cells])
+
+        # difference of connection number is less then 0.95
+        if non_zero_cell > non_zero_norm:
+            diff = non_zero_norm / non_zero_cell
+        else:
+            diff = non_zero_cell / non_zero_norm
+        self.assertGreater(diff, 0.95)
 
     def test_normal_cell_proba_uniform_seg_dist(self):
         Dist.set_seed(13)
         conn = self.pop2.connect(rule="all", seg_dist="uniform",
-                                 cell_proba=NormalConnectionProba(threshold=0.5, mean=0.1, std=0.01))
+                                 cell_connection_proba=NormalConnectionProba(threshold=0.5, mean=0.1, std=0.01))
         conn.set_source([c.filter_secs("soma")(0.5) for c in self.pop1.cells])
         conn.set_target(self.pop2.cells)
         conn.add_synapse("Exp2Syn").add_netcon(weight=0.5)

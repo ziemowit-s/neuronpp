@@ -41,18 +41,20 @@ class NormalTruncatedSegDist(NormalTruncatedDist):
         """
         Normal distribution for segment choosing.
         Normal means that choosing segments are clustered around mean with standard deviation std.
+
+        :param std:
+            Provided in um.
+            standard deviation of the cluster of distribution.
         :param mean:
             Provided in normalized arbitrary unit between 0-1.
 
             Default is None, which means - mean will be selected with random uniform distribution
-            from all provided segments.
+            from all provided segments. It is used to cluster randomly synapses around this mean
+            point and with std spread.
 
             It is normalized mean (between 0-1), where all provided segments are organized as list
             and first element has location=0 and the last location=1
             During computation this number will be change for appropriate mean in um.
-        :param std:
-            Provided in um.
-            standard deviation of the cluster of distribution.
         """
         Dist.__init__(self, dtype="float")
 
