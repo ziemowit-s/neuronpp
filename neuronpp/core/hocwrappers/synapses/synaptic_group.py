@@ -1,12 +1,14 @@
 from typing import List, Optional, Dict
 
 from neuronpp.core.hocwrappers.netcon import NetCon
+from neuronpp.core.decorators import non_removable_fields
 from neuronpp.core.hocwrappers.hoc_wrapper import HocWrapper
 from neuronpp.core.hocwrappers.synapses.synapse import Synapse
 from neuronpp.core.hocwrappers.group_hoc_wrapper import GroupHocWrapper
 from neuronpp.core.hocwrappers.synapses.single_synapse import SingleSynapse
 
 
+@non_removable_fields("target")
 class SynapticGroup(GroupHocWrapper, Synapse):
     def __init__(self, synapses: List[SingleSynapse], name: str, tag: Optional[str] = None):
         """
@@ -26,8 +28,6 @@ class SynapticGroup(GroupHocWrapper, Synapse):
             string tag which will be attached to the synaptic group as tag.
             you can filter by this tag
         """
-        self.add_non_removable_field("target")
-
         self.tag = tag
         self.mod_name = '_'.join([s.point_process_name for s in synapses])
         name = "%s[%s]" % (self.mod_name, name)

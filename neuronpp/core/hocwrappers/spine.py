@@ -1,8 +1,10 @@
 from neuronpp.core.hocwrappers.sec import Sec
 from neuronpp.core.cells.section_cell import SectionCell
 from neuronpp.core.hocwrappers.sec_group import SecGroup
+from neuronpp.core.decorators import non_removable_fields
 
 
+@non_removable_fields("cell")
 class Spine(SecGroup):
     def __init__(self, head: Sec, neck: Sec, cell: SectionCell, name):
         """
@@ -22,8 +24,6 @@ class Spine(SecGroup):
         :param name:
             name of the spine
         """
-        self.add_non_removable_field("cell")
-
         cell.connect_secs(child=head, parent=neck, child_loc=0.0, parent_loc=1.0)
         self.head = head
         self.neck = neck

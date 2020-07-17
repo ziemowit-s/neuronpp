@@ -1,41 +1,51 @@
 from typing import List
 
+NON_REMOVABLE_FIELD_NAME = "_non_removable_fields"
+
 
 class NeuronRemovable:
     def remove_immediate_from_neuron(self):
         """
-        Removes this object's fields from the Python and all its components from the NEURON.
+        Removes this (self) object's fields from the Python and all its components from the NEURON.
 
-        Class which implements NeuronRemovable may handle fields which should not be removed
-        from the NEURON by calling: add_non_removable_field(field_name: str)
+        By default calling remove_immediate_from_neuron() method or deleting object will remove all
+        its fields (attributes) of the object, however by decorating class with
+        @non_removable_field() you can specify fields not to remove:
 
-        After using this method all references to this object won't work any more, so you need to
-        also set a new value to any reference, eg.
+        eg. if you don't want to remove fields of cell in MySec object add on top of the class:
 
-           cell = Cell()
-           cell.remove_from_neuron()
-           cell = None
+            @non_removable_field("cell")
+            class MySec(NeuronRemovable):
+                ...
 
-        WARNING: the only guaranteed method for on demand deletion is the above method.
+        After using remove_immediate_from_neuron() method all references to this object won't work
+        any more, so you need to also set a new value to any reference to the self object, eg.
 
-        Methods below may not work on demand, it depends of the garbage collector:
-        1. You can also make regular deletion like:
-           cell = Cell()
-           del cell
-        2. Or reset reference to None:
-           cell = Cell()
-           cell = None
-        However bear in mind that those methods will clear references and the NEURON when the
-        garbage collector started to work.
+            cell = Cell()
+            cell.remove_from_neuron()
+            cell = None
+
+        WARNING: the only guaranteed method for on demand deletion is calling the method
+        remove_immediate_from_neuron(), if you delete the reference (eg. del obj) or assign a new
+        value to the reference (obj = None) the deletion may not work on demand (immediate) but
+        rather when the Python's garbage collector starts.
+
+        So methods below may not work on demand, it depends of the garbage collector:
+            1. You can also make regular deletion like:
+               cell = Cell()
+               del cell
+            2. Or reset reference to None:
+               cell = Cell()
+               cell = None
         """
         noremove = None
-        if hasattr(self, "_non_removable_fields"):
-            noremove = self._non_removable_fields
+        if hasattr(self, NON_REMOVABLE_FIELD_NAME):
+            noremove = getattr(self, NON_REMOVABLE_FIELD_NAME)
             if noremove is not None:
                 if not isinstance(noremove, List):
-                    raise AttributeError("_non_removable_fields can be None or List[str].")
+                    raise AttributeError("%s can be None or List[str]." % NON_REMOVABLE_FIELD_NAME)
                 elif len(noremove) > 0 and not isinstance(noremove[0], str):
-                    raise AttributeError("_non_removable_fields can be None or List[str].")
+                    raise AttributeError("%s can be None or List[str]." % NON_REMOVABLE_FIELD_NAME)
         
         for k, v in self.__dict__.items():
             if noremove and k in noremove:
@@ -47,16 +57,6 @@ class NeuronRemovable:
                 getattr(v, "__del__")()
             setattr(self, k, None)
         self.__dict__ = {}
-
-    def add_non_removable_field(self, field_name: str):
-        """
-        Add fieldname which be non removable during deletion of this object.
-        :param field_name:
-            string name of the field
-        """
-        if not hasattr(self, "_non_removable_fields"):
-            self._non_removable_fields = []
-        self._non_removable_fields.append(field_name)
 
     def __del__(self):
         self.remove_immediate_from_neuron()

@@ -3,6 +3,7 @@ import unittest
 from neuron import h
 
 from neuronpp.cells.cell import Cell
+from neuronpp.utils.simulation import Simulation
 
 
 def _get_secs():
@@ -23,6 +24,11 @@ class TestSection(unittest.TestCase):
         self.dend1.remove_immediate_from_neuron()
         self.dend2.remove_immediate_from_neuron()
         self.cell.remove_immediate_from_neuron()
+
+        all_sec_num = _get_secs()
+        if all_sec_num != 0:
+            raise RuntimeError("Not all section have been removed after teardown. "
+                               "Sections left: %s" % all_sec_num)
 
     def test_remove_synapse(self):
         """
@@ -181,3 +187,36 @@ class TestSection(unittest.TestCase):
 
         self.assertEqual(3, _get_secs())
         cell.remove_immediate_from_neuron()
+
+    def test_removal_sec_after_synapse_remove(self):
+        """
+        Removing synapse allows to remove section as well
+        """
+        dend3 = self.cell.add_sec("dend3", diam=10, l=10, nseg=10)
+        syn = self.cell.add_synapse(source=None, mod_name="Exp2Syn", seg=dend3(0.5))
+        syn.remove_immediate_from_neuron()
+        self.soma.remove_immediate_from_neuron()
+        self.assertEqual(3, _get_secs())
+
+    def test_removal_sec_before_synapse_remove(self):
+        """
+        Removing section before removing synapse - makes that section is not removed. It is because
+        we remove dend3 section, but self.cell still holds the reference to the synapse.
+        """
+        dend3 = self.cell.add_sec("dend3", diam=10, l=10, nseg=10)
+        self.cell.add_synapse(source=None, mod_name="Exp2Syn", seg=dend3(0.5))
+        dend3.remove_immediate_from_neuron()
+        self.assertEqual(4, _get_secs())
+
+    def test_removal_cell_before_synapse_remove(self):
+        """
+        Removing whole cell after none of its content's reference is stored out of the cell - makes
+        all its content and synapses removal.
+        """
+        cell2 = Cell(name="cell2")
+        dend3 = cell2.add_sec("dend3", diam=10, l=10, nseg=10)
+        cell2.add_synapse(source=None, mod_name="Exp2Syn", seg=dend3(0.5))
+        dend3 = None
+
+        cell2.remove_immediate_from_neuron()
+        self.assertEqual(3, _get_secs())
