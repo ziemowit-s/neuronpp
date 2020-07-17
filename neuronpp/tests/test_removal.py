@@ -1,9 +1,7 @@
-import re
 import unittest
 from neuron import h
 
 from neuronpp.cells.cell import Cell
-from neuronpp.utils.simulation import Simulation
 
 
 def _get_secs():
@@ -94,6 +92,30 @@ class TestSection(unittest.TestCase):
         """
         self.soma.remove_immediate_from_neuron()
         self.assertEqual(2, _get_secs())
+
+    def test_removal_sec_from_cell_object(self):
+        """
+        removal section by cell object - removes it from the cell object's self.secs list
+        """
+        self.cell.add_sec("dend3", diam=10, l=10, nseg=10)
+        self.cell.remove_secs("dend3")
+        self.assertEqual(3, _get_secs())
+
+    def test_removal_sec_outside_cell_object(self):
+        """
+        removal section by itself - removes it from the cell object's self.secs list
+        """
+        dend3 = self.cell.add_sec("dend3", diam=10, l=10, nseg=10)
+        dend3.remove_immediate_from_neuron()
+        self.assertEqual(4, len(self.cell.secs))
+
+    def test_removal_sec_outside_cell_object_clear_secs_manual(self):
+        """
+        removal section from secs clear also the object dend3
+        """
+        dend3 = self.cell.add_sec("dend3", diam=10, l=10, nseg=10)
+        self.cell.secs.remove(dend3)
+        self.assertEqual(3, len(self.cell.secs))
 
     def test_remove_dend1(self):
         """
@@ -197,6 +219,16 @@ class TestSection(unittest.TestCase):
         syn.remove_immediate_from_neuron()
         self.soma.remove_immediate_from_neuron()
         self.assertEqual(3, _get_secs())
+
+    def test_removal_sec_as_part_of_synapse(self):
+        """
+        Removal of Sec which is a part of a Synapse won't delete the Section in NEURON as long as
+        Synapse exists.
+        """
+        dend3 = self.cell.add_sec("dend3", diam=10, l=10, nseg=10)
+        syn = self.cell.add_synapse(source=None, mod_name="Exp2Syn", seg=dend3(0.5))
+        dend3.remove_immediate_from_neuron()
+        self.assertEqual(4, _get_secs())
 
     def test_removal_sec_before_synapse_remove(self):
         """
