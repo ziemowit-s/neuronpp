@@ -113,8 +113,8 @@ class CoreCell(NeuronRemovable):
     def remove(searchable, obj_filter=None, **kwargs):
         objs = CoreCell.filter(searchable=searchable, obj_filter=obj_filter, as_list=True, **kwargs)
         for o in objs:
+            searchable.remove(o)
             o.remove_immediate_from_neuron()
-            objs.remove(o)
 
     @staticmethod
     def _prepare_patterns(kwargs):

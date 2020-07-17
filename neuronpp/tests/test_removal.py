@@ -100,6 +100,7 @@ class TestSection(unittest.TestCase):
         self.cell.add_sec("dend3", diam=10, l=10, nseg=10)
         self.cell.remove_secs("dend3")
         self.assertEqual(3, _get_secs())
+        self.assertEqual(3, len(self.cell.secs))
 
     def test_removal_sec_outside_cell_object(self):
         """
