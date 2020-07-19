@@ -36,7 +36,8 @@ def non_removable_fields(*fields: List[str]):
 
         non_removable_list = getattr(cls, NON_REMOVABLE_FIELD_NAME)
         for field in fields:
-            non_removable_list.append(field)
+            if field not in non_removable_list:
+                non_removable_list.append(field)
         return cls
     return decorate
 

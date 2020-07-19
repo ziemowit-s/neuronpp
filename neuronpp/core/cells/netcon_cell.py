@@ -54,6 +54,40 @@ class NetConCell(PointProcessCell):
         return self.filter(searchable=self.ncs, obj_filter=obj_filter, mod_name=mod_name, name=name,
                            **kwargs)
 
+    def remove_netcons(self, mod_name: str, name: str, obj_filter=None, **kwargs):
+        """
+        Currently all filter passed are treated as AND statements.
+
+        * Whole object callable function passed to the obj_filter param.
+            eg. (lambda expression) returns sections which name contains 'apic' or
+             their distance > 1000 um from the soma:
+          ```
+           soma = cell.filter_secs("soma")
+           cell.filter_secs(obj_filter=lambda o: 'apic' in o.name or h.distance(soma.hoc(0.5),
+                                                  o.hoc(0.5)) > 1000)
+          ```
+
+        * Single object field filter based on callable function passed to the obj_filter param.
+          eg. (lambda expression) returns sections which parent's name contains less than 10
+          characters
+          ```
+          cell.filter_secs(parent=lambda o: len(o.parent.name) < 10)
+          ```
+
+        :param mod_name:
+            single string defining name of target point process type name, eg. concere synaptic
+            mechanisms like Syn4PAChDa
+        :param obj_filter:
+            Whole object callable functional filter. If you added also any kwargs they will be
+            together with the
+            obj_filter treated as AND statement.
+        :param name:
+            start with 'regex:any pattern' to use regular expression. If without 'regex:'
+            will look which Hoc objects contain the str
+        """
+        return self.remove(searchable=self.ncs, obj_filter=obj_filter, mod_name=mod_name, name=name,
+                           **kwargs)
+
     @distparams
     def add_netcon(self, source, point_process, netcon_weight=1, delay=0, threshold=10):
         """
