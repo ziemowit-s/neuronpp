@@ -241,10 +241,6 @@ class TestSimulation(unittest.TestCase):
         sim.run(100)
         r = rec.as_numpy(variable="v")
 
-        stim.remove_immediate_from_neuron()
-        sim.remove_immediate_from_neuron()
-        rec.remove_immediate_from_neuron()
-
         # Make assertions
         self.assertEqual(4051, r.size)
         self.assertEqual(-67.1917, round(r.records.max(), 4))
@@ -253,6 +249,10 @@ class TestSimulation(unittest.TestCase):
         self.assertEqual(3, r.records.argmax())
         # time in ms of max mV value
         self.assertEqual(6, round(r.time[r.records.argmax()], 4))
+
+        stim.remove_immediate_from_neuron()
+        sim.remove_immediate_from_neuron()
+        rec.remove_immediate_from_neuron()
 
     def test_iclamp_before_sim(self):
         """
