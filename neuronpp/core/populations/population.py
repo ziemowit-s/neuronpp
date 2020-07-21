@@ -1,16 +1,17 @@
-import numpy as np
 from typing import Union, TypeVar, List, Iterable, Callable
+
+import numpy as np
 
 from neuronpp.cells.cell import Cell
 from neuronpp.core.decorators import distparams
-from neuronpp.core.hocwrappers.seg import Seg
-from neuronpp.utils.record import Record
-from neuronpp.core.populations.connector import Connector
-from neuronpp.core.neuron_removable import NeuronRemovable
-from neuronpp.core.hocwrappers.synapses.synapse import Synapse
 from neuronpp.core.distributions import Dist, UniformConnectionProba, NormalConnectionProba, \
-    NormalTruncatedSegDist, LogNormalConnectionProba, UniformDist, NormalDist, NormalTruncatedDist, \
+    NormalTruncatedSegDist, LogNormalConnectionProba, UniformDist, NormalTruncatedDist, \
     LogNormalTruncatedDist, UniformTruncatedDist
+from neuronpp.core.hocwrappers.seg import Seg
+from neuronpp.core.hocwrappers.synapses.synapse import Synapse
+from neuronpp.core.neuron_removable import NeuronRemovable
+from neuronpp.core.populations.connector import Connector
+from neuronpp.utils.record import Record
 
 T_Cell = TypeVar('T_Cell', bound=Cell)
 
@@ -96,6 +97,8 @@ class Population(NeuronRemovable):
             default is 'all'
             'all' - all-to-all connections
             'one' - one-to-one connections
+
+            if you make connector.set_source(None) the rule won't be utilized at all.
         :param cell_connection_proba:
             default is 1.0
             can be a single float between 0 to 1 (defining probability of connection), it will
@@ -129,7 +132,8 @@ class Population(NeuronRemovable):
         :return:
             Connector object
         """
-        return Connector(population_ref=self, rule=rule, cell_connection_proba=cell_connection_proba,
+        return Connector(population_ref=self, rule=rule,
+                         cell_connection_proba=cell_connection_proba,
                          seg_dist=seg_dist, syn_num_per_cell_source=syn_num_per_cell_source)
 
     def remove_immediate_from_neuron(self):
@@ -199,7 +203,9 @@ class Population(NeuronRemovable):
         # iter all target cells' segments
         for cell_target_i, (cell_target_name, target_segs) in enumerate(cell_targets.items()):
 
-            if source_rule == 'all':
+            if connector._sources is None or connector._sources[0] is None:
+                current_sources = [None]
+            elif source_rule == 'all':
                 current_sources = np.random.choice(sources, size=len(sources), replace=False)
             elif source_rule == 'one':
                 if target_cell_num != len(sources):
@@ -268,18 +274,18 @@ class Population(NeuronRemovable):
                                                        **mech._point_process_params)
                                 syns.append(syn)
 
-                        # group synapses if required for each target_segment
-                        # eg. for multi-netcons synapses (like ACh+Da+hebbian synapse)
-                        # This requirement need to be directly define by the user
-                        if connector._group_syns:
-                            cell.group_synapses(name=connector._synaptic_group_name,
-                                                tag=connector._tag, synapses=syns)
-
                         # perform a custom function on created synapses if required for each
                         # target_segment
                         # This requirement need to be directly define by the user
                         if connector._synaptic_func:
                             connector._synaptic_func(syns)
+
+                        # group synapses if required for each target_segment
+                        # eg. for multi-netcons synapses (like ACh+Da+hebbian synapse)
+                        # This requirement need to be directly define by the user
+                        if connector._group_syns:
+                            syns = cell.group_synapses(name=connector._synaptic_group_name,
+                                                       tag=connector._tag, synapses=syns)
 
                         result.extend(syns)
 
@@ -359,7 +365,7 @@ class Population(NeuronRemovable):
             if len(potential_target_segments) == 1:
                 index = 0
             else:
-                index = int(round((len(potential_target_segments)-1) * value))
+                index = int(round((len(potential_target_segments) - 1) * value))
             return np.array([potential_target_segments[index]])
         else:
             raise TypeError("Param seg_dist can be only str: 'all', 'uniform' or "
@@ -418,4 +424,3 @@ class Population(NeuronRemovable):
                             "NormalTruncatedDist or LogNormalTruncatedDist.")
 
         return int(np.abs(np.round(result)))
-
