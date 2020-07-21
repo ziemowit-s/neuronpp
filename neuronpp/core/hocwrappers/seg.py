@@ -8,3 +8,7 @@ class Seg(HocWrapper):
     @property
     def area(self) -> float:
         return self.hoc.area()
+
+    @property
+    def x(self) -> float:
+        return self.hoc.x

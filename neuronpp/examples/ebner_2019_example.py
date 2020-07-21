@@ -12,8 +12,7 @@ WARMUP = 200
 if __name__ == '__main__':
     # define cell
     cell = Ebner2019Cell(name="cell")
-    filepath = os.path.join(path, "..",
-                            "commons/morphologies/swc/my.swc")
+    filepath = os.path.join(path, "..", "commons/morphologies/asc/cell1.asc")
     cell.load_morpho(filepath=filepath)
 
     # stimulation

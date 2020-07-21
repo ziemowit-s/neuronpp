@@ -1,4 +1,3 @@
-
 from neuronpp.utils.record import Record
 from neuronpp.utils.simulation import Simulation
 from neuronpp.cells.ebner2019_ach_da_cell import Ebner2019AChDACell
@@ -39,14 +38,14 @@ if __name__ == '__main__':
     rec_syn = Record(syn4p, variables="w stdp_ach ach_stdp ACh ACh_w")
     rec_soma = Record(soma(0.5), variables="v")
 
-    sim = Simulation(init_v=-80, warmup=WARMUP)
+    sim = Simulation(init_v=-80, warmup=WARMUP, warmup_on_create=True)
 
     event = 0
     inter = 5
     for i in range(10):
         for syn in syns:
-            syn['Syn4PAChDa'].make_event(event)
-            syn['SynACh'].make_event(event)
+            syn['Syn4PAChDa'][0].make_event(event)
+            syn['SynACh'][0].make_event(event)
             event += inter
 
     sim.run(runtime=150)

@@ -5,13 +5,13 @@ from neuronpp.core.distributions import Dist, NormalTruncatedSegDist
 
 class ConnParams:
     def __init__(self, rule: str = "all",
-                 cell_proba: Union[float, Dist] = 1.0,
+                 cell_connection_proba: Union[float, Dist] = 1.0,
                  seg_dist: Union[NormalTruncatedSegDist, str] = "uniform",
-                 syn_num_per_source: Union[int, Dist] = 1):
+                 syn_num_per_cell_source: Union[int, Dist] = 1):
         """
         :param rule:
             'all' or 'one'
-        :param cell_proba:
+        :param cell_connection_proba:
             probability of connecting source and target
         :param seg_dist:
             distribution of single connection between provided target segments.
@@ -37,14 +37,14 @@ class ConnParams:
                             Provided in um.
                             standard deviation of the cluster of distribution.
 
-        :param syn_num_per_source:
+        :param syn_num_per_cell_source:
             how many synapses single source should have
         """
         self.rule = rule
-        self.cell_proba = cell_proba
+        self.cell_connection_proba = cell_connection_proba
         if isinstance(seg_dist, str) and seg_dist not in ['all', 'uniform'] and \
                 not isinstance(seg_dist, NormalTruncatedSegDist):
             raise TypeError("Param seg_dist can be only str: 'all', 'uniform' or "
                             "object: NormalTruncatedSegDist, but provided: %s" % seg_dist.__class__)
         self.seg_dist = seg_dist
-        self.syn_num_per_source = syn_num_per_source
+        self.syn_num_per_cell_source = syn_num_per_cell_source

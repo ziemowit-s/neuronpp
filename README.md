@@ -344,7 +344,7 @@ Create a population of many neurons of the same type and connect them between po
     pop1 = Population("pop_1")
     pop1.add_cells(num=4, cell_function=cell_function)
 
-    connector = pop1.connect(cell_proba=0.5)
+    connector = pop1.connect(cell_connection_proba=0.5)
     connector.set_source(netstim)
     connector.set_target([c.filter_secs("dend")(0.5) for c in pop1.populations])
     syn_adder = connector.add_synapse("Exp2Syn")
@@ -368,7 +368,7 @@ Create a population of many neurons of the same type and connect them between po
   * Define connections between pop1 and pop2 where weights will be chosen 
   from the Normal Truncated Distribution:
   ```python
-    connector = pop2.connect(cell_proba=0.2)
+    connector = pop2.connect(cell_connection_proba=0.2)
     connector.set_source([c.filter_secs("soma")(0.5) for c in pop1.populations])
     connector.set_target([c.filter_secs("dend")(0.5) for c in pop2.populations])
     syn_adder = connector.add_synapse("Exp2Syn")
