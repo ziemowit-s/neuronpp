@@ -287,7 +287,10 @@ class Population(NeuronRemovable):
                             syns = cell.group_synapses(name=connector._synaptic_group_name,
                                                        tag=connector._tag, synapses=syns)
 
-                        result.extend(syns)
+                        if isinstance(syns, list):
+                            result.extend(syns)
+                        else:
+                            result.append(syns)
 
         return result
 
