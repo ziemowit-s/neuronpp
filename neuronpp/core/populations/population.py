@@ -2,13 +2,15 @@ import numpy as np
 from typing import Union, TypeVar, List, Iterable, Callable
 
 from neuronpp.cells.cell import Cell
+from neuronpp.core.decorators import distparams
 from neuronpp.core.hocwrappers.seg import Seg
 from neuronpp.utils.record import Record
 from neuronpp.core.populations.connector import Connector
 from neuronpp.core.neuron_removable import NeuronRemovable
 from neuronpp.core.hocwrappers.synapses.synapse import Synapse
 from neuronpp.core.distributions import Dist, UniformConnectionProba, NormalConnectionProba, \
-    NormalTruncatedSegDist, LogNormalBinaryEvent
+    NormalTruncatedSegDist, LogNormalConnectionProba, UniformDist, NormalDist, NormalTruncatedDist, \
+    LogNormalTruncatedDist, UniformTruncatedDist
 
 T_Cell = TypeVar('T_Cell', bound=Cell)
 
@@ -22,6 +24,7 @@ class Population(NeuronRemovable):
 
         self.cell_counter = 0
 
+    @distparams(include=["num"])
     def add_cells(self, num: int, cell_function: Callable[[], T_Cell]):
         """
         Add cells based on provided cell_function.
@@ -35,6 +38,9 @@ class Population(NeuronRemovable):
         :param cell_function
             Callable function without arguments, which must return at least Cell type object
         """
+        if num < 0:
+            raise ValueError("Cell number cannot be < 0.")
+
         for i in range(num):
             cell = cell_function()
             cell.population = self
@@ -44,6 +50,7 @@ class Population(NeuronRemovable):
             self.cell_counter += 1
             self.cells.append(cell)
 
+    @distparams(include=["loc"])
     def record(self, sec_name="soma", loc=0.5, variable='v'):
         d = [cell.filter_secs(sec_name, as_list=True)[0](loc) for cell in self.cells]
         rec = Record(d, variables=variable)
@@ -74,7 +81,9 @@ class Population(NeuronRemovable):
     def connect(self, rule: str = "all",
                 cell_connection_proba: Union[float, Dist] = 1.0,
                 seg_dist: Union[NormalTruncatedSegDist, str] = "uniform",
-                syn_num_per_source: Union[int, Dist] = 1) -> Connector:
+                syn_num_per_cell_source: Union[int, UniformDist,
+                                               NormalTruncatedDist,
+                                               LogNormalTruncatedDist] = 1) -> Connector:
         """
         Returns Connector object.
 
@@ -103,8 +112,9 @@ class Population(NeuronRemovable):
             "uniform" - all segs are equally probable. Uniform means that all provided segments
                 have equal probability of setup a point of connection.
 
-            NormalTruncatedSegDist - probability of choose seg with mean and std provided. Normal
-                means that choosing segments are clustered around mean with standard deviation std.
+            NormalTruncatedSegDist or LogNormalTruncatedDist - probability of choose seg with mean
+                and std provided. Normal and LogNormal means that choosing segments are clustered
+                around mean with standard deviation std.
                     :param mean:
                         Provided in normalized arbitrary unit between 0-1, where all provided
                         segments are organized as list. The first element has location=0,
@@ -112,14 +122,15 @@ class Population(NeuronRemovable):
                     :param std:
                         Provided in um.
                         standard deviation of the cluster of distribution.
-        :param syn_num_per_source:
+        :param syn_num_per_cell_source:
             default is 1
-            number of synapse per single source object
+            number of synapse per single source object.
+            Allowed types: int, UniformDist, NormalTruncatedDist, LogNormalTruncatedDist
         :return:
             Connector object
         """
-        return Connector(population_ref=self, rule=rule, cell_proba=cell_connection_proba,
-                         seg_dist=seg_dist, syn_num_per_source=syn_num_per_source)
+        return Connector(population_ref=self, rule=rule, cell_connection_proba=cell_connection_proba,
+                         seg_dist=seg_dist, syn_num_per_cell_source=syn_num_per_cell_source)
 
     def remove_immediate_from_neuron(self):
         for r in self.recs.values():
@@ -194,14 +205,14 @@ class Population(NeuronRemovable):
                 if target_cell_num != len(sources):
                     raise ValueError("For rule 'one' the target and the source len need to be of "
                                      "the same size.")
-                current_sources = sources[cell_target_i]
+                current_sources = [sources[cell_target_i]]
             else:
                 raise ValueError("The only allowed rule is all or one, "
                                  "but provided %s" % source_rule)
 
             # iter all sources (for all rule) or one source (for one rule)
             for source in current_sources:
-                if not self._is_make_cell_connection(conn_params.cell_proba):
+                if not self._is_make_cell_connection(conn_params.cell_connection_proba):
                     continue
 
                 # if NormalTruncatedSegDist has no mean defined - choose some with random uniform
@@ -215,7 +226,8 @@ class Population(NeuronRemovable):
                     seg_dist_normal_mean = np.random.uniform(size=1)[0]
 
                 # create syn_num_per_source number of synapses per single source
-                for synapse_i in range(conn_params.syn_num_per_source):
+                syn_num = self._get_syn_num_per_cell_source(conn_params.syn_num_per_cell_source)
+                for synapse_i in range(syn_num):
 
                     # based on seg_dist - decide with what target_segment(s) we want to make
                     # connection
@@ -332,10 +344,16 @@ class Population(NeuronRemovable):
             return np.array(potential_target_segments)
         elif seg_dist == 'uniform':
             return np.random.choice(potential_target_segments, 1)
-        elif isinstance(seg_dist, NormalTruncatedSegDist):
+        elif isinstance(seg_dist, (LogNormalTruncatedDist, NormalTruncatedSegDist)):
             if normal_mean is None:
                 normal_mean = seg_dist.mean
-            value = np.abs(np.random.normal(loc=normal_mean, scale=seg_dist.std, size=1))[0]
+
+            if isinstance(seg_dist, NormalTruncatedDist):
+                value = np.random.normal(loc=normal_mean, scale=seg_dist.std)
+            else:
+                value = np.random.lognormal(mean=normal_mean, sigma=seg_dist.std)
+            value = np.abs(value)
+
             if value > 1:
                 value = 1 - value % 1
             if len(potential_target_segments) == 1:
@@ -348,7 +366,9 @@ class Population(NeuronRemovable):
                             "object: NormalTruncatedSegDist, but provided: %s" % seg_dist.__class__)
 
     @staticmethod
-    def _is_make_cell_connection(conn_proba: Union[float, int, Dist]):
+    def _is_make_cell_connection(conn_proba: Union[float, int, UniformConnectionProba,
+                                                   NormalConnectionProba,
+                                                   LogNormalConnectionProba]):
         """
         Determine if there should be a connection between single tuple of (source and target) based
         on conn_proba type and conn_proba.expected value.
@@ -357,7 +377,8 @@ class Population(NeuronRemovable):
             can be a single number from 0 to 1 defining probability of connection.
             In this case it will assume UniformProba
 
-            It can also be an instance of Dist class which defines specific distribution with
+            It can also be an instance of UniformConnectionProba, NormalConnectionProba,
+            LogNormalConnectionProba class which defines specific distribution with
             an expected value
         :return:
         """
@@ -370,9 +391,31 @@ class Population(NeuronRemovable):
             result = np.random.uniform(size=1)[0]
         elif isinstance(conn_proba, NormalConnectionProba):
             result = np.abs(np.random.normal(loc=conn_proba.mean, scale=conn_proba.std))
-        elif isinstance(conn_proba, LogNormalBinaryEvent):
+        elif isinstance(conn_proba, LogNormalConnectionProba):
             result = np.abs(np.random.lognormal(mean=conn_proba.mean, sigma=conn_proba.std))
         else:
-            raise TypeError("Not allowed ConnectionProba.")
+            raise TypeError("Not allowed ConnectionProba. Allowed types are: int, float, "
+                            "UniformConnectionProba, NormalConnectionProba, "
+                            "LogNormalConnectionProba.")
 
         return result > conn_proba.expected
+
+    @staticmethod
+    def _get_syn_num_per_cell_source(value: Union[int, UniformDist, NormalTruncatedDist,
+                                                  LogNormalTruncatedDist]):
+        if isinstance(value, int):
+            if value < 0:
+                raise ValueError("syn_num_per_cell_source cannot be < 0.")
+            result = value
+        elif isinstance(value, UniformTruncatedDist):
+            result = np.random.uniform(low=value.low, high=value.high)
+        elif isinstance(value, NormalTruncatedDist):
+            result = np.random.normal(loc=value.mean, scale=value.std)
+        elif isinstance(value, LogNormalTruncatedDist):
+            result = np.random.lognormal(mean=value.mean, sigma=value.std)
+        else:
+            raise TypeError("syn_num_per_cell_source can be of type: int, UniformTruncatedDist, "
+                            "NormalTruncatedDist or LogNormalTruncatedDist.")
+
+        return int(np.abs(np.round(result)))
+

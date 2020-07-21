@@ -1,6 +1,8 @@
 import numpy as np
 from typing import Optional
 
+# ----------------------------------------- DISTS -----------------------------------------
+
 
 class Dist:
     seed = None
@@ -14,11 +16,22 @@ class Dist:
         cls.seed = seed
 
 
+class TruncatedDist(Dist):
+    pass
+
+
 class UniformDist(Dist):
     def __init__(self, low=0, high=1, dtype="float"):
         Dist.__init__(self, dtype=dtype)
         self.low = low
         self.high = high
+
+
+class UniformTruncatedDist(UniformDist, TruncatedDist):
+    def __init__(self, low=0, high=1, dtype="float"):
+        UniformDist.__init__(self, low=low, high=high, dtype=dtype)
+        if low < 0:
+            raise ValueError("low cannot be < 0 for TruncatedUniformDist.")
 
 
 class NormalDist(Dist):
@@ -28,12 +41,28 @@ class NormalDist(Dist):
         self.std = std
 
 
-class NormalTruncatedDist(NormalDist):
+class NormalTruncatedDist(NormalDist, TruncatedDist):
     def __init__(self, mean, std, dtype="float"):
         Dist.__init__(self, dtype=dtype)
         if mean < 0 or std < 0:
             raise ValueError("mean and std cannot be < 0 for Truncated Normal Distribution.")
         NormalDist.__init__(self, mean=mean, std=std)
+
+
+class LogNormalDist(NormalDist):
+    def __init__(self, mean, std, dtype="float"):
+        NormalDist.__init__(self, mean=mean, std=std, dtype=dtype)
+
+
+class LogNormalTruncatedDist(LogNormalDist, TruncatedDist):
+    def __init__(self, mean, std, dtype="float"):
+        Dist.__init__(self, dtype=dtype)
+        if mean < 0 or std < 0:
+            raise ValueError("mean and std cannot be < 0 for Truncated Normal Distribution.")
+        LogNormalDist.__init__(self, mean=mean, std=std)
+
+
+# ----------------------------------------- SEG DISTS -----------------------------------------
 
 
 class NormalTruncatedSegDist(NormalTruncatedDist):
@@ -63,6 +92,8 @@ class NormalTruncatedSegDist(NormalTruncatedDist):
         if mean < 0 or std < 0:
             raise ValueError("mean and std cannot be < 0 for Truncated Normal Distribution.")
         NormalTruncatedDist.__init__(self, mean=mean, std=std)
+
+# ----------------------------------------- CON PROBAS -----------------------------------------
 
 
 class ConnectionProba(Dist):
@@ -118,7 +149,7 @@ class NormalConnectionProba(ConnectionProba, NormalTruncatedDist):
         NormalTruncatedDist.__init__(self, mean=mean, std=std)
 
 
-class LogNormalBinaryEvent(NormalConnectionProba):
+class LogNormalConnectionProba(NormalConnectionProba):
     def __init__(self, threshold: float, mean: float, std: float):
         """
         Defines probability of the occurrence of binary event.

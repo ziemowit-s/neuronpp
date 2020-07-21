@@ -1,10 +1,12 @@
 import unittest
+from collections import defaultdict, Counter
+
 import numpy as np
 from neuron import h
 
 from neuronpp.cells.cell import Cell
 from neuronpp.core.distributions import Dist, UniformDist, NormalTruncatedDist, \
-    NormalConnectionProba, NormalTruncatedSegDist
+    NormalConnectionProba, NormalTruncatedSegDist, UniformTruncatedDist, LogNormalTruncatedDist
 from neuronpp.core.populations.population import Population
 
 
@@ -12,6 +14,13 @@ class TestSeed(unittest.TestCase):
     def test_seed(self):
         Dist.set_seed(13)
         self.assertEqual(13, np.random.get_state()[1][0])
+
+    def test_seed_numpy(self):
+        Dist.set_seed(13)
+        rand_avg1 = np.average(np.random.uniform(0, 5, size=50) * 50)
+        Dist.set_seed(13)
+        rand_avg2 = np.average(np.random.uniform(0, 5, size=50) * 50)
+        self.assertEqual(rand_avg1, rand_avg2)
 
 
 class TestCellDistparam(unittest.TestCase):
@@ -236,7 +245,7 @@ class TestPopulationalDistparam(unittest.TestCase):
         non_zero_cell = sum([len(c.syns) for c in self.pop2.cells])
         self.assertEqual(20000, non_zero_cell)
 
-    def test_full_all_to_all_proba_uniform_seg_dist(self):
+    def test_uniform_seg_dist(self):
         """
         Expected that seg.x distribution will be uniform,
         mean will be ~0.5 and distribution will be normal between 0-1
@@ -251,7 +260,7 @@ class TestPopulationalDistparam(unittest.TestCase):
         xs = [s.parent.x for c in self.pop2.cells for s in c.syns]
         self.assertEqual(0.50, round(np.average(xs), 2))
 
-    def test_full_all_to_all_proba_normal_seg_dist(self):
+    def test_normal_seg_dist(self):
         """
         Expected that seg.x distribution will be truncated normal,
         mean will be ~0.7 and std ~0.2
@@ -270,6 +279,206 @@ class TestPopulationalDistparam(unittest.TestCase):
 
         self.assertEqual(0.2, np.round(std, 1))
         self.assertEqual(0.7, np.round(avg, 1))
+
+
+class TestPopulationalSynNumPerCellSource(unittest.TestCase):
+    def setUp(self):
+        def cell():
+            c = Cell(name="cell")
+            c.add_sec("soma", nseg=10, l=10)
+            return c
+
+        self.pop1 = Population("pop1")
+        self.pop1.add_cells(num=50, cell_function=cell)
+
+        self.pop2 = Population("pop2")
+        self.pop2.add_cells(num=50, cell_function=cell)
+
+    def tearDown(self):
+        self.pop1.remove_immediate_from_neuron()
+        self.pop2.remove_immediate_from_neuron()
+
+        l = len(list(h.allsec()))
+        if len(list(h.allsec())) != 0:
+            raise RuntimeError("Not all section have been removed after teardown. "
+                               "Sections left: %s" % l)
+
+    def test_syn_per_cell_source1(self):
+        Dist.set_seed(13)
+        conn = self.pop2.connect(rule="all", cell_connection_proba=1, seg_dist="uniform",
+                                 syn_num_per_cell_source=1)
+        conn.set_source([c.filter_secs("soma")(0.5) for c in self.pop1.cells])
+        conn.set_target(self.pop2.cells)
+        conn.add_synapse("Exp2Syn").add_netcon()
+        conn.build()
+
+        lens = [len(c.syns) for c in self.pop2.cells]
+        avg = np.average(lens)
+        self.assertEqual(50, avg)
+
+    def test_syn_per_cell_source2(self):
+        Dist.set_seed(13)
+        conn = self.pop2.connect(rule="all", cell_connection_proba=1, seg_dist="uniform",
+                                 syn_num_per_cell_source=3)
+        conn.set_source([c.filter_secs("soma")(0.5) for c in self.pop1.cells])
+        conn.set_target(self.pop2.cells)
+        conn.add_synapse("Exp2Syn").add_netcon()
+        conn.build()
+
+        lens = [len(c.syns) for c in self.pop2.cells]
+        avg = np.average(lens)
+        self.assertEqual(150, avg)
+
+    def test_syn_per_cell_source3(self):
+        Dist.set_seed(13)
+        conn = self.pop2.connect(rule="all", cell_connection_proba=1, seg_dist="uniform",
+                                 syn_num_per_cell_source=9)
+        conn.set_source([c.filter_secs("soma")(0.5) for c in self.pop1.cells])
+        conn.set_target(self.pop2.cells)
+        conn.add_synapse("Exp2Syn").add_netcon()
+        conn.build()
+
+        lens = [len(c.syns) for c in self.pop2.cells]
+        avg = np.average(lens)
+        self.assertEqual(450, avg)
+
+    def test_syn_per_cell_source4(self):
+        Dist.set_seed(15)
+        conn = self.pop2.connect(rule="all", cell_connection_proba=0.5, seg_dist="uniform",
+                                 syn_num_per_cell_source=1)
+        conn.set_source([c.filter_secs("soma")(0.5) for c in self.pop1.cells])
+        conn.set_target(self.pop2.cells)
+        conn.add_synapse("Exp2Syn").add_netcon()
+        conn.build()
+
+        lens = [len(c.syns) for c in self.pop2.cells]
+        avg = np.average(lens)
+        self.assertEqual(25, round(avg))
+
+    def test_syn_per_cell_source5(self):
+        Dist.set_seed(15)
+        conn = self.pop2.connect(rule="all", cell_connection_proba=0.5, seg_dist="uniform",
+                                 syn_num_per_cell_source=3)
+        conn.set_source([c.filter_secs("soma")(0.5) for c in self.pop1.cells])
+        conn.set_target(self.pop2.cells)
+        conn.add_synapse("Exp2Syn").add_netcon()
+        conn.build()
+
+        lens = [len(c.syns) for c in self.pop2.cells]
+        avg = np.average(lens)
+        self.assertEqual(75, round(avg))
+
+    def test_syn_per_cell_source_pop_syns_num(self):
+        Dist.set_seed(15)
+        conn = self.pop2.connect(rule="all", cell_connection_proba=1, seg_dist="uniform",
+                                 syn_num_per_cell_source=UniformTruncatedDist(low=0, high=5))
+        conn.set_source([c.filter_secs("soma")(0.5) for c in self.pop1.cells])
+        conn.set_target(self.pop2.cells)
+        conn.add_synapse("Exp2Syn").add_netcon()
+        conn.build()
+
+        lens = [len(c.syns) for c in self.pop2.cells]
+        defaultdict(int)
+        counts = Counter([s.sources[0].parent.cell for s in self.pop2.syns])
+        avg_source = np.average(list(counts.values()))
+        avg_lens = np.average(lens)
+        self.assertEqual(avg_source, avg_lens)
+
+    def test_syn_per_cell_source_uniform(self):
+        Dist.set_seed(13)
+        conn = self.pop2.connect(rule="all", cell_connection_proba=1, seg_dist="uniform",
+                                 syn_num_per_cell_source=UniformTruncatedDist(low=0, high=5))
+        conn.set_source([c.filter_secs("soma")(0.5) for c in self.pop1.cells])
+        conn.set_target(self.pop2.cells)
+        conn.add_synapse("Exp2Syn").add_netcon()
+        conn.build()
+
+        lens = [len(c.syns) for c in self.pop2.cells]
+        avg_lens = np.average(lens)
+
+        Dist.set_seed(13)
+        rand_avg = np.average(np.random.uniform(0, 5, size=50) * 50)
+
+        if avg_lens > rand_avg:
+            diff = rand_avg/avg_lens
+        else:
+            diff = avg_lens/rand_avg
+        self.assertGreater(diff, 0.9)
+
+    def test_syn_per_cell_source_normal(self):
+        Dist.set_seed(13)
+        conn = self.pop2.connect(rule="all", cell_connection_proba=1, seg_dist="uniform",
+                                 syn_num_per_cell_source=NormalTruncatedDist(mean=2, std=0.5))
+        conn.set_source([c.filter_secs("soma")(0.5) for c in self.pop1.cells])
+        conn.set_target(self.pop2.cells)
+        conn.add_synapse("Exp2Syn").add_netcon()
+        conn.build()
+
+        lens = [len(c.syns) for c in self.pop2.cells]
+        avg_lens = np.average(lens)
+
+        Dist.set_seed(13)
+        rand_avg = np.average(np.random.normal(loc=2, scale=0.5, size=50) * 50)
+
+        if avg_lens > rand_avg:
+            diff = rand_avg/avg_lens
+        else:
+            diff = avg_lens/rand_avg
+        self.assertGreater(diff, 0.9)
+
+    def test_syn_per_cell_source_lognormal(self):
+        Dist.set_seed(13)
+        conn = self.pop2.connect(rule="all", cell_connection_proba=1, seg_dist="uniform",
+                                 syn_num_per_cell_source=LogNormalTruncatedDist(mean=2, std=0.5))
+        conn.set_source([c.filter_secs("soma")(0.5) for c in self.pop1.cells])
+        conn.set_target(self.pop2.cells)
+        conn.add_synapse("Exp2Syn").add_netcon()
+        conn.build()
+
+        lens = [len(c.syns) for c in self.pop2.cells]
+        avg_lens = np.average(lens)
+
+        Dist.set_seed(13)
+        rand_avg = np.average(np.random.lognormal(mean=2, sigma=0.5, size=50) * 50)
+
+        if avg_lens > rand_avg:
+            diff = rand_avg/avg_lens
+        else:
+            diff = avg_lens/rand_avg
+        self.assertGreater(diff, 0.9)
+
+    def test_syn_per_cell_rule_one_normal_truncated(self):
+        Dist.set_seed(13)
+        conn = self.pop2.connect(rule="one", cell_connection_proba=1, seg_dist="uniform",
+                                 syn_num_per_cell_source=NormalTruncatedDist(mean=2, std=0.5))
+        conn.set_source([c.filter_secs("soma")(0.5) for c in self.pop1.cells])
+        conn.set_target(self.pop2.cells)
+        conn.add_synapse("Exp2Syn").add_netcon()
+        conn.build()
+
+        lens = [len(c.syns) for c in self.pop2.cells]
+        avg_lens = np.average(lens)
+
+        Dist.set_seed(13)
+        rand_avg = np.average(np.random.normal(loc=2, scale=0.5, size=50))
+
+        if avg_lens > rand_avg:
+            diff = rand_avg/avg_lens
+        else:
+            diff = avg_lens/rand_avg
+        self.assertGreater(diff, 0.9)
+
+    def test_syn_per_cell_rule_one_syn_per_source_1(self):
+        Dist.set_seed(13)
+        conn = self.pop2.connect(rule="one", cell_connection_proba=1, seg_dist="uniform",
+                                 syn_num_per_cell_source=1)
+        conn.set_source([c.filter_secs("soma")(0.5) for c in self.pop1.cells])
+        conn.set_target(self.pop2.cells)
+        conn.add_synapse("Exp2Syn").add_netcon()
+        conn.build()
+
+        lens = [len(c.syns) for c in self.pop2.cells]
+        self.assertEqual(50, sum(lens))
 
 
 if __name__ == '__main__':
