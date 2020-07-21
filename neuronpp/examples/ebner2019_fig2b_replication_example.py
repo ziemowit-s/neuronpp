@@ -25,8 +25,7 @@ delta_t = 10  # LTP
 
 if __name__ == '__main__':
     cell = Ebner2019Cell(name="cell")
-    filepath = os.path.join(path, "..",
-                            "commons/morphologies/asc/cell1.asc")
+    filepath = os.path.join(path, "..", "commons/morphologies/asc/cell1.asc")
     cell.load_morpho(filepath=filepath)
     cell.make_default_mechanisms()
 

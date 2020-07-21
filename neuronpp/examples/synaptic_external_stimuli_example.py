@@ -7,10 +7,8 @@ from neuronpp.utils.record import Record
 from neuronpp.core.cells.netstim_cell import NetStimCell
 
 path = os.path.dirname(os.path.abspath(__file__))
-model_path1 = os.path.join(path, "..",
-                           "commons/mods/ebner2019")
-model_path2 = os.path.join(path, "..",
-                           "commons/morphologies/swc/my.swc")
+model_path1 = os.path.join(path, "..", "commons/mods/ebner2019")
+model_path2 = os.path.join(path, "..", "commons/morphologies/swc/my.swc")
 
 # Prepare cell
 cell = Cell(name="cell", compile_paths=model_path1)
@@ -39,7 +37,7 @@ syn2 = cell.add_synapse(source=None, seg=soma(0.5), netcon_weight=0.01, mod_name
 rec_v = Record(soma(0.5), variables="v")
 
 # run
-sim = Simulation(init_v=-55, warmup=20)
+sim = Simulation(init_v=-55, warmup=20, warmup_on_create=True)
 
 # Making external events to the synapse
 syn2.make_event(10)
