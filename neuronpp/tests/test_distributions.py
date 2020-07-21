@@ -3,7 +3,8 @@ import numpy as np
 from neuron import h
 
 from neuronpp.cells.cell import Cell
-from neuronpp.core.distributions import Dist, UniformDist, NormalTruncatedDist, NormalConnectionProba
+from neuronpp.core.distributions import Dist, UniformDist, NormalTruncatedDist, \
+    NormalConnectionProba, NormalTruncatedSegDist
 from neuronpp.core.populations.population import Population
 
 
@@ -72,11 +73,11 @@ class TestPopulationalDistparam(unittest.TestCase):
     def setUp(self):
         def cell():
             c = Cell(name="cell")
-            c.add_sec("soma", nseg=10, l=10)
+            c.add_sec("soma", nseg=100, l=10)
             return c
 
         self.pop1 = Population("pop1")
-        self.pop1.add_cells(num=1000, cell_function=cell)
+        self.pop1.add_cells(num=200, cell_function=cell)
 
         self.pop2 = Population("pop2")
         self.pop2.add_cells(num=100, cell_function=cell)
@@ -178,16 +179,17 @@ class TestPopulationalDistparam(unittest.TestCase):
 
         # create Truncated Normal comparative distribution of the same size as maximal
         # all-to-all connections
-        norm = np.abs(np.random.normal(loc=mean, scale=std, size=1000*100))
+        norm = np.abs(np.random.normal(loc=mean, scale=std, size=200*100))
         non_zero_norm = np.count_nonzero(norm[norm > threshold])
 
-        non_zero_cell = sum([len(c.syns) for c in self.pop2.cells])
+        non_zero_cell = [len(c.syns) for c in self.pop2.cells]
+        non_zero_cell_sum = sum(non_zero_cell)
 
         # difference of connection number is less then 0.95
-        if non_zero_cell > non_zero_norm:
-            diff = non_zero_norm / non_zero_cell
+        if non_zero_cell_sum > non_zero_norm:
+            diff = non_zero_norm / non_zero_cell_sum
         else:
-            diff = non_zero_cell / non_zero_norm
+            diff = non_zero_cell_sum / non_zero_norm
         self.assertGreater(diff, 0.95)
 
     def test_uniform_proba_connection_between_cells(self):
@@ -207,29 +209,65 @@ class TestPopulationalDistparam(unittest.TestCase):
         conn.add_synapse("Exp2Syn").add_netcon()
         conn.build()
 
-        norm = np.abs(np.random.uniform(size=1000*100))
+        norm = np.abs(np.random.uniform(size=200*100))
         non_zero_norm = np.count_nonzero(norm[norm > threshold])
 
-        non_zero_cell = sum([len(c.syns) for c in self.pop2.cells])
+        non_zero_cell = [len(c.syns) for c in self.pop2.cells]
+        non_zero_cell_sum = sum(non_zero_cell)
 
         # difference of connection number is less then 0.95
-        if non_zero_cell > non_zero_norm:
-            diff = non_zero_norm / non_zero_cell
+        if non_zero_cell_sum > non_zero_norm:
+            diff = non_zero_norm / non_zero_cell_sum
         else:
-            diff = non_zero_cell / non_zero_norm
+            diff = non_zero_cell_sum / non_zero_norm
         self.assertGreater(diff, 0.95)
 
-    def test_normal_cell_proba_uniform_seg_dist(self):
+    def test_full_all_to_all_connections_between_cells(self):
+        """
+        Expected that each cell from pop1 will be connected to each cell in the pop2
+        """
         Dist.set_seed(13)
-        conn = self.pop2.connect(rule="all", seg_dist="uniform",
-                                 cell_connection_proba=NormalConnectionProba(threshold=0.5, mean=0.1, std=0.01))
+        conn = self.pop2.connect(rule="all", cell_connection_proba=1.0, seg_dist="uniform")
         conn.set_source([c.filter_secs("soma")(0.5) for c in self.pop1.cells])
         conn.set_target(self.pop2.cells)
-        conn.add_synapse("Exp2Syn").add_netcon(weight=0.5)
+        conn.add_synapse("Exp2Syn").add_netcon()
         conn.build()
 
-        syns = [c.syns for c in self.pop2.cells]
-        print('a')
+        non_zero_cell = sum([len(c.syns) for c in self.pop2.cells])
+        self.assertEqual(20000, non_zero_cell)
+
+    def test_full_all_to_all_proba_uniform_seg_dist(self):
+        """
+        Expected that seg.x distribution ~0.5
+        """
+        Dist.set_seed(13)
+        conn = self.pop2.connect(rule="all", cell_connection_proba=1.0, seg_dist="uniform")
+        conn.set_source([c.filter_secs("soma")(0.5) for c in self.pop1.cells])
+        conn.set_target(self.pop2.cells)
+        conn.add_synapse("Exp2Syn").add_netcon()
+        conn.build()
+
+        xs = [s.parent.x for c in self.pop2.cells for s in c.syns]
+        self.assertEqual(0.50, round(np.average(xs), 2))
+
+    def test_full_all_to_all_proba_normal_seg_dist(self):
+        """
+        Expected that each cell from pop1 will be connected to each cell in the pop2
+        """
+        Dist.set_seed(13)
+        seg_dist = NormalTruncatedSegDist(mean=0.7, std=0.2)
+        conn = self.pop2.connect(rule="all", cell_connection_proba=1.0, seg_dist=seg_dist)
+        conn.set_source([c.filter_secs("soma")(0.5) for c in self.pop1.cells])
+        conn.set_target(self.pop2.cells)
+        conn.add_synapse("Exp2Syn").add_netcon()
+        conn.build()
+
+        xs = [s.parent.x for c in self.pop2.cells for s in c.syns]
+        avg = np.average(xs)
+        std = np.std(xs)
+
+        self.assertEqual(0.2, np.round(std, 1))
+        self.assertEqual(0.7, np.round(avg, 1))
 
 
 if __name__ == '__main__':

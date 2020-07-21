@@ -336,10 +336,12 @@ class Population(NeuronRemovable):
             if normal_mean is None:
                 normal_mean = seg_dist.mean
             value = np.abs(np.random.normal(loc=normal_mean, scale=seg_dist.std, size=1))[0]
+            if value > 1:
+                value = 1 - value % 1
             if len(potential_target_segments) == 1:
                 index = 0
             else:
-                index = round(len(potential_target_segments) * value) - 1
+                index = int(round((len(potential_target_segments)-1) * value))
             return np.array([potential_target_segments[index]])
         else:
             raise TypeError("Param seg_dist can be only str: 'all', 'uniform' or "
