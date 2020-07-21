@@ -238,7 +238,8 @@ class TestPopulationalDistparam(unittest.TestCase):
 
     def test_full_all_to_all_proba_uniform_seg_dist(self):
         """
-        Expected that seg.x distribution ~0.5
+        Expected that seg.x distribution will be uniform,
+        mean will be ~0.5 and distribution will be normal between 0-1
         """
         Dist.set_seed(13)
         conn = self.pop2.connect(rule="all", cell_connection_proba=1.0, seg_dist="uniform")
@@ -252,7 +253,8 @@ class TestPopulationalDistparam(unittest.TestCase):
 
     def test_full_all_to_all_proba_normal_seg_dist(self):
         """
-        Expected that each cell from pop1 will be connected to each cell in the pop2
+        Expected that seg.x distribution will be truncated normal,
+        mean will be ~0.7 and std ~0.2
         """
         Dist.set_seed(13)
         seg_dist = NormalTruncatedSegDist(mean=0.7, std=0.2)
