@@ -11,11 +11,11 @@ from neuronpp.core.distributions import Dist, NormalTruncatedDist, NormalDist
 path = os.path.dirname(os.path.abspath(__file__))
 
 
-def get_netcon_weights(pop):
+def get_single_synapses_netcon_weights(pop):
     return [syn.netcons[0].get_weight() for syn in pop.syns]
 
 
-def get_source_cells(pop):
+def get_single_synapses_source_cells(pop):
     return [(syn.sources[0].parent.cell, syn.target.parent.parent.cell) for syn in pop.syns]
 
 
@@ -116,29 +116,29 @@ class TestConnectorAndSynAdder(unittest.TestCase):
 
         # Define connection probabilities
         Dist.set_seed(13)
-        weight_dist1 = NormalTruncatedDist(mean=0.01, std=0.02)
-        weight_dist2 = NormalTruncatedDist(mean=0.1, std=0.2)
+        weight_dist1 = NormalTruncatedDist(mean=0.01, std=0.05)
+        weight_dist2 = NormalTruncatedDist(mean=0.1, std=0.5)
 
         # Create population 1
         cls.pop1 = Population("pop_0")
-        cls.pop1.add_cells(num=3, cell_function=cell_template)
+        cls.pop1.add_cells(num=50, cell_function=cell_template)
 
         # Create population 2
         cls.pop2 = Population("pop_1")
-        cls.pop2.add_cells(num=4, cell_function=cell_template)
+        cls.pop2.add_cells(num=50, cell_function=cell_template)
 
         connector = cls.pop2.connect(cell_connection_proba=0.5)
         connector.set_source([c.filter_secs("soma")(0.5) for c in cls.pop1.cells])
         connector.set_target([c.filter_secs("dend") for c in cls.pop2.cells])
         connector.add_synapse("ExpSyn").add_netcon(weight=weight_dist1)
-        connector.add_synapse("Exp2Syn").add_netcon(weight=1.5)
+        connector.add_synapse("Exp2Syn").add_netcon(weight=weight_dist2)
         connector.group_synapses(name="group1")
         connector.build()
 
         connector = cls.pop2.connect(cell_connection_proba=0.5)
         connector.set_source([c.filter_secs("soma")(0.5) for c in cls.pop1.cells])
         connector.set_target([c.filter_secs("dend") for c in cls.pop2.cells])
-        connector.add_synapse("ExpSyn").add_netcon(weight=weight_dist2)
+        connector.add_synapse("ExpSyn").add_netcon(weight=1.5)
         connector.add_synapse("Exp2Syn").add_netcon(weight=10.5)
         connector.build()
 
@@ -152,9 +152,48 @@ class TestConnectorAndSynAdder(unittest.TestCase):
             raise RuntimeError("Not all section have been removed after teardown. "
                                "Sections left: %s" % l)
 
-    def test(self):
-        get_netcon_weights(self.pop2)
-        get_source_cells(self.pop2)
+    def test_synaptic_groups_weights(self):
+        expsyn_weighs = []
+        exp2syn_weighs = []
+        for syn in self.pop2.syns:
+            if "group1" in syn.name:
+                for k, v in syn.netcons.items():
+                    v = [vv.get_weight() for vv in v]
+                    if k == "ExpSyn":
+                        expsyn_weighs.extend(v)
+                    if k == "Exp2Syn":
+                        exp2syn_weighs.extend(v)
+
+        norm1 = np.abs(np.random.normal(loc=0.01, scale=0.05, size=50*25))
+        norm2 = np.abs(np.random.normal(loc=0.1, scale=0.5, size=50*25))
+
+        std_exp1 = np.std(expsyn_weighs)
+        std_norm1 = np.std(norm1)
+        if std_exp1 > std_norm1:
+            diff = std_norm1/std_exp1
+        else:
+            diff = std_exp1/std_norm1
+        self.assertGreater(diff, 0.9)
+
+        std_exp2 = np.std(exp2syn_weighs)
+        std_norm2 = np.std(norm2)
+        if std_exp2 > std_norm2:
+            diff = std_norm2/std_exp2
+        else:
+            diff = std_exp2/std_norm2
+        self.assertGreater(diff, 0.9)
+
+    def test_single_synapses_weights(self):
+        expsyn_weighs = []
+        exp2syn_weighs = []
+        for syn in self.pop2.syns:
+            if "group1" not in syn.name:
+                if "ExpSyn" in syn.name:
+                    expsyn_weighs.append(syn.netcons[0].get_weight())
+                elif "Exp2Syn" in syn.name:
+                    exp2syn_weighs.append(syn.netcons[0].get_weight())
+        self.assertEqual(1.5, np.average(expsyn_weighs))
+        self.assertEqual(10.5, np.average(exp2syn_weighs))
 
 
 class TestNamingConvention(unittest.TestCase):

@@ -143,6 +143,7 @@ class Population(NeuronRemovable):
 
         for s in self.syns:
             s.remove_immediate_from_neuron()
+        self.syns = []
         for c in self.cells:
             c.remove_immediate_from_neuron()
             del c
