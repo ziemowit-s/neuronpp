@@ -1,12 +1,13 @@
 import os
 import unittest
+
 import numpy as np
 from neuron import h
 
 from neuronpp.cells.cell import Cell
 from neuronpp.core.cells.netstim_cell import NetStimCell
-from neuronpp.core.populations.population import Population
 from neuronpp.core.distributions import Dist, NormalTruncatedDist, NormalDist
+from neuronpp.core.populations.population import Population
 
 path = os.path.dirname(os.path.abspath(__file__))
 
@@ -164,23 +165,23 @@ class TestConnectorAndSynAdder(unittest.TestCase):
                     if k == "Exp2Syn":
                         exp2syn_weighs.extend(v)
 
-        norm1 = np.abs(np.random.normal(loc=0.01, scale=0.05, size=50*25))
-        norm2 = np.abs(np.random.normal(loc=0.1, scale=0.5, size=50*25))
+        norm1 = np.abs(np.random.normal(loc=0.01, scale=0.05, size=50 * 25))
+        norm2 = np.abs(np.random.normal(loc=0.1, scale=0.5, size=50 * 25))
 
         std_exp1 = np.std(expsyn_weighs)
         std_norm1 = np.std(norm1)
         if std_exp1 > std_norm1:
-            diff = std_norm1/std_exp1
+            diff = std_norm1 / std_exp1
         else:
-            diff = std_exp1/std_norm1
+            diff = std_exp1 / std_norm1
         self.assertGreater(diff, 0.9)
 
         std_exp2 = np.std(exp2syn_weighs)
         std_norm2 = np.std(norm2)
         if std_exp2 > std_norm2:
-            diff = std_norm2/std_exp2
+            diff = std_norm2 / std_exp2
         else:
-            diff = std_exp2/std_norm2
+            diff = std_exp2 / std_norm2
         self.assertGreater(diff, 0.9)
 
     def test_single_synapses_weights(self):
