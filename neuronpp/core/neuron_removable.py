@@ -6,6 +6,11 @@ NON_REMOVABLE_FIELD_NAME = "_non_removable_fields"
 class NeuronRemovable:
     def remove_immediate_from_neuron(self):
         """
+        WARNING: Object removal from NEURON is an experimental feature. While using, bear in mind
+        that other objects may hold reference to removed object. In this case the object will be
+        removed from NEURON, but as an empty "shell" it may still be a part of Cell or Population.
+        So use with caution.
+
         Removes this (self) object's fields from the Python and all its components from the NEURON.
 
         By default calling remove_immediate_from_neuron() method or deleting object will remove all
@@ -57,6 +62,18 @@ class NeuronRemovable:
                 getattr(v, "__del__")()
             setattr(self, k, None)
         self.__dict__ = {}
+
+        if isinstance(self, dict):
+            for k, v in self.items():
+
+                if isinstance(v, list):
+                    for vv in v:
+                        if hasattr(vv, "remove_immediate_from_neuron"):
+                            vv.remove_immediate_from_neuron()
+                        else:
+                            vv = None
+                v = None
+            self = {}
 
     def __del__(self):
         self.remove_immediate_from_neuron()

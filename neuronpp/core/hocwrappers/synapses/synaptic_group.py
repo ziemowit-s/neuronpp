@@ -49,12 +49,20 @@ class SynapticGroup(GroupHocWrapper, Synapse):
         self.target = self.parent
 
     @property
-    def sources(self) -> List[List]:
-        return [syn.sources for syn_list in self.values() for syn in syn_list]
+    def sources(self) -> Dict[str, List[SingleSynapse]]:
+        """
+        Returns dictionary where key is point_process name and value is list of SingleSynapse
+        """
+        return dict([(pp_name, syn.sources) for pp_name, syn_list in self.items()
+                     for syn in syn_list])
 
     @property
-    def netcons(self) -> List[List[NetCon]]:
-        return [syn.netcons for syn_list in self.values() for syn in syn_list]
+    def netcons(self) -> Dict[str, List[SingleSynapse]]:
+        """
+        Returns dictionary where key is point_process name and value is list of NetCon
+        """
+        return dict([(pp_name, syn.netcons) for pp_name, syn_list in self.items()
+                     for syn in syn_list])
 
     def make_event(self, time, use_global_sim_time=True):
         """
