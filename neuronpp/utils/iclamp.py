@@ -1,6 +1,7 @@
 from neuron import h
 from neuron.units import ms
 
+from neuronpp.core.decorators import distparams
 from neuronpp.core.hocwrappers.seg import Seg
 from neuronpp.core.neuron_removable import NeuronRemovable
 
@@ -13,6 +14,7 @@ class IClamp(NeuronRemovable):
         self._segment = segment
         self.iclamps = []
 
+    @distparams
     def stim(self, delay, dur, amp):
         """
         All IClamp stims must be setup before any run.
@@ -31,3 +33,4 @@ class IClamp(NeuronRemovable):
         clamp.dur = dur * ms
         clamp.amp = amp
         self.iclamps.append(clamp)
+        return clamp

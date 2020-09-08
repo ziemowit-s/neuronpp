@@ -46,7 +46,7 @@ def distparams(_func=None, *, exlude: List[str] = None, include: List[str] = Non
                 if isinstance(value, Dist):
 
                     if isinstance(value, UniformDist):
-                        result = np.random.uniform(size=1)[0]
+                        result = np.random.uniform(low=value.dmin, high=value.dmax, size=1)[0]
                     elif isinstance(value, NormalDist):
                         result = np.random.normal(loc=value.mean, scale=value.std)
 

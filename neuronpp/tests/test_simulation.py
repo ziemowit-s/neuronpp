@@ -252,7 +252,7 @@ class TestSimulation(unittest.TestCase):
 
         self.assertEqual(3, r.records.argmax())
         # time in ms of max mV value
-        self.assertEqual(6, round(r.time[r.records.argmax()], 4))
+        self.assertEqual(6, r.time[r.records.argmax()])
 
     def test_iclamp_before_sim(self):
         """
