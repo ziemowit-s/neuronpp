@@ -1,9 +1,11 @@
 from typing import List, Optional
 
 from neuronpp.core.hocwrappers.sec import Sec
+from neuronpp.core.decorators import non_removable_fields
 from neuronpp.core.hocwrappers.group_hoc_wrapper import GroupHocWrapper
 
 
+@non_removable_fields("cell")
 class SecGroup(GroupHocWrapper):
     def __init__(self, secs: List[Sec], name: str, tag: Optional[str] = None):
         """
@@ -23,8 +25,6 @@ class SecGroup(GroupHocWrapper):
             string tag which will be attached to the synaptic group as tag.
             you can filter by this tag
         """
-        self.add_non_removable_field("cell")
-
         self.tag = tag
         self.mod_name = '_'.join([s.name for s in secs])
         name = "%s[%s]" % (self.mod_name, name)

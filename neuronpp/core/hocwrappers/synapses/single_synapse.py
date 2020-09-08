@@ -1,18 +1,16 @@
 from typing import Union, List, Optional, Iterable
 
 from neuronpp.core.hocwrappers.netcon import NetCon
+from neuronpp.core.decorators import non_removable_fields
 from neuronpp.core.hocwrappers.hoc_wrapper import HocWrapper
 from neuronpp.core.hocwrappers.synapses.synapse import Synapse
 from neuronpp.core.hocwrappers.point_process import PointProcess
 
 
+@non_removable_fields("sources", "target")
 class SingleSynapse(HocWrapper, Synapse):
     def __init__(self, source, point_process: PointProcess, name,
                  netcon: Optional[Union[List[NetCon], NetCon]] = None, tag=None):
-
-        self.add_non_removable_field("sources")
-        self.add_non_removable_field("target")
-
         self.point_process = point_process
         self.point_process_name = point_process.mod_name
 

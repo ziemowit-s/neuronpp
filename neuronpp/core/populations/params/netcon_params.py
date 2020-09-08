@@ -19,7 +19,7 @@ class NetconParams:
             used.
         """
         if "custom_source" in kwargs:
-            self.custom_sources = check_and_prepare_sources(kwargs['custom_source'])
+            self.custom_source = check_and_prepare_sources(kwargs['custom_source'])
         self.weight = weight
         self.delay = delay
         self.threshold = threshold

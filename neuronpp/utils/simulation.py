@@ -19,7 +19,7 @@ class Simulation(NeuronRemovable):
     def __init__(self, init_v: float = None, dt: float = 0.025, warmup: float = 0, warmup_dt=None,
                  init_sleep: float = 0, shape_plots: Optional[List[h.PlotShape]] = None,
                  constant_timestep: bool = True, with_neuron_gui: bool = False,
-                 check_pointers: bool = False):
+                 check_pointers: bool = False, warmup_on_create=False):
         """
         Create an Simulation object to control the NEURON's simulation.
 
@@ -77,6 +77,8 @@ class Simulation(NeuronRemovable):
             Turn off this feature if the simulation ends unexpectedly without error but with the
             information (in Linux):
             `Process finished with exit code 139 (interrupted by signal 11: SIGSEGV)`
+        :param warmup_on_create:
+            Default False. If True warmup will be done on Simulation object creation
         """
         if with_neuron_gui:
             from neuron import gui
@@ -102,6 +104,8 @@ class Simulation(NeuronRemovable):
         h.CVode().active(not constant_timestep)
 
         self.warmup_done = False
+        if warmup_on_create:
+            self._make_warmup()
 
     def reinit(self):
         """
@@ -166,16 +170,7 @@ class Simulation(NeuronRemovable):
             * Simulation stepsize
         """
         if not self.warmup_done:
-            self.reinit()
-
-            if self.warmup > 0:
-                if self.warmup_dt is None:
-                    h.dt = self.warmup / 10
-                else:
-                    h.dt = self.warmup_dt
-                h.continuerun(self.warmup * ms)
-                h.dt = self.dt
-            self.warmup_done = True
+            self._make_warmup()
 
         if stepsize is None:
             stepsize = runtime
@@ -217,6 +212,18 @@ class Simulation(NeuronRemovable):
                       'Simulation stepsize:', stepsize)
 
         self.current_runtime = runtime
+
+    def _make_warmup(self):
+        self.reinit()
+
+        if self.warmup > 0:
+            if self.warmup_dt is None:
+                h.dt = self.warmup / 10
+            else:
+                h.dt = self.warmup_dt
+            h.continuerun(self.warmup * ms)
+            h.dt = self.dt
+        self.warmup_done = True
 
     def _plot_shapes(self):
         # flush shape and console log
