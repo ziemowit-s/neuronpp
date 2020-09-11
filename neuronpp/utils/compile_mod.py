@@ -1,9 +1,9 @@
 import os
 import shutil
-
-import neuron
 from argparse import ArgumentParser
 from distutils.file_util import copy_file
+
+import neuron
 
 
 class CompileMOD:
@@ -44,6 +44,9 @@ class CompileMOD:
         for s in source_paths:
             self.copy_mods(s, target_path)
 
+        print('mod path:', target_path)
+        print('mod path list dir:', os.listdir(target_path))
+
         os.chdir(target_path)
         r = os.popen('nrnivmodl')
         output = r.read()
@@ -77,19 +80,22 @@ if __name__ == '__main__':
            " it will work as well."
     parser = ArgumentParser(description=desc)
 
-    parser.add_argument("-s", "--sources", help="Paths to the source folder.", required=True, nargs='+')
+    parser.add_argument("-s", "--sources", help="Paths to the source folder.", required=True,
+                        nargs='+')
     parser.add_argument("-t", "--target", help="Path to the target folder.", required=True)
-    parser.add_argument("-c", "--compiled_folder_name", help="Name of the folder containing MOD files in your OS."
-                                                             "By default it is 'x86_64' for 64 architecture on Linux.",
+    parser.add_argument("-c", "--compiled_folder_name",
+                        help="Name of the folder containing MOD files in your OS."
+                             "By default it is 'x86_64' for 64 architecture on Linux.",
                         default="x86_64")
-    parser.add_argument("-m", "--mod_compile_command", help="MOD compile command of NEURON. By default it is 'nrnivmodl "
-                                                            "which is Linux command'. You can give different command specific for your OS",
+    parser.add_argument("-m", "--mod_compile_command",
+                        help="MOD compile command of NEURON. By default it is 'nrnivmodl "
+                             "which is Linux command'. You can give different command specific for your OS",
                         default='nrnivmodl')
     args = parser.parse_args()
 
-    comp = CompileMOD(compiled_folder_name=args.compiled_folder_name, mod_compile_command=args.mod_compile_command)
+    comp = CompileMOD(compiled_folder_name=args.compiled_folder_name,
+                      mod_compile_command=args.mod_compile_command)
     comp.compile(source_paths=args.sources, target_path=args.target)
-
 
 mods_loaded = []
 
@@ -106,4 +112,3 @@ def compile_and_load_mods(mod_folders):
         comp.compile(source_paths=mod_folders, target_path=targ_path)
         neuron.load_mechanisms(targ_path)
         mods_loaded.extend(mod_folders)
-
