@@ -57,6 +57,7 @@ class CompileMOD:
         os.chdir(working_dir)
 
     def copy_mods(self, source_path, tmp_path):
+        mods_found = 0
         for filename in os.listdir(source_path):
             filepath = "%s%s%s" % (source_path, os.sep, filename)
 
@@ -64,6 +65,9 @@ class CompileMOD:
                 continue
             elif filename.endswith(".mod"):
                 copy_file(src=filepath, dst=tmp_path, update=1)
+                mods_found += 1
+        if mods_found == 0:
+            raise RuntimeError("No MOD files found on path: " % source_path)
 
 
 if __name__ == '__main__':
