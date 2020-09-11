@@ -1,26 +1,6 @@
 language: python
 sudo: true
 
-addons:
-  apt:
-    packages:
-    - python-tk
-    - python-sympy
-    - python-tables
-    - locales
-    - wget
-    - gcc
-    - g++
-    - build-essential
-    - libncurses-dev
-    - libpython-dev
-    - cython
-    - libx11-dev
-    - git
-    - flex
-    - libtool
-    - libxext-dev
-    - libncurses-dev
 python:
   - "3.5"
   - "3.6"
