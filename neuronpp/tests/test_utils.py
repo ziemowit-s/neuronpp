@@ -28,7 +28,7 @@ class TestParentSectionElectric(unittest.TestCase):
         cls.dend.remove_immediate_from_neuron()
 
         l = len(list(h.allsec()))
-        if len(list(h.allsec())) != 0:
+        if l != 0:
             raise RuntimeError("Not all section have been removed after teardown. "
                                "Sections left: %s" % l)
 
