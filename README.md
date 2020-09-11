@@ -38,9 +38,16 @@ This is the Alpha version.
 
 ## Prerequisites
 
-* Python > 3.5 (recommended is Python 3.6)
-* Install NEURON from the instruction: https://github.com/ziemowit-s/neuron_get_started
-* Install requirements.txt:
+1. Python >= 3.5 (recommended is Python 3.8)
+2. Install NEURON >= 7.8
+  * If on Linux:
+  ```bash
+   pip install neuron
+   ```
+  
+  * If not Linux - go to the instruction: https://github.com/ziemowit-s/neuron_get_started
+  
+3. Install requirements.txt:
 ```bash
 pip install -r requirements.txt
 ```
@@ -49,7 +56,7 @@ pip install -r requirements.txt
 
 https://github.com/ziemowit-s/neuronpp
 
-## Installation
+## Neuron++ installation
 
 * Locally:
 ```bash
