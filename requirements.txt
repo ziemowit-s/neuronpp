@@ -1,3 +1,4 @@
+neuron
 pytest
 matplotlib
 seaborn
@@ -8,4 +9,3 @@ wheel
 pynput
 pandas
 pyvis
-neuron

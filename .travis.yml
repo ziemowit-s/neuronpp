@@ -18,7 +18,7 @@ addons:
     - libpython-dev 
     - cython 
     - libx11-dev 
-    - git 
+    - git
     - flex
     - automake  
     - libtool  
@@ -33,7 +33,18 @@ python:
 install:
   - export DISPLAY=:0  # workaround for pynput (for keyboard input) to import
   - pip install -r requirements.txt
-  - export PYTHONPATH=$PYTHONPATH:$TRAVIS_BUILD_DIR
+  - cd ..
+  - git clone --branch release/7.8.1 https://github.com/neuronsimulator/nrn
+  - cd nrn
+  - ./build.sh
+  - export NEURON_HOME=~/neuron
+  - ./configure --without-x --with-nrnpython=python3 --prefix=$NEURON_HOME --without-paranrn --without-iv
+  - make --silent -j4
+  - make --silent install -j4
+  - cd src/nrnpython
+  - python setup.py install
+  - export PATH=$PATH:$NEURON_HOME/x86_64/bin
+  - export PYTHONPATH=$PYTHONPATH:$TRAVIS_BUILD_DIR:$NEURON_HOME/lib/python/
 script:
   - cd $TRAVIS_BUILD_DIR
   - python -m pytest
