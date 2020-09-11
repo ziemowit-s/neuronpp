@@ -32,8 +32,6 @@ python:
 install:
   - export DISPLAY=:0  # workaround for pynput (for keyboard input) to import
   - pip install -r requirements.txt
-  - cd ..
   - export PYTHONPATH=$PYTHONPATH:$TRAVIS_BUILD_DIR
 script:
-  - cd $TRAVIS_BUILD_DIR
-  - python -m pytest
+  - pytest
