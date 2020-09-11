@@ -48,7 +48,7 @@ class CompileMOD:
         r = os.popen('nrnivmodl')
         output = r.read()
 
-        print(output)
+        print('nrniv output:', output)
         print('mod path:', target_path)
         print('mod path list dir:', os.listdir(target_path))
 
@@ -71,7 +71,7 @@ class CompileMOD:
                 copy_file(src=filepath, dst=tmp_path, update=1)
                 mods_found += 1
         if mods_found == 0:
-            raise RuntimeError("No MOD files found on path: " % source_path)
+            raise RuntimeError("No MOD files found on path: %s" % source_path)
 
 
 if __name__ == '__main__':
