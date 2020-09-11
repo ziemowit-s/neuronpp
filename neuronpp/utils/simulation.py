@@ -125,7 +125,6 @@ class Simulation(NeuronRemovable):
 
         To check how many Sections in NEURON remains check simulation.size property.
         """
-        print("Simulation initialization.")
         if self.check_pointers:
             self._check_point_process_pointers()
         h.fcurrent()

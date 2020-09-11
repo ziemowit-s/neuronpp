@@ -31,3 +31,4 @@ class IClamp(NeuronRemovable):
         clamp.dur = dur * ms
         clamp.amp = amp
         self.iclamps.append(clamp)
+        return clamp
