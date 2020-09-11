@@ -2,10 +2,10 @@ scipy
 pynput
 pyvis
 seaborn
-neuron
 pandas
 matplotlib
 numpy
 pytest
 cython
 wheel
+neuron
