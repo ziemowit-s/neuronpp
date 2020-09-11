@@ -1,8 +1,6 @@
 language: python
 dist: focal
 sudo: true
-git:
-  depth: false
 
 addons:
   apt:
@@ -32,6 +30,5 @@ python:
 install:
   - export DISPLAY=:0  # workaround for pynput (for keyboard input) to import
   - pip install -r requirements.txt
-  - export PYTHONPATH=$PYTHONPATH:$TRAVIS_BUILD_DIR
 script:
   - pytest
