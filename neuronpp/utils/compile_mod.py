@@ -44,12 +44,13 @@ class CompileMOD:
         for s in source_paths:
             self.copy_mods(s, target_path)
 
-        print('mod path:', target_path)
-        print('mod path list dir:', os.listdir(target_path))
-
         os.chdir(target_path)
         r = os.popen('nrnivmodl')
         output = r.read()
+
+        print(output)
+        print('mod path:', target_path)
+        print('mod path list dir:', os.listdir(target_path))
 
         if "failed" in output.lower():
             error_msg = [s for s in output.lower().split("\n") if "failed" in s][0]
