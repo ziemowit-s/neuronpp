@@ -248,7 +248,7 @@ class TestSimulation(unittest.TestCase):
 
         self.assertEqual(3, r.records.argmax())
         # time in ms of max mV value
-        self.assertEqual(6, round(r.time[r.records.argmax()], 4))
+        self.assertEqual(6, r.time[r.records.argmax()])
 
         stim.remove_immediate_from_neuron()
         sim.remove_immediate_from_neuron()

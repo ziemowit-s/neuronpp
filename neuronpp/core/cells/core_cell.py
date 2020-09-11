@@ -55,7 +55,7 @@ class CoreCell(NeuronRemovable):
             list of hoc objects which match the filter
         """
         def is_regex(pattern):
-            return "SRE_Pattern" == pattern.__class__.__name__
+            return "Pattern" in pattern.__class__.__name__
 
         patterns = CoreCell._prepare_patterns(kwargs)
         pat_len = len(patterns)

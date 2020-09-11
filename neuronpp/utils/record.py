@@ -213,13 +213,14 @@ class Record(NeuronRemovable):
 
         for seg_name, rec in self.recs[variable]:
             if seg_name in segment_name:
-                result.append(rec.as_numpy())
+                result.append(np.array(rec.as_numpy()))
 
         result = np.array(result)
         if result.shape[0] == 1:
             result = result[0]
 
-        return RecordOutput(variable=variable, records=result, time=self.time.as_numpy())
+        time = np.array(self.time.as_numpy())
+        return RecordOutput(variable=variable, records=result, time=time)
 
     def to_csv(self, filename):
         cols = ['time']
