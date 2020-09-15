@@ -51,4 +51,4 @@ if __name__ == '__main__':
 
     # Plot
     rec.plot(position="merge")
-    plt.plot()
+    plt.show()
