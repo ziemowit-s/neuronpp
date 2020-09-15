@@ -2,6 +2,7 @@ import os
 import shutil
 from argparse import ArgumentParser
 from distutils.file_util import copy_file
+from subprocess import PIPE, Popen, STDOUT
 
 import neuron
 
@@ -45,16 +46,15 @@ class CompileMOD:
             self.copy_mods(s, target_path)
 
         os.chdir(target_path)
-        r = os.popen('nrnivmodl')
-        output = r.read()
+        p = Popen('nrnivmodl', shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True)
+        output = p.stdout.read().decode('utf-8')
 
         print('nrniv output:', output)
         print('mod path:', target_path)
         print('mod path list dir:', os.listdir(target_path))
 
-        if "failed" in output.lower():
-            error_msg = [s for s in output.lower().split("\n") if "failed" in s][0]
-            raise RuntimeError("MOD compilation error: %s" % error_msg)
+        if "failed" in output.lower() or "error" in output.lower():
+            raise RuntimeError("MOD compilation error: %s" % output)
         else:
             print(output)
 
@@ -108,8 +108,10 @@ def compile_and_load_mods(mod_folders):
     mod_folders = [m for m in mod_folders if m not in mods_loaded]
 
     if len(mod_folders) > 0:
+        # Compile
         comp = CompileMOD()
         targ_path = os.path.join(os.getcwd(), "compiled", "mods%s" % len(mods_loaded))
         comp.compile(source_paths=mod_folders, target_path=targ_path)
+        # Load
         neuron.load_mechanisms(targ_path)
         mods_loaded.extend(mod_folders)
