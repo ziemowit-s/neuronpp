@@ -94,7 +94,7 @@ class SynapticCell(NetConCell):
                            tag=tag, **kwargs)
 
     @distparams
-    def add_synapse(self, source, mod_name: str, seg, netcon_weight=1, delay=0, threshold=10,
+    def add_synapse(self, source, mod_name: str, seg, netcon_weight=1, delay=1, threshold=10,
                     tag: str = None, **synaptic_params):
         """
 

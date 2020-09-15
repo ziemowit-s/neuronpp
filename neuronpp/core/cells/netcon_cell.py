@@ -202,12 +202,9 @@ class NetConCell(PointProcessCell):
                     "Source can only be NetStim, VecStim or Seg, but provided type of: %s"
                     % source.__class__)
 
-        if delay:
-            con.delay = delay
-        if netcon_weight:
-            con.weight[0] = netcon_weight
-        if threshold:
-            con.threshold = threshold
+        con.delay = delay
+        con.weight[0] = netcon_weight
+        con.threshold = threshold
 
         name = "%s->%s" % (source, point_process)
         con = NetCon(con, source=source, target=point_process, parent=self, name=name)
