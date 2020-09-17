@@ -41,7 +41,9 @@ class HeatmapGraph:
             if you want to update elements collection
         :return:
         """
-        self.update(elements=update_elements)
+        if update_elements:
+            self.update(elements=update_elements)
+
         data = []
         for i, e in enumerate(self.elements):
             data.append(self.extract_func(e))
@@ -83,7 +85,7 @@ class HeatmapGraph:
                 shape = [shape, 1]
             if len(shape) > 2 or len(shape) == 0:
                 raise LookupError("Param shape must be a tuple of size 1 or 2.")
-            self.shape = shape
+        self.shape = shape
         self.elements = elements
 
     def _get_zero_size(self):
