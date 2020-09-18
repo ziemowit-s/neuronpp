@@ -30,6 +30,7 @@ if __name__ == '__main__':
 
     # run
     sim = Simulation(init_v=-68, warmup=5)
+    sim.run(1)
     syn.make_event(5)
     da_netcon.make_event(7)
 

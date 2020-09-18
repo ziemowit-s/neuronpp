@@ -107,7 +107,7 @@ class Record(NeuronRemovable):
             for i, (segment_name, rec) in enumerate(variable_recs):
                 rec_np = rec.as_numpy()
                 if np.max(np.isnan(rec_np)):
-                    raise ValueError("Vector recorded for variable: '%s' and segment: '%s' "
+                    raise ValueError("Vector recorded for variable: '%s' in the segment: '%s' "
                                      "contains nan values." % (var_name, segment_name))
 
                 if position is not "merge":
