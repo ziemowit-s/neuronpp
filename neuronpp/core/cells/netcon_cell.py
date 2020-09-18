@@ -124,11 +124,19 @@ class NetConCell(PointProcessCell):
         self._nc_num[name] += 1
         return conn
 
-    def make_spike_detector(self, seg):
+    def make_spike_detector(self, seg, threshold=10):
         """
-        Create a spike detector for the segment
+        Create a spike detector for the segment. It purpose is informative only. The threshold
+        define when the detector will consider that the spike took place.
+
+        However bear in mind that NetCon which connects your cell may have different threshold
+        (default is also 10mV), so even though you may see spike on this detector - the cell will \
+        not spike due to different threshold setup on the connected NetCon.
+
         :param seg:
             of type Seg
+        :param threshold:
+            mV threshold which need to be passed to consider it as spike.
         """
         if not isinstance(seg, Seg):
             raise TypeError("Param 'segment' can be only a Seg object.")
@@ -136,7 +144,7 @@ class NetConCell(PointProcessCell):
             raise RuntimeError("Spike detector has been created already for the cell %s, "
                                "you can't create another one." % self.name)
 
-        nc_detector = self.add_netcon(source=seg, point_process=None)
+        nc_detector = self.add_netcon(source=seg, point_process=None, threshold=threshold)
         nc_detector.name = "SpikeDetector[%s]" % self.name
 
         result_vector = h.Vector()
