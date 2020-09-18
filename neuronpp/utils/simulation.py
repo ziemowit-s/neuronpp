@@ -27,8 +27,8 @@ class Simulation(NeuronRemovable):
         NEURON's simulator state. So if you create many Simulation objects, all of them will have
         access to the same NEURON's state.
 
-        After creating the object and execute the run() for the first time - reinit()
-        will be called. You can also call reinit() to re-init the NEURON any time.
+        After creating the Simulation object and execute the run() method for the first time
+        reinit() will be called. You can also call reinit() to re-init the NEURON any time.
 
         :param init_v
             initial value in mV for the neuron function finitialize().
@@ -113,8 +113,8 @@ class Simulation(NeuronRemovable):
         clear all recorded values in Record objects (its clear inside vector for each segment
         recorded).
 
-        After creation of the new Simulation object and call the first time run() method the method
-        reinit() is always called.
+        After creating the Simulation object and execute the run() method for the first time
+        reinit() will be called. You can also call reinit() to re-init the NEURON any time.
 
         No other Hoc object is removed, eg. all sections remains. If you want to remove NEURON from
         objects you can:
