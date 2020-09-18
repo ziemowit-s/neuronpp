@@ -9,10 +9,12 @@ from neuronpp.core.hocwrappers.sec import Sec
 from neuronpp.utils.RecordOutput import RecordOutput
 from neuronpp.core.neuron_removable import NeuronRemovable
 from neuronpp.core.hocwrappers.hoc_wrapper import HocWrapper
+from neuronpp.core.hocwrappers.synapses.single_synapse import SingleSynapse
 
 
 class Record(NeuronRemovable):
-    def __init__(self, elements: Union[Iterable[Union[HocWrapper]], Union[HocWrapper]],
+    def __init__(self, elements: Union[Iterable[Union[HocWrapper, SingleSynapse]],
+                                       Union[HocWrapper, SingleSynapse]],
                  variables='v'):
         """
         Making Record after simulation run() makes it has no effect on the current simulation.
@@ -21,8 +23,10 @@ class Record(NeuronRemovable):
          * or create a new Simulation object
 
         :param elements:
-            any HocWrapper. If you want to use SynapticGroup object - choose appropriate synapse
-            and pass it as SingleSynapse which is a HocWrapper, eg. syngroup["ExpSyn"][0],
+            any HocWrapper except GroupHocWrapper, so SynapticGroup will not work, however you can
+            use SynapticGroup's each SingleSynapse separately and pass it as SingleSynapse which
+            is a HocWrapper eg.
+                exp_syn = syngroup["ExpSyn"][0]
             which indicates first synapse of type ExpSyn.
         :param variables:
             str or list_of_str of variable names to track
@@ -58,9 +62,7 @@ class Record(NeuronRemovable):
                 try:
                     s = getattr(elem.hoc, "_ref_%s" % var)
                 except AttributeError:
-                    raise AttributeError(
-                        "there is no attribute of %s. Maybe you forgot to append loc param "
-                        "for sections?" % var)
+                    raise AttributeError("there is no attribute of %s in the element.hoc" % var)
 
                 rec = h.Vector().record(s)
                 self.recs[var].append((name, rec))

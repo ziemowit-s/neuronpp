@@ -9,7 +9,7 @@ from neuronpp.core.distributions import Dist, UniformDist, NormalDist, NormalTru
 from neuronpp.core.neuron_removable import NON_REMOVABLE_FIELD_NAME
 
 
-def non_removable_fields(*fields: List[str]):
+def non_removable_fields(*fields):
     """
     Class decorator for objects which implements NeuronRemovable.
 
@@ -37,6 +37,8 @@ def non_removable_fields(*fields: List[str]):
 
         non_removable_list = getattr(cls, NON_REMOVABLE_FIELD_NAME)
         for field in fields:
+            if not isinstance(field, str):
+                raise TypeError("Field name passed to @non_removable_fields must be string.")
             if field not in non_removable_list:
                 non_removable_list.append(field)
         return cls
