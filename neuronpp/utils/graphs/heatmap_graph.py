@@ -5,25 +5,32 @@ from neuron import h
 
 
 class HeatmapGraph:
-    def __init__(self, name, elements, extract_func=lambda x: x, shape=None, show_values=True):
+    def __init__(self, name, elements, cmap='viridis', extract_func=lambda x: x, shape=None,
+                 show_values=True, round_vals=2):
         """
 
         :param name:
         :param elements:
             list or np.array
+        :param cmap:
+            cmap to plot
         :param shape:
             if None:
                 for list - assume it's 1D vector
                 for np.array - take its shape
         :param show_values:
             True if you want to show text values as labels on each element
+        :param round_vals:
+            if show values - make round of elements. Default is 2.
         """
         self.name = name
         # last time of NEURON simulation; maybe helpful but it's just a hack
         # if you want to use this class outside the NEURON context - just ignore self.last_sim_time
         self.last_sim_time = 0
 
+        self.cmap = cmap
         self.shape = None
+        self.round_vals = round_vals
         self.elements = None
         self.show_values = show_values
         self.update(elements, shape=shape)
@@ -34,7 +41,7 @@ class HeatmapGraph:
         self.fig.canvas.draw()
         self.fig.show()
 
-    def plot(self, vmin=None, vmax=None, update_title=None, update_elements=None, cmap='viridis'):
+    def plot(self, vmin=None, vmax=None, update_title=None, update_elements=None):
         """
         :param vmin:
             min value on the colormap. None means that it will assume min based on the data
@@ -46,8 +53,6 @@ class HeatmapGraph:
             new title to update
         :param update_elements:
             if you want to update elements collection
-        :param cmap:
-            cmap to plot
         """
         if update_elements is not None:
             self.update(elements=update_elements)
@@ -60,11 +65,11 @@ class HeatmapGraph:
 
         annots = None
         if self.show_values:
-            annots = np.round(np.array(data).reshape(self.shape), 2)
+            annots = np.round(np.array(data).reshape(self.shape), self.round_vals)
         data = np.array(data).reshape(self.shape)
 
         self.ax.texts = []
-        sb.heatmap(data, annot=annots, fmt='', cmap=cmap, vmin=vmin, vmax=vmax,
+        sb.heatmap(data, annot=annots, fmt='', cmap=self.cmap, vmin=vmin, vmax=vmax,
                    xticklabels=False, yticklabels=False, cbar=False, ax=self.ax)
         self.fig.canvas.blit(self.ax.bbox)
         self.fig.canvas.flush_events()
