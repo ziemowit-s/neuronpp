@@ -1,11 +1,11 @@
+import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sb
 from neuron import h
-import matplotlib.pyplot as plt
 
 
 class HeatmapGraph:
-    def __init__(self, name, elements, extract_func=lambda x: x, shape=None):
+    def __init__(self, name, elements, extract_func=lambda x: x, shape=None, show_values=True):
         """
 
         :param name:
@@ -15,6 +15,8 @@ class HeatmapGraph:
             if None:
                 for list - assume it's 1D vector
                 for np.array - take its shape
+        :param show_values:
+            True if you want to show text values as labels on each element
         """
         self.name = name
         # last time of NEURON simulation; maybe helpful but it's just a hack
@@ -23,6 +25,7 @@ class HeatmapGraph:
 
         self.shape = None
         self.elements = None
+        self.show_values = show_values
         self.update(elements, shape=shape)
 
         self.extract_func = extract_func
@@ -31,28 +34,37 @@ class HeatmapGraph:
         self.fig.canvas.draw()
         self.fig.show()
 
-    def plot(self, vmin=None, vmax=None, update_elements=None):
+    def plot(self, vmin=None, vmax=None, update_title=None, update_elements=None, cmap='viridis'):
         """
         :param vmin:
-            min value on the colormap. None means that it will assume min based on the data provided.
+            min value on the colormap. None means that it will assume min based on the data
+            provided.
         :param vmax:
-            default max value on the colormap. None means that it will assume min based on the data provided.
+            default max value on the colormap. None means that it will assume min based on the data
+            provided.
+        :param update_title:
+            new title to update
         :param update_elements:
             if you want to update elements collection
-        :return:
+        :param cmap:
+            cmap to plot
         """
-        if update_elements:
+        if update_elements is not None:
             self.update(elements=update_elements)
+        if update_title is not None:
+            self.ax.set_title(update_title)
 
         data = []
         for i, e in enumerate(self.elements):
             data.append(self.extract_func(e))
 
-        annots = np.round(np.array(data).reshape(self.shape), 4)
+        annots = None
+        if self.show_values:
+            annots = np.round(np.array(data).reshape(self.shape), 2)
         data = np.array(data).reshape(self.shape)
 
         self.ax.texts = []
-        sb.heatmap(data, annot=annots, fmt='', cmap=plt.cm.Blues, vmin=vmin, vmax=vmax,
+        sb.heatmap(data, annot=annots, fmt='', cmap=cmap, vmin=vmin, vmax=vmax,
                    xticklabels=False, yticklabels=False, cbar=False, ax=self.ax)
         self.fig.canvas.blit(self.ax.bbox)
         self.fig.canvas.flush_events()
