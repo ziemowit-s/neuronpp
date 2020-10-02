@@ -124,7 +124,7 @@ class Experiment(NeuronRemovable):
         netstim = NetStimCell(name="stim")
         self.netstims.append(netstim)
 
-        stim = netstim.make_netstim(start=current_time, number=epsp.num, interval=epsp.int)
+        stim = netstim.add_netstim(start=current_time, number=epsp.num, interval=epsp.int)
         synapse.add_netcon(source=stim, weight=epsp.w, threshold=epsp.thr, delay=epsp.delay)
         current_time += epsp.int * epsp.num
 

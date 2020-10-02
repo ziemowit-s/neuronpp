@@ -240,7 +240,7 @@ use such synapse for the `Experiment`.
   * define NetStim (or VecStim) and pass it to synapses as a source while creating:
   ```python
     netstim = NetStimCell(name="netst")
-    stim = netstim.make_netstim(start=300, number=5, interval=10)
+    stim = netstim.add_netstim(start=300, number=5, interval=10)
     
     cell = Cell(name="cell")
     soma = cell.filter_secs(name="soma")
@@ -345,7 +345,7 @@ Create a population of many neurons of the same type and connect them between po
   * Create a stimulation and define your first population:
   ```python
     # Create NetStim
-    netstim = NetStimCell("stim").make_netstim(start=21, number=100, interval=2)
+    netstim = NetStimCell("stim").add_netstim(start=21, number=100, interval=2)
 
     # Create population 1
     pop1 = Population("pop_1")

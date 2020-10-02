@@ -20,7 +20,7 @@ cell.insert("hh")
 
 # Two examples of synapses with NetStim:
 stim_cell = NetStimCell("stim_cell")
-stim = stim_cell.make_netstim(start=250, number=30, interval=1)
+stim = stim_cell.add_netstim(start=250, number=30, interval=1)
 soma = cell.filter_secs("soma")
 
 # 1) Hoc-style synapse

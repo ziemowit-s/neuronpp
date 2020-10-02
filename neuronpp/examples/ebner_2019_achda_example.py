@@ -20,7 +20,7 @@ if __name__ == '__main__':
 
     # make NetStim stims
     ns_cell = NetStimCell("netstim_cell")
-    stim1 = ns_cell.make_netstim(start=WARMUP + 1, number=1)
+    stim1 = ns_cell.add_netstim(start=WARMUP + 1, number=1)
 
     # make VecStim
     vs_cell = VecStimCell("vecstim_cell")

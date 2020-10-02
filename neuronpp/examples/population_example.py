@@ -20,7 +20,7 @@ if __name__ == '__main__':
         return cell
 
     # Create NetStim
-    netstim = NetStimCell("stim").make_netstim(start=21, number=100, interval=2)
+    netstim = NetStimCell("stim").add_netstim(start=21, number=100, interval=2)
 
     # Define connection probabilities
     Dist.set_seed(13)

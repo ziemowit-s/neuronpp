@@ -33,7 +33,7 @@ class TestStandardPopulation(unittest.TestCase):
             return cell
 
         # Create NetStim
-        cls.netstim = NetStimCell("stim1").make_netstim(start=21, number=100, interval=2)
+        cls.netstim = NetStimCell("stim1").add_netstim(start=21, number=100, interval=2)
 
         # Define connection probabilities
         Dist.set_seed(13)

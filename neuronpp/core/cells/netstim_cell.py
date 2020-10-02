@@ -83,7 +83,7 @@ class NetStimCell(CoreCell):
         return self.remove(searchable=self.nss, obj_filter=obj_filter, name=name, **kwargs)
 
     @distparams
-    def make_netstim(self, start, number, interval=1, noise=0):
+    def add_netstim(self, start, number, interval=1, noise=0):
         """
         Making NetStim after simulation run() makes it has no effect on the current simulation.
         However it will appear in the next simulation if:

@@ -154,7 +154,7 @@ class TestSimulation(unittest.TestCase):
         However NetStim start is in the absolute time.
         """
         # Netstim to synapse
-        stim = NetStimCell("stim").make_netstim(start=25, number=10, interval=2)
+        stim = NetStimCell("stim").add_netstim(start=25, number=10, interval=2)
         self.cell.add_synapse(source=stim, netcon_weight=1.0, mod_name="ExpSyn", delay=1,
                               seg=self.apic1(0.5))
         # Record
@@ -235,7 +235,7 @@ class TestSimulation(unittest.TestCase):
         sim.run(1)
 
         # Netstim to synapse
-        stim = NetStimCell("stim").make_netstim(start=25, number=10, interval=2)
+        stim = NetStimCell("stim").add_netstim(start=25, number=10, interval=2)
         self.cell.add_synapse(source=stim, netcon_weight=0.5, mod_name="ExpSyn", delay=1,
                               seg=self.apic1(0.5))
         sim.run(100)
