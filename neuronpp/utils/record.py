@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from neuron import h
 import matplotlib.pyplot as plt
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 from typing import Union, Optional, Iterable
 
 from nrn import Mechanism
@@ -48,7 +48,7 @@ class Record(NeuronRemovable):
         if len(elements) == 0:
             raise IndexError("The list of provided elements to record is empty.")
 
-        self.recs = dict([(v, []) for v in variables])
+        self.recs = OrderedDict([(v, []) for v in variables])
         self.figs = {}
         self.axs = defaultdict(list)
 
@@ -166,6 +166,7 @@ class Record(NeuronRemovable):
 
             for i, name in enumerate(names):
                 rec = records[i]
+                self._check_nan_inf(rec, name, var_name)
                 if create_fig:
                     if position == 'merge':
                         ax = fig.add_subplot(1, 1, 1)
@@ -200,12 +201,12 @@ class Record(NeuronRemovable):
         if create_fig:
             plt.show(block=False)
 
-    def as_numpy(self, variable: str, segment_name: Optional[str] = None):
+    def as_numpy(self, variable: Optional[str] = None, segment_name: Optional[str] = None):
         """
         Returns dictionary[variable_name][segment_name] = numpy_record
 
         :param variable:
-            variable name.
+            variable name. Default is None, meaning - it will take the first variable encountered
         :param segment_name:
             name of the segment. Default is None, meaning - it will take all segments for this
             variable in the order of adding.
@@ -213,6 +214,8 @@ class Record(NeuronRemovable):
             Returns dictionary[variable_name][segment_name] = numpy_record
         """
         result = []
+        if variable is None:
+            variable = list(self.recs.keys())[0]
 
         if variable not in self.recs:
             raise NameError("There is no variable record as %s" % variable)
@@ -264,3 +267,22 @@ class Record(NeuronRemovable):
             ax = fig.add_subplot(position[0], position[1], index)
 
         return ax
+
+    @staticmethod
+    def _check_nan_inf(rec, name, var_name):
+        if any(np.isinf(rec)):
+            wrong_index = np.where(np.isinf(rec) == True)[0][0]
+            wrong_val = np.inf
+            if wrong_index > 0:
+                wrong_val = rec[wrong_index - 1]
+            raise ValueError(f"Record name:{name},  variable name: {var_name}, "
+                             f"has at least one Inf value. "
+                             f"Inf index: {wrong_index}, last value: {wrong_val}")
+        elif any(np.isnan(rec)):
+            wrong_index = np.where(np.isnan(rec) == True)[0][0]
+            wrong_val = np.nan
+            if wrong_index > 0:
+                wrong_val = rec[wrong_index - 1]
+            raise ValueError(f"Record name:{name},  variable name: {var_name}, "
+                             f"has at least one NaN value."
+                             f"NaN index: {wrong_index}, last value: {wrong_val}")

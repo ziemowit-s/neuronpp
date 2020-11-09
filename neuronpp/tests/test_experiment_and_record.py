@@ -33,19 +33,20 @@ class TestExperimentAndRecord(unittest.TestCase):
         experiment.build()
 
         # Prepare plots
-        rec = Record([soma(0.5), dend(0.5)], variables='v')
+        cls.rec = Record([soma(0.5), dend(0.5)], variables='v')
 
         # Run
         sim = Simulation(init_v=-70, warmup=20, with_neuron_gui=False, constant_timestep=True)
         sim.run(runtime=100)
 
-        cls.v_soma = rec.as_numpy('v', segment_name=soma(.5).name)
-        cls.v_apic = rec.as_numpy('v', segment_name=dend(.5).name)
+        # test access to numpy array by default variable name (first selected)
+        cls.v_soma = cls.rec.as_numpy(segment_name=soma(.5).name)
+        cls.v_apic = cls.rec.as_numpy(variable='v', segment_name=dend(.5).name)
 
         syn.remove_immediate_from_neuron()
         soma.remove_immediate_from_neuron()
         dend.remove_immediate_from_neuron()
-        rec.remove_immediate_from_neuron()
+        cls.rec.remove_immediate_from_neuron()
         experiment.remove_immediate_from_neuron()
         cell.remove_immediate_from_neuron()
         sim.remove_immediate_from_neuron()
