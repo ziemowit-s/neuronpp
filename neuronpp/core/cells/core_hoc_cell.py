@@ -68,10 +68,12 @@ class CoreHocCell(PointProcessCell):
             is_section_list = False
             if "SectionList" in str(f):
                 secs = [i for i in f]
-                for i, hoc_sec in enumerate(secs):
-                    if not get_sec_list_objects(f=hoc_sec):
-                        self._add_sec(result, hoc_sec)
-                    is_section_list = True
+                for i, hoc_obj in enumerate(secs):
+                    if isinstance(hoc_obj, Section):
+                        self._add_sec(result, hoc_obj)
+                        is_section_list = True
+                    else:
+                        is_section_list = get_sec_list_objects(f=hoc_obj)
             return is_section_list
 
         result = {}
