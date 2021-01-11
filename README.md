@@ -105,7 +105,11 @@ You don't need to compile files externally, if you provided appropriate pathways
 will be done automatically before each run.
 
 ## Introduction to NEURON++
-All examples are located in: examples/
+All examples are located in the examples/ folder
+
+Please bear in mind that due to substantial updates some examples may not work as described here in 
+the README, also some additional features have been added which are not listed here. We will update 
+readme soon.
 
 ### Basics
 

@@ -1,11 +1,10 @@
 import numpy as np
 import pandas as pd
 from neuron import h
-import matplotlib.pyplot as plt
-from collections import defaultdict, OrderedDict
-from typing import Union, Optional, Iterable
-
 from nrn import Mechanism
+import matplotlib.pyplot as plt
+from typing import Union, Optional, Iterable
+from collections import defaultdict, OrderedDict
 
 from neuronpp.core.hocwrappers.sec import Sec
 from neuronpp.utils.RecordOutput import RecordOutput
@@ -271,18 +270,18 @@ class Record(NeuronRemovable):
     @staticmethod
     def _check_nan_inf(rec, name, var_name):
         if any(np.isinf(rec)):
-            wrong_index = np.where(np.isinf(rec) == True)[0][0]
+            wrong_index = np.where(np.isinf(rec) is True)[0][0]
             wrong_val = np.inf
             if wrong_index > 0:
                 wrong_val = rec[wrong_index - 1]
-            raise ValueError(f"Record name:{name},  variable name: {var_name}, "
-                             f"has at least one Inf value. "
-                             f"Inf index: {wrong_index}, last value: {wrong_val}")
+            error_msg = "Record name: %s, variable name: %s, has at least one Inf value. " \
+                        "Inf index: %s, last value: %s" % name, var_name, wrong_index, wrong_val
+            raise ValueError(error_msg)
         elif any(np.isnan(rec)):
-            wrong_index = np.where(np.isnan(rec) == True)[0][0]
+            wrong_index = np.where(np.isnan(rec) is True)[0][0]
             wrong_val = np.nan
             if wrong_index > 0:
                 wrong_val = rec[wrong_index - 1]
-            raise ValueError(f"Record name:{name},  variable name: {var_name}, "
-                             f"has at least one NaN value."
-                             f"NaN index: {wrong_index}, last value: {wrong_val}")
+            error_msg = "Record name: %s, variable name: %s, has at least one NaN value. " \
+                        "NaN index: %s, last value: %s" % name, var_name, wrong_index, wrong_val
+            raise ValueError(error_msg)
