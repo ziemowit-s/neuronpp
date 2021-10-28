@@ -59,6 +59,35 @@ class TestExperimentAndRecord(unittest.TestCase):
     def test_record_size(self):
         self.assertEqual(4011, self.v_soma.size)
 
+    def test_record_to_time(self):
+        rec_filtered = self.v_soma.get_records_to_time(ms=50)
+        to_time = [(t, r) for t, r in zip(self.v_soma.time, self.v_soma.records) if t < 50]
+        time, rec = list(zip(*to_time))
+
+        self.assertEqual(rec[-1], rec_filtered[-1])
+        self.assertEqual(len(rec), len(rec_filtered))
+
+    def test_record_from_time(self):
+        rec_filtered = self.v_soma.get_records_from_time(ms=50)
+        from_time = [(t, r) for t, r in zip(self.v_soma.time, self.v_soma.records) if t >= 50]
+        time, rec = list(zip(*from_time))
+
+        self.assertEqual(rec[0], rec_filtered[0])
+        self.assertEqual(len(rec), len(rec_filtered))
+
+    def test_record_by_time(self):
+        rec_filtered, time_filtered = self.v_soma.get_records_by_time(from_ms=50, to_ms=80,
+                                                                      with_time_vector=True)
+        from_time = [(t, r) for t, r in zip(self.v_soma.time, self.v_soma.records) if 50 <= t < 80]
+        time, rec = list(zip(*from_time))
+
+        self.assertGreaterEqual(min(time_filtered), 50)
+        self.assertLess(max(time_filtered), 80)
+        self.assertEqual(rec[0], rec_filtered[0])
+        self.assertEqual(rec[-1], rec_filtered[-1])
+        self.assertEqual(len(rec), len(rec_filtered))
+        self.assertEqual(len(time), len(time_filtered))
+
     def test_apical_max_record(self):
         self.assertEqual(1655, np.argmax(self.v_apic.records))
         self.assertEqual(-43.7043, round(np.max(self.v_apic.records), 4))

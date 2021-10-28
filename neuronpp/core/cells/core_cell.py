@@ -75,7 +75,7 @@ class CoreCell(NeuronRemovable):
                 try:
                     value = getattr(obj, attr_name)
                 except AttributeError:
-                    break
+                    continue
 
                 # Check pattern of the attribute
 

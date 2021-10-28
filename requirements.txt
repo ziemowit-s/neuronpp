@@ -8,3 +8,4 @@ pyvis
 seaborn
 pytest
 wheel
+neuron==7.8.2

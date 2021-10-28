@@ -78,7 +78,7 @@ class TestCellAddSectionLeak(unittest.TestCase):
         cls.cell5 = Cell(name="cell5")
         cls.soma5 = cls.cell5.add_sec("soma", add_pas=True)
 
-        cls.dend = h.Section("dend", "cell5")
+        cls.dend = h.Section(name="dend", cell=cls.cell5)
         cls.dend.insert("pas")
 
         cell6 = Cell(name="cell6")
