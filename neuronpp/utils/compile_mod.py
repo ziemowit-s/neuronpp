@@ -115,3 +115,17 @@ def compile_and_load_mods(mod_folders):
         # Load
         neuron.load_mechanisms(targ_path)
         mods_loaded.extend(mod_folders)
+
+
+def load_mods(mod_folders):
+    if isinstance(mod_folders, str):
+        mod_folders = mod_folders.split(" ")
+
+    mod_folders = [m for m in mod_folders if m not in mods_loaded]
+    targ_path = os.path.join(os.getcwd(), "compiled", "mods%s" % len(mods_loaded))
+
+    if len(mod_folders) > 0:
+        # Load
+        neuron.load_mechanisms(targ_path)
+        mods_loaded.extend(mod_folders)
+

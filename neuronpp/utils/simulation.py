@@ -19,7 +19,8 @@ class Simulation(NeuronRemovable):
     def __init__(self, init_v: float = None, dt: float = 0.025, warmup: float = 0, warmup_dt=None,
                  init_sleep: float = 0, shape_plots: Optional[List[h.PlotShape]] = None,
                  constant_timestep: bool = True, with_neuron_gui: bool = False,
-                 check_pointers: bool = False, warmup_on_create=False):
+                 check_pointers: bool = False, warmup_on_create=False, parallel=False,
+                 parallel_max_step=10):
         """
         Create an Simulation object to control the NEURON's simulation.
 
@@ -79,6 +80,16 @@ class Simulation(NeuronRemovable):
             `Process finished with exit code 139 (interrupted by signal 11: SIGSEGV)`
         :param warmup_on_create:
             Default False. If True warmup will be done on Simulation object creation
+        :param parallel:
+            Default False. If True the computation will be run parallel. Bear in mind that the whole
+            setup of the pararel computation must be done by the user.
+
+            To get started: https://neuron.yale.edu/neuron/docs/ball-and-stick-model-part-4
+        :param parallel_max_step:
+            Max step of parallel computation in ms. Under parallel computation no spikes can be
+            delivered between machines unless this is setup.
+
+            It sets every machine’s maximum step size to the minimum delay of netcons.
         """
         if with_neuron_gui:
             from neuron import gui
@@ -93,6 +104,14 @@ class Simulation(NeuronRemovable):
         self.warmup_dt = warmup_dt
         self.shape_plots = shape_plots
         self.current_runtime = 0
+
+        self.pararel = parallel
+        self.pararel_max_step = parallel_max_step
+        if self.pararel:
+            h.nrnmpi_init()
+            self.pararel_context = h.ParallelContext()
+            self.pararel_context.set_maxstep(self.pararel_max_step * ms)
+
         if init_sleep < 0:
             raise ValueError("init_sleep time must be >= 0.")
         self.init_sleep = init_sleep
@@ -192,7 +211,7 @@ class Simulation(NeuronRemovable):
         for r in run_array:
 
             # step till i-th ms
-            h.continuerun(r * ms)
+            self._contrun(time_ms=r)
             current = time.time()
             computation_time = current - before
 
@@ -212,17 +231,34 @@ class Simulation(NeuronRemovable):
 
         self.current_runtime = runtime
 
+    def quit(self):
+        if self.pararel:
+            self.pararel_context.barrier()
+            self.pararel_context.done()
+        h.quit()
+
     def _make_warmup(self):
         self.reinit()
 
         if self.warmup > 0:
             if self.warmup_dt is None:
-                h.dt = self.warmup / 10
+                self.warmup_dt = self.warmup / 10
+
+            if self.pararel:
+                self.pararel_context.set_maxstep(self.warmup_dt + 1 * ms)
+                self._contrun(time_ms=self.warmup)
+                self.pararel_context.set_maxstep(self.pararel_max_step * ms)
             else:
                 h.dt = self.warmup_dt
-            h.continuerun(self.warmup * ms)
-            h.dt = self.dt
+                self._contrun(time_ms=self.warmup)
+                h.dt = self.dt
         self.warmup_done = True
+
+    def _contrun(self, time_ms):
+        if self.pararel:
+            self.pararel_context.psolve(time_ms * ms)
+        else:
+            h.continuerun(time_ms * ms)
 
     def _plot_shapes(self):
         # flush shape and console log

@@ -151,6 +151,15 @@ class NetConCell(PointProcessCell):
         nc_detector.hoc.record(result_vector)
         self._spike_detector = (nc_detector, result_vector)
 
+    def get_spike_detector(self):
+        """
+        :return:
+            NetCon object which is a spike detector
+        """
+        if self._spike_detector is None:
+            raise RuntimeError("Spike detector has not been yet created.")
+        return self._spike_detector[0]
+
     def spikes(self):
         """
         :return:
