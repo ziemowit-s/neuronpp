@@ -8,7 +8,7 @@ from neuronpp.core.hocwrappers.vecstim import VecStim
 from neuronpp.core.populations.syn_adder import SynAdder
 from neuronpp.core.hocwrappers.synapses.synapse import Synapse
 from neuronpp.core.populations.params.conn_params import ConnParams
-from neuronpp.core.distributions import Dist, NormalTruncatedSegDist
+from neuronpp.core.dists.distributions import Dist, NormalTruncatedSegDist
 from neuronpp.core.populations.utils import check_and_prepare_sources, check_and_prepare_target
 
 

@@ -223,7 +223,8 @@ class SectionCell(CoreCell):
     def load_morpho(self, filepath):
         """
         :param filepath:
-            swc file path
+            swc or asc file path
+            to load HOC-based morphology use HocCell object
         """
         if not path.exists(filepath):
             raise FileNotFoundError(filepath)

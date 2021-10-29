@@ -1,5 +1,8 @@
+import numpy as np
+from typing import List
 from collections import defaultdict
 
+from neuronpp.core.hocwrappers.sec import Sec
 from neuronpp.core.decorators import distparams
 from neuronpp.core.cells.netcon_cell import NetConCell
 from neuronpp.core.hocwrappers.synapses.single_synapse import SingleSynapse
@@ -122,3 +125,33 @@ class SynapticCell(NetConCell):
         self._syn_num[mod_name] += 1
 
         return syn
+
+    @distparams
+    def add_random_uniform_synapses(self, number, source, mod_name: str, secs: List[Sec],
+                                    netcon_weight=1, delay=1, threshold=10, tag: str = None,
+                                    **synaptic_params):
+        """
+        """
+        max_l = int(sum([s.hoc.L for s in secs]))
+        locations = np.random.rand(number)
+        locations *= max_l
+
+        results = []
+        for syn_loc in locations:
+            current_L = 0
+            for sec in secs:
+                s = sec.hoc
+                current_L += s.L
+
+                # if synapse will be located in this section
+                if current_L > syn_loc:
+                    section_loc = (syn_loc - current_L + s.L) / s.L
+
+                    seg = sec(section_loc)
+                    r = self.add_synapse(source=source, mod_name=mod_name, seg=seg,
+                                         netcon_weight=netcon_weight, delay=delay,
+                                         threshold=threshold, tag=tag, **synaptic_params)
+                    results.append(r)
+                    break
+
+        return results

@@ -322,26 +322,22 @@ class SpineCell(SectionCell):
                 dend.hoc.cm = new_val
 
     @staticmethod
-    def _connect_necks_rand_uniform(neck: Sec, sections):
+    def _connect_necks_rand_uniform(neck: Sec, sections: List[Sec]):
         """
-        Connect necks list to sections list with uniform random distribution
+        Connect single neck to sections list with uniform random distribution
         :param neck:
         :param sections:
         """
         max_l = int(sum([s.hoc.L for s in sections]))
-        added = dict([(s.hoc.name(), []) for s in sections])
 
         i = 0
-        r = random.randint(0, max_l)
+        r = np.random.rand() * max_l
         for s in sections:
             s = s.hoc
             i += s.L
             if i > r:
                 loc = (r - i + s.L) / s.L
-                if loc in added[s.name()]:
-                    break
                 neck.hoc.connect(s(loc), 0.0)
-                added[s.name()].append(loc)
                 break
 
     def _add_spines_to_section(self, section: Sec, spine_tag,

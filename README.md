@@ -113,12 +113,12 @@ readme soon.
     cell = Cell(name="mycell")
    ```
 
-  * load SWC/ASC or HOC morphology:
+  * load SWCor ASC morphology:
    ```python
     cell.load_morpho(filepath='commons/morphologies/asc/cell2.asc')
    ```
  
-  * load HOC based cell model to the `Cell` object:
+  * load HOC-based cell (and HOC-based morphology) model to the `Cell` object:
     * allows to work with most modelDB single cell models
     * it will auto load all sections and point processes for further usage and/or filtering 
     * This is an experimental feature, so currently works ONLY with HOC models which define a 

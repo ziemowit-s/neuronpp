@@ -5,7 +5,7 @@ import numpy as np
 from neuron import h
 
 from neuronpp.cells.cell import Cell
-from neuronpp.core.distributions import Dist, UniformDist, NormalTruncatedDist, \
+from neuronpp.core.dists.distributions import Dist, UniformDist, NormalTruncatedDist, \
     NormalConnectionProba, NormalTruncatedSegDist, UniformTruncatedDist, LogNormalTruncatedDist
 from neuronpp.core.populations.population import Population
 

@@ -1,6 +1,6 @@
 from typing import Union
 
-from neuronpp.core.distributions import Dist
+from neuronpp.core.dists.distributions import Dist
 from neuronpp.core.populations.params.spine_params import SpineParams
 from neuronpp.core.populations.params.netcon_params import NetconParams
 

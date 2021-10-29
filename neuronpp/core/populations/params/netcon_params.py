@@ -1,6 +1,6 @@
 from typing import Union
 
-from neuronpp.core.distributions import Dist
+from neuronpp.core.dists.distributions import Dist
 from neuronpp.core.populations.utils import check_and_prepare_sources
 
 

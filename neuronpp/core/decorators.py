@@ -2,10 +2,10 @@ import functools
 import inspect
 
 import numpy as np
-from typing import List, cast
+from typing import List
 
-from neuronpp.core.distributions import Dist, UniformDist, NormalDist, NormalTruncatedDist, \
-    TruncatedDist, LogNormalDist
+from neuronpp.core.dists.dist_utils import get_rand
+from neuronpp.core.dists.distributions import Dist, UniformDist, NormalDist, TruncatedDist, LogNormalDist
 from neuronpp.core.neuron_removable import NON_REMOVABLE_FIELD_NAME
 
 
@@ -84,22 +84,7 @@ def distparams(_func=None, *, exclude: List[str] = None, include: List[str] = No
                 elif not include and exclude and key in exclude:
                     continue
                 if isinstance(value, Dist):
-
-                    if isinstance(value, UniformDist):
-                        result = np.random.uniform(low=value.low, high=value.high)
-                    elif isinstance(value, NormalDist):
-                        result = np.random.normal(loc=value.mean, scale=value.std)
-                    elif isinstance(value, LogNormalDist):
-                        result = np.random.lognormal(mean=value.mean, sigma=value.std)
-                    else:
-                        raise TypeError("Not allowed value type for Dist: %s" % value)
-
-                    if isinstance(value, TruncatedDist):
-                        result = np.abs(result)
-                    if "int" in value.dtype.lower():
-                        result = round(result)
-
-                    kwargs[key] = result
+                    kwargs[key] = get_rand(value=value)
 
             return func(*args, **kwargs)
 
