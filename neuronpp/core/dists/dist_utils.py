@@ -1,6 +1,7 @@
 import numpy as np
 
-from neuronpp.core.dists.distributions import Dist, UniformDist, NormalDist, TruncatedDist, LogNormalDist
+from neuronpp.core.dists.distributions import Dist, UniformDist, NormalDist, TruncatedDist, \
+    LogNormalDist
 
 
 def get_rand(value: Dist):

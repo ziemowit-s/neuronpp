@@ -1,11 +1,9 @@
 import functools
 import inspect
-
-import numpy as np
 from typing import List
 
 from neuronpp.core.dists.dist_utils import get_rand
-from neuronpp.core.dists.distributions import Dist, UniformDist, NormalDist, TruncatedDist, LogNormalDist
+from neuronpp.core.dists.distributions import Dist
 from neuronpp.core.neuron_removable import NON_REMOVABLE_FIELD_NAME
 
 
@@ -27,6 +25,7 @@ def non_removable_fields(*fields):
         list of strings defining names of class fields which you don't want to remove during
         remove_immediate_from_neuron() call or del
     """
+
     def decorate(cls):
         if not inspect.isclass(cls):
             raise ValueError("Decorator non_removable_field can decorate only a class not "
@@ -42,6 +41,7 @@ def non_removable_fields(*fields):
             if field not in non_removable_list:
                 non_removable_list.append(field)
         return cls
+
     return decorate
 
 
@@ -69,6 +69,7 @@ def distparams(_func=None, *, exclude: List[str] = None, include: List[str] = No
     :return:
         the same value as the function decorated
     """
+
     def _distparams(func):
         @functools.wraps(func)
         def _wrapper_distparams(*args, **kwargs):
