@@ -1,6 +1,6 @@
 from typing import Union
 
-from neuronpp.core.distributions import Dist
+from neuronpp.core.dists.distributions import Dist
 
 
 class SpineParams:

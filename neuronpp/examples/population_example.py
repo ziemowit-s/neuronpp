@@ -5,7 +5,7 @@ from neuronpp.utils.simulation import Simulation
 from neuronpp.core.cells.netstim_cell import NetStimCell
 from neuronpp.utils.graphs.network_graph import NetworkGraph
 from neuronpp.core.populations.population import Population, NormalConnectionProba
-from neuronpp.core.distributions import Dist, NormalTruncatedDist, NormalTruncatedSegDist
+from neuronpp.core.dists.distributions import Dist, NormalTruncatedDist, NormalTruncatedSegDist
 
 path = os.path.dirname(os.path.abspath(__file__))
 

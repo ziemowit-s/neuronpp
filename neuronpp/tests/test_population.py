@@ -6,7 +6,7 @@ from neuron import h
 
 from neuronpp.cells.cell import Cell
 from neuronpp.core.cells.netstim_cell import NetStimCell
-from neuronpp.core.distributions import Dist, NormalTruncatedDist, NormalDist
+from neuronpp.core.dists.distributions import Dist, NormalTruncatedDist, NormalDist
 from neuronpp.core.populations.population import Population
 
 path = os.path.dirname(os.path.abspath(__file__))

@@ -1,6 +1,6 @@
 from typing import Union
 
-from neuronpp.core.distributions import Dist, NormalTruncatedSegDist
+from neuronpp.core.dists.distributions import Dist, NormalTruncatedSegDist
 
 
 class ConnParams:

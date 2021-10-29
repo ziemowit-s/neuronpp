@@ -4,7 +4,7 @@ import numpy as np
 
 from neuronpp.cells.cell import Cell
 from neuronpp.core.decorators import distparams
-from neuronpp.core.distributions import Dist, UniformConnectionProba, NormalConnectionProba, \
+from neuronpp.core.dists.distributions import Dist, UniformConnectionProba, NormalConnectionProba, \
     NormalTruncatedSegDist, LogNormalConnectionProba, UniformDist, NormalTruncatedDist, \
     LogNormalTruncatedDist, UniformTruncatedDist
 from neuronpp.core.hocwrappers.seg import Seg
