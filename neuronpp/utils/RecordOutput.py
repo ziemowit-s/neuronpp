@@ -17,7 +17,7 @@ class RecordOutput:
         self.records = records
         self.time = time
 
-    def get_records_from_time(self, ms):
+    def get_records_from_time(self, ms, with_time_vector=False):
         """
         Returns records array where time in miliseconds is equal or higher than ms.
 
@@ -26,11 +26,16 @@ class RecordOutput:
 
         :param ms:
             time in ms
+        :param with_time_vector:
+            Default False. If True it will return tuple of (records, time)
         """
         min_arg = np.min(np.where(self.time >= ms))
-        return self.records[min_arg:]
+        if with_time_vector:
+            return self.records[min_arg:], self.time[min_arg:]
+        else:
+            return self.records[min_arg:]
 
-    def get_records_to_time(self, ms):
+    def get_records_to_time(self, ms, with_time_vector=False):
         """
         Returns records array where time in miliseconds is lower than ms
 
@@ -39,9 +44,14 @@ class RecordOutput:
 
         :param ms:
             time in ms
+        :param with_time_vector:
+            Default False. If True it will return tuple of (records, time)
         """
         max_arg = np.max(np.where(self.time <= ms))+1
-        return self.records[:max_arg]
+        if with_time_vector:
+            return self.records[:max_arg], self.time[:max_arg]
+        else:
+            return self.records[:max_arg]
 
     def get_records_by_time(self, from_ms, to_ms, with_time_vector=False):
         """
