@@ -72,6 +72,7 @@ class HeatmapGraph:
         sb.heatmap(data, annot=annots, fmt='', cmap=self.cmap, vmin=vmin, vmax=vmax,
                    xticklabels=False, yticklabels=False, cbar=False, ax=self.ax)
         self.fig.canvas.blit(self.ax.bbox)
+        self.fig.canvas.draw()
         self.fig.canvas.flush_events()
 
         # last time of NEURON simulation; maybe helpful but it's just a hack

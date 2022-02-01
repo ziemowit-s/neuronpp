@@ -1,9 +1,11 @@
 import re
 import unittest
+
 import numpy as np
 from neuron import h
 
 from neuronpp.core.cells.synaptic_cell import SynapticCell
+
 
 class TestAddRandomSynapses(unittest.TestCase):
     @classmethod
@@ -73,7 +75,7 @@ class TestAddRandomSynapses(unittest.TestCase):
         all_nums = re.findall("\d+\.\d+", point_process_name)
 
         loc = float(all_nums[0])
-        first_sec_loc = (self.FIRST_SYN_RAND_NUM*self.secs_max_len)/syn_sec_L
+        first_sec_loc = (self.FIRST_SYN_RAND_NUM * self.secs_max_len) / syn_sec_L
 
         self.assertEqual(len(all_nums), 1)
         self.assertEqual(loc, first_sec_loc)
@@ -89,7 +91,7 @@ class TestAddRandomSynapses(unittest.TestCase):
 
         loc = float(all_nums[0])
         last_loc_all = self.LAST_SYN_RAND_NUM * self.secs_max_len
-        last_sec_loc = (last_loc_all - self.secs_max_len + syn_sec_L)/syn_sec_L
+        last_sec_loc = (last_loc_all - self.secs_max_len + syn_sec_L) / syn_sec_L
 
         self.assertEqual(len(all_nums), 1)
         self.assertEqual(loc, last_sec_loc)

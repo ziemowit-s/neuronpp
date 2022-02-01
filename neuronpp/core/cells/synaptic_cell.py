@@ -1,10 +1,11 @@
-import numpy as np
-from typing import List
 from collections import defaultdict
+from typing import List
 
-from neuronpp.core.hocwrappers.sec import Sec
-from neuronpp.core.decorators import distparams
+import numpy as np
+
 from neuronpp.core.cells.netcon_cell import NetConCell
+from neuronpp.core.decorators import distparams
+from neuronpp.core.hocwrappers.sec import Sec
 from neuronpp.core.hocwrappers.synapses.single_synapse import SingleSynapse
 
 

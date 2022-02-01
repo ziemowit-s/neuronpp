@@ -45,7 +45,7 @@ pip install -r requirements.txt
 ```
 
 * If not Linux - go to the instruction: https://github.com/ziemowit-s/neuron_get_started
-* recommended NEURON version is 7.8.2
+* recommended NEURON version is 7.8.2. Please do not use NEURON version 8.* Neuron++ won't remove correctly NEURON elements. It will be fixed in the future
 
 ## Repository
 

@@ -12,8 +12,6 @@ except ImportError:
     from neuron.hoc36 import HocObject
 from neuron.units import ms, mV
 
-h.load_file('stdrun.hoc')
-
 
 class Simulation(NeuronRemovable):
     def __init__(self, init_v: float = None, dt: float = 0.025, warmup: float = 0, warmup_dt=None,
