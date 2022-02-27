@@ -49,8 +49,7 @@ class TestCellAddSectionDefault(unittest.TestCase):
         self.assertEqual(self.soma.hoc.e_pas, -70.0)
 
     def test_soma_name(self):
-        self.assertEqual("Cell[%s].%s" % (self.cell_name, self.soma.name),
-                         self.soma.hoc.name())
+        self.assertEqual(self.soma.name, self.soma.hoc.name())
 
     def test_cell_parent(self):
         self.assertEqual(self.dend1.parent, self.soma)

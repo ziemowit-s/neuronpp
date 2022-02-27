@@ -166,7 +166,7 @@ class SectionCell(CoreCell):
             raise LookupError(
                 "The name '%s' is already taken by another section of the cell: '%s' of type: '%s'."
                 % (name, self.name, self.__class__.__name__))
-        sec = Sec(hoc_sec, cell=self, name=name)
+        sec = Sec(hoc_sec, cell=self, name=hoc_sec.name())
         self.secs.append(sec)
         return sec
 
