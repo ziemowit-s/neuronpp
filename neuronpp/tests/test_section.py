@@ -31,15 +31,22 @@ class TestSection(unittest.TestCase):
             if i == 0:
                 self.assertIsNone(res)
             else:
-                self.assertEqual(i + 1, int(dend.name.replace("dend", "")))
+                self.assertEqual(i + 1, int(dend.name.replace("Cell[cell].dend", "")))
             dend.remove_immediate_from_neuron()
+
+    def test_name_and_parent_name(self):
+        soma = self.cell.add_sec(name="soma", l=10, nseg=10)
+        dend = self.cell.add_sec(name="dend", l=100, nseg=10)
+        self.cell.connect_secs(child=dend, parent=soma, child_loc=0, parent_loc=0.7)
+
+        self.assertEqual(soma.name, dend.parent.name)
 
     def test_regex_search(self):
         for i in range(10):
             self.cell.add_sec("dend")
 
         for i, dend in enumerate(self.cell.filter_secs("regex:dend[1-9]")):
-            self.assertEqual(i + 2, int(dend.name.replace("dend", "")))
+            self.assertEqual(i + 2, int(dend.name.replace("Cell[cell].dend", "")))
 
         for d in self.cell.secs:
             d.remove_immediate_from_neuron()
