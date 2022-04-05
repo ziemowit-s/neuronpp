@@ -38,7 +38,7 @@ class Record(NeuronRemovable):
                   "this simulation, but rather the next one after you execute reinit() method on "
                   "the Simulation object.")
 
-        if not isinstance(elements, (list, set, tuple)):
+        if not isinstance(elements, (list, set, tuple, np.ndarray)):
             elements = [elements]
 
         if isinstance(variables, str):
