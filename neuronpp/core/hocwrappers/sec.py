@@ -51,6 +51,18 @@ class Sec(HocWrapper):
         return pi*self.hoc.L*self.hoc.diam
 
     @property
+    def Ra(self) -> float:
+        return self.hoc.Ra
+
+    @property
+    def L(self) -> float:
+        return self.hoc.L
+
+    @property
+    def nseg(self) -> float:
+        return self.hoc.nseg
+
+    @property
     def orientation(self) -> float:
         """
         Return the end (0 or 1) which connects to the parent. This is the value, y, used:
