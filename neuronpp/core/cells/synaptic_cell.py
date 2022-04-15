@@ -127,7 +127,6 @@ class SynapticCell(NetConCell):
 
         return syn
 
-    @distparams
     def add_random_uniform_synapses(self, number, source, mod_name: str, secs: List[Sec],
                                     netcon_weight=1, delay=1, threshold=10, tag: str = None,
                                     **synaptic_params):
