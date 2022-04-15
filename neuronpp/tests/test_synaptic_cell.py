@@ -5,6 +5,7 @@ import numpy as np
 from neuron import h
 
 from neuronpp.core.cells.synaptic_cell import SynapticCell
+from neuronpp.core.dists.distributions import UniformDist
 
 
 class TestAddRandomSynapses(unittest.TestCase):
@@ -31,7 +32,8 @@ class TestAddRandomSynapses(unittest.TestCase):
 
         secs = [soma, apic1, apic2]
         syns = cls.cell.add_random_uniform_synapses(source=None, secs=secs,
-                                                    mod_name="Exp2Syn", number=cls.N)
+                                                    mod_name="Exp2Syn", number=cls.N,
+                                                    netcon_weight=UniformDist(low=1, high=2))
         cls.syns.extend(syns)
 
     @classmethod
@@ -104,3 +106,7 @@ class TestAddRandomSynapses(unittest.TestCase):
             loc = float(all_nums[0])
             self.assertEqual(len(all_nums), 1)
             self.assertEqual(round(s.parent.x, 2), round(loc, 2))
+
+    def test_uniform_weight_dist(self):
+        ws = [s.netcons[0].get_weight() for s in self.syns]
+        self.assertEqual(1.5, round(np.average(ws), 1))
