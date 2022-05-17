@@ -2,6 +2,7 @@
 import nrn
 from numpy import pi
 from typing import Optional
+from neuron import h
 
 from neuronpp.core.hocwrappers.seg import Seg
 from neuronpp.core.cells.core_cell import CoreCell

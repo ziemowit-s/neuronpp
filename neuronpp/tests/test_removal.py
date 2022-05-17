@@ -4,7 +4,7 @@ from neuron import h
 from neuronpp.cells.cell import Cell
 
 
-def _get_secs():
+def get_all_neuron_section_num():
     return len(list(h.allsec()))
 
 
@@ -18,12 +18,9 @@ class TestSection(unittest.TestCase):
         self.cell.connect_secs(child=self.dend2, parent=self.soma, child_loc=0, parent_loc=0.9)
 
     def tearDown(self):
-        self.soma.remove_immediate_from_neuron()
-        self.dend1.remove_immediate_from_neuron()
-        self.dend2.remove_immediate_from_neuron()
         self.cell.remove_immediate_from_neuron()
 
-        all_sec_num = _get_secs()
+        all_sec_num = get_all_neuron_section_num()
         if all_sec_num != 0:
             raise RuntimeError("Not all section have been removed after teardown. "
                                "Sections left: %s" % all_sec_num)
@@ -38,10 +35,10 @@ class TestSection(unittest.TestCase):
         syn = self.cell.add_synapse(source=None, mod_name="Exp2Syn", seg=dend3(0.5))
 
         dend3 = None
-        self.assertEqual(4, _get_secs())
+        self.assertEqual(4, get_all_neuron_section_num())
 
         syn.remove_immediate_from_neuron()
-        self.assertEqual(4, _get_secs())
+        self.assertEqual(4, get_all_neuron_section_num())
 
     def test_remove_point_process(self):
         """
@@ -60,11 +57,11 @@ class TestSection(unittest.TestCase):
         self.cell.connect_secs(child=dend3, parent=self.soma, child_loc=0, parent_loc=0.5)
 
         dend3 = None
-        self.assertEqual(4, _get_secs())
+        self.assertEqual(4, get_all_neuron_section_num())
 
         self.cell.secs = self.cell.secs[:3]
         self.assertEqual(3, len(self.cell.secs))
-        self.assertEqual(3, _get_secs())
+        self.assertEqual(3, get_all_neuron_section_num())
 
     def test_remove_synapse3(self):
         """
@@ -77,21 +74,21 @@ class TestSection(unittest.TestCase):
         syn = self.cell.add_synapse(source=None, mod_name="Exp2Syn", seg=dend3(0.5))
 
         dend3 = None
-        self.assertEqual(4, _get_secs())
+        self.assertEqual(4, get_all_neuron_section_num())
 
         self.cell.secs = self.cell.secs[:3]
         self.assertEqual(3, len(self.cell.secs))
-        self.assertEqual(4, _get_secs())
+        self.assertEqual(4, get_all_neuron_section_num())
 
         syn.remove_immediate_from_neuron()
-        self.assertEqual(3, _get_secs())
+        self.assertEqual(3, get_all_neuron_section_num())
 
     def test_remove_soma(self):
         """
         Removal of the parent section doesn't remove child sections
         """
         self.soma.remove_immediate_from_neuron()
-        self.assertEqual(2, _get_secs())
+        self.assertEqual(2, get_all_neuron_section_num())
 
     def test_removal_sec_from_cell_object(self):
         """
@@ -99,7 +96,7 @@ class TestSection(unittest.TestCase):
         """
         self.cell.add_sec("dend3", diam=10, l=10, nseg=10)
         self.cell.remove_secs("dend3")
-        self.assertEqual(3, _get_secs())
+        self.assertEqual(3, get_all_neuron_section_num())
         self.assertEqual(3, len(self.cell.secs))
 
     def test_removal_sec_outside_cell_object(self):
@@ -123,7 +120,7 @@ class TestSection(unittest.TestCase):
         Removal of the parent section doesn't remove child sections
         """
         self.dend1.remove_immediate_from_neuron()
-        self.assertEqual(2, _get_secs())
+        self.assertEqual(2, get_all_neuron_section_num())
 
     def test_remove_dend1_soma(self):
         """
@@ -131,14 +128,14 @@ class TestSection(unittest.TestCase):
         """
         self.soma.remove_immediate_from_neuron()
         self.dend1.remove_immediate_from_neuron()
-        self.assertEqual(1, _get_secs())
+        self.assertEqual(1, get_all_neuron_section_num())
 
     def test_remove_cell(self):
         """
-        Removal of cell only doesn't remove any sections since their references are valid
+        Removal of the cell will remove all its sections
         """
         self.cell.remove_immediate_from_neuron()
-        self.assertEqual(3, _get_secs())
+        self.assertEqual(0, get_all_neuron_section_num())
 
     def test_remove_sec_with_hoc_ref(self):
         """
@@ -147,8 +144,8 @@ class TestSection(unittest.TestCase):
         """
         hoc_soma = self.soma.hoc
         self.soma.remove_immediate_from_neuron()
-        self.assertEqual(3, _get_secs())
-        
+        self.assertEqual(3, get_all_neuron_section_num())
+
     def test_remove_new_cell_with_no_ref(self):
         """
         deletion of cell, when all its sections have no reference outside - deletes all its
@@ -165,9 +162,9 @@ class TestSection(unittest.TestCase):
         dend1 = None
         dend2 = None
 
-        self.assertEqual(6, _get_secs())
+        self.assertEqual(6, get_all_neuron_section_num())
         cell.remove_immediate_from_neuron()
-        self.assertEqual(3, _get_secs())
+        self.assertEqual(3, get_all_neuron_section_num())
 
     def test_remove_new_cell_with_del_ref(self):
         """
@@ -186,9 +183,9 @@ class TestSection(unittest.TestCase):
         del dend1
         del dend2
 
-        self.assertEqual(6, _get_secs())
+        self.assertEqual(6, get_all_neuron_section_num())
         cell.remove_immediate_from_neuron()
-        self.assertEqual(3, _get_secs())
+        self.assertEqual(3, get_all_neuron_section_num())
 
     def test_remove_new_cell_with_remove_immediate(self):
         """
@@ -202,13 +199,13 @@ class TestSection(unittest.TestCase):
         cell.connect_secs(child=dend1, parent=soma, child_loc=0, parent_loc=0.1)
         cell.connect_secs(child=dend2, parent=soma, child_loc=0, parent_loc=0.9)
 
-        self.assertEqual(6, _get_secs())
+        self.assertEqual(6, get_all_neuron_section_num())
 
         soma.remove_immediate_from_neuron()
         dend1.remove_immediate_from_neuron()
         dend2.remove_immediate_from_neuron()
 
-        self.assertEqual(3, _get_secs())
+        self.assertEqual(3, get_all_neuron_section_num())
         cell.remove_immediate_from_neuron()
 
     def test_removal_sec_after_synapse_remove(self):
@@ -219,7 +216,7 @@ class TestSection(unittest.TestCase):
         syn = self.cell.add_synapse(source=None, mod_name="Exp2Syn", seg=dend3(0.5))
         syn.remove_immediate_from_neuron()
         self.soma.remove_immediate_from_neuron()
-        self.assertEqual(3, _get_secs())
+        self.assertEqual(3, get_all_neuron_section_num())
 
     def test_removal_sec_as_part_of_synapse(self):
         """
@@ -229,7 +226,7 @@ class TestSection(unittest.TestCase):
         dend3 = self.cell.add_sec("dend3", diam=10, l=10, nseg=10)
         syn = self.cell.add_synapse(source=None, mod_name="Exp2Syn", seg=dend3(0.5))
         dend3.remove_immediate_from_neuron()
-        self.assertEqual(4, _get_secs())
+        self.assertEqual(4, get_all_neuron_section_num())
 
     def test_removal_sec_before_synapse_remove(self):
         """
@@ -239,7 +236,7 @@ class TestSection(unittest.TestCase):
         dend3 = self.cell.add_sec("dend3", diam=10, l=10, nseg=10)
         self.cell.add_synapse(source=None, mod_name="Exp2Syn", seg=dend3(0.5))
         dend3.remove_immediate_from_neuron()
-        self.assertEqual(4, _get_secs())
+        self.assertEqual(4, get_all_neuron_section_num())
 
     def test_removal_cell_before_synapse_remove(self):
         """
@@ -252,4 +249,15 @@ class TestSection(unittest.TestCase):
         dend3 = None
 
         cell2.remove_immediate_from_neuron()
-        self.assertEqual(3, _get_secs())
+        self.assertEqual(3, get_all_neuron_section_num())
+
+    def test_removal_without_del_ref(self):
+        """
+        Removing whole cell without reference deletion
+        """
+        cell2 = Cell(name="cell2")
+        dend3 = cell2.add_sec("dend3", diam=10, l=10, nseg=10)
+        # dend3 = None
+
+        cell2.remove_immediate_from_neuron()
+        self.assertEqual(3, get_all_neuron_section_num())
