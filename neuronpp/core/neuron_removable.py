@@ -1,4 +1,6 @@
-from typing import List
+from typing import List, Iterable
+
+from neuron.hoc import HocObject
 
 NON_REMOVABLE_FIELD_NAME = "_non_removable_fields"
 
@@ -12,6 +14,8 @@ class NeuronRemovable:
         So use with caution.
 
         Removes this (self) object's fields from the Python and all its components from the NEURON.
+        calling 'del obj', where obj is the reference to the self - may work in the same way, however garbage collector
+        may remove the object later, so it is recommended to use remove_immediate_from_neuron() method.
 
         By default calling remove_immediate_from_neuron() method or deleting object will remove all
         its fields (attributes) of the object, however by decorating class with
@@ -51,18 +55,20 @@ class NeuronRemovable:
                     raise AttributeError("%s can be None or List[str]." % NON_REMOVABLE_FIELD_NAME)
                 elif len(noremove) > 0 and not isinstance(noremove[0], str):
                     raise AttributeError("%s can be None or List[str]." % NON_REMOVABLE_FIELD_NAME)
-        
+
         for k, v in self.__dict__.items():
             if noremove and k in noremove:
                 continue
 
-            if hasattr(v, "remove_from_neuron"):
-                getattr(v, "remove_from_neuron")()
-            elif hasattr(v, "__del__"):
-                getattr(v, "__del__")()
+            #TODO check: probably add also recursive dict iteration if v is a dict
+            if isinstance(v, Iterable) and not isinstance(v, (HocObject, str)):
+                for vv in v:
+                    self._del_val(vv)
+            self._del_val(v)
             setattr(self, k, None)
         self.__dict__ = {}
 
+        #TODO check: not sure but this part is probably never used
         if isinstance(self, dict):
             for k, v in self.items():
 
@@ -74,6 +80,12 @@ class NeuronRemovable:
                             vv = None
                 v = None
             self = {}
+
+    def _del_val(self, v):
+        if hasattr(v, "remove_from_neuron"):
+            getattr(v, "remove_from_neuron")()
+        elif hasattr(v, "__del__"):
+            getattr(v, "__del__")()
 
     def __del__(self):
         self.remove_immediate_from_neuron()

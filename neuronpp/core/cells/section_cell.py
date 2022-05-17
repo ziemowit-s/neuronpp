@@ -1,6 +1,8 @@
 from os import path
 from neuron import h
-from typing import Union
+from typing import Union, List
+
+from nrn import Section
 
 from neuronpp.core.hocwrappers.sec import Sec
 from neuronpp.core.decorators import distparams
@@ -244,7 +246,19 @@ class SectionCell(CoreCell):
         i3d = h.Import3d_GUI(morpho, 0)
         i3d.instantiate(self)
 
-        for hoc_sec in self.all:
+        self.load_cell_from_existing_neuron(secs=self.all)
+        del self.all
+
+    def load_cell_from_existing_neuron(self, secs: List[Section]):
+        """
+        Loads Sections into Cell object based on existing NEURON Sections.
+
+        WARNING: it is an experimental feature and works only if NEURON contains a single cell.
+
+        :param secs:
+            list of Sections from NEURON
+        """
+        for hoc_sec in secs:
             name = hoc_sec.name().split('.')[-1]  # eg. name="dend[19]"
             if len(self.filter_secs(name)) > 0:
                 raise LookupError(
@@ -252,8 +266,6 @@ class SectionCell(CoreCell):
                     "type: '%s'." % (name, self.name, self.__class__.__name__))
             sec = Sec(hoc_sec, cell=self, name=name)
             self.secs.append(sec)
-
-        del self.all
 
     @distparams
     def set_cell_position(self, x, y, z):

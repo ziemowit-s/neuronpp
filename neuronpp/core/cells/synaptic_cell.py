@@ -5,6 +5,8 @@ import numpy as np
 
 from neuronpp.core.cells.netcon_cell import NetConCell
 from neuronpp.core.decorators import distparams
+from neuronpp.core.hocwrappers.netcon import NetCon
+from neuronpp.core.hocwrappers.point_process import PointProcess
 from neuronpp.core.hocwrappers.sec import Sec
 from neuronpp.core.hocwrappers.synapses.single_synapse import SingleSynapse
 
@@ -120,12 +122,8 @@ class SynapticCell(NetConCell):
         nn = self.add_netcon(source=source, netcon_weight=netcon_weight, point_process=pp,
                              delay=delay, threshold=threshold)
 
-        syn_name = "%s[%s]" % (pp.name, self._syn_num[mod_name])
-        syn = SingleSynapse(source, point_process=pp, netcon=nn, name=syn_name, tag=tag)
-        self.syns.append(syn)
-        self._syn_num[mod_name] += 1
-
-        return syn
+        return self._add_raw_synapse(source=source, mod_name=mod_name, point_process=pp, netcon=nn,
+                                     tag=tag)
 
     def add_random_uniform_synapses(self, number, source, mod_name: str, secs: List[Sec],
                                     netcon_weight=1, delay=1, threshold=10, tag: str = None,
@@ -155,3 +153,16 @@ class SynapticCell(NetConCell):
                     break
 
         return results
+
+    def _add_raw_synapse(self, source, mod_name, point_process: PointProcess, netcon: NetCon,
+                         tag=None):
+        """
+        Adds raw synapse from existing Point Process and NetCon objects
+        """
+        syn_name = "%s[%s]" % (point_process.name, self._syn_num[mod_name])
+        syn = SingleSynapse(source, point_process=point_process, netcon=netcon,
+                            name=syn_name, tag=tag)
+        self.syns.append(syn)
+        self._syn_num[mod_name] += 1
+
+        return syn
