@@ -145,7 +145,7 @@ class TestSection(unittest.TestCase):
         hoc_soma = self.soma.hoc
         self.soma.remove_immediate_from_neuron()
         self.assertEqual(3, get_all_neuron_section_num())
-        
+
     def test_remove_new_cell_with_no_ref(self):
         """
         deletion of cell, when all its sections have no reference outside - deletes all its
@@ -257,7 +257,7 @@ class TestSection(unittest.TestCase):
         """
         cell2 = Cell(name="cell2")
         dend3 = cell2.add_sec("dend3", diam=10, l=10, nseg=10)
-        #dend3 = None
+        # dend3 = None
 
         cell2.remove_immediate_from_neuron()
         self.assertEqual(3, get_all_neuron_section_num())

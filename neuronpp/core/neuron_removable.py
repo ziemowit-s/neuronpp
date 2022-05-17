@@ -14,8 +14,9 @@ class NeuronRemovable:
         So use with caution.
 
         Removes this (self) object's fields from the Python and all its components from the NEURON.
-        calling 'del obj', where obj is the reference to the self - may work in the same way, however garbage collector
-        may remove the object later, so it is recommended to use remove_immediate_from_neuron() method.
+        calling 'del obj', where obj is the reference to the self - may work in the same way,
+        however garbage collector may remove the object later, so it is recommended to use
+        remove_immediate_from_neuron() method.
 
         By default calling remove_immediate_from_neuron() method or deleting object will remove all
         its fields (attributes) of the object, however by decorating class with
@@ -60,7 +61,7 @@ class NeuronRemovable:
             if noremove and k in noremove:
                 continue
 
-            #TODO check: probably add also recursive dict iteration if v is a dict
+            # TODO check: probably add also recursive dict iteration if v is a dict
             if isinstance(v, Iterable) and not isinstance(v, (HocObject, str)):
                 for vv in v:
                     self._del_val(vv)
@@ -68,7 +69,7 @@ class NeuronRemovable:
             setattr(self, k, None)
         self.__dict__ = {}
 
-        #TODO check: not sure but this part is probably never used
+        # TODO check: not sure but this part is probably never used
         if isinstance(self, dict):
             for k, v in self.items():
 
