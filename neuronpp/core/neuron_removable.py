@@ -14,9 +14,15 @@ class NeuronRemovable:
         So use with caution.
 
         Removes this (self) object's fields from the Python and all its components from the NEURON.
-        calling 'del obj', where obj is the reference to the self - may work in the same way,
-        however garbage collector may remove the object later, so it is recommended to use
-        remove_immediate_from_neuron() method.
+
+        It is recommended to use remove_immediate_from_neuron() to delete NEURON objects and not use __del__() method,
+        details below:
+
+            Calling 'del obj', where obj is the reference to the self - may work in the same way,
+            however garbage collector may remove the object later, so it is recommended to use
+            remove_immediate_from_neuron() method. It is because the Garbage Collector decide by itself when to
+            call the __del__() method, while when we call remove_immediate_from_neuron() it is
+            NOT Garbage Collector dependent.
 
         By default calling remove_immediate_from_neuron() method or deleting object will remove all
         its fields (attributes) of the object, however by decorating class with
@@ -82,7 +88,8 @@ class NeuronRemovable:
                 v = None
             self = {}
 
-    def _del_val(self, v):
+    @staticmethod
+    def _del_val(v):
         if hasattr(v, "remove_from_neuron"):
             getattr(v, "remove_from_neuron")()
         elif hasattr(v, "__del__"):
