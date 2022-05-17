@@ -272,7 +272,8 @@ class TestSection(unittest.TestCase):
 
     def test_removal_segment_by_del(self):
         """
-        Removing the segment with 'del' which relies on the garbage collector, so it is NOT immediate
+        Removing the segment with 'del' which relies on the garbage collector,
+        so it is NOT immediate.
         """
         cell2 = Cell(name="cell2")
         dend3 = cell2.add_sec("dend3", diam=10, l=10, nseg=10)
@@ -280,8 +281,9 @@ class TestSection(unittest.TestCase):
         self.assertEqual(4, get_all_neuron_section_num())
 
         # remove dend3 which remains from test_removal_segment_by_del() method
-        # for not known reason removing list(h.allsec())[3] (which is dend3 section) will remove only
-        # the first element of h.allsec(), so we need to iterate over all elements and delete them
-        # (it seems like a bug, because NEURON always removes first section on the list)
+        # for not known reason removing list(h.allsec())[3] (which is dend3 section)
+        # will remove only the first element of h.allsec(), so we need to iterate
+        # over all elements and delete them (it seems like a bug, because NEURON
+        # always removes first section on the list)
         for s in h.allsec():
             h.delete_section(s)
