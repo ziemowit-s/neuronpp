@@ -1,8 +1,6 @@
-
 import nrn
 from numpy import pi
 from typing import Optional
-from neuron import h
 
 from neuronpp.core.hocwrappers.seg import Seg
 from neuronpp.core.cells.core_cell import CoreCell
@@ -43,6 +41,18 @@ class Sec(HocWrapper):
             return Sec(hoc_sec, cell=self.cell, name=hoc_sec.name())
         else:
             return None
+
+    @property
+    def children(self):
+        """
+        Returns a list of children. If there is no children the list will be empty.
+        """
+        childs = []
+        for hoc_sec in self.hoc.children():
+            sec = Sec(hoc_sec, cell=self.cell, name=hoc_sec.name())
+            childs.append(sec)
+
+        return childs
 
     @property
     def area(self) -> float:

@@ -41,6 +41,16 @@ class TestSection(unittest.TestCase):
 
         self.assertEqual(soma.name, dend.parent.name)
 
+    def test_children_name(self):
+        soma = self.cell.add_sec(name="soma", l=10, nseg=10)
+        dend1 = self.cell.add_sec(name="dend1", l=100, nseg=10)
+        dend2 = self.cell.add_sec(name="dend2", l=100, nseg=10)
+        self.cell.connect_secs(child=dend1, parent=soma, child_loc=0, parent_loc=0.7)
+        self.cell.connect_secs(child=dend2, parent=soma, child_loc=0, parent_loc=0.7)
+
+        self.assertEqual(soma.name, soma.children[0].parent.name)
+        self.assertEqual(soma.name, soma.children[1].parent.name)
+
     def test_regex_search(self):
         for i in range(10):
             self.cell.add_sec("dend")
