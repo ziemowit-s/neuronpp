@@ -255,9 +255,6 @@ class SynapticCell(NetConCell):
                                  threshold=threshold, tag=tag, **synaptic_params)
             results.append(r)
 
-        # TODO for future test - should match:
-        # np.mean([h.distance(centroid.hoc, r.parent.hoc) for r in results]), np.mean(locations)
-        # np.std([h.distance(centroid.hoc, r.parent.hoc) for r in results]), np.std(locations)
         return results
 
     def _add_raw_synapse(self, source, mod_name, point_process: PointProcess, netcon: NetCon,
