@@ -1,5 +1,6 @@
+from neuron import h
 from collections import defaultdict
-from typing import List
+from typing import List, Union
 
 import numpy as np
 
@@ -8,6 +9,7 @@ from neuronpp.core.decorators import distparams
 from neuronpp.core.hocwrappers.netcon import NetCon
 from neuronpp.core.hocwrappers.point_process import PointProcess
 from neuronpp.core.hocwrappers.sec import Sec
+from neuronpp.core.hocwrappers.seg import Seg
 from neuronpp.core.hocwrappers.synapses.single_synapse import SingleSynapse
 
 
@@ -129,6 +131,34 @@ class SynapticCell(NetConCell):
                                     netcon_weight=1, delay=1, threshold=10, tag: str = None,
                                     **synaptic_params):
         """
+        Add synapses on selected sections with random uniform distribution.
+
+        :param number:
+            The number of synapses
+        :param source:
+            The source of stimulation.
+            Can be only: hocwrappers.NetStim, hocwrappers.VecStim, Seg or None.
+            If None it will create NetConn with no source, which can be use as external event source
+        :param mod_name:
+            The name of the Point Process to load
+        :param secs:
+            Sections over which synapses will be randomly distributed
+        :param netcon_weight:
+            Weight of the connection (the unit depends of the mod mechanism, but in
+            most cases it is uS
+        :param delay:
+            Delay of the synapse in ms (between the pre-synaptic stimulation and the effect on
+            the post-synaptic cell)
+        :param threshold:
+            The threshold of the synapse in mV. If it pass the associated netcon emits event that
+            there was a spike. It may be use for spike detection in axonal compartment to detect
+            that cell spiked, but in the case of regular synapse it is mostly irrelevant.
+        :param tag:
+            String tag name added to the synapse to easily search for similar synapses
+        :param synaptic_params:
+            Additional parameters of the synapse related to the mod mechanism
+        :return:
+            A list of added synapses
         """
         max_l = int(sum([s.hoc.L for s in secs]))
         locations = np.random.rand(number)
@@ -152,6 +182,82 @@ class SynapticCell(NetConCell):
                     results.append(r)
                     break
 
+        return results
+
+    def add_random_centroid_normal_dist_synapses(self, number, source, mod_name: str, centroid: Seg,
+                                                 std: float, secs: List[Sec] = None,
+                                                 netcon_weight=1, delay=1, threshold=10, tag: str = None,
+                                                 **synaptic_params):
+        """
+        Add synapses with random normal distribution around the centroid section.
+
+        :param number:
+            The number of synapses
+        :param centroid:
+            The segment around which points will be randomly generated
+        :param std:
+            The standard deviation for the normal distribution (in um)
+        :param secs:
+            Sections over which synapses will be randomly distributed. If None it will use all
+            sectons available
+        :param source:
+            The source of stimulation.
+            Can be only: hocwrappers.NetStim, hocwrappers.VecStim, Seg or None.
+            If None it will create NetConn with no source, which can be use as external event source
+        :param mod_name:
+            The name of the Point Process to load
+        :param netcon_weight:
+            Weight of the connection (the unit depends of the mod mechanism, but in
+            most cases it is uS
+        :param delay:
+            Delay of the synapse in ms (between the pre-synaptic stimulation and the effect on
+            the post-synaptic cell)
+        :param threshold:
+            The threshold of the synapse in mV. If it pass the associated netcon emits event that
+            there was a spike. It may be use for spike detection in axonal compartment to detect
+            that cell spiked, but in the case of regular synapse it is mostly irrelevant.
+        :param tag:
+            String tag name added to the synapse to easily search for similar synapses
+        :param synaptic_params:
+            Additional parameters of the synapse related to the mod mechanism
+        :return:
+            A list of added synapses
+        """
+
+        if secs is None:
+            secs = self.secs
+        segs = [seg for sec in secs for seg in sec.segs if seg.area > 0]
+        dists_seg_ids = [(h.distance(centroid.hoc, seg.hoc), segi) for segi, seg in enumerate(segs)]
+        dists_seg_ids = sorted(dists_seg_ids, key=lambda d: d[0])
+        dists = [d[0] for d in dists_seg_ids]
+
+        locations = np.abs(np.random.normal(loc=0, scale=std, size=number*100))
+        locations = np.array([l for l in locations if min(dists) <= l <= max(dists)])[:number]
+
+        results = []
+        for l in locations:
+            seg = None
+            min_diff = np.inf
+
+            for dst, seg_i in dists_seg_ids:
+                diff = abs(l - dst)
+                if diff < min_diff:
+                    min_diff = diff
+                    seg = segs[seg_i]
+                if diff > min_diff:
+                    break
+
+            if seg is None:
+                raise ValueError("Couldn't file the nearest segment.")
+
+            r = self.add_synapse(source=source, mod_name=mod_name, seg=seg,
+                                 netcon_weight=netcon_weight, delay=delay,
+                                 threshold=threshold, tag=tag, **synaptic_params)
+            results.append(r)
+
+        # TODO for future test - should match:
+        # np.mean([h.distance(centroid.hoc, r.parent.hoc) for r in results]), np.mean(locations)
+        # np.std([h.distance(centroid.hoc, r.parent.hoc) for r in results]), np.std(locations)
         return results
 
     def _add_raw_synapse(self, source, mod_name, point_process: PointProcess, netcon: NetCon,

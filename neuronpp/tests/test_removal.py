@@ -116,14 +116,15 @@ class TestSection(unittest.TestCase):
 
     def test_remove_dend1(self):
         """
-        Removal of the parent section doesn't remove child sections
+        Removal of the child section (dend1) doesn't remove other sections
         """
         self.dend1.remove_immediate_from_neuron()
         self.assertEqual(2, get_all_neuron_section_num())
 
     def test_remove_dend1_soma(self):
         """
-        Removal of the parent section doesn't remove child sections
+        Removal of the parent (soma) and sibling (dend1) sections doesn't remove child section
+        (dend2)
         """
         self.soma.remove_immediate_from_neuron()
         self.dend1.remove_immediate_from_neuron()

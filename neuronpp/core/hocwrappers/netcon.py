@@ -28,7 +28,7 @@ class NetCon(HocWrapper):
         """
         if h.t == 0:
             raise ConnectionRefusedError("NetConn cannot make event before running the simulation. "
-                                         "Run SimRun at least for 1 ms and then make event or"
+                                         "Run SimRun at least for dt and then make event or make"
                                          "warmup_on_create=True on construct of Simulation object.")
         sim_time = time * ms
         if use_delay:

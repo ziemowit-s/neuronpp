@@ -18,7 +18,10 @@ class Seg(HocWrapper):
     def L(self) -> float:
         # because NEURON's segment has always 1 and 0 locations with area=0 and L=0
         # we discard them from the count
-        return self.parent.hoc.L / (len(self.parent.segs) - 2)
+        if self.area == 0:
+            return 0
+        else:
+            return self.parent.hoc.L / (len(self.parent.segs) - 2)
 
     @property
     def diam(self) -> float:
