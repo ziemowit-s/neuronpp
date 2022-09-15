@@ -1,6 +1,7 @@
 import re
 import unittest
 from neuron import h
+from nrn import Mechanism
 
 from neuronpp.cells.cell import Cell
 
@@ -94,6 +95,25 @@ class TestSection(unittest.TestCase):
         apic = self.cell.add_sec(name="apic", diam=10, l=10, nseg=4)
         for s in apic.segs[1:-1]:
             self.assertEqual(78.5398, round(s.area, 4))
+
+    def test_segment_mechanism(self):
+        soma = self.cell.add_sec(name="soma", diam=1, l=10, nseg=10)
+        apic = self.cell.add_sec(name="apic", diam=1, l=10, nseg=20)
+        self.cell.connect_secs(child=apic, parent=soma, parent_loc=0.5, child_loc=1.0)
+        self.cell.insert("hh", sec=soma)
+
+        last_segment = apic.segs[-1]
+
+        # NEURON error?
+        # if children section is connected to different parent_loc than 0.0 or 1.0,
+        # then the children_loc copies parent mechanisms
+        self.assertTrue(hasattr(last_segment.hoc, "hh"))
+
+        # To prevent this potential error has attribute won't return True for 1.0 end of apic
+        self.assertFalse(last_segment.has_mechanism("hh"))
+
+        hh_soma_mech = soma(0.5).get_mechanism("hh")
+        self.assertTrue(isinstance(hh_soma_mech, Mechanism))
 
 
 if __name__ == '__main__':

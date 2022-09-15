@@ -10,6 +10,28 @@ class Seg(HocWrapper):
         name = str(obj).replace(",", ".")
         HocWrapper.__init__(self, hoc_obj=obj, parent=parent, name=name)
 
+    def has_mechanism(self, name):
+        """
+        If the Segment has mechanism with the name defined
+        :param name:
+            name of the mechanism
+        """
+        if self.area > 0 and hasattr(self.hoc, name):
+            # area check is required for custom created cell: if children section is
+            # connected to different parent_loc than 0.0 or 1.0, then the children_loc
+            # copies parent mechanisms, eg. if:
+            # cell.connect_secs(child=trunk, parent=soma, parent_loc=0.5)
+            # then trunk(1) has the same mechanisms as soma(0.5)
+            return True
+        else:
+            return False
+
+    def get_mechanism(self, name):
+        if self.has_mechanism(name=name):
+            return getattr(self.hoc, name)
+        else:
+            raise ValueError(f"Segment of name: {self.name} has no mechanism of name: {name}")
+
     @property
     def area(self) -> float:
         return self.hoc.area()
