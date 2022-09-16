@@ -1,4 +1,5 @@
 import nrn
+import numpy as np
 from numpy import pi
 from typing import Optional
 
@@ -58,8 +59,11 @@ class Sec(HocWrapper):
     def area(self) -> float:
         """
         Returns total area of the Section
+
+        The area computed as L * diam * pi maybe wrong if section consists of 3d points,
+        that is why we summed up the area of all segments of the section
         """
-        return pi*self.hoc.L*self.hoc.diam
+        return np.sum([s.area for s in self.segs])
 
     @property
     def Ra(self) -> float:
