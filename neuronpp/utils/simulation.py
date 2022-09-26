@@ -118,6 +118,7 @@ class Simulation(NeuronRemovable):
         self.warmup = warmup
         self.check_pointers = check_pointers
 
+        self.constant_timestep = constant_timestep
         h.CVode().active(not constant_timestep)
 
         self.warmup_done = False
@@ -227,7 +228,7 @@ class Simulation(NeuronRemovable):
                       'Computation time:', round(computation_time * 1000, 2), "ms\n",
                       'Simulation stepsize:', stepsize)
 
-        self.current_runtime = runtime
+        self.current_runtime = h.t
 
     def quit(self):
         if self.pararel:
