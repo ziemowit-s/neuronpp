@@ -287,4 +287,4 @@ class TestSection(unittest.TestCase):
         # over all elements and delete them (it seems like a bug, because NEURON
         # always removes first section on the list)
         for s in h.allsec():
-            h.delete_section(s)
+            h.delete_section(sec=s)
