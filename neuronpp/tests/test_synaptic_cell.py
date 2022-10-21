@@ -8,7 +8,7 @@ from neuronpp.core.cells.synaptic_cell import SynapticCell
 from neuronpp.core.dists.distributions import UniformDist
 
 
-class TestAddRandomSynapses(unittest.TestCase):
+class TestAddSynapsesRandomUniformByLenght(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.cell = SynapticCell(name="cell")
@@ -99,6 +99,71 @@ class TestAddRandomSynapses(unittest.TestCase):
             loc = float(all_nums[0])
             self.assertEqual(len(all_nums), 1)
             self.assertEqual(round(s.parent.x, 2), round(loc, 2))
+
+    def test_uniform_weight_dist(self):
+        ws = [s.netcons[0].get_weight() for s in self.syns]
+        self.assertEqual(1.5, round(np.average(ws), 1))
+
+
+class TestAddSynapsesRandomUniformBySec(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.cell = SynapticCell(name="cell")
+        soma = cls.cell.add_sec("soma", nseg=1000)
+        apic1 = cls.cell.add_sec("apic1", nseg=1000)
+        apic2 = cls.cell.add_sec("apic2", nseg=1000)
+        apic3 = cls.cell.add_sec("apic3", nseg=1000)
+        apic4 = cls.cell.add_sec("apic4", nseg=1000)
+
+        cls.cell.connect_secs(child=apic1, parent=soma)
+        cls.cell.connect_secs(child=apic2, parent=soma)
+        cls.cell.connect_secs(child=apic3, parent=soma)
+        cls.cell.connect_secs(child=apic4, parent=soma)
+
+        cls.N = 10000
+
+        secs = [soma, apic1, apic2, apic3, apic4]
+        cls.syns = cls.cell.add_random_uniform_synapses(source=None, secs=secs,
+                                                    mod_name="Exp2Syn", number=cls.N,
+                                                    netcon_weight=UniformDist(low=1, high=2),
+                                                    uniform_by='sec')
+
+    @classmethod
+    def tearDownClass(cls):
+        for sy in cls.syns:
+            sy.remove_immediate_from_neuron()
+        cls.cell.remove_immediate_from_neuron()
+
+        l = len(list(h.allsec()))
+        if len(list(h.allsec())) != 0:
+            raise RuntimeError("Not all section have been removed after teardown. "
+                               "Sections left: %s" % l)
+
+        # reset random seed
+        np.random.seed(None)
+
+    def test_syns_len(self):
+        self.assertEqual(len(self.syns), self.N)
+
+    def test_uniform_secs_distribution(self):
+        secs = [s.parent.name.split('.')[1].split('(')[0] for s in self.syns]
+
+        counts = []
+        for s in set(secs):
+            counts.append(secs.count(s))
+        props = np.round(np.array(counts)/sum(counts), 1)
+        self.assertTrue(np.all(props == 0.2))
+
+    def test_uniform_locs_distribution(self):
+        dd = {}
+        for k, v in [(s.parent.name.split('.')[1].split('(')[0], s.parent.x) for s in self.syns]:
+            if k not in dd:
+                dd[k] = []
+            dd[k].append(v)
+
+        locs_uniform = np.round([np.mean(v) for v in dd.values()], 1)
+        self.assertTrue(np.all(locs_uniform == 0.5))
+
 
     def test_uniform_weight_dist(self):
         ws = [s.netcons[0].get_weight() for s in self.syns]

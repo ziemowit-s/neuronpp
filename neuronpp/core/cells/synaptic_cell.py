@@ -129,7 +129,7 @@ class SynapticCell(NetConCell):
 
     def add_random_uniform_synapses(self, number, source, mod_name: str, secs: List[Sec],
                                     netcon_weight=1, delay=1, threshold=10, tag: str = None,
-                                    **synaptic_params):
+                                    uniform_by="lenght", **synaptic_params):
         """
         Add synapses on selected sections with random uniform distribution.
 
@@ -155,32 +155,52 @@ class SynapticCell(NetConCell):
             that cell spiked, but in the case of regular synapse it is mostly irrelevant.
         :param tag:
             String tag name added to the synapse to easily search for similar synapses
+        :param uniform_by:
+            string. How to uniformly draw sections:
+                'lenght' - draw by section lenght
+                'sec' - draw by section on the list (choose of each section has equal probability)
+                        after that loc on the selected section will be also uniformly draw
+                        between 0 and 1.
         :param synaptic_params:
             Additional parameters of the synapse related to the mod mechanism
         :return:
             A list of added synapses
         """
-        max_l = int(sum([s.hoc.L for s in secs]))
-        locations = np.random.rand(number)
-        locations *= max_l
-
         results = []
-        for syn_loc in locations:
-            current_L = 0
-            for sec in secs:
-                s = sec.hoc
-                current_L += s.L
 
-                # if synapse will be located in this section
-                if current_L > syn_loc:
-                    section_loc = (syn_loc - current_L + s.L) / s.L
+        if uniform_by == 'sec':
+            locs = np.random.rand(number)
+            idxs = np.random.randint(low=0, high=len(secs), size=number)
+            for si, loc in zip(idxs, locs):
+                seg = secs[si](loc)
+                r = self.add_synapse(source=source, mod_name=mod_name, seg=seg,
+                                     netcon_weight=netcon_weight, delay=delay,
+                                     threshold=threshold, tag=tag, **synaptic_params)
+                results.append(r)
 
-                    seg = sec(section_loc)
-                    r = self.add_synapse(source=source, mod_name=mod_name, seg=seg,
-                                         netcon_weight=netcon_weight, delay=delay,
-                                         threshold=threshold, tag=tag, **synaptic_params)
-                    results.append(r)
-                    break
+        elif uniform_by == 'lenght':
+            max_l = int(sum([s.hoc.L for s in secs]))
+            locations = np.random.rand(number)
+            locations *= max_l
+
+            for syn_loc in locations:
+                current_L = 0
+                for sec in secs:
+                    s = sec.hoc
+                    current_L += s.L
+
+                    # if synapse will be located in this section
+                    if current_L > syn_loc:
+                        section_loc = (syn_loc - current_L + s.L) / s.L
+
+                        seg = sec(section_loc)
+                        r = self.add_synapse(source=source, mod_name=mod_name, seg=seg,
+                                             netcon_weight=netcon_weight, delay=delay,
+                                             threshold=threshold, tag=tag, **synaptic_params)
+                        results.append(r)
+                        break
+        else:
+            raise ValueError("Wrong type of uniform_by. It can be: lenght or sec.")
 
         return results
 
