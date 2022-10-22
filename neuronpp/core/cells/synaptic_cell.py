@@ -157,10 +157,14 @@ class SynapticCell(NetConCell):
             String tag name added to the synapse to easily search for similar synapses
         :param uniform_by:
             string. How to uniformly draw sections:
-                'lenght' - draw by section lenght
-                'sec' - draw by section on the list (choose of each section has equal probability)
-                        after that loc on the selected section will be also uniformly draw
+                'lenght' - uniform random distribution will be drawn based on the lenght of all
+                        sections if section has bigger length it will has higher probability to
+                        receive synapse. All length are put in series and combined length will be
+                        normalized between 0 and 1
+                'sec_loc' - each section has equal probability, loc on each section will be
+                        drawn fom uniform distribution
                         between 0 and 1.
+                'sec' - each section has equal probability), loc will be 0.5 for all sections
         :param synaptic_params:
             Additional parameters of the synapse related to the mod mechanism
         :return:
@@ -168,11 +172,20 @@ class SynapticCell(NetConCell):
         """
         results = []
 
-        if uniform_by == 'sec':
+        if uniform_by == 'sec_loc':
             locs = np.random.rand(number)
             idxs = np.random.randint(low=0, high=len(secs), size=number)
             for si, loc in zip(idxs, locs):
                 seg = secs[si](loc)
+                r = self.add_synapse(source=source, mod_name=mod_name, seg=seg,
+                                     netcon_weight=netcon_weight, delay=delay,
+                                     threshold=threshold, tag=tag, **synaptic_params)
+                results.append(r)
+
+        elif uniform_by == 'sec':
+            idxs = np.random.randint(low=0, high=len(secs), size=number)
+            for si in idxs:
+                seg = secs[si](0.5)
                 r = self.add_synapse(source=source, mod_name=mod_name, seg=seg,
                                      netcon_weight=netcon_weight, delay=delay,
                                      threshold=threshold, tag=tag, **synaptic_params)
