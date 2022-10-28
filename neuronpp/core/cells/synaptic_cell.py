@@ -129,7 +129,7 @@ class SynapticCell(NetConCell):
 
     def add_random_uniform_synapses(self, number, source, mod_name: str, secs: List[Sec],
                                     netcon_weight=1, delay=1, threshold=10, tag: str = None,
-                                    uniform_by="lenght", **synaptic_params):
+                                    uniform_by="len", **synaptic_params):
         """
         Add synapses on selected sections with random uniform distribution.
 
@@ -157,7 +157,7 @@ class SynapticCell(NetConCell):
             String tag name added to the synapse to easily search for similar synapses
         :param uniform_by:
             string. How to uniformly draw sections:
-                'lenght' - uniform random distribution will be drawn based on the lenght of all
+                'len' - uniform random distribution will be drawn based on the lenght of all
                         sections if section has bigger length it will has higher probability to
                         receive synapse. All length are put in series and combined length will be
                         normalized between 0 and 1
@@ -191,7 +191,7 @@ class SynapticCell(NetConCell):
                                      threshold=threshold, tag=tag, **synaptic_params)
                 results.append(r)
 
-        elif uniform_by == 'lenght':
+        elif uniform_by == 'len':
             max_l = int(sum([s.hoc.L for s in secs]))
             locations = np.random.rand(number)
             locations *= max_l
@@ -213,7 +213,7 @@ class SynapticCell(NetConCell):
                         results.append(r)
                         break
         else:
-            raise ValueError("Wrong type of uniform_by. It can be: lenght or sec.")
+            raise ValueError("Wrong type of uniform_by. It can be: length, sec or sec_loc.")
 
         return results
 

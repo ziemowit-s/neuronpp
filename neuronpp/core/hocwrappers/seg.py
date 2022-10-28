@@ -1,6 +1,37 @@
 import nrn
+import numba as nb
+import numpy as np
 
 from neuronpp.core.hocwrappers.hoc_wrapper import HocWrapper
+
+
+@nb.jit(nopython=True, cache=True)
+def get_lambda(diam, Ra, Rm=None, g_pas=None, tau_m=None, cm=1):
+    """
+    :param diam:
+        um
+    :param Ra:
+        Ohm cm
+    :param Rm:
+        Ohm cm^2
+    :param g_pas:
+        S/cm2
+    :param tau_m:
+        ms
+    :param cm:
+    :return:
+        electrotonic length in um
+    """
+    if Ra is None and g_pas is None and tau_m is None:
+        raise ValueError("You must specify Ra or g_pas or tau_m")
+
+    if tau_m is not None:
+        g_pas = (cm / tau_m) * 1e-3
+
+    if g_pas is not None:
+        Rm = 1 / g_pas
+
+    return np.sqrt(((diam / 1e4) * Rm) / (4 * Ra)) * 1e4
 
 
 class Seg(HocWrapper):
@@ -41,7 +72,7 @@ class Seg(HocWrapper):
         # because NEURON's segment has always 1 and 0 locations with area=0 and L=0
         # we discard them from the count
         if self.area == 0:
-            return 0
+            raise ValueError("Segment with area 0 have no length")
         else:
             return self.parent.hoc.L / (len(self.parent.segs) - 2)
 
@@ -56,3 +87,26 @@ class Seg(HocWrapper):
     @property
     def x(self) -> float:
         return self.hoc.x
+
+    @property
+    def electrotonic_L(self):
+        """
+
+        :return:
+            length of the segment normalized by lambda
+        """
+        if self.area == 0:
+            raise ValueError("Segment with area 0 have no electrotonic length")
+        if not self.has_mechanism("pas"):
+            raise ValueError("Segment must have 'pas' mechanism "
+                             "in order to get electrotonic length")
+        return self.L / self.get_lambda()
+
+    def get_lambda(self):
+        """
+
+        :return:
+            lambda value in um
+        """
+        return get_lambda(diam=self.diam, Ra=self.Ra, g_pas=self.get_mechanism("pas").g)
+
