@@ -421,12 +421,16 @@ Debug any cell and synapse on interactive plot.
   * It allows to easily plot synaptic weight (defined as MOD's RANGE variable) to see how 
     the plasticity behaves in real time
   ```python
+    from neuronpp.cells.cell import Cell
+    from neuronpp.utils.synaptic_debugger import SynapticDebugger
+    
     cell = Cell("cell")
-    soma = cell.add_seg("soma", diam=20, l=20, nseg=10)
-    syn = cell.add_sypanse(source=None, mod_name="Exp2Syn", seg=soma, netcon_weight=0.1)
-
-    debug = SynapticDebugger(init_v=-80, warmup=200)
-    debug.add_syn(syn, key_press='w', syn_variables="w")
+    soma = cell.add_sec("soma", diam=20, l=20, nseg=10)
+    cell.insert('hh')
+    syn = cell.add_synapse(source=None, mod_name="Exp2Syn", seg=soma(0.5), netcon_weight=0.0005, tau1=0.2, tau2=50)
+    
+    debug = SynapticDebugger(init_v=-65, warmup=20)
+    debug.add_syn(syn, key_press='w', syn_variables="g")
     debug.add_seg(soma(0.5))
     debug.debug_interactive()
   ```
