@@ -1,5 +1,4 @@
 from neuronpp.cells.cell import Cell
-
 from neuronpp.utils.synaptic_debugger import SynapticDebugger
 
 
@@ -16,8 +15,8 @@ if __name__ == '__main__':
 
     # Debug
     debug = SynapticDebugger(init_v=-70, warmup=10, delay_between_steps=15)
-    debug.add_syn(syn1, key_press='1', plot=False)
-    debug.add_syn(syn2, key_press='2', plot=False)
-    debug.add_syn(syn3, key_press='3', plot=False)
+    debug.add_syn(syn1, key_press='1', plot=True, syn_variables='i')
+    debug.add_syn(syn2, key_press='2')
+    debug.add_syn(syn3, key_press='3')
     debug.add_seg(soma(0.5))
     debug.debug_interactive()

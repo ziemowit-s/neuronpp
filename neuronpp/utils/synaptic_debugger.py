@@ -30,9 +30,12 @@ class SynapticDebugger(NeuronRemovable):
         self.delay_between_steps = delay_between_steps / 1000
         self.sim = None
 
-    def add_syn(self, syn: Synapse, syn_variables=None, key_press=None, plot=True):
+    def add_syn(self, syn: Synapse, syn_variables=None, key_press=None, plot=False):
         if not isinstance(syn, Synapse):
-            raise TypeError("Param 'syn' must be of type Synapse, but provided '%s'" % syn.__class__)
+            raise TypeError(f"Param 'syn' must be of type Synapse, but provided '{syn.__class__}'")
+        if plot and not syn_variables:
+            raise ValueError("You must define synaptic variable befor plotting or set plot=False")
+
         if plot and syn_variables:
             rec = Record(elements=syn, variables=syn_variables)
             self.syn_recs.append(rec)

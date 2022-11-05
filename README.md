@@ -341,20 +341,33 @@ Create a population of many neurons of the same type and connect them between po
         return cell
     ```
   
-  * Create a stimulation and define your first population:
+  * Create stimulation:
   ```python
     # Create NetStim
     netstim = NetStimCell("stim").add_netstim(start=21, number=100, interval=2)
-
-    # Create population 1
+  
+    # Define weight distribution for both: NetStim->population1 and population1->population2
+    weight_dist = NormalTruncatedDist(mean=0.1, std=0.2)
+  ```
+  
+  * Define  population 1:
+  ```python
     pop1 = Population("pop_1")
-    pop1.add_cells(num=4, cell_function=cell_function)
+    pop1.add_cells(num=3, cell_function=cell_function)
 
-    connector = pop1.connect(cell_connection_proba=0.5)
+    # create 10 synapses on population 2 per NetStim object (single NetStim here)
+    connector = pop1.connect(syn_num_per_cell_source=10)
     connector.set_source(netstim)
-    connector.set_target([c.filter_secs("dend")(0.5) for c in pop1.populations])
+
+    # choose all dendrites as potential targets for synaptic choice
+    targets = [d(0.5) for c in pop1.cells for d in c.filter_secs("dend")]
+    connector.set_target(targets)
+
+    # Make synapse
     syn_adder = connector.add_synapse("Exp2Syn")
-    syn_adder.add_netcon(weight=0.01)
+    syn_adder.add_netcon(weight=weight_dist)
+    # change tau1 and tau2 for Exp2Syn synapses
+    syn_adder.add_point_process_params(tau1=0.1, tau2=2)
   ```
   
   * Build connections and define that you want to record from the population
@@ -364,50 +377,51 @@ Create a population of many neurons of the same type and connect them between po
     pop1.record()
   ```
   
-  * Create a second population
+  * Create population 2:
   ```python
-    # Create population 2
     pop2 = Population("pop_2")
-    pop2.add_cells(num=4, cell_function=cell_function)
+    pop2.add_cells(num=3, cell_function=cell_function)
   ```
   
   * Define connections between pop1 and pop2 where weights will be chosen 
   from the Normal Truncated Distribution:
   ```python
-    connector = pop2.connect(cell_connection_proba=0.2)
-    connector.set_source([c.filter_secs("soma")(0.5) for c in pop1.populations])
-    connector.set_target([c.filter_secs("dend")(0.5) for c in pop2.populations])
-    syn_adder = connector.add_synapse("Exp2Syn")
-    syn_adder.add_netcon(weight=NormalTruncatedDist(mean=0.01, std=0.02))
+    # create 5 synapses per single cell in population 1
+    connector = pop2.connect(syn_num_per_cell_source=5)
 
-    connector.build()
-    pop2.record()
+    source = [c.filter_secs("soma")(0.5) for c in pop1.cells]
+    connector.set_source(source)
+
+    # choose all dendrites as potential targets for synaptic choice
+    targets = [d(0.5) for c in pop2.cells for d in c.filter_secs("dend")]
+    connector.set_target(targets)
+
+    # Make synapse
+    syn_adder = connector.add_synapse("Exp2Syn")
+    syn_adder.add_netcon(weight=weight_dist)
+    # change tau1 and tau2 for Exp2Syn synapses
+    syn_adder.add_point_process_params(tau1=0.1, tau2=2)
    ```
 
-  * Create graph which allows to show:
-    * weight between cell (as the thickness of the edge)
-    * spiking number (as a number around each node and as the transparency of the each node)
-    
-    ```python
-    graph = NetworkGraph(populations=[pop1, pop2])
-    graph.plot()
-
-    # Run
+  * Build connections and define that you want to record from the population
+  * By default `record()` method make records of: voltage variable in soma(0.5)
+  ```python
+    connector.build()
+    pop2.record()
+  ```
+  
+  * Ryn simulation and plot activities:
+  ```python
     sim = Simulation(init_v=-70, warmup=20)
     for i in range(1000):
         sim.run(runtime=1)
-    
-        # update weights after each run
-        graph.update_weights()
-    
-        # update spikes after each run
-        graph.update_spikes()
+        pop1.plot(animate=True)
+        pop2.plot(animate=True)
     ```
 
   * Create (experimental) interactive graph of connected populations which allows you to see and 
   move nodes in the web browser:
   ```python
-  # Based on the previously created 3 populations
   show_connectivity_graph(pop1.cells + pop2.cells)
   ```
 ![Network Graph](images/conectivity_graph.png) 
@@ -424,13 +438,21 @@ Debug any cell and synapse on interactive plot.
     from neuronpp.cells.cell import Cell
     from neuronpp.utils.synaptic_debugger import SynapticDebugger
     
+    # Prepare cell
     cell = Cell("cell")
-    soma = cell.add_sec("soma", diam=20, l=20, nseg=10)
-    cell.insert('hh')
-    syn = cell.add_synapse(source=None, mod_name="Exp2Syn", seg=soma(0.5), netcon_weight=0.0005, tau1=0.2, tau2=50)
+    soma = cell.add_sec("soma", diam=20, l=20, nseg=100)
+    cell.insert("pas")
+    cell.insert("hh")
     
-    debug = SynapticDebugger(init_v=-65, warmup=20)
-    debug.add_syn(syn, key_press='w', syn_variables="g")
+    syn1 = cell.add_synapse(source=None, netcon_weight=0.002, seg=soma(0.1), mod_name="Exp2Syn")
+    syn2 = cell.add_synapse(source=None, netcon_weight=0.002, seg=soma(0.9), mod_name="Exp2Syn")
+    syn3 = cell.add_synapse(source=None, netcon_weight=0.002, seg=soma(0.5), mod_name="Exp2Syn")
+    
+    # Debug
+    debug = SynapticDebugger(init_v=-70, warmup=10, delay_between_steps=15)
+    debug.add_syn(syn1, key_press='1', plot=True, syn_variables='i')
+    debug.add_syn(syn2, key_press='2')
+    debug.add_syn(syn3, key_press='3')
     debug.add_seg(soma(0.5))
     debug.debug_interactive()
   ```

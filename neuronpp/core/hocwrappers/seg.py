@@ -1,11 +1,9 @@
 import nrn
-import numba as nb
 import numpy as np
 
 from neuronpp.core.hocwrappers.hoc_wrapper import HocWrapper
 
 
-@nb.jit(nopython=True, cache=True)
 def get_lambda(diam, Ra, Rm=None, g_pas=None, tau_m=None, cm=1):
     """
     :param diam:
