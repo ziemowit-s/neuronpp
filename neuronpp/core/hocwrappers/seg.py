@@ -45,15 +45,20 @@ class Seg(HocWrapper):
         :param name:
             name of the mechanism
         """
-        if self.area > 0 and hasattr(self.hoc, name):
+        result = False
+        if self.area > 0 and hasattr(self.hoc, name) and \
+                isinstance(getattr(self.hoc, name), nrn.Mechanism):
             # area check is required for custom created cell: if children section is
             # connected to different parent_loc than 0.0 or 1.0, then the children_loc
             # copies parent mechanisms, eg. if:
             # cell.connect_secs(child=trunk, parent=soma, parent_loc=0.5)
             # then trunk(1) has the same mechanisms as soma(0.5)
-            return True
-        else:
-            return False
+
+            if '_ion' not in name:
+                # to not confuse real mechanism with ion name
+                result = True
+
+        return result
 
     def get_mechanism(self, name):
         if self.has_mechanism(name=name):

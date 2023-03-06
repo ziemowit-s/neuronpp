@@ -18,7 +18,7 @@ class Simulation(NeuronRemovable):
                  init_sleep: float = 0, shape_plots: Optional[List[h.PlotShape]] = None,
                  constant_timestep: bool = True, with_neuron_gui: bool = False,
                  check_pointers: bool = False, warmup_on_create=False, parallel=False,
-                 parallel_max_step=10):
+                 parallel_max_step=10, steps_per_ms=None, celsius=None):
         """
         Create an Simulation object to control the NEURON's simulation.
 
@@ -125,6 +125,11 @@ class Simulation(NeuronRemovable):
         if warmup_on_create:
             self._make_warmup()
 
+        if steps_per_ms is not None:
+            h.steps_per_ms = steps_per_ms
+        if celsius is not None:
+            h.celsius = celsius
+
     def reinit(self):
         """
         This method restart simulation time to 0, reinitialize the voltage to the init value and
@@ -165,6 +170,14 @@ class Simulation(NeuronRemovable):
         Returns number of sections in the current NEURON environment.
         """
         return len(list(h.allsec()))
+
+    @property
+    def celsius(self):
+        return h.celsius
+
+    @property
+    def step_per_ms(self):
+        return h.step_per_ms
 
     def is_neuron_empty(self) -> bool:
         """

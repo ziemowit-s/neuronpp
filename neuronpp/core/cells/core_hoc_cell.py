@@ -70,14 +70,14 @@ class CoreHocCell(PointProcessCell):
                 secs = [i for i in f]
                 for i, hoc_obj in enumerate(secs):
                     if isinstance(hoc_obj, Section):
-                        self._add_sec(result, hoc_obj)
+                        self._add_hoc_sec(result, hoc_obj)
                         is_section_list = True
                     else:
                         is_section_list = get_sec_list_objects(f=hoc_obj)
             return is_section_list
 
         result = {}
-        for d in dir(obj):
+        for di, d in enumerate(dir(obj)):
             try:
                 if d.startswith("_") or d == 'h':
                     continue
@@ -85,7 +85,7 @@ class CoreHocCell(PointProcessCell):
 
                 if isinstance(f, Section):
                     hoc_sec = f
-                    self._add_sec(result, hoc_sec)
+                    self._add_hoc_sec(result, hoc_sec)
                 else:
                     get_sec_list_objects(f=f)
 
@@ -94,10 +94,20 @@ class CoreHocCell(PointProcessCell):
 
         return result
 
-    def _add_sec(self, result, hoc_sec):
+    def _add_hoc_sec(self, result, sec):
+        if isinstance(sec, Sec):
+            hoc_sec = sec.hoc
+        else:
+            hoc_sec = sec
+
         if str(hoc_sec) not in result:
             obj_sec = self._append_sec_and_point_processes(hoc_sec)
             result[str(hoc_sec)] = obj_sec
+            # sometimes sections may be not listed in the main object 'h' as Section or
+            # SectionList objects, to be sure are sections were added here we double check
+            # if all children are in the result dict
+            for ch in obj_sec.children:
+                self._add_hoc_sec(result, ch)
 
     def _append_sec_and_point_processes(self, hoc_sec_obj):
         pps = hoc_sec_obj.psection()['point_processes']

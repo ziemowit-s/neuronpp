@@ -194,7 +194,8 @@ class Record(NeuronRemovable):
         if create_fig:
             plt.show(block=False)
 
-    def as_numpy(self, variable: Optional[str] = None, segment_name: Optional[str] = None):
+    def as_numpy(self, variable: Optional[str] = None, segment_name: Optional[str] = None,
+                 return_as_2d_array=False):
         """
         Returns dictionary[variable_name][segment_name] = numpy_record
 
@@ -203,6 +204,10 @@ class Record(NeuronRemovable):
         :param segment_name:
             name of the segment. Default is None, meaning - it will take all segments for this
             variable in the order of adding.
+        :param return_as_2d_array:
+            if True it will always return 2D array
+            if False it will return 2D array if it tracks at least 2 elements, otherwise it will
+            return 1D array
         :return:
             Returns dictionary[variable_name][segment_name] = numpy_record
         """
@@ -228,6 +233,11 @@ class Record(NeuronRemovable):
             result = result[0]
 
         time = np.array(self.time.as_numpy())
+
+        if return_as_2d_array and len(result.shape) == 1:
+            result = result.reshape([1, result.size])
+            time = time.reshape([1, time.size])
+
         return RecordOutput(variable=variable, records=result, time=time)
 
     def to_csv(self, filename):
