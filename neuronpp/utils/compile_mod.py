@@ -1,10 +1,12 @@
 import os
 import shutil
 from argparse import ArgumentParser
+from datetime import time
 from distutils.file_util import copy_file
 from subprocess import PIPE, Popen, STDOUT
 
 import neuron
+import numpy as np
 
 
 class CompileMOD:
@@ -101,20 +103,73 @@ if __name__ == '__main__':
 mods_loaded = []
 
 
-def compile_and_load_mods(mod_folders):
+def compile_and_load_mods(mod_folders, override=True, wait_in_sec=2, try_num=10):
+    """
+    Compile all MOD files from the source folder(s) and load them into NEURON.
+
+    By default, the function compiles and loads mechanisms for Linux. However, if you modify the
+    compilation and loading commands, it can be adapted for other operating systems.
+
+    :param mod_folders:
+       Path(s) to the folders containing MOD files. Can be a single string (space-separated) or
+       a list of strings. The function compiles and loads these files into NEURON.
+    :param override:
+       If True, the function will override existing compiled MOD files in the target folder.
+       If False and the target path exists, the function will skip the compilation step.
+       Default is True.
+    :param wait_in_sec:
+       The number of seconds to wait between retries if loading the mechanisms fails.
+       Default is 2 seconds.
+    :param try_num:
+       The number of retry attempts if loading the mechanisms fails. After `try_num` failed
+       attempts, the function will raise an error. Default is 10 attempts.
+    """
+
     if isinstance(mod_folders, str):
         mod_folders = mod_folders.split(" ")
 
     mod_folders = [m for m in mod_folders if m not in mods_loaded]
 
-    if len(mod_folders) > 0:
-        # Compile
+    if len(mod_folders) == 0:
+        return
+
+    targ_path = os.path.join(os.getcwd(), "compiled", "mods%s" % len(mods_loaded))
+
+    do_compile = True
+    if os.path.exists(targ_path):
+        if override:
+            print(f"Overriding existing target path: {targ_path}")
+        else:
+            print(f"Target path exists and override is False. Skipping compilation: {targ_path}")
+            do_compile = False
+
+    if do_compile:
         comp = CompileMOD()
-        targ_path = os.path.join(os.getcwd(), "compiled", "mods%s" % len(mods_loaded))
         comp.compile(source_paths=mod_folders, target_path=targ_path)
-        # Load
-        neuron.load_mechanisms(targ_path)
-        mods_loaded.extend(mod_folders)
+
+    # Load compiled MODS with retries
+    for attempt in range(try_num):
+        try:
+            neuron.load_mechanisms(targ_path)
+            mods_loaded.extend(mod_folders)
+            print(f"Successfully loaded mechanisms from {targ_path}")
+            break
+
+        except Exception as e:
+            print(f"Attempt to load MODs ({attempt + 1}/{try_num}) failed: {e}")
+
+            if attempt < try_num - 1:
+                # wait_tmp hack - to prevent race condition where all processes will wait the same anout of
+                # time and possibly block each other
+                wait_tmp = wait_in_sec + np.random.rand()
+
+                print(f"Retrying in {wait_tmp} seconds...")
+                time.sleep(wait_tmp)
+            else:
+                print(f"Failed to load mechanisms after {try_num} attempts.")
+                raise e
+
+    return targ_path
 
 
 def load_mods(mod_folders):

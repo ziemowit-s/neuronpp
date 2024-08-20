@@ -8,8 +8,22 @@ from neuronpp.core.cells.point_process_cell import PointProcessCell
 
 
 class CoreHocCell(PointProcessCell):
-    def __init__(self, name, compile_paths=None):
-        PointProcessCell.__init__(self, name, compile_paths=compile_paths)
+    def __init__(self, name, compile_paths=None, override=True, wait_in_sec=2):
+        """
+        :param name:
+            Name of the cell
+        :param compile_paths:
+            paths to folders containing mods. Can be list or string separated by spaces.
+        :param override:
+           If True, the function will override existing compiled MOD files in the target folder.
+           If False and the target path exists, the function will skip the compilation step.
+           Default is True.
+        :param wait_in_sec:
+           The number of seconds to wait between retries if loading the mechanisms fails.
+           Default is 2 seconds.
+        """
+        PointProcessCell.__init__(self, name, compile_paths=compile_paths,
+                                  override=override, wait_in_sec=wait_in_sec)
         self._hoc_loaded = False
 
     def load_hoc(self, hoc_file, hoc_template_name: str = None, reinitialize=True):

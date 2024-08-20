@@ -1,8 +1,11 @@
 import os
+import time
 import unittest
 import numpy as np
 from neuron import h
 from neuronpp.cells.cell import Cell
+import shutil
+from neuronpp.utils.compile_mod import compile_and_load_mods
 
 
 class TestCellAddSectionDefault(unittest.TestCase):
@@ -167,6 +170,33 @@ class TestFiltering(unittest.TestCase):
         cell.remove_immediate_from_neuron()
 
         self.assertEqual(0, len(list(h.allsec())))
+
+
+
+class TestMODCompile(unittest.TestCase):
+
+    def test_mod_override(self):
+        path = os.path.dirname(os.path.abspath(__file__))
+        f_path = os.path.join(path, "..", "commons/mods/combe2018")
+
+        # first remove compile path
+        shutil.rmtree(f_path, ignore_errors=True, onerror=None)
+
+        # compile first
+        target_path = compile_and_load_mods(f_path, override=True, wait_in_sec=2)
+
+        cat_path = os.path.join(target_path, "cad.mod")
+        first_mod_time = os.path.getmtime(cat_path)
+
+        time.sleep(2)
+
+        # compile second
+        compile_and_load_mods(f_path, override=True, wait_in_sec=2)
+        second_mod_time = os.path.getmtime(cat_path)
+
+        # Check if the file modification time has changed
+        self.assertNotEqual(first_mod_time, second_mod_time,
+                            "The file cad.mod did not change after the second compilation.")
 
 
 if __name__ == '__main__':
