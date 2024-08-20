@@ -70,7 +70,7 @@ class CompileMOD:
             if filename == self.compiled_folder_name or os.path.isdir(filepath):
                 continue
             elif filename.endswith(".mod"):
-                copy_file(src=filepath, dst=tmp_path, update=1)
+                copy_file(src=filepath, dst=tmp_path, update=1, preserve_times=False)
                 mods_found += 1
         if mods_found == 0:
             raise RuntimeError("No MOD files found on path: %s" % source_path)
@@ -103,7 +103,11 @@ if __name__ == '__main__':
 mods_loaded = []
 
 
-def compile_and_load_mods(mod_folders, override=True, wait_in_sec=2, try_num=10):
+def get_mod_compule_target_path():
+    return os.path.join(os.getcwd(), "compiled", "mods%s" % len(mods_loaded))
+
+
+def compile_mods(mod_folders, override=True):
     """
     Compile all MOD files from the source folder(s) and load them into NEURON.
 
@@ -117,12 +121,6 @@ def compile_and_load_mods(mod_folders, override=True, wait_in_sec=2, try_num=10)
        If True, the function will override existing compiled MOD files in the target folder.
        If False and the target path exists, the function will skip the compilation step.
        Default is True.
-    :param wait_in_sec:
-       The number of seconds to wait between retries if loading the mechanisms fails.
-       Default is 2 seconds.
-    :param try_num:
-       The number of retry attempts if loading the mechanisms fails. After `try_num` failed
-       attempts, the function will raise an error. Default is 10 attempts.
     """
 
     if isinstance(mod_folders, str):
@@ -133,7 +131,7 @@ def compile_and_load_mods(mod_folders, override=True, wait_in_sec=2, try_num=10)
     if len(mod_folders) == 0:
         return
 
-    targ_path = os.path.join(os.getcwd(), "compiled", "mods%s" % len(mods_loaded))
+    targ_path = get_mod_compule_target_path()
 
     do_compile = True
     if os.path.exists(targ_path):
@@ -147,40 +145,47 @@ def compile_and_load_mods(mod_folders, override=True, wait_in_sec=2, try_num=10)
         comp = CompileMOD()
         comp.compile(source_paths=mod_folders, target_path=targ_path)
 
-    # Load compiled MODS with retries
-    for attempt in range(try_num):
-        try:
-            neuron.load_mechanisms(targ_path)
-            mods_loaded.extend(mod_folders)
-            print(f"Successfully loaded mechanisms from {targ_path}")
-            break
-
-        except Exception as e:
-            print(f"Attempt to load MODs ({attempt + 1}/{try_num}) failed: {e}")
-
-            if attempt < try_num - 1:
-                # wait_tmp hack - to prevent race condition where all processes will wait the same anout of
-                # time and possibly block each other
-                wait_tmp = wait_in_sec + np.random.rand()
-
-                print(f"Retrying in {wait_tmp} seconds...")
-                time.sleep(wait_tmp)
-            else:
-                print(f"Failed to load mechanisms after {try_num} attempts.")
-                raise e
-
     return targ_path
 
 
-def load_mods(mod_folders):
+def load_mods(mod_folders, try_num=10, wait_in_sec=2):
+    """
+    :param mod_folders:
+       Path(s) to the folders containing MOD files. Can be a single string (space-separated) or
+       a list of strings. The function compiles and loads these files into NEURON.
+    :param wait_in_sec:
+       The number of seconds to wait between retries if loading the mechanisms fails.
+       Default is 2 seconds.
+    :param try_num:
+       The number of retry attempts if loading the mechanisms fails. After `try_num` failed
+       attempts, the function will raise an error. Default is 10 attempts.
+    """
     if isinstance(mod_folders, str):
         mod_folders = mod_folders.split(" ")
 
     mod_folders = [m for m in mod_folders if m not in mods_loaded]
-    targ_path = os.path.join(os.getcwd(), "compiled", "mods%s" % len(mods_loaded))
+    targ_path = get_mod_compule_target_path()
 
     if len(mod_folders) > 0:
-        # Load
-        neuron.load_mechanisms(targ_path)
-        mods_loaded.extend(mod_folders)
+        # Load compiled MODS with retries
+        for attempt in range(try_num):
+            try:
+                neuron.load_mechanisms(targ_path)
+                mods_loaded.extend(mod_folders)
+                print(f"Successfully loaded mechanisms from {targ_path}")
+                break
+
+            except Exception as e:
+                print(f"Attempt to load MODs ({attempt + 1}/{try_num}) failed: {e}")
+
+                if attempt < try_num - 1:
+                    # wait_tmp hack - to prevent race condition where all processes will wait the same anout of
+                    # time and possibly block each other
+                    wait_tmp = wait_in_sec + np.random.rand()
+
+                    print(f"Retrying in {wait_tmp} seconds...")
+                    time.sleep(wait_tmp)
+                else:
+                    print(f"Failed to load mechanisms after {try_num} attempts.")
+                    raise e
 

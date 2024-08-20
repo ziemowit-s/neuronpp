@@ -1,7 +1,7 @@
 import re
 
 from neuronpp.core.neuron_removable import NeuronRemovable
-from neuronpp.utils.compile_mod import compile_and_load_mods
+from neuronpp.utils.compile_mod import compile_mods, load_mods
 
 
 class CoreCell(NeuronRemovable):
@@ -23,7 +23,8 @@ class CoreCell(NeuronRemovable):
            Default is 2 seconds.
         """
         if compile_paths:
-            compile_and_load_mods(compile_paths, override=override, wait_in_sec=wait_in_sec)
+            compile_mods(compile_paths, override=override)
+            load_mods(compile_paths, wait_in_sec=wait_in_sec)
 
         if name is None:
             name = ""

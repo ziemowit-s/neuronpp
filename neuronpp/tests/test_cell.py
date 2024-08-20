@@ -1,11 +1,14 @@
+import multiprocessing
 import os
 import time
 import unittest
 import numpy as np
 from neuron import h
+import portalocker
+
 from neuronpp.cells.cell import Cell
 import shutil
-from neuronpp.utils.compile_mod import compile_and_load_mods
+from neuronpp.utils.compile_mod import compile_mods, get_mod_compule_target_path, load_mods
 
 
 class TestCellAddSectionDefault(unittest.TestCase):
@@ -171,32 +174,53 @@ class TestFiltering(unittest.TestCase):
 
         self.assertEqual(0, len(list(h.allsec())))
 
-
+def run_subprocess(func, *params):
+    # Create a process that targets 'func' and passes 'params' to it
+    process = multiprocessing.Process(target=func, args=params)
+    process.start()
+    process.join()  # Optionally, you can set a timeout if needed, like process.join(timeout=10)
+    return process
 
 class TestMODCompile(unittest.TestCase):
 
     def test_mod_override(self):
         path = os.path.dirname(os.path.abspath(__file__))
-        f_path = os.path.join(path, "..", "commons/mods/combe2018")
-
-        # first remove compile path
-        shutil.rmtree(f_path, ignore_errors=True, onerror=None)
+        source_path = os.path.join(path, "..", "commons/mods/combe2018")
+        target_path = get_mod_compule_target_path()
+        cad_path = os.path.join(target_path, "cad.mod")
 
         # compile first
-        target_path = compile_and_load_mods(f_path, override=True, wait_in_sec=2)
+        compile_mods(source_path, override=True)
 
-        cat_path = os.path.join(target_path, "cad.mod")
-        first_mod_time = os.path.getmtime(cat_path)
-
+        first_mod_time = os.path.getmtime(cad_path)
         time.sleep(2)
 
         # compile second
-        compile_and_load_mods(f_path, override=True, wait_in_sec=2)
-        second_mod_time = os.path.getmtime(cat_path)
+        compile_mods(source_path, override=True)
+        second_mod_time = os.path.getmtime(cad_path)
 
         # Check if the file modification time has changed
-        self.assertNotEqual(first_mod_time, second_mod_time,
-                            "The file cad.mod did not change after the second compilation.")
+        self.assertNotEqual(first_mod_time, second_mod_time)
+
+    def test_mod_not_override(self):
+        path = os.path.dirname(os.path.abspath(__file__))
+        source_path = os.path.join(path, "..", "commons/mods/combe2018")
+        target_path = get_mod_compule_target_path()
+        cad_path = os.path.join(target_path, "cad.mod")
+
+        # compile first
+        compile_mods(source_path, override=True)
+
+        first_mod_time = os.path.getmtime(cad_path)
+        time.sleep(2)
+
+        # compile second
+        compile_mods(source_path, override=False)
+        second_mod_time = os.path.getmtime(cad_path)
+
+        # Check if the file modification time has changed
+        self.assertEqual(first_mod_time, second_mod_time)
+
 
 
 if __name__ == '__main__':
