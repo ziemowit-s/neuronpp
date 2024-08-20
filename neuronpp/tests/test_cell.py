@@ -4,11 +4,9 @@ import time
 import unittest
 import numpy as np
 from neuron import h
-import portalocker
 
 from neuronpp.cells.cell import Cell
-import shutil
-from neuronpp.utils.compile_mod import compile_mods, get_mod_compule_target_path, load_mods
+from neuronpp.utils.compile_mod import compile_mods, get_mod_compule_target_path
 
 
 class TestCellAddSectionDefault(unittest.TestCase):
