@@ -23,8 +23,8 @@ class CoreCell(NeuronRemovable):
            Default is 2 seconds.
         """
         if compile_paths:
-            compile_mods(compile_paths, override=override)
-            load_mods(compile_paths, wait_in_sec=wait_in_sec)
+            target_path = compile_mods(compile_paths, override=override)
+            load_mods(target_path, wait_in_sec=wait_in_sec)
 
         if name is None:
             name = ""

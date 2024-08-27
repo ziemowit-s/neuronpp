@@ -103,7 +103,7 @@ if __name__ == '__main__':
 mods_loaded = []
 
 
-def get_mod_compule_target_path():
+def get_mod_compiled_target_path():
     return os.path.join(os.getcwd(), "compiled", "mods%s" % len(mods_loaded))
 
 
@@ -131,7 +131,7 @@ def compile_mods(mod_folders, override=True):
     if len(mod_folders) == 0:
         return
 
-    targ_path = get_mod_compule_target_path()
+    targ_path = get_mod_compiled_target_path()
 
     do_compile = True
     if os.path.exists(targ_path):
@@ -164,7 +164,7 @@ def load_mods(mod_folders, try_num=10, wait_in_sec=2):
         mod_folders = mod_folders.split(" ")
 
     mod_folders = [m for m in mod_folders if m not in mods_loaded]
-    targ_path = get_mod_compule_target_path()
+    targ_path = get_mod_compiled_target_path()
 
     if len(mod_folders) > 0:
         # Load compiled MODS with retries

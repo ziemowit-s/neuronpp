@@ -4,9 +4,11 @@ import time
 import unittest
 import numpy as np
 from neuron import h
+import portalocker
 
 from neuronpp.cells.cell import Cell
-from neuronpp.utils.compile_mod import compile_mods, get_mod_compule_target_path
+import shutil
+from neuronpp.utils.compile_mod import compile_mods, get_mod_compiled_target_path, load_mods
 
 
 class TestCellAddSectionDefault(unittest.TestCase):
@@ -184,7 +186,7 @@ class TestMODCompile(unittest.TestCase):
     def test_mod_override(self):
         path = os.path.dirname(os.path.abspath(__file__))
         source_path = os.path.join(path, "..", "commons/mods/combe2018")
-        target_path = get_mod_compule_target_path()
+        target_path = get_mod_compiled_target_path()
         cad_path = os.path.join(target_path, "cad.mod")
 
         # compile first
@@ -203,11 +205,10 @@ class TestMODCompile(unittest.TestCase):
     def test_mod_not_override(self):
         path = os.path.dirname(os.path.abspath(__file__))
         source_path = os.path.join(path, "..", "commons/mods/combe2018")
-        target_path = get_mod_compule_target_path()
-        cad_path = os.path.join(target_path, "cad.mod")
 
         # compile first
-        compile_mods(source_path, override=True)
+        target_path = compile_mods(source_path, override=True)
+        cad_path = os.path.join(target_path, "cad.mod")
 
         first_mod_time = os.path.getmtime(cad_path)
         time.sleep(2)
