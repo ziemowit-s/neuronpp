@@ -1,14 +1,12 @@
-import multiprocessing
 import os
 import time
 import unittest
 import numpy as np
 from neuron import h
-import portalocker
+import multiprocessing
 
 from neuronpp.cells.cell import Cell
-import shutil
-from neuronpp.utils.compile_mod import compile_mods, get_mod_compiled_target_path, load_mods
+from neuronpp.utils.compile_mod import compile_mods, get_mod_compiled_target_path
 
 
 class TestCellAddSectionDefault(unittest.TestCase):

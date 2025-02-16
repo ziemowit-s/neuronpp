@@ -42,8 +42,9 @@ SPINE_DIMENSIONS = {
 
 
 class SpineCell(SectionCell):
-    def __init__(self, name=None, compile_paths=None):
-        SectionCell.__init__(self, name, compile_paths=compile_paths)
+    def __init__(self, name=None, compile_paths=None, with_random_subfolder=False):
+        SectionCell.__init__(self, name, compile_paths=compile_paths,
+                             with_random_subfolder=with_random_subfolder)
         self.spines = []
         self.heads = []
         self.necks = []

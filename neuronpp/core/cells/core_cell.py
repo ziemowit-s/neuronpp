@@ -8,7 +8,8 @@ class CoreCell(NeuronRemovable):
 
     path_compiled = False
 
-    def __init__(self, name=None, compile_paths=None, override=True, wait_in_sec=2):
+    def __init__(self, name=None, compile_paths=None, override=True, wait_in_sec=2,
+                 with_random_subfolder=False):
         """
         :param name:
             Name of the cell
@@ -21,9 +22,13 @@ class CoreCell(NeuronRemovable):
         :param wait_in_sec:
            The number of seconds to wait between retries if loading the mechanisms fails.
            Default is 2 seconds.
+        :param with_random_subfolder:
+            if True it will create a random subfolder in the target folder as compiled/random_string/modsNUM.
+            if False it will create folder compiled/modsNUM
         """
         if compile_paths:
-            target_path = compile_mods(compile_paths, override=override)
+            target_path = compile_mods(compile_paths, override=override,
+                                       with_random_subfolder=with_random_subfolder)
             load_mods(target_path, wait_in_sec=wait_in_sec)
 
         if name is None:

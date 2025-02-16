@@ -1,7 +1,8 @@
+import hashlib
 import os
 import shutil
+import time
 from argparse import ArgumentParser
-from datetime import time
 from distutils.file_util import copy_file
 from subprocess import PIPE, Popen, STDOUT
 
@@ -103,11 +104,16 @@ if __name__ == '__main__':
 mods_loaded = []
 
 
-def get_mod_compiled_target_path():
-    return os.path.join(os.getcwd(), "compiled", "mods%s" % len(mods_loaded))
+def get_mod_compiled_target_path(with_random_subfolder=False):
+    if with_random_subfolder is True:
+        # Generate a short random string using the MD5 hash of the current timestamp
+        random_str = hashlib.md5(str(time.time()).encode()).hexdigest()[:8]  # First 8 characters of MD5 hash
+        return os.path.join(os.getcwd(), "compiled", random_str, "mods%s" % len(mods_loaded))
+    else:
+        return os.path.join(os.getcwd(), "compiled", "mods%s" % len(mods_loaded))
 
 
-def compile_mods(mod_folders, override=True):
+def compile_mods(mod_folders, override=True, with_random_subfolder=False):
     """
     Compile all MOD files from the source folder(s) and load them into NEURON.
 
@@ -121,6 +127,9 @@ def compile_mods(mod_folders, override=True):
        If True, the function will override existing compiled MOD files in the target folder.
        If False and the target path exists, the function will skip the compilation step.
        Default is True.
+    :param with_random_subfolder:
+        if True it will create a random subfolder in the target folder as compiled/random_string/modsNUM.
+        if False it will create folder compiled/modsNUM
     """
 
     if isinstance(mod_folders, str):
@@ -131,7 +140,7 @@ def compile_mods(mod_folders, override=True):
     if len(mod_folders) == 0:
         return
 
-    targ_path = get_mod_compiled_target_path()
+    targ_path = get_mod_compiled_target_path(with_random_subfolder=with_random_subfolder)
 
     do_compile = True
     if os.path.exists(targ_path):
