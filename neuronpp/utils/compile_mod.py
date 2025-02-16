@@ -104,8 +104,8 @@ if __name__ == '__main__':
 mods_loaded = []
 
 
-def get_mod_compiled_target_path(with_random_subfolder=False):
-    if with_random_subfolder is True:
+def get_mod_compiled_target_path(compile_mods_with_random_subfolder=True):
+    if compile_mods_with_random_subfolder is True:
         # Generate a short random string using the MD5 hash of the current timestamp
         random_str = hashlib.md5(str(time.time()).encode()).hexdigest()[:8]  # First 8 characters of MD5 hash
         return os.path.join(os.getcwd(), "compiled", random_str, "mods%s" % len(mods_loaded))
@@ -113,7 +113,7 @@ def get_mod_compiled_target_path(with_random_subfolder=False):
         return os.path.join(os.getcwd(), "compiled", "mods%s" % len(mods_loaded))
 
 
-def compile_mods(mod_folders, override=True, with_random_subfolder=False):
+def compile_mods(mod_folders, override=True, compile_mods_with_random_subfolder=True):
     """
     Compile all MOD files from the source folder(s) and load them into NEURON.
 
@@ -127,7 +127,7 @@ def compile_mods(mod_folders, override=True, with_random_subfolder=False):
        If True, the function will override existing compiled MOD files in the target folder.
        If False and the target path exists, the function will skip the compilation step.
        Default is True.
-    :param with_random_subfolder:
+    :param compile_mods_with_random_subfolder:
         if True it will create a random subfolder in the target folder as compiled/random_string/modsNUM.
         if False it will create folder compiled/modsNUM
     """
@@ -140,7 +140,7 @@ def compile_mods(mod_folders, override=True, with_random_subfolder=False):
     if len(mod_folders) == 0:
         return
 
-    targ_path = get_mod_compiled_target_path(with_random_subfolder=with_random_subfolder)
+    targ_path = get_mod_compiled_target_path(compile_mods_with_random_subfolder=compile_mods_with_random_subfolder)
 
     do_compile = True
     if os.path.exists(targ_path):
@@ -157,11 +157,10 @@ def compile_mods(mod_folders, override=True, with_random_subfolder=False):
     return targ_path
 
 
-def load_mods(mod_folders, try_num=10, wait_in_sec=2):
+def load_mods(path: str, try_num=10, wait_in_sec=2):
     """
-    :param mod_folders:
-       Path(s) to the folders containing MOD files. Can be a single string (space-separated) or
-       a list of strings. The function compiles and loads these files into NEURON.
+    :param path:
+       Single string containing compiled folder (in most cases named x86_64/ on 64-bit architecture).
     :param wait_in_sec:
        The number of seconds to wait between retries if loading the mechanisms fails.
        Default is 2 seconds.
@@ -169,32 +168,25 @@ def load_mods(mod_folders, try_num=10, wait_in_sec=2):
        The number of retry attempts if loading the mechanisms fails. After `try_num` failed
        attempts, the function will raise an error. Default is 10 attempts.
     """
-    if isinstance(mod_folders, str):
-        mod_folders = mod_folders.split(" ")
+    # Load compiled MODS with retries
+    for attempt in range(try_num):
+        try:
+            neuron.load_mechanisms(path)
+            mods_loaded.append(path)
+            print(f"Successfully loaded mechanisms from {path}")
+            break
 
-    mod_folders = [m for m in mod_folders if m not in mods_loaded]
-    targ_path = get_mod_compiled_target_path()
+        except Exception as e:
+            print(f"Attempt to load MODs ({attempt + 1}/{try_num}) failed: {e}")
 
-    if len(mod_folders) > 0:
-        # Load compiled MODS with retries
-        for attempt in range(try_num):
-            try:
-                neuron.load_mechanisms(targ_path)
-                mods_loaded.extend(mod_folders)
-                print(f"Successfully loaded mechanisms from {targ_path}")
-                break
+            if attempt < try_num - 1:
+                # wait_tmp hack - to prevent race condition where all processes will wait the same anout of
+                # time and possibly block each other
+                wait_tmp = wait_in_sec + np.random.rand()
 
-            except Exception as e:
-                print(f"Attempt to load MODs ({attempt + 1}/{try_num}) failed: {e}")
-
-                if attempt < try_num - 1:
-                    # wait_tmp hack - to prevent race condition where all processes will wait the same anout of
-                    # time and possibly block each other
-                    wait_tmp = wait_in_sec + np.random.rand()
-
-                    print(f"Retrying in {wait_tmp} seconds...")
-                    time.sleep(wait_tmp)
-                else:
-                    print(f"Failed to load mechanisms after {try_num} attempts.")
-                    raise e
+                print(f"Retrying in {wait_tmp} seconds...")
+                time.sleep(wait_tmp)
+            else:
+                print(f"Failed to load mechanisms after {try_num} attempts.")
+                raise e
 

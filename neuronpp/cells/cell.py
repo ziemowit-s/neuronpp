@@ -7,7 +7,7 @@ from neuronpp.core.cells.synaptic_spine_cell import SynapticSpineCell
 @non_removable_fields("population")
 class Cell(SynapticSpineCell):
     def __init__(self, name=None, compile_paths=None, population=None,
-                 override=True, wait_in_sec=2, with_random_subfolder=False):
+                 override=True, wait_in_sec=2, compile_mods_with_random_subfolder=True):
         """
         :param name:
             Name of the cell
@@ -22,11 +22,11 @@ class Cell(SynapticSpineCell):
         :param wait_in_sec:
            The number of seconds to wait between retries if loading the mechanisms fails.
            Default is 2 seconds.
-        :param with_random_subfolder:
+        :param compile_mods_with_random_subfolder:
             if True it will create a random subfolder in the target folder as compiled/random_string/modsNUM.
             if False it will create folder compiled/modsNUM
         """
         CoreCell.__init__(self, name=name, compile_paths=compile_paths,
-                          override=override, wait_in_sec=wait_in_sec, with_random_subfolder=with_random_subfolder)
+                          override=override, wait_in_sec=wait_in_sec, compile_mods_with_random_subfolder=compile_mods_with_random_subfolder)
         SynapticSpineCell.__init__(self, name)
         self.population = population

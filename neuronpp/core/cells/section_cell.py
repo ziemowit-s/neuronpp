@@ -14,7 +14,7 @@ h.load_file('import3d.hoc')
 
 class SectionCell(CoreCell):
     def __init__(self, name=None, compile_paths=None, override=True, wait_in_sec=2,
-                 with_random_subfolder=False):
+                 compile_mods_with_random_subfolder=True):
         """
         :param name:
             Name of the cell
@@ -27,13 +27,13 @@ class SectionCell(CoreCell):
         :param wait_in_sec:
            The number of seconds to wait between retries if loading the mechanisms fails.
            Default is 2 seconds.
-        :param with_random_subfolder:
+        :param compile_mods_with_random_subfolder:
             if True it will create a random subfolder in the target folder as compiled/random_string/modsNUM.
             if False it will create folder compiled/modsNUM
         """
         CoreCell.__init__(self, name, compile_paths=compile_paths,
                           override=override, wait_in_sec=wait_in_sec,
-                          with_random_subfolder=with_random_subfolder)
+                          compile_mods_with_random_subfolder=compile_mods_with_random_subfolder)
 
         # if Cell (named core_cell) have been built before on the stack of super() objects
         if not hasattr(self, '_core_cell_builded'):
