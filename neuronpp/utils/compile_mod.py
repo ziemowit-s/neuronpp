@@ -107,7 +107,7 @@ mods_loaded = []
 def get_mod_compiled_target_path(compile_mods_with_random_subfolder=True):
     if compile_mods_with_random_subfolder is True:
         # Generate a short random string using the MD5 hash of the current timestamp
-        random_str = hashlib.md5(str(time.time()).encode()).hexdigest()[:8]  # First 8 characters of MD5 hash
+        random_str = hashlib.md5(str(time.time()+np.random.randint(1, 99999)).encode()).hexdigest()[:8]  # First 8 characters of MD5 hash
         return os.path.join(os.getcwd(), "compiled", random_str, "mods%s" % len(mods_loaded))
     else:
         return os.path.join(os.getcwd(), "compiled", "mods%s" % len(mods_loaded))
