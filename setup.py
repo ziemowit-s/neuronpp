@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
      name='neuronpp',
-     version='0.2.1.1',
+     version='0.3',
      author="Ziemowit Slawinski",
      author_email="ziemowit.slawinski@nencki.edu.pl",
      description="Python library for creating cells using NEURON tool",

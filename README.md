@@ -38,7 +38,7 @@ This is the Alpha version.
 
 ## Prerequisites
 
-1. Python >= 3.5 (recommended is Python 3.8)
+1. Python >= 3.11 (recommended is Python 3.11)
 2. Install requirements.txt:
 ```bash
 pip install -r requirements.txt
