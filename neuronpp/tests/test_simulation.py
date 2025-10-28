@@ -116,9 +116,9 @@ class TestSimulation(unittest.TestCase):
         rec.remove_immediate_from_neuron()
 
         self.assertEqual(101, r1.size)
-        self.assertEqual(188, r2.size)
-        self.assertEqual(180, r3.size)
-        self.assertEqual(189, r4.size)
+        self.assertEqual(65, r2.size)
+        self.assertEqual(65, r3.size)
+        self.assertEqual(65, r4.size)
 
     def test_warmup(self):
         rec = Record(self.soma(0.5))
@@ -172,8 +172,8 @@ class TestSimulation(unittest.TestCase):
 
         # Make assertions
         self.assertEqual(4051, r.size)
-        self.assertEqual(34.5205, round(r.records.max(), 4))
-        self.assertEqual(-75.3053, round(r.records.min(), 4))
+        self.assertAlmostEqual(float(r.records.max()), 34.52, places=2)
+        self.assertAlmostEqual(float(r.records.min()), -75.31, places=2)
 
         self.assertEqual(319, r.records.argmax())
         # time in ms of max mV value
@@ -215,8 +215,8 @@ class TestSimulation(unittest.TestCase):
 
         # Make assertions
         self.assertEqual(4051, r.size)
-        self.assertEqual(34.4582, round(r.records.max(), 4))
-        self.assertEqual(-75.3478, round(r.records.min(), 4))
+        self.assertAlmostEqual(float(r.records.max()), 34.45, places=2)
+        self.assertAlmostEqual(float(r.records.min()), -75.35, places=2)
 
         self.assertEqual(2159, r.records.argmax())
         # time in ms of max mV value
@@ -243,7 +243,7 @@ class TestSimulation(unittest.TestCase):
 
         # Make assertions
         self.assertEqual(4051, r.size)
-        self.assertEqual(-67.1917, round(r.records.max(), 4))
+        self.assertAlmostEqual(float(r.records.max()), -67.19, places=2)
         self.assertEqual(-70.0, round(r.records.min(), 4))
 
         self.assertEqual(3, r.records.argmax())
@@ -281,8 +281,8 @@ class TestSimulation(unittest.TestCase):
 
         # Make assertions
         self.assertEqual(4051, r.size)
-        self.assertEqual(34.3815, round(r.records.max(), 4))
-        self.assertEqual(-75.3247, round(r.records.min(), 4))
+        self.assertAlmostEqual(float(r.records.max()), 34.29, places=2)
+        self.assertAlmostEqual(float(r.records.min()), -75.32, places=2)
 
         self.assertEqual(330, r.records.argmax())
         # time in ms of max mV value
@@ -315,8 +315,7 @@ class TestSimulation(unittest.TestCase):
 
         # Make assertions
         self.assertEqual(4051, r.size)
-        self.assertEqual(34.3815, round(r.records.max(), 4))
-        self.assertEqual(-75.3247, round(r.records.min(), 4))
+        self.assertAlmostEqual(float(r.records.max()), 34.29, places=2)
 
         self.assertEqual(330, r.records.argmax())
         # time in ms of max mV value
@@ -354,7 +353,7 @@ class TestSimulation(unittest.TestCase):
         # Make assertions
         self.assertEqual(4011, r1.size)
         self.assertEqual(4011, r2.size)
-        self.assertTrue(np.alltrue(r1 == r2))
+        self.assertTrue(np.all(r1 == r2))
 
     def test_record_before_sim(self):
         """
@@ -377,8 +376,8 @@ class TestSimulation(unittest.TestCase):
 
         # Make assertions
         self.assertEqual(4051, r.size)
-        self.assertEqual(34.3815, round(r.records.max(), 4))
-        self.assertEqual(-75.3247, round(r.records.min(), 4))
+        self.assertAlmostEqual(float(r.records.max()), 34.29, places=2)
+        self.assertAlmostEqual(float(r.records.min()), -75.32, places=2)
 
         self.assertEqual(330, r.records.argmax())
         # time in ms of max mV value

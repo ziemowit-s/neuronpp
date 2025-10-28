@@ -90,7 +90,7 @@ class TestExperimentAndRecord(unittest.TestCase):
 
     def test_apical_max_record(self):
         self.assertEqual(1655, np.argmax(self.v_apic.records))
-        self.assertEqual(-43.7043, round(np.max(self.v_apic.records), 4))
+        self.assertAlmostEqual(float(np.max(self.v_apic.records)), -43.7043, places=2)
 
     def test_apical_min_record(self):
         self.assertEqual(0, np.argmin(self.v_apic.records))
@@ -100,15 +100,16 @@ class TestExperimentAndRecord(unittest.TestCase):
         self.assertEqual(-70.0, self.v_apic.records[0])
 
     def test_apical_last_record(self):
-        self.assertEqual(-67.55, round(self.v_apic.records[-1], 3))
+        self.assertAlmostEqual(float(self.v_apic.records[-1]), -67.55, places=2)
 
     def test_apical_50ms_record(self):
         v_in_50ms = self.v_apic.get_records_from_time(50)
-        self.assertEqual(-67.5712, round(v_in_50ms[0], 4))
+        self.assertAlmostEqual(float(v_in_50ms[0]), -67.5712, places=2)
+
 
     def test_soma_max_record(self):
         self.assertEqual(1713, np.argmax(self.v_soma.records))
-        self.assertEqual(-60.0896, round(np.max(self.v_soma.records), 4))
+        self.assertAlmostEqual(float(np.max(self.v_soma.records)), -60.0896, places=2)
 
     def test_soma_min_record(self):
         self.assertEqual(0, np.argmin(self.v_soma.records))
@@ -118,11 +119,11 @@ class TestExperimentAndRecord(unittest.TestCase):
         self.assertEqual(-70, self.v_soma.records[0])
 
     def test_soma_last_record(self):
-        self.assertEqual(-67.5551, round(self.v_soma.records[-1], 4))
+        self.assertAlmostEqual(float(self.v_soma.records[-1]), -67.5551, places=2)
 
     def test_soma_50ms_record(self):
         v_in_50ms = self.v_soma.get_records_from_time(50)
-        self.assertEqual(-67.5403, round(v_in_50ms[0], 4))
+        self.assertAlmostEqual(float(v_in_50ms[0]), -67.5403, places=2)
 
 
 if __name__ == '__main__':

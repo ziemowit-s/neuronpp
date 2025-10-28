@@ -55,7 +55,8 @@ class TestStandardPopulation(unittest.TestCase):
         cls.pop2.add_cells(num=40, cell_function=cell_template)
 
         connector = cls.pop2.connect(cell_connection_proba=0.8)
-        connector.set_source([c.filter_secs("soma")(0.5) for c in cls.pop1.cells])
+        cls.pop1.cells[0].filter_secs("dend")
+        connector.set_source([c.filter_secs("soma")[0](0.5) for c in cls.pop1.cells])
         connector.set_target([c.filter_secs("dend") for c in cls.pop2.cells])
         syn_adder = connector.add_synapse("Exp2Syn")
         syn_adder.add_netcon(weight=weight_dist)
@@ -66,7 +67,7 @@ class TestStandardPopulation(unittest.TestCase):
         cls.pop3.add_cells(num=50, cell_function=cell_template)
 
         connector = cls.pop3.connect(cell_connection_proba=0.3)
-        connector.set_source([c.filter_secs("soma")(0.5) for c in cls.pop2.cells])
+        connector.set_source([c.filter_secs("soma")[0](0.5) for c in cls.pop2.cells])
         connector.set_target([c.filter_secs("dend") for c in cls.pop3.cells])
         syn_adder = connector.add_synapse("Exp2Syn")
         syn_adder.add_netcon(weight=weight_dist)

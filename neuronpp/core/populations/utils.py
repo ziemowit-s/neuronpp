@@ -1,4 +1,4 @@
-from collections import Iterable
+from collections.abc import Iterable
 from typing import Union, List
 
 from neuronpp.core.cells.core_cell import CoreCell

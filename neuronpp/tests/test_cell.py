@@ -184,18 +184,18 @@ class TestMODCompile(unittest.TestCase):
     def test_mod_override(self):
         path = os.path.dirname(os.path.abspath(__file__))
         source_path = os.path.join(path, "..", "commons/mods/combe2018")
-        target_path = get_mod_compiled_target_path()
-        cad_path = os.path.join(target_path, "cad.mod")
 
-        # compile first
-        compile_mods(source_path, override=True)
+        # compile first time
+        target_path1 = compile_mods(source_path, override=True, compile_mods_with_random_subfolder=False)
+        cad_path1 = os.path.join(target_path1, "cad.mod")
+        first_mod_time = os.path.getmtime(cad_path1)
 
-        first_mod_time = os.path.getmtime(cad_path)
         time.sleep(2)
 
         # compile second
-        compile_mods(source_path, override=True)
-        second_mod_time = os.path.getmtime(cad_path)
+        target_path2 = compile_mods(source_path, override=True, compile_mods_with_random_subfolder=False)
+        cad_path2 = os.path.join(target_path2, "cad.mod")
+        second_mod_time = os.path.getmtime(cad_path2)
 
         # Check if the file modification time has changed
         self.assertNotEqual(first_mod_time, second_mod_time)

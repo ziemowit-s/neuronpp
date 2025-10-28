@@ -68,11 +68,15 @@ class NeuronRemovable:
                 continue
 
             # TODO check: probably add also recursive dict iteration if v is a dict
-            if isinstance(v, Iterable) and not isinstance(v, (HocObject, str)):
-                for vv in v:
-                    self._del_val(vv)
-            self._del_val(v)
-            setattr(self, k, None)
+            try:
+                if isinstance(v, Iterable) and not isinstance(v, (HocObject, str)):
+                    for vv in v:
+                        self._del_val(vv)
+                self._del_val(v)
+                setattr(self, k, None)
+            except ReferenceError as e:
+                if "can't access a deleted section" == str(e):
+                    continue
         self.__dict__ = {}
 
         # TODO check: not sure but this part is probably never used

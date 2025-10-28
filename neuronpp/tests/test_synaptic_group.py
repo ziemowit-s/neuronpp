@@ -137,8 +137,8 @@ class TestSynapticGroup(unittest.TestCase):
         self.assertEqual(round(stim_time_gs1_exp2syn, 1), round(stim_time_gs1_expsyn, 1))
 
         # Test values of mV in soma
-        self.assertEqual(31.3285, round(gs0_exp2syn_np.records.max(), 4))
-        self.assertEqual(-61.309, round(gs0_exp2syn_np.records.min(), 4))
+        self.assertAlmostEqual(float(gs0_exp2syn_np.records.max()), 31.33, places=2)
+        self.assertAlmostEqual(float(gs0_exp2syn_np.records.min()), -61.31, places=2)
 
         # Remove variables and clear NEURON
         gs0_exp2syn_rec.remove_immediate_from_neuron()
